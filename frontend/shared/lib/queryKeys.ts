@@ -131,6 +131,7 @@ export const queryKeys = {
     ["credit", account, "prepayment", loanId, amount] as const,
   strategies: () => ["strategies"] as const,
   strategyList: () => ["strategies", "list"] as const,
+  fundStrategyList: () => ["strategies", "list", "fund"] as const,
   myStrategy: () => ["strategies", "me"] as const,
   strategyLogs: () => ["strategies", "log"] as const,
   strategyLog: (kind: string) => ["strategies", "log", kind] as const,

@@ -1,4 +1,4 @@
-import { Lock, Megaphone } from "lucide-react";
+import { Bot, Lock, Megaphone } from "lucide-react";
 import { FundMark } from "@/shared/components/fund-mark";
 import { CommonKpis } from "@/shared/components/fund-metrics-row";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
@@ -7,6 +7,8 @@ import { Card } from "@/shared/components/ui/card";
 import { fundStage, type FundStage } from "@/shared/lib/fund-view";
 import { displayIsoDate, displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
+import { useFundStrategies } from "../hooks/queries/useFundStrategies";
+import { useFundStrategy } from "../hooks/queries/useFundStrategy";
 
 const STAGE_LABEL: Record<FundStage, string> = { closed: "Fechada", offer: "Oferta aberta", listed: "Negociada" };
 
@@ -61,8 +63,27 @@ function RoleLine({ fund }: { fund: FundDetails }) {
   );
 }
 
-/** O aviso da fase: a oferta em andamento ou a carteira congelada. */
+/** O aviso da carteira no automático durante a presidência: qual estratégia ela segue e o que desligar custa. */
+function AutomaticNotice({ fund, until }: { fund: FundDetails; until: string }) {
+  const mine = useFundStrategy(fund.id);
+  const strategies = useFundStrategies();
+  const name = strategies.data?.find((strategy) => strategy.key === mine.data?.active?.key)?.name;
+
+  return (
+    <Alert variant="info">
+      <Bot />
+      <AlertDescription>
+        <b>No automático até {displayIsoDate(until)}:</b> a carteira segue{" "}
+        {name ? `a estratégia ${name}` : "uma estratégia"}. Desligar o automático congela a carteira até o fim do
+        mandato.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+/** O aviso da fase: a oferta em andamento, a carteira no automático ou a carteira congelada. */
 function PhaseNotice({ fund, stage }: { fund: FundDetails; stage: FundStage }) {
+  const operator = fund.my_role === "manager" || fund.my_role === "comanager";
   const frozen = fund.frozen_until && fund.my_role !== "viewer" ? fund.frozen_until : null;
 
   return (
@@ -79,12 +100,14 @@ function PhaseNotice({ fund, stage }: { fund: FundDetails; stage: FundStage }) {
           </AlertDescription>
         </Alert>
       )}
-      {frozen && (
+      {frozen && fund.automatic && operator && <AutomaticNotice fund={fund} until={frozen} />}
+      {frozen && !fund.automatic && (
         <Alert variant="warning">
           <Lock />
           <AlertDescription>
-            <b>Congelada até {displayIsoDate(frozen)}:</b> a gestora não opera, e as ordens da carteira dela ficam
-            travadas até lá. Rendimentos, taxas, assembleia e o mercado da cota seguem normais.
+            <b>Congelada até {displayIsoDate(frozen)}:</b> você está na presidência e a gestora não tem co-gestor nem
+            estratégia ligada. A carteira só recebe ordens de novo no fim do mandato, a menos que o gestor ligue o
+            automático ou convide um co-gestor. Rendimentos, taxas, assembleia e o mercado da cota seguem normais.
           </AlertDescription>
         </Alert>
       )}
@@ -112,9 +135,9 @@ export function FundTop({ fund }: { fund: FundDetails }) {
                 {STAGE_LABEL[stage]}
               </Badge>
               {fund.frozen_until && (
-                <Badge variant="warning" size="tag">
-                  <Lock />
-                  Congelada até {displayIsoDate(fund.frozen_until)}
+                <Badge variant={fund.automatic ? "info" : "warning"} size="tag">
+                  {fund.automatic ? <Bot /> : <Lock />}
+                  {fund.automatic ? "No automático" : "Congelada"} até {displayIsoDate(fund.frozen_until)}
                 </Badge>
               )}
             </div>

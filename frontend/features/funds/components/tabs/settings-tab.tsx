@@ -13,6 +13,7 @@ import type { FundDetails } from "@/types";
 import { useSetFundDistribution } from "../../hooks/mutations/useSetFundDistribution";
 import { DISTRIBUTION_STEP, distributedOf, rateToBody, rateToPoints } from "../../lib/fund-distribution";
 import type { FundTabActions } from "../../lib/fund-tabs";
+import { FundAutomaticCard } from "../fund-automatic-card";
 import { FundFeesCard } from "../fund-fees-card";
 
 const MARK_GAP = 12;
@@ -98,12 +99,15 @@ function DistributionCard({ fund }: { fund: FundDetails }) {
 
 type SettingsTabProps = { fund: FundDetails; actions: Pick<FundTabActions, "open"> };
 
-/** As configurações do gestor: as taxas e a parte do lucro distribuída. */
+/** As configurações do gestor: as taxas, a parte do lucro distribuída e o automático da carteira. */
 export function SettingsTab({ fund, actions }: SettingsTabProps) {
   return (
     <div className="grid items-start gap-5 pt-3 xl:grid-cols-2">
       <FundFeesCard fund={fund} onChange={() => actions.open("fees")} />
       <DistributionCard fund={fund} />
+      <div className="xl:col-span-2">
+        <FundAutomaticCard fund={fund} />
+      </div>
     </div>
   );
 }

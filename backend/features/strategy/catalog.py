@@ -40,8 +40,12 @@ def infos(
     *,
     funds_enabled: bool,
     government_enabled: bool,
+    for_fund: bool = False,
 ) -> list[StrategyInfoDTO]:
-    """As estratégias do app que a sala pode jogar, com os padrões calculados para `today`."""
+    """As estratégias do app que a sala pode jogar, com os padrões calculados para `today`.
+
+    Com `for_fund`, só as que operam a carteira de uma gestora.
+    """
     tickers = default_tickers(today, simulation_id)
     return [
         StrategyInfoDTO(
@@ -62,6 +66,7 @@ def infos(
         if cls.available(
             funds_enabled=funds_enabled, government_enabled=government_enabled
         )
+        and (cls.fund_account or not for_fund)
     ]
 
 

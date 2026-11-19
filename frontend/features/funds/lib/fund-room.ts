@@ -49,8 +49,11 @@ export function roomLostFund(funds: FundRoomItem[], userId: number): FundRoomIte
 /** A frase sob o título do bloco "Você gere": a situação das gestoras dele, ou o que o botão Abrir faz. */
 export function managedHint(managed: FundRoomItem[], userId: number): string {
   const sentences: string[] = [];
-  if (managed.some((fund) => fund.manager_user_id === userId && fund.frozen_until !== null)) {
-    sentences.push("A gestora congela enquanto você é presidente.");
+  const presiding = managed.filter((fund) => fund.manager_user_id === userId && fund.frozen_until !== null);
+  if (presiding.some((fund) => !fund.automatic)) {
+    sentences.push("A gestora congela enquanto você é presidente, a menos que tenha co-gestor ou estratégia ligada.");
+  } else if (presiding.length > 0) {
+    sentences.push("A gestora segue no automático enquanto você é presidente.");
   }
   if (managed.some((fund) => fund.leave_manager_user_id === userId && fund.manager_user_id !== userId)) {
     sentences.push("A gestora está com o co-gestor até o fim do mandato.");

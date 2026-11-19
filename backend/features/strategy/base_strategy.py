@@ -76,6 +76,8 @@ class BaseStrategy:
     bot_names: ClassVar[tuple[str, ...]] = ()
     # A expansão da partida que a estratégia exige; nulo é a que toda sala tem
     requires_expansion: ClassVar[Expansion | None] = None
+    # Se a estratégia também opera a carteira de uma gestora; a gestora não compra cota de outras gestoras
+    fund_account: ClassVar[bool] = True
 
     @classmethod
     def available(cls, *, funds_enabled: bool, government_enabled: bool) -> bool:

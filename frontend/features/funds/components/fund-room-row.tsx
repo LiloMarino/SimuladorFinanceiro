@@ -26,7 +26,8 @@ const STAGE = {
 function roleLine(fund: FundRoomItem, userId: number): string {
   if (fund.manager_user_id === userId) {
     if (fund.frozen_until) {
-      return `${fund.ticker} · congelada até o fim do mandato, em ${displayMonthSlashYear(fund.frozen_until)}`;
+      const state = fund.automatic ? "no automático" : "congelada";
+      return `${fund.ticker} · ${state} até o fim do mandato, em ${displayMonthSlashYear(fund.frozen_until)}`;
     }
     const since =
       fund.manager_since && fund.manager_user_id !== fund.founder_user_id

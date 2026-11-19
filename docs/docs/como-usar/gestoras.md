@@ -65,12 +65,20 @@ O gestor principal pode chamar até **3 co-gestores** pelo botão **Convidar co-
 - **Convite:** vale **7 dias** e já **reserva a parte** oferecida, então os convites pendentes contam na soma. O convidado responde pelo aviso da página ou pelas pendências. Ao aceitar, o acesso à carteira abre na hora.
 - **Quando a parte vale:** a parte nova, ou a parte mudada de quem já opera, entra nas taxas do **mês seguinte**. O cartão mostra a mudança agendada.
 - **Saída:** o co-gestor pode **sair da gestão** e o principal pode **remover** um co-gestor. O acesso à carteira acaba no mesmo pregão, e a parte volta ao principal na próxima divisão de taxas.
-- **Afastamento do principal:** se uma assembleia troca o gestor, o **co-gestor de maior parte** (no empate, o mais antigo) assume como principal e herda a parte de quem saiu. Sem co-gestor, a gestora fica congelada.
-- **Presidência:** o gestor que vira presidente tem a gestora **em licença**. O co-gestor de maior parte assume enquanto durar o mandato (sem co-gestor a gestora fica congelada) e a gestora continua sendo do presidente: ele **não pode fundar outra**. No fim do mandato sem reeleição, ou no impeachment, a gestora **volta** ao ex-presidente, desde que o gestor atual ainda seja quem assumiu na posse; o co-gestor que assumiu volta como co-gestor, com a parte que tinha antes, **se houver vaga**: com a lista cheia (3 co-gestores) ou sem parte sobrando ao principal (a soma das partes chegaria a 100%), ele não volta. Se uma assembleia trocou o gestor nesse meio-tempo, a gestora fica com quem assumiu e o ex-presidente pode fundar outra, no mesmo prazo. Na reeleição nada volta.
+- **Afastamento do principal:** se uma assembleia troca o gestor, o **co-gestor de maior parte** (no empate, o mais antigo) assume como principal e herda a parte de quem saiu. Sem co-gestor, a gestora fica congelada. Qualquer troca do gestor principal desliga a estratégia da carteira, e quem assume volta ao manual.
+- **Presidência:** o gestor que vira presidente tem a gestora **em licença**. O co-gestor de maior parte assume enquanto durar o mandato e a gestora continua sendo do presidente: ele **não pode fundar outra**. Sem co-gestor, a carteira segue a **estratégia ligada** (veja **Automático da carteira**) e, sem estratégia, fica **congelada**: ela só volta a receber ordens quando o presidente liga uma estratégia ou convida um co-gestor, que assume na hora ao aceitar. No fim do mandato sem reeleição o automático desliga e o ex-presidente retoma a carteira. No fim do mandato sem reeleição, ou no impeachment, a gestora **volta** ao ex-presidente, desde que o gestor atual ainda seja quem assumiu na posse; o co-gestor que assumiu volta como co-gestor, com a parte que tinha antes, **se houver vaga**: com a lista cheia (3 co-gestores) ou sem parte sobrando ao principal (a soma das partes chegaria a 100%), ele não volta. Se uma assembleia trocou o gestor nesse meio-tempo, a gestora fica com quem assumiu e o ex-presidente pode fundar outra, no mesmo prazo. Na reeleição nada volta.
 
-## Uma gestora por jogador
+## Automático da carteira
 
-Cada jogador gere **no máximo uma gestora**: quem já tem uma não funda outra, e a gestora em licença pela presidência conta como dele. Quem perde a gestora pode fundar outra, respeitando o prazo de 6 meses depois de afastado por assembleia.
+O gestor principal, e os co-gestores ativos, podem pôr uma **estratégia** para operar a carteira da gestora: aba **Configurações**, cartão **Automático da carteira**. A lista é a mesma da página **Estratégias** e da aba **Minha preparação** do lobby, e cada gestora tem a estratégia dela, **independente da conta pessoal**: a estratégia da gestora opera só a carteira da gestora, e sua conta pessoal segue à mão.
+
+- **Ligado:** as boletas da gestora travam e a estratégia opera a cada pregão. Na aba **Suas ações**, o cartão **O que o automático fez** mostra as últimas ordens, cada uma com o motivo.
+- **Desligado:** a carteira volta ao manual. Trocar o gestor principal também desliga a estratégia.
+- **Na presidência:** o automático solta só a **carteira**. Contribuição, oferta, taxas e convocação de assembleia seguem congeladas, e as taxas não correm até o fim do mandato. Desligar o automático congela a carteira até o fim do mandato.
+
+## Fundar e gerir mais de uma
+
+Só funda quem **não tem gestora**: quem já tem uma não funda outra, e a gestora em licença pela presidência conta como dele. Gerir mais de uma é normal no jogo: o co-gestor que assume a gestora de um presidente, ou que ganha uma em assembleia, passa a gerir as duas. Quem perde a gestora pode fundar outra, respeitando o prazo de 6 meses depois de afastado por assembleia.
 
 ## A lista da sala
 

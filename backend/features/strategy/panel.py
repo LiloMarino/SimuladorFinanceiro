@@ -9,20 +9,29 @@ from backend.features.statistics.returns import cumulative_returns, ibov_cumulat
 from backend.features.statistics.risk import daily_returns
 
 
-def build_panel(simulation_id: int, user_id: int, since: date) -> StrategyPanelDTO:
-    """O que a estratégia fez desde `since`: ordens por situação, retorno e Ibovespa."""
-    counts = repository.strategy.order_counts(simulation_id, user_id, since)
+def build_panel(
+    simulation_id: int, user_id: int, since: date, fund_id: int | None = None
+) -> StrategyPanelDTO:
+    """O que a estratégia fez desde `since`: ordens por situação, retorno e Ibovespa.
+
+    A carteira de uma gestora não tem histórico de patrimônio por jogador: o painel dela traz só as ordens.
+    """
+    counts = repository.strategy.order_counts(simulation_id, user_id, since, fund_id)
 
     # O retorno parte do patrimônio do dia em que ligou e descarta os aportes
-    history = [
-        point
-        for point in repository.portfolio.get_patrimonial_history(user_id)
-        if point.snapshot_date >= since
-    ]
+    history = (
+        [
+            point
+            for point in repository.portfolio.get_patrimonial_history(user_id)
+            if point.snapshot_date >= since
+        ]
+        if fund_id is None
+        else []
+    )
     returns = cumulative_returns(history, daily_returns(history))
     ibov = ibov_cumulative([point.snapshot_date for point in history])
 
-    last = repository.strategy.last_order(simulation_id, user_id)
+    last = repository.strategy.last_order(simulation_id, user_id, fund_id)
     return StrategyPanelDTO(
         orders_total=sum(counts.values()),
         executed=counts.get(StrategyOrderStatus.EXECUTED, 0),

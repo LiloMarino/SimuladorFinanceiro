@@ -25,6 +25,7 @@ from backend.core.runtime.user_manager import UserManager
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.strategy.intents import buy, sell
+from backend.features.strategy.runner import StrategyAccount
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
 from backend.features.variable_income.entities.position import Position
 from tests.fakes import simulation_settings
@@ -283,7 +284,7 @@ def submit_bot_order(sim: Simulation, user_id: int, intent) -> list:
         reason="teste",
         status=StrategyOrderStatus.REFUSED,
     )
-    sim._strategies._submit(ana, intent, row)
+    sim._strategies._submit(StrategyAccount.of_user(ana), intent, row)
     return sim._engine.matching_engine.order_book.orders_of(ana.client_id)
 
 

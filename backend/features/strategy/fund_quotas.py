@@ -62,6 +62,7 @@ class FundQuotas(BaseStrategy):
     )
     group = StrategyGroup.TACTIC
     requires_expansion = Expansion.FUNDS
+    fund_account = False
     term_hint = (
         "P/VP é o preço da cota dividido pelo patrimônio por cota: 1,10 é 10% de ágio "
         "(paga-se 10% a mais que o patrimônio) e 0,90 é 10% de deságio. O desempenho "

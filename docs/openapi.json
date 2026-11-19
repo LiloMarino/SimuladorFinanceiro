@@ -10729,48 +10729,344 @@
         }
       }
     },
-    "/api/strategies": {
+    "/api/funds/{fund_id}/strategy": {
       "get": {
         "tags": [
-          "Strategy"
+          "Funds"
         ],
-        "summary": "Listar as estratégias",
-        "description": "Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida.",
-        "operationId": "list_strategies_api_strategies_get",
+        "summary": "Obter o automático da gestora",
+        "description": "Retorna a estratégia que opera a carteira da gestora (ou nenhuma, no manual), o erro que a devolveu ao manual e o painel desde que ligou. O principal e os co-gestores ativos consultam.",
+        "operationId": "get_fund_strategy_api_funds__fund_id__strategy_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/StrategyInfoDTO"
-                  },
-                  "type": "array",
-                  "title": "Response List Strategies Api Strategies Get"
+                  "$ref": "#/components/schemas/MyStrategyDTO"
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Ligar, ajustar ou desligar o automático da gestora",
+        "description": "Liga a estratégia na carteira da gestora, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. A estratégia opera pela conta da gestora e não compra cota de gestora. O principal e os co-gestores ativos ligam, inclusive na presidência do principal, quando a estratégia descongela a carteira.",
+        "operationId": "set_fund_strategy_api_funds__fund_id__strategy_put",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
             }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStrategyRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/strategy/{key}/view": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Calcular o que a estratégia faria na carteira da gestora",
+        "description": "Valida os parâmetros e devolve o ranking ou a alocação da estratégia sobre a carteira da gestora de hoje, sem salvar nem executar nada.",
+        "operationId": "get_fund_strategy_view_api_funds__fund_id__strategy__key__view_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StrategyViewRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyViewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/strategy/log": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Listar o registro do automático da gestora",
+        "description": "Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela.",
+        "operationId": "get_fund_strategy_log_api_funds__fund_id__strategy_log_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/LogFilter",
+              "default": "all"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategyLogPageDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/strategies": {
+      "get": {
+        "tags": [
+          "Strategy"
+        ],
+        "summary": "Listar as estratégias",
+        "description": "Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida. Com `fund`, só as que operam a carteira de uma gestora (sem Cotas de gestoras).",
+        "operationId": "list_strategies_api_strategies_get",
+        "parameters": [
+          {
+            "name": "fund",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Fund"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StrategyInfoDTO"
+                  },
+                  "title": "Response List Strategies Api Strategies Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
           }
         }
       }
@@ -23088,6 +23384,11 @@
             ],
             "title": "Frozen Until"
           },
+          "automatic": {
+            "type": "boolean",
+            "title": "Automatic",
+            "default": false
+          },
           "eliminated_on": {
             "anyOf": [
               {
@@ -23125,6 +23426,7 @@
           "ticker",
           "cash",
           "frozen_until",
+          "automatic",
           "eliminated_on",
           "role"
         ],
@@ -24383,6 +24685,11 @@
             ],
             "title": "Frozen Until"
           },
+          "automatic": {
+            "type": "boolean",
+            "title": "Automatic",
+            "default": false
+          },
           "leave_until": {
             "anyOf": [
               {
@@ -24679,6 +24986,7 @@
           "offer_session",
           "offer_ends_on",
           "frozen_until",
+          "automatic",
           "leave_until",
           "holders",
           "control_quotas",
@@ -26443,6 +26751,11 @@
             ],
             "title": "Frozen Until"
           },
+          "automatic": {
+            "type": "boolean",
+            "title": "Automatic",
+            "default": false
+          },
           "leave_until": {
             "anyOf": [
               {
@@ -26505,6 +26818,7 @@
           "offer_session",
           "offer_ends_on",
           "frozen_until",
+          "automatic",
           "leave_until",
           "my_quotas",
           "comanager_nicknames",
@@ -26839,6 +27153,11 @@
             ],
             "title": "Frozen Until"
           },
+          "automatic": {
+            "type": "boolean",
+            "title": "Automatic",
+            "default": false
+          },
           "leave_until": {
             "anyOf": [
               {
@@ -26886,6 +27205,7 @@
           "offer_session",
           "offer_ends_on",
           "frozen_until",
+          "automatic",
           "leave_until"
         ],
         "title": "FundSummaryDTO",

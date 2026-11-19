@@ -21,6 +21,7 @@ const fund = (over: Partial<FundRoomItem>): FundRoomItem =>
     founder_user_id: 1,
     leave_manager_user_id: null,
     frozen_until: null,
+    automatic: false,
     manager_since: null,
     i_comanage: false,
     my_quotas: "0",
@@ -104,10 +105,18 @@ describe("roomLostFund", () => {
 });
 
 describe("managedHint", () => {
-  it("diz que a gestora congela enquanto o jogador é presidente", () => {
+  it("diz que a gestora congela enquanto o jogador é presidente sem co-gestor nem estratégia", () => {
     const frozen = fund({ manager_user_id: ME, frozen_until: "2027-12-31" });
 
-    expect(managedHint([frozen], ME)).toBe("A gestora congela enquanto você é presidente.");
+    expect(managedHint([frozen], ME)).toBe(
+      "A gestora congela enquanto você é presidente, a menos que tenha co-gestor ou estratégia ligada.",
+    );
+  });
+
+  it("diz que a gestora segue no automático quando a presidência tem estratégia ligada", () => {
+    const automatic = fund({ manager_user_id: ME, frozen_until: "2027-12-31", automatic: true });
+
+    expect(managedHint([automatic], ME)).toBe("A gestora segue no automático enquanto você é presidente.");
   });
 
   it("diz que a gestora está com o co-gestor quando ela passou ao herdeiro", () => {

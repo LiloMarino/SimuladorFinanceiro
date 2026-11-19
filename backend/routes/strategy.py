@@ -23,10 +23,12 @@ strategy_router = APIRouter(prefix="/api/strategies", tags=["Strategy"])
     "",
     response_model=list[StrategyInfoDTO],
     summary="Listar as estratégias",
-    description="Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida.",
+    description="Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida. Com `fund`, só as que operam a carteira de uma gestora (sem Cotas de gestoras).",
 )
-def list_strategies(simulation: ActiveSimulation):
-    return simulation.get_strategies()
+def list_strategies(
+    simulation: ActiveSimulation, fund: Annotated[bool, Query()] = False
+):
+    return simulation.get_strategies(for_fund=fund)
 
 
 @strategy_router.get(

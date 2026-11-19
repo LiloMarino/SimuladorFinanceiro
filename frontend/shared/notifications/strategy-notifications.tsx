@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { dayOrdersSummary, orderToastTitle } from "@/shared/lib/strategy-orders";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { fundKeys } from "@/shared/hooks/fund-keys";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney } from "@/shared/lib/utils/display";
 
@@ -23,6 +24,7 @@ export function StrategyNotifications() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.myStrategy() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.strategyLogs() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
+    void queryClient.invalidateQueries({ queryKey: fundKeys.strategies() });
   };
   const seeStrategies = { label: "Ver", onClick: () => void navigate("/strategies") };
 

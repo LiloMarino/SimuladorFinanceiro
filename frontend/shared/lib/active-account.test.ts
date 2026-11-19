@@ -20,6 +20,7 @@ const personal: FundAccount = {
   ticker: null,
   cash: "1000.00",
   frozen_until: null,
+  automatic: false,
   eliminated_on: null,
   role: null,
 };
@@ -29,6 +30,7 @@ const aurora: FundAccount = {
   ticker: "AURO11",
   cash: "96300.00",
   frozen_until: null,
+  automatic: false,
   eliminated_on: null,
   role: "manager",
 };
@@ -39,6 +41,7 @@ const sovereign: FundAccount = {
   ticker: null,
   cash: "25000000000.00",
   frozen_until: null,
+  automatic: false,
   eliminated_on: null,
   role: "president",
 };

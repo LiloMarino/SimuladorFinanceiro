@@ -292,7 +292,7 @@ from backend.features.sovereign_fund import rules as fund_rules
 from backend.features.sovereign_fund.book import FundQuotas
 from backend.features.statistics.cache import ReportCache
 from backend.features.statistics.goal import goal_on, goal_reached
-from backend.features.strategy.runner import StrategyRunner
+from backend.features.strategy.runner import StrategyAccount, StrategyRunner
 from backend.features.summaries.service import SummaryDelivery
 from backend.features.tax_policy import TaxPolicy
 from backend.features.variable_income.broker import to_money
@@ -493,10 +493,18 @@ class Simulation:
                 1 - settings.fund_min_market_share
                 if settings.fund_takeover_enabled
                 else None,
+                self._strategies.is_active,
+                self._stop_fund_strategy,
             )
             if settings.funds_enabled and backtest is None
             else None
         )
+        # A estratégia de cada gestora volta com a carteira dela, antes do primeiro tick
+        if self._funds is not None:
+            self._strategies.load_funds(
+                {fund.terms.id: fund.account.client_id for fund in self._funds.funds()},
+                resume_from,
+            )
         # O caixa da gestora chega, pelo tempo real, ao gestor que a gere; o do Fundo Soberano, ao presidente
         self._engine.use_account_route(self._account_route)
         if self._government is not None:
@@ -637,12 +645,12 @@ class Simulation:
         EventManager.flush()
 
     @synchronized
-    def get_strategies(self) -> list[StrategyInfoDTO]:
-        return self._strategies.infos(self._current_date)
+    def get_strategies(self, for_fund: bool = False) -> list[StrategyInfoDTO]:
+        return self._strategies.infos(self._current_date, for_fund=for_fund)
 
     @synchronized
     def get_my_strategy(self, user: UserDTO) -> MyStrategyDTO:
-        return self._strategies.mine(user, self._current_date)
+        return self._strategies.mine(StrategyAccount.of_user(user), self._current_date)
 
     @synchronized
     def set_my_strategy(
@@ -653,7 +661,9 @@ class Simulation:
     ) -> None:
         if key is not None:
             self._ensure_can_trade(user.client_id)
-        self._strategies.set_mode(user, key, params, self._current_date)
+        self._strategies.set_mode(
+            StrategyAccount.of_user(user), key, params, self._current_date
+        )
 
     @synchronized
     def mark_strategy_error_seen(self, user: UserDTO) -> None:
@@ -669,13 +679,89 @@ class Simulation:
     def get_strategy_view(
         self, user: UserDTO, key: str, params: dict[str, StrategyParamValue]
     ) -> StrategyViewDTO:
-        return self._strategies.view(user, key, params, self._current_date)
+        return self._strategies.view(
+            StrategyAccount.of_user(user), key, params, self._current_date
+        )
 
     @synchronized
     def get_strategy_log(
         self, user: UserDTO, kind: LogFilter, offset: int, limit: int
     ) -> StrategyLogPageDTO:
-        return self._strategies.log(user, kind, offset, limit)
+        return self._strategies.log(StrategyAccount.of_user(user), kind, offset, limit)
+
+    @synchronized
+    def get_fund_strategy(self, user: UserDTO, fund_id: int) -> MyStrategyDTO:
+        fund = self._operated_fund(user, fund_id)
+        return self._strategies.mine(self._fund_account(user, fund), self._current_date)
+
+    @synchronized
+    def set_fund_strategy(
+        self,
+        user: UserDTO,
+        fund_id: int,
+        key: str | None,
+        params: dict[str, StrategyParamValue],
+    ) -> None:
+        """Liga, troca ou desliga a estratégia da carteira da gestora; vale também com a carteira congelada pela presidência."""
+        fund = self._operated_fund(user, fund_id)
+        self._strategies.set_mode(
+            self._fund_account(user, fund), key, params, self._current_date
+        )
+        self._notify_funds_update()
+
+    @synchronized
+    def get_fund_strategy_view(
+        self,
+        user: UserDTO,
+        fund_id: int,
+        key: str,
+        params: dict[str, StrategyParamValue],
+    ) -> StrategyViewDTO:
+        fund = self._operated_fund(user, fund_id)
+        return self._strategies.view(
+            self._fund_account(user, fund), key, params, self._current_date
+        )
+
+    @synchronized
+    def get_fund_strategy_log(
+        self, user: UserDTO, fund_id: int, kind: LogFilter, offset: int, limit: int
+    ) -> StrategyLogPageDTO:
+        fund = self._operated_fund(user, fund_id)
+        return self._strategies.log(self._fund_account(user, fund), kind, offset, limit)
+
+    def _operated_fund(self, user: UserDTO, fund_id: int) -> Fund:
+        """A gestora cuja carteira o jogador opera, como principal ou co-gestor ativo; quem governa o país não a opera."""
+        self._ensure_not_eliminated(user)
+        book = self._ensure_funds()
+        fund = book.by_id(fund_id)
+        if user.id not in book.operators(fund):
+            raise ForbiddenError("Só quem gere a gestora liga o automático dela.")
+        if (
+            user.id != fund.terms.manager_user_id
+            and self._manager_frozen_until(user.id) is not None
+        ):
+            raise ConflictError(
+                "Você governa o país: a carteira da gestora fica congelada até o fim do mandato."
+            )
+        return fund
+
+    @staticmethod
+    def _fund_account(user: UserDTO, fund: Fund) -> StrategyAccount:
+        return StrategyAccount(
+            user.id, fund.account.client_id, fund.terms.id, user.nickname
+        )
+
+    def _stop_fund_strategy(self, fund: Fund, reason: str) -> None:
+        """A gestora volta ao manual quando o principal muda; o registro guarda o motivo."""
+        self._strategies.set_mode(
+            StrategyAccount(
+                fund.terms.manager_user_id, fund.account.client_id, fund.terms.id
+            ),
+            None,
+            {},
+            self._current_date,
+            reason=reason,
+        )
 
     @synchronized
     def get_election(self, user: UserDTO) -> ElectionPanelDTO:
@@ -1296,10 +1382,11 @@ class Simulation:
                     name=fund.terms.name,
                     ticker=fund.ticker,
                     cash=self._engine.get_cash(fund.account.client_id),
-                    # O co-gestor que governa congela com o país, o principal com a gestora
-                    frozen_until=required(book).frozen_until(fund)
+                    # O co-gestor que governa congela com o país, o principal com a carteira da gestora
+                    frozen_until=required(book).portfolio_frozen_until(fund)
                     if is_manager
                     else self._manager_frozen_until(user.id),
+                    automatic=required(book).automatic(fund),
                     role="manager" if is_manager else "comanager",
                 )
             )
@@ -1539,7 +1626,7 @@ class Simulation:
         self, user: UserDTO, fund_id: int, request: FundComanagerInviteRequest
     ) -> None:
         book = self._ensure_funds()
-        fund = self._managed_fund(user, fund_id)
+        fund = self._managed_fund(user, fund_id, frozen_ok=True)
         invite = book.invite_comanager(fund.ticker, request.nickname, request.share)
         self._notify_comanager(
             invite.user_id, "invited", fund, user.nickname, invite.future_share
@@ -1551,14 +1638,17 @@ class Simulation:
     ) -> None:
         book = self._ensure_funds()
         fund = book.by_id(fund_id)
+        # O aceite na presidência passa a gestão ao co-gestor: o aviso vai a quem convidou
+        inviter_id = fund.terms.manager_user_id
         answered = book.answer_comanager_invite(fund.ticker, user, accept)
         self._notify_comanager(
-            fund.terms.manager_user_id,
+            inviter_id,
             "accepted" if accept else "declined",
             fund,
             user.nickname,
             answered.future_share,
         )
+        self._notify_funds_update()
 
     @synchronized
     def change_fund_comanager_share(
@@ -1579,7 +1669,7 @@ class Simulation:
         self, user: UserDTO, fund_id: int, comanager_user_id: int
     ) -> None:
         book = self._ensure_funds()
-        fund = self._managed_fund(user, fund_id)
+        fund = self._managed_fund(user, fund_id, frozen_ok=True)
         removed = book.remove_comanager(fund.ticker, comanager_user_id)
         self._notify_comanager(
             removed.user_id, "removed", fund, user.nickname, removed.future_share
@@ -1794,13 +1884,19 @@ class Simulation:
         if self._funds is not None and user.id in self._funds.eliminated:
             raise ConflictError(ELIMINATED_MESSAGE)
 
-    def _managed_fund(self, user: UserDTO, fund_id: int) -> Fund:
-        """A gestora de `fund_id`, que só o gestor dela opera."""
+    def _managed_fund(
+        self, user: UserDTO, fund_id: int, *, frozen_ok: bool = False
+    ) -> Fund:
+        """A gestora de `fund_id`, que só o gestor dela opera.
+
+        Com `frozen_ok`, o gestor também a alcança durante a presidência: é o que convidar e retirar co-gestor pedem.
+        """
         self._ensure_not_eliminated(user)
         fund = self._ensure_funds().by_id(fund_id)
         if fund.terms.manager_user_id != user.id:
             raise ForbiddenError("Só o gestor opera esta gestora.")
-        self._ensure_fund_active(fund)
+        if not frozen_ok:
+            self._ensure_fund_active(fund)
         return fund
 
     def _ensure_fund_active(self, fund: Fund) -> None:
@@ -1853,7 +1949,8 @@ class Simulation:
             self._government.ensure_can_trade(client_id)
         if self._funds is not None:
             fund = self._funds.of_client(client_id)
-            if fund is not None:
+            # Com a estratégia ligada a carteira da gestora opera, e a boleta manual recusa pelo automático
+            if fund is not None and not self._funds.automatic(fund):
                 self._ensure_fund_active(fund)
             if any(
                 self._client_of_user(user_id) == client_id
@@ -1872,7 +1969,7 @@ class Simulation:
             self._funds.on_office(president.id)
             self._notify_funds_update()
         self._strategies.set_mode(
-            president,
+            StrategyAccount.of_user(president),
             None,
             {},
             day,
@@ -2507,7 +2604,7 @@ class Simulation:
             if user.id in eliminated and user.id not in self._eliminations_handled:
                 self._eliminations_handled.add(user.id)
                 self._strategies.set_mode(
-                    user,
+                    StrategyAccount.of_user(user),
                     None,
                     {},
                     self._current_date,
@@ -2589,8 +2686,8 @@ class Simulation:
             created_at=datetime.now(UTC),
         )
 
-    def _backtest_failed(self, user: UserDTO, day: date, message: str) -> None:
-        required(self.backtest).fail(user.nickname, day, message)
+    def _backtest_failed(self, nickname: str, day: date, message: str) -> None:
+        required(self.backtest).fail(nickname, day, message)
 
     def flush_backtest(self) -> None:
         """Grava os snapshots pendentes do backtest."""

@@ -14,6 +14,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.routes.dependencies import get_current_user
 from backend.routes.dependencies.simulation import get_active_simulation
+from backend.routes.funds import funds_router
 from backend.routes.strategy import strategy_router
 from tests.fakes import client
 
@@ -80,4 +81,48 @@ def test_params_the_match_refuses_are_not_saved(http: TestClient, profile: _Prof
     )
 
     assert answer.status_code == 422
+    assert profile.saved == {}
+
+
+class _FundSimulation:
+    def __init__(self) -> None:
+        self.calls: list[tuple] = []
+
+    def get_strategies(self, for_fund: bool = False) -> list:
+        self.calls.append(("list", for_fund))
+        return []
+
+    def set_fund_strategy(
+        self,
+        user: UserDTO,
+        fund_id: int,
+        key: str | None,
+        params: dict[str, StrategyParamValue],
+    ) -> None:
+        self.calls.append(("set", user.id, fund_id, key, params))
+
+
+def test_the_fund_strategy_is_set_without_touching_the_player_profile(
+    profile: _Profile,
+):
+    fake = _FundSimulation()
+    app = FastAPI()
+    app.include_router(strategy_router)
+    app.include_router(funds_router)
+    app.dependency_overrides[get_active_simulation] = lambda: fake
+    app.dependency_overrides[get_current_user] = lambda: ALICE
+    http = TestClient(app)
+
+    listed = http.get("/api/strategies", params={"fund": True})
+    answer = http.put(
+        "/api/funds/5/strategy",
+        json={"key": "moving_average_cross", "params": CROSS},
+    )
+
+    assert listed.status_code == 200
+    assert answer.status_code == 204
+    assert fake.calls == [
+        ("list", True),
+        ("set", ALICE.id, 5, "moving_average_cross", CROSS),
+    ]
     assert profile.saved == {}

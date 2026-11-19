@@ -12,7 +12,7 @@ import type { BotTicker, MyStrategy, StrategyInfo } from "@/types";
 import { useStrategySignal } from "../hooks/queries/useStrategySignal";
 import { useStrategyView } from "../hooks/queries/useStrategyView";
 import { LEGEND_SWATCH } from "../lib/signal-style";
-import { GROUP_LABEL } from "../lib/strategy-display";
+import { GROUP_LABEL } from "@/shared/lib/strategy-groups";
 import {
   defaultValues,
   draftErrors,
@@ -22,9 +22,9 @@ import {
   type ParamDraft,
   type ParamValues,
 } from "@/shared/lib/strategy-params";
-import { ActiveMark } from "./active-mark";
+import { ActiveMark } from "@/shared/components/active-mark";
 import { SignalChart, type SavedSignalLine } from "./signal-chart";
-import { StrategyDataBlock } from "./strategy-data-block";
+import { StrategyDataBlock } from "@/shared/components/strategy-data-block";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 

@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Literal
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import ColumnElement, delete, func, select, update
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -24,6 +24,7 @@ def event_dto(row: StrategyLog) -> StrategyEventDTO:
     return StrategyEventDTO(
         simulation_id=row.simulation_id,
         user_id=row.user_id,
+        fund_id=row.fund_id,
         event_date=row.event_date,
         created_at=row.created_at,
         kind=StrategyLogKind(row.kind),
@@ -68,6 +69,7 @@ def log_models(events: list[StrategyEventDTO]) -> list[StrategyLog]:
         StrategyLog(
             simulation_id=e.simulation_id,
             user_id=e.user_id,
+            fund_id=e.fund_id,
             event_date=e.event_date,
             created_at=e.created_at,
             kind=e.kind.value,
@@ -89,21 +91,53 @@ def log_models(events: list[StrategyEventDTO]) -> list[StrategyLog]:
     ]
 
 
+def owner_clauses(
+    user_id: int | None, fund_id: int | None
+) -> list[ColumnElement[bool]]:
+    """As linhas da gestora `fund_id`; sem ela, as da conta pessoal (de `user_id`, ou de todos)."""
+    if fund_id is not None:
+        return [StrategyLog.fund_id == fund_id]
+    clauses: list[ColumnElement[bool]] = [StrategyLog.fund_id.is_(None)]
+    if user_id is not None:
+        clauses.append(StrategyLog.user_id == user_id)
+    return clauses
+
+
 class StrategyRepository:
     @transactional
     def mode_rows(
-        self, session: Session, simulation_id: int, user_id: int | None = None
+        self,
+        session: Session,
+        simulation_id: int,
+        user_id: int | None = None,
+        fund_id: int | None = None,
     ) -> list[StrategyEventDTO]:
         """As linhas de modo (tudo menos ordens) na ordem em que aconteceram."""
         stmt = (
             select(StrategyLog)
             .where(
-                StrategyLog.simulation_id == simulation_id, StrategyLog.kind != ORDER
+                StrategyLog.simulation_id == simulation_id,
+                StrategyLog.kind != ORDER,
+                *owner_clauses(user_id, fund_id),
             )
             .order_by(StrategyLog.id)
         )
-        if user_id is not None:
-            stmt = stmt.where(StrategyLog.user_id == user_id)
+        return [event_dto(row) for row in session.scalars(stmt).all()]
+
+    @transactional
+    def fund_mode_rows(
+        self, session: Session, simulation_id: int
+    ) -> list[StrategyEventDTO]:
+        """As linhas de modo de todas as gestoras da partida, na ordem em que aconteceram."""
+        stmt = (
+            select(StrategyLog)
+            .where(
+                StrategyLog.simulation_id == simulation_id,
+                StrategyLog.kind != ORDER,
+                StrategyLog.fund_id.is_not(None),
+            )
+            .order_by(StrategyLog.id)
+        )
         return [event_dto(row) for row in session.scalars(stmt).all()]
 
     @transactional
@@ -115,12 +149,13 @@ class StrategyRepository:
         kind: LogFilter,
         offset: int,
         limit: int,
+        fund_id: int | None = None,
     ) -> tuple[list[StrategyLogRowDTO], int]:
-        """Uma página do registro do jogador, da linha mais recente para a mais antiga."""
+        """Uma página do registro do jogador ou da gestora, da linha mais recente para a mais antiga."""
         where = [
             StrategyLog.simulation_id == simulation_id,
-            StrategyLog.user_id == user_id,
             StrategyLog.kind != ERROR_SEEN,
+            *owner_clauses(user_id, fund_id),
         ]
         if kind == "orders":
             where.append(StrategyLog.kind == ORDER)
@@ -140,16 +175,21 @@ class StrategyRepository:
 
     @transactional
     def order_counts(
-        self, session: Session, simulation_id: int, user_id: int, since: date
+        self,
+        session: Session,
+        simulation_id: int,
+        user_id: int,
+        since: date,
+        fund_id: int | None = None,
     ) -> dict[StrategyOrderStatus, int]:
         """Ordens enviadas desde `since`, por situação; o cancelamento em si não conta."""
         rows = session.execute(
             select(StrategyLog.status, func.count())
             .where(
                 StrategyLog.simulation_id == simulation_id,
-                StrategyLog.user_id == user_id,
                 StrategyLog.kind == ORDER,
                 StrategyLog.action != StrategyAction.CANCEL.value,
+                *owner_clauses(user_id, fund_id),
                 StrategyLog.event_date >= since,
             )
             .group_by(StrategyLog.status)
@@ -158,14 +198,18 @@ class StrategyRepository:
 
     @transactional
     def last_order(
-        self, session: Session, simulation_id: int, user_id: int
+        self,
+        session: Session,
+        simulation_id: int,
+        user_id: int,
+        fund_id: int | None = None,
     ) -> StrategyEventDTO | None:
         row = session.scalars(
             select(StrategyLog)
             .where(
                 StrategyLog.simulation_id == simulation_id,
-                StrategyLog.user_id == user_id,
                 StrategyLog.kind == ORDER,
+                *owner_clauses(user_id, fund_id),
             )
             .order_by(StrategyLog.event_date.desc(), StrategyLog.id.desc())
             .limit(1)

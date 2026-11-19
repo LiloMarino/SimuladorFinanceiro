@@ -16,7 +16,7 @@ import { ErrorBanner } from "../components/error-banner";
 import { ModeCard, type Mode } from "../components/mode-card";
 import { StrategiesSkeleton } from "../components/strategies-skeleton";
 import { StrategyDetail } from "../components/strategy-detail";
-import { StrategyList } from "../components/strategy-list";
+import { StrategyList } from "@/shared/components/strategy-list";
 import { StrategyLog } from "../components/strategy-log";
 import { useMarkStrategyErrorSeen } from "../hooks/mutations/useMarkStrategyErrorSeen";
 import { useSetMyStrategy } from "@/shared/hooks/mutations/useSetMyStrategy";
@@ -186,12 +186,16 @@ function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTicke
 
       {/* Estratégias e o detalhe da escolhida */}
       <div className="grid items-start gap-5 xl:grid-cols-[340px_minmax(0,1fr)]">
-        <StrategyList
-          strategies={strategies}
-          selectedKey={selected.key}
-          activeKey={mine.active?.key}
-          onSelect={setPickedKey}
-        />
+        <Card size="sm">
+          <CardContent>
+            <StrategyList
+              strategies={strategies}
+              selectedKey={selected.key}
+              activeKey={mine.active?.key}
+              onSelect={setPickedKey}
+            />
+          </CardContent>
+        </Card>
         <div ref={detailRef} className="min-w-0 scroll-mt-4">
           <StrategyDetail
             key={selected.key}

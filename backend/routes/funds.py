@@ -34,6 +34,14 @@ from backend.core.dto.fund import (
     FundSummaryDTO,
     FundTickerCheckDTO,
 )
+from backend.core.dto.strategy import (
+    MyStrategyDTO,
+    SetStrategyRequestDTO,
+    StrategyLogPageDTO,
+    StrategyViewDTO,
+    StrategyViewRequestDTO,
+)
+from backend.core.repository.strategy import LogFilter
 from backend.routes.dependencies import ActiveSimulation, CurrentUser
 
 funds_router = APIRouter(prefix="/api/funds", tags=["Funds"])
@@ -508,3 +516,61 @@ def set_fund_fees(
     payload: FundFeesRequest,
 ):
     return simulation.set_fund_fees(user, fund_id, payload)
+
+
+@funds_router.get(
+    "/{fund_id}/strategy",
+    response_model=MyStrategyDTO,
+    summary="Obter o automático da gestora",
+    description="Retorna a estratégia que opera a carteira da gestora (ou nenhuma, no manual), o erro que a devolveu ao manual e o painel desde que ligou. O principal e os co-gestores ativos consultam.",
+)
+def get_fund_strategy(simulation: ActiveSimulation, user: CurrentUser, fund_id: int):
+    return simulation.get_fund_strategy(user, fund_id)
+
+
+@funds_router.put(
+    "/{fund_id}/strategy",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Ligar, ajustar ou desligar o automático da gestora",
+    description="Liga a estratégia na carteira da gestora, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. A estratégia opera pela conta da gestora e não compra cota de gestora. O principal e os co-gestores ativos ligam, inclusive na presidência do principal, quando a estratégia descongela a carteira.",
+)
+def set_fund_strategy(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: SetStrategyRequestDTO,
+):
+    simulation.set_fund_strategy(user, fund_id, payload.key, payload.params)
+
+
+@funds_router.post(
+    "/{fund_id}/strategy/{key}/view",
+    response_model=StrategyViewDTO,
+    summary="Calcular o que a estratégia faria na carteira da gestora",
+    description="Valida os parâmetros e devolve o ranking ou a alocação da estratégia sobre a carteira da gestora de hoje, sem salvar nem executar nada.",
+)
+def get_fund_strategy_view(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    key: str,
+    payload: StrategyViewRequestDTO,
+):
+    return simulation.get_fund_strategy_view(user, fund_id, key, payload.params)
+
+
+@funds_router.get(
+    "/{fund_id}/strategy/log",
+    response_model=StrategyLogPageDTO,
+    summary="Listar o registro do automático da gestora",
+    description="Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela.",
+)
+def get_fund_strategy_log(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    kind: Annotated[LogFilter, Query()] = "all",
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(ge=1, le=100)] = 50,
+):
+    return simulation.get_fund_strategy_log(user, fund_id, kind, offset, limit)

@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { Info, TriangleAlert } from "lucide-react";
-import { InfoHint } from "@/shared/components/info-hint";
-import { StrategyGroupIcon } from "@/shared/components/strategy-group-icon";
+import { StrategyList } from "@/shared/components/strategy-list";
 import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
-import { GROUP_SECTION } from "@/shared/lib/strategy-groups";
 import {
   defaultValues,
   draftErrors,
@@ -15,14 +13,11 @@ import {
   toDraft,
   type ParamDraft,
 } from "@/shared/lib/strategy-params";
-import { cn } from "@/shared/lib/utils";
-import type { BotTicker, SavedStrategyParams, StrategyGroup, StrategyInfo } from "@/types";
+import type { BotTicker, SavedStrategyParams, StrategyInfo } from "@/types";
 import { useSaveStrategyParams } from "../../hooks/mutations/useSaveStrategyParams";
 import { useAutosave } from "../../hooks/useAutosave";
 import { adjustedStrategies } from "../../lib/preparation";
 import { PreparationFooter } from "./preparation-footer";
-
-const GROUPS: StrategyGroup[] = ["reference", "tactic"];
 
 type StrategiesTabProps = {
   strategies: StrategyInfo[];
@@ -72,51 +67,13 @@ export function StrategiesTab({ strategies, saved, tickers, startingCash, onClos
       <div className="grid min-h-0 grid-cols-[320px_minmax(0,1fr)]">
         {/* Estratégias por grupo */}
         <div className="min-h-0 overflow-y-auto border-r bg-subtle px-3 pt-3 pb-5">
-          <div className="grid gap-0.5">
-            {GROUPS.map((group) => {
-              const items = strategies.filter((s) => s.group === group);
-              if (items.length === 0) return null;
-              return (
-                <div key={group} className="grid gap-0.5">
-                  {/* Título do grupo */}
-                  <div className="flex items-center gap-1.5 pt-2 pb-1 pl-0.5 text-xs font-semibold tracking-[.06em] text-faint-foreground uppercase">
-                    {GROUP_SECTION[group].title}
-                    <InfoHint label={`O que são as ${GROUP_SECTION[group].title.toLowerCase()}`}>
-                      {GROUP_SECTION[group].hint}
-                    </InfoHint>
-                  </div>
-
-                  {/* Estratégias do grupo */}
-                  {items.map((item) => {
-                    const active = item.key === strategy.key;
-                    return (
-                      <button
-                        key={item.key}
-                        type="button"
-                        aria-pressed={active}
-                        onClick={() => setSelected(item.key)}
-                        className={cn(
-                          "grid grid-cols-[36px_1fr_auto] items-center gap-x-3 gap-y-0.5 rounded-[10px] border border-transparent px-3 py-2.5 text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
-                          active ? "border-primary bg-info-soft ring-1 ring-primary" : "hover:bg-muted",
-                        )}
-                      >
-                        <StrategyGroupIcon group={group} />
-                        <span className={cn("min-w-0 text-[13px]", active ? "font-semibold" : "font-medium")}>
-                          {item.name}
-                        </span>
-                        {adjusted.has(item.key) ? (
-                          <span className="text-xs font-semibold text-info">Ajustada</span>
-                        ) : (
-                          <span />
-                        )}
-                        <span className="col-span-2 text-xs text-muted-foreground">{item.summary}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </div>
+          <StrategyList
+            strategies={strategies}
+            selectedKey={strategy.key}
+            adjustedKeys={adjusted}
+            surface="panel"
+            onSelect={setSelected}
+          />
         </div>
 
         {/* Parâmetros da estratégia escolhida */}

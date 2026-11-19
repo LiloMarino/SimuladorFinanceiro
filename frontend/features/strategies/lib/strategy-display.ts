@@ -1,6 +1,6 @@
 import { actionLabel, plural } from "@/shared/lib/strategy-orders";
 import { displayDayMonth, displayQuantity } from "@/shared/lib/utils/display";
-import type { StrategyGroup, StrategyOrderStatus, StrategyPanel } from "@/types";
+import type { StrategyOrderStatus, StrategyPanel } from "@/types";
 
 /** Situação da ordem na tabela do registro: o rótulo e o tom do selo. */
 export const STATUS_BADGE: Record<
@@ -40,5 +40,3 @@ export function lastOrderWhen(last: NonNullable<StrategyPanel["last_order"]>, cu
   const kind = last.order_type === "limit" ? "limitada" : last.order_type === "market" ? "a mercado" : null;
   return kind ? `${when}, ${kind}` : when;
 }
-
-export const GROUP_LABEL: Record<StrategyGroup, string> = { reference: "Referência", tactic: "Tática" };

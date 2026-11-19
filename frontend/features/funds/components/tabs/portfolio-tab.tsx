@@ -1,6 +1,8 @@
-import { TriangleAlert } from "lucide-react";
+import { Bot, TriangleAlert, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCredit } from "@/shared/hooks/queries/useCredit";
+import { ActionGroup } from "@/shared/components/action-card";
+import { ActionRow } from "@/shared/components/action-row";
 import { FundSection } from "@/shared/components/fund-section";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { MetricLabel } from "@/shared/components/metric-hint";
@@ -14,7 +16,9 @@ import { CREDIT_RATING } from "@/shared/lib/fund-metrics";
 import { netWorthOf } from "@/shared/lib/fund-view";
 import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
+import { MAX_COMANAGERS } from "../../lib/fund-comanagers";
 import { HOLDING_CLASSES } from "../../lib/fund-classes";
+import type { FundTabActions } from "../../lib/fund-tabs";
 import { FundLoanDebt } from "../fund-loan-debt";
 import { FundPayableFee } from "../fund-payable-fee";
 
@@ -43,10 +47,10 @@ function CashNotice({ fund, installment }: { fund: FundDetails; installment: num
 
 type OperateProps = { fund: FundDetails; label?: string };
 
-/** O botão que põe a conta da gestora em uso; congelada, a carteira não opera e o botão não aparece. */
+/** O botão que põe a conta da gestora em uso; congelada ou no automático, a carteira não recebe ordens à mão e o botão não aparece. */
 function OperateButton({ fund, label = "Operar a carteira" }: OperateProps) {
   const { fund: activeFund, switchAccount } = useActiveAccount();
-  if (fund.frozen_until !== null) return null;
+  if (fund.frozen_until !== null || fund.automatic) return null;
   const operating = activeFund?.fund_id === fund.id;
 
   return operating ? (
@@ -197,8 +201,41 @@ function PositionsCard({ positions }: { positions: NonNullable<FundDetails["posi
   );
 }
 
+/** As duas saídas da carteira congelada na presidência: ligar o automático ou chamar um co-gestor. */
+function FrozenOptions({ fund, actions }: { fund: FundDetails; actions: FundTabActions }) {
+  return (
+    <ActionGroup
+      title="Para a carteira seguir enquanto você governa"
+      subtitle="A carteira só recebe ordens de novo no fim do mandato, se nada mudar"
+    >
+      <ActionRow
+        tone="fund"
+        icon={Bot}
+        title="Ligar o automático"
+        description="Uma estratégia opera a carteira da gestora até o fim do mandato; as decisões e as taxas seguem congeladas."
+        alsoIn="Configurações"
+        actionLabel="Escolher estratégia"
+        onAction={() => actions.goTo("settings")}
+        primary
+      />
+      <ActionRow
+        tone="fund"
+        icon={UserPlus}
+        title="Convidar co-gestor"
+        description="Quando ele aceita, assume a carteira na hora e ela volta a operar."
+        alsoIn="Cotas"
+        actionLabel="Convidar"
+        onAction={() => actions.open("invite")}
+        blockedReason={
+          fund.comanagers.length >= MAX_COMANAGERS ? `A gestora já tem ${MAX_COMANAGERS} co-gestores` : undefined
+        }
+      />
+    </ActionGroup>
+  );
+}
+
 /** A carteira da gestora, só do gestor: patrimônio, empréstimo e posições. */
-export function PortfolioTab({ fund }: { fund: FundDetails }) {
+export function PortfolioTab({ fund, actions }: { fund: FundDetails; actions: FundTabActions }) {
   const { fund: activeFund } = useActiveAccount();
   const { data: credit } = useCredit({ enabled: activeFund?.fund_id === fund.id });
   const installment = credit && !credit.cash_covers_next ? Number(credit.next_installments_total) : 0;
@@ -206,6 +243,7 @@ export function PortfolioTab({ fund }: { fund: FundDetails }) {
   return (
     <div className="grid gap-5 pt-3">
       <CashNotice fund={fund} installment={installment} />
+      {fund.frozen_until !== null && !fund.automatic && <FrozenOptions fund={fund} actions={actions} />}
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <NetWorthCard fund={fund} />
         <LoanCard fund={fund} />

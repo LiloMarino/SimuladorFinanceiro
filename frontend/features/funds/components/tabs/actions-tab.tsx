@@ -24,6 +24,7 @@ import {
   displayShortDate,
 } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
+import { FundAutomaticLog } from "../fund-automatic-log";
 import { useAnswerComanagerInvite } from "../../hooks/mutations/useAnswerComanagerInvite";
 import { useAnswerDirectedIssuance } from "../../hooks/mutations/useAnswerDirectedIssuance";
 import { useCloseFundOffer } from "../../hooks/mutations/useCloseFundOffer";
@@ -113,7 +114,11 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
       actionLabel={operating ? "Voltar à minha carteira" : "Operar a carteira"}
       onAction={() => switchAccount(operating ? null : fund.id)}
       blockedReason={
-        fund.frozen_until ? `A carteira está congelada até ${displayIsoDate(fund.frozen_until)}` : undefined
+        fund.automatic
+          ? `A estratégia opera a carteira${fund.frozen_until ? ` até ${displayIsoDate(fund.frozen_until)}` : ""}.`
+          : fund.frozen_until
+            ? `A carteira está congelada até ${displayIsoDate(fund.frozen_until)}`
+            : undefined
       }
       primary={!operating}
     />
@@ -305,6 +310,9 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
           />
         </ActionGroup>
       )}
+
+      {/* O que o automático fez */}
+      {(isManager || isComanager) && fund.automatic && <FundAutomaticLog fund={fund} />}
 
       {/* Como co-gestor */}
       {isComanager && (

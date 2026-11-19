@@ -9,6 +9,8 @@ class StrategyEventDTO(BaseEventDTO):
     """Uma linha do registro da estratégia: ordem enviada ou mudança de modo."""
 
     user_id: int
+    # A gestora dona da linha; ausente, a linha é da conta pessoal do jogador
+    fund_id: int | None = None
     kind: StrategyLogKind
     strategy_key: str | None = None
     # Parâmetros em vigor, nas linhas que ligam, trocam ou mudam a estratégia

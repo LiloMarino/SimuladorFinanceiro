@@ -911,6 +911,13 @@ class StrategyLog(Base):
             onupdate="CASCADE",
             name="strategy_log_user_id_fkey",
         ),
+        ForeignKeyConstraint(
+            ["fund_id"],
+            ["funds.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="strategy_log_fund_id_fkey",
+        ),
         PrimaryKeyConstraint("id", name="strategy_log_pkey"),
         Index("strategy_log_user_idx", "simulation_id", "user_id", "event_date"),
     )
@@ -930,6 +937,8 @@ class StrategyLog(Base):
     )
     simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # A gestora dona da linha; ausente, a linha é da conta pessoal do jogador
+    fund_id: Mapped[int | None] = mapped_column(BigInteger)
     event_date: Mapped[datetime.date] = mapped_column(Date, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False

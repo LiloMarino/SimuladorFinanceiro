@@ -75,7 +75,7 @@ from backend.features.strategy.registry import (
     ensure_available,
     get_strategy,
 )
-from backend.features.strategy.state import derive_state
+from backend.features.strategy.state import ModeState, derive_state
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import (
     LimitOrder,
@@ -93,21 +93,49 @@ LOG_PAGE_LIMIT = 100
 
 
 @dataclass(frozen=True)
+class StrategyAccount:
+    """A conta que a estratégia opera: a pessoal do jogador ou a carteira de uma gestora."""
+
+    # O jogador dono da conta; na gestora, quem ligou a estratégia
+    user_id: int
+    client_id: UUID
+    # A gestora dona da conta; ausente, a conta é a pessoal do jogador
+    fund_id: int | None = None
+    # O apelido de quem age, que o registro da gestora cita no lugar de "Você"
+    nickname: str = ""
+
+    @classmethod
+    def of_user(cls, user: UserDTO) -> StrategyAccount:
+        return cls(user.id, user.client_id, nickname=user.nickname)
+
+    @property
+    def subject(self) -> str:
+        """Quem liga, troca e desliga, como o registro conta: "Você" na conta pessoal."""
+        return "Você" if self.fund_id is None else self.nickname
+
+    @property
+    def seed(self) -> int:
+        """A semente do sorteio da estratégia; cada conta sorteia por si."""
+        return self.user_id if self.fund_id is None else -self.fund_id
+
+
+@dataclass(frozen=True)
 class ActiveStrategy:
     cls: type[BaseStrategy]
     params: dict[str, StrategyParamValue]
     since: date
+    account: StrategyAccount
 
 
 class StrategyRunner:
     """
-    Estratégias ligadas dos jogadores e a fase do dia em que elas operam.
+    Estratégias ligadas dos jogadores e das gestoras e a fase do dia em que elas operam.
 
     Responsável por:
-    - Guardar a estratégia ativa de cada jogador (ausente é o modo manual)
-    - Rodar cada estratégia a cada dia, na ordem dos jogadores, e executar as intenções
+    - Guardar a estratégia ativa de cada conta, pessoal ou de gestora (ausente é o modo manual)
+    - Rodar cada estratégia a cada dia, as pessoais na ordem dos jogadores e depois as das gestoras, e executar as intenções
     - Registrar ordens e mudanças de modo no registro da estratégia
-    - Devolver ao manual o jogador cuja estratégia deu erro
+    - Devolver ao manual a conta cuja estratégia deu erro
     """
 
     def __init__(
@@ -124,8 +152,8 @@ class StrategyRunner:
         self._government_enabled = government_enabled
         self._history = PriceHistory(engine.simulation_id, end_date, price_impact)
         self._active: dict[UUID, ActiveStrategy] = {}
-        # Chamado com o jogador, o dia e a mensagem quando a estratégia dele dá erro
-        self.on_failure: Callable[[UserDTO, date, str], None] | None = None
+        # Chamado com o apelido do jogador, o dia e a mensagem quando a estratégia pessoal dele dá erro
+        self.on_failure: Callable[[str, date, str], None] | None = None
         engine.matching_engine.on_order_closed = self._on_order_closed
 
     # =========================
@@ -136,21 +164,42 @@ class StrategyRunner:
         """Retoma a estratégia de cada jogador a partir do registro gravado."""
         rows = repository.strategy.mode_rows(self._engine.simulation_id)
         for user in users:
-            state = derive_state([r for r in rows if r.user_id == user.id])
-            if state.key not in STRATEGIES or state.since is None:
-                continue
-            self._active[user.client_id] = ActiveStrategy(
-                STRATEGIES[state.key], state.params or {}, state.since
+            self._resume(
+                StrategyAccount.of_user(user),
+                derive_state([r for r in rows if r.user_id == user.id]),
+                resumed_on,
             )
-            if resumed_on is not None:
-                self._push_mode(
-                    user,
-                    StrategyLogKind.RESUMED,
-                    state.key,
-                    state.params,
-                    resumed_on,
-                    reason=f"A partida foi retomada com {STRATEGIES[state.key].name} ligada",
-                )
+
+    def load_funds(self, clients: dict[int, UUID], resumed_on: date | None) -> None:
+        """Retoma a estratégia de cada gestora (conta no motor por id da gestora) a partir do registro gravado."""
+        rows = repository.strategy.fund_mode_rows(self._engine.simulation_id)
+        for fund_id, client_id in clients.items():
+            fund_rows = [r for r in rows if r.fund_id == fund_id]
+            if fund_rows:
+                account = StrategyAccount(fund_rows[-1].user_id, client_id, fund_id)
+                self._resume(account, derive_state(fund_rows), resumed_on)
+
+    def _resume(
+        self, account: StrategyAccount, state: ModeState, resumed_on: date | None
+    ) -> None:
+        if state.key not in STRATEGIES or state.since is None:
+            return
+        self._active[account.client_id] = ActiveStrategy(
+            STRATEGIES[state.key], state.params or {}, state.since, account
+        )
+        if resumed_on is not None:
+            self._push_mode(
+                account,
+                StrategyLogKind.RESUMED,
+                state.key,
+                state.params,
+                resumed_on,
+                reason=f"A partida foi retomada com {STRATEGIES[state.key].name} ligada",
+            )
+
+    def is_active(self, client_id: UUID) -> bool:
+        """Se a conta tem uma estratégia ligada."""
+        return client_id in self._active
 
     def ensure_manual(self, client_id: UUID) -> None:
         """A boleta do jogador só vale no modo manual."""
@@ -163,20 +212,28 @@ class StrategyRunner:
     # Consulta
     # =========================
 
-    def infos(self, today: date) -> list[StrategyInfoDTO]:
+    def infos(self, today: date, *, for_fund: bool = False) -> list[StrategyInfoDTO]:
         return catalog.infos(
             today,
             self._engine.simulation_id,
             self._engine.stocks,
             funds_enabled=self._funds_enabled,
             government_enabled=self._government_enabled,
+            for_fund=for_fund,
+        )
+
+    def _state(self, account: StrategyAccount) -> ModeState:
+        return derive_state(
+            repository.strategy.mode_rows(
+                self._engine.simulation_id,
+                None if account.fund_id is not None else account.user_id,
+                account.fund_id,
+            )
         )
 
     def pending(self, user: UserDTO) -> list[PendingDTO]:
         """O erro que devolveu o jogador ao manual, até ele ligar uma estratégia de novo."""
-        state = derive_state(
-            repository.strategy.mode_rows(self._engine.simulation_id, user.id)
-        )
+        state = self._state(StrategyAccount.of_user(user))
         if state.error is None:
             return []
         return [
@@ -185,10 +242,8 @@ class StrategyRunner:
             )
         ]
 
-    def mine(self, user: UserDTO, today: date) -> MyStrategyDTO:
-        state = derive_state(
-            repository.strategy.mode_rows(self._engine.simulation_id, user.id)
-        )
+    def mine(self, account: StrategyAccount, today: date) -> MyStrategyDTO:
+        state = self._state(account)
         active = (
             StrategyActiveDTO(
                 key=state.key, params=state.params or {}, since=state.since
@@ -212,22 +267,28 @@ class StrategyRunner:
             error=error,
             resumed=state.resumed,
             open_orders=len(
-                self._engine.matching_engine.order_book.orders_of(user.client_id)
+                self._engine.matching_engine.order_book.orders_of(account.client_id)
             ),
-            panel=build_panel(self._engine.simulation_id, user.id, active.since)
+            panel=build_panel(
+                self._engine.simulation_id,
+                account.user_id,
+                active.since,
+                account.fund_id,
+            )
             if active
             else None,
         )
 
     def log(
-        self, user: UserDTO, kind: LogFilter, offset: int, limit: int
+        self, account: StrategyAccount, kind: LogFilter, offset: int, limit: int
     ) -> StrategyLogPageDTO:
         rows, total = repository.strategy.log_page(
             self._engine.simulation_id,
-            user.id,
+            account.user_id,
             kind,
             offset,
             min(limit, LOG_PAGE_LIMIT),
+            account.fund_id,
         )
         return StrategyLogPageDTO(
             items=[
@@ -278,12 +339,12 @@ class StrategyRunner:
 
     def view(
         self,
-        user: UserDTO,
+        account: StrategyAccount,
         key: str,
         params: dict[str, StrategyParamValue],
         today: date,
     ) -> StrategyViewDTO:
-        """O ranking ou a alocação da estratégia sobre a carteira do jogador hoje, sem executar nada."""
+        """O ranking ou a alocação da estratégia sobre a carteira da conta hoje, sem executar nada."""
         cls = get_strategy(key)
         merged = self._with_defaults(cls, params, today)
         errors = cls.validate(merged, set(self._engine.stocks))
@@ -293,7 +354,7 @@ class StrategyRunner:
         ):
             return StrategyViewDTO(errors=errors, ranking=None, allocation=None)
 
-        ctx = self._context(user, self._market(today), today)
+        ctx = self._context(account, self._market(today, account), today)
         result = cls().view(ctx, merged)
         return StrategyViewDTO(
             errors={},
@@ -307,36 +368,40 @@ class StrategyRunner:
 
     def set_mode(
         self,
-        user: UserDTO,
+        account: StrategyAccount,
         key: str | None,
         params: dict[str, StrategyParamValue],
         today: date,
         reason: str | None = None,
     ) -> None:
         """
-        Liga, troca, ajusta ou desliga a estratégia do jogador a partir do próximo dia.
-        `reason` conta no registro por que o jogador voltou ao manual.
+        Liga, troca, ajusta ou desliga a estratégia da conta a partir do próximo dia.
+        `reason` conta no registro por que a conta voltou ao manual.
         """
-        previous = self._active.get(user.client_id)
+        previous = self._active.get(account.client_id)
         if key is None:
             if previous is None:
                 return
-            canceled = self._engine.matching_engine.cancel_all(user.client_id)
-            del self._active[user.client_id]
+            canceled = self._engine.matching_engine.cancel_all(account.client_id)
+            del self._active[account.client_id]
             self._push_mode(
-                user,
+                account,
                 StrategyLogKind.DISABLED,
                 None,
                 None,
                 today,
                 reason=reason
-                or f"Você voltou ao manual{_canceled_phrase(canceled, previous.cls.name)}",
+                or f"{account.subject} voltou ao manual{_canceled_phrase(canceled, previous.cls.name, account)}",
                 quantity=Decimal(canceled),
             )
-            self._finish_mode_change(user, active=False)
+            self._finish_mode_change(account, active=False)
             return
 
         cls = get_strategy(key)
+        if account.fund_id is not None and not cls.fund_account:
+            raise UnprocessableEntityError(
+                f"{cls.name} não opera a carteira de uma gestora."
+            )
         ensure_available(
             cls,
             funds_enabled=self._funds_enabled,
@@ -350,28 +415,32 @@ class StrategyRunner:
             return
 
         if previous and previous.cls is cls:
-            self._active[user.client_id] = ActiveStrategy(cls, resolved, previous.since)
+            self._active[account.client_id] = ActiveStrategy(
+                cls, resolved, previous.since, account
+            )
             self._push_mode(
-                user,
+                account,
                 StrategyLogKind.PARAMS,
                 key,
                 resolved,
                 today,
-                reason=f"Você mudou os parâmetros de {cls.name}",
+                reason=f"{account.subject} mudou os parâmetros de {cls.name}",
             )
         else:
-            canceled = self._engine.matching_engine.cancel_all(user.client_id)
-            self._active[user.client_id] = ActiveStrategy(cls, resolved, today)
+            canceled = self._engine.matching_engine.cancel_all(account.client_id)
+            self._active[account.client_id] = ActiveStrategy(
+                cls, resolved, today, account
+            )
             if previous:
                 kind = StrategyLogKind.SWITCHED
-                reason = f"Você trocou {previous.cls.name} por {cls.name}"
-                reason += _canceled_phrase(canceled, previous.cls.name)
+                reason = f"{account.subject} trocou {previous.cls.name} por {cls.name}"
+                reason += _canceled_phrase(canceled, previous.cls.name, account)
             else:
                 kind = StrategyLogKind.ENABLED
-                reason = f"Você ligou {cls.name}"
-                reason += _canceled_phrase(canceled, None)
+                reason = f"{account.subject} ligou {cls.name}"
+                reason += _canceled_phrase(canceled, None, account)
             self._push_mode(
-                user,
+                account,
                 kind,
                 key,
                 resolved,
@@ -379,15 +448,14 @@ class StrategyRunner:
                 reason=reason,
                 quantity=Decimal(canceled),
             )
-        self._finish_mode_change(user, active=True)
+        self._finish_mode_change(account, active=True)
 
     def mark_error_seen(self, user: UserDTO, today: date) -> None:
-        state = derive_state(
-            repository.strategy.mode_rows(self._engine.simulation_id, user.id)
-        )
+        account = StrategyAccount.of_user(user)
+        state = self._state(account)
         if state.error is None or state.error_seen:
             return
-        self._push_mode(user, StrategyLogKind.ERROR_SEEN, None, None, today)
+        self._push_mode(account, StrategyLogKind.ERROR_SEEN, None, None, today)
         EventManager.flush()
 
     # =========================
@@ -395,46 +463,48 @@ class StrategyRunner:
     # =========================
 
     def run(self, users: list[UserDTO], today: date) -> None:
-        """Roda a estratégia de cada jogador que a ligou, na ordem dos jogadores."""
-        running = [
-            u for u in sorted(users, key=lambda u: u.id) if u.client_id in self._active
+        """Roda a estratégia de cada conta que a ligou: as pessoais na ordem dos jogadores, depois as das gestoras."""
+        personal = [
+            self._active[u.client_id]
+            for u in sorted(users, key=lambda u: u.id)
+            if u.client_id in self._active
         ]
+        funds = sorted(
+            (a for a in self._active.values() if a.account.fund_id is not None),
+            key=lambda a: required(a.account.fund_id),
+        )
+        running = personal + funds
         if not running:
             return
 
         market = self._market(today)
-        for user in running:
-            self._run_one(user, self._active[user.client_id], market, today)
+        for active in running:
+            self._run_one(active, market, today)
 
-    def _run_one(
-        self,
-        user: UserDTO,
-        active: ActiveStrategy,
-        market: _Market,
-        today: date,
-    ) -> None:
-        ctx = self._context(user, market, today)
+    def _run_one(self, active: ActiveStrategy, market: _Market, today: date) -> None:
+        account = active.account
+        ctx = self._context(account, self._account_market(market, account), today)
         try:
             active.cls().next(ctx, active.params)
             lines = [
-                self._execute(user, active, intent, today) for intent in ctx.intents
+                self._execute(account, active, intent, today) for intent in ctx.intents
             ]
-        # A estratégia é código de terceiro: qualquer erro dela volta o jogador ao manual
+        # A estratégia é código de terceiro: qualquer erro dela volta a conta ao manual
         except Exception as exc:  # noqa: BLE001
-            self._fail(user, active, exc, today)
+            self._fail(active, exc, today)
             return
 
         if lines:
-            notify(
-                "strategy_orders",
-                StrategyOrdersEventDTO(orders=lines).to_json(),
-                to=user.client_id,
-            )
+            for client_id in self._engine.audience(account.client_id)[0]:
+                notify(
+                    "strategy_orders",
+                    StrategyOrdersEventDTO(orders=lines).to_json(),
+                    to=client_id,
+                )
 
-    def _fail(
-        self, user: UserDTO, active: ActiveStrategy, exc: Exception, today: date
-    ) -> None:
-        """A estratégia que dá erro volta o jogador ao manual, com a causa no registro."""
+    def _fail(self, active: ActiveStrategy, exc: Exception, today: date) -> None:
+        """A estratégia que dá erro volta a conta ao manual, com a causa no registro."""
+        account = active.account
         logger.error("Erro na estratégia %s", active.cls.key, exc_info=exc)
         cause = (
             str(exc.detail)
@@ -442,10 +512,10 @@ class StrategyRunner:
             else "erro inesperado do aplicativo"
         )
         message = f"Voltou ao manual: {active.cls.name} deu erro ({cause})"
-        self._engine.matching_engine.cancel_all(user.client_id)
-        del self._active[user.client_id]
+        self._engine.matching_engine.cancel_all(account.client_id)
+        del self._active[account.client_id]
         self._push_mode(
-            user,
+            account,
             StrategyLogKind.ERROR,
             active.cls.key,
             active.params,
@@ -453,21 +523,25 @@ class StrategyRunner:
             reason=message,
             detail="".join(traceback.format_exception(exc)),
         )
-        notify(
-            "strategy_update",
-            StrategyUpdateEventDTO(active=False, error=message).to_json(),
-            to=user.client_id,
+        self._notify_update(
+            account, StrategyUpdateEventDTO(active=False, error=message)
         )
-        if self.on_failure is not None:
-            self.on_failure(user, today, message)
+        # O backtest só tem contas pessoais
+        if self.on_failure is not None and account.fund_id is None:
+            self.on_failure(account.nickname, today, message)
 
     def _execute(
-        self, user: UserDTO, active: ActiveStrategy, intent: Intent, today: date
+        self,
+        account: StrategyAccount,
+        active: ActiveStrategy,
+        intent: Intent,
+        today: date,
     ) -> StrategyOrderLineDTO:
         """Executa a intenção; a recusa do mercado ou do caixa vira uma linha "Recusada"."""
         row = StrategyEventDTO(
             simulation_id=self._engine.simulation_id,
-            user_id=user.id,
+            user_id=account.user_id,
+            fund_id=account.fund_id,
             event_date=today,
             kind=StrategyLogKind.ORDER,
             strategy_key=active.cls.key,
@@ -478,7 +552,7 @@ class StrategyRunner:
             status=StrategyOrderStatus.REFUSED,
         )
         try:
-            row = self._submit(user, intent, row)
+            row = self._submit(account, intent, row)
         except HTTPException as exc:
             row = row.model_copy(update={"detail": str(exc.detail)})
 
@@ -495,14 +569,14 @@ class StrategyRunner:
         )
 
     def _submit(
-        self, user: UserDTO, intent: Intent, row: StrategyEventDTO
+        self, account: StrategyAccount, intent: Intent, row: StrategyEventDTO
     ) -> StrategyEventDTO:
         engine = self._engine
         match intent.action:
             case StrategyAction.BUY | StrategyAction.SELL:
                 if not intent.ticker or not intent.quantity:
                     raise ValueError("Compra e venda precisam de ativo e quantidade")
-                quantity = self._quantity_allowed(user, intent)
+                quantity = self._quantity_allowed(account, intent)
                 # Toda compra de cota de gestora respeita o teto de preço sobre o PL por cota
                 reference = engine.fund_references.get(intent.ticker)
                 ceiling = (
@@ -513,7 +587,7 @@ class StrategyRunner:
                 order: Order = (
                     LimitOrder(
                         placed_on=engine.current_date,
-                        client_id=user.client_id,
+                        client_id=account.client_id,
                         ticker=intent.ticker,
                         size=quantity,
                         action=_order_action(intent.action),
@@ -525,7 +599,7 @@ class StrategyRunner:
                     if intent.limit is not None
                     else MarketOrder(
                         placed_on=engine.current_date,
-                        client_id=user.client_id,
+                        client_id=account.client_id,
                         ticker=intent.ticker,
                         size=quantity,
                         action=_order_action(intent.action),
@@ -545,7 +619,7 @@ class StrategyRunner:
                     raise ValueError("Cancelamento precisa da ordem")
                 resting = engine.matching_engine.order_book.find(intent.order_id)
                 if resting is None or not engine.matching_engine.cancel(
-                    order_id=intent.order_id, client_id=user.client_id
+                    order_id=intent.order_id, client_id=account.client_id
                 ):
                     raise ConflictError("A ordem não está mais aberta")
                 return row.model_copy(
@@ -563,7 +637,7 @@ class StrategyRunner:
                 asset = engine.fixed_income_market.get_asset(str(intent.asset_uuid))
                 if asset is None:
                     raise ConflictError("O título não está mais disponível")
-                engine.fixed_broker.buy(user.client_id, asset, intent.value)
+                engine.fixed_broker.buy(account.client_id, asset, intent.value)
                 return row.model_copy(
                     update={
                         "asset_uuid": asset.asset_uuid,
@@ -581,7 +655,7 @@ class StrategyRunner:
                 if asset is None:
                     raise ConflictError("O título não está mais disponível")
                 net = intent.value.quantize(Decimal("0.01"))
-                engine.fixed_broker.redeem(user.client_id, asset, net)
+                engine.fixed_broker.redeem(account.client_id, asset, net)
                 return row.model_copy(
                     update={
                         "asset_uuid": asset.asset_uuid,
@@ -593,7 +667,7 @@ class StrategyRunner:
                     }
                 )
 
-    def _quantity_allowed(self, user: UserDTO, intent: Intent) -> Decimal:
+    def _quantity_allowed(self, account: StrategyAccount, intent: Intent) -> Decimal:
         """A quantidade da intenção; a compra de papel de preço sintético cabe em BOT_QUOTA_LIMIT dos papéis.
 
         O teto desconta a posição do bot e as compras dele ainda abertas.
@@ -601,21 +675,23 @@ class StrategyRunner:
         quantity = required(intent.quantity)
         ticker = required(intent.ticker)
         engine = self._engine
-        account = engine.broker.maker_accounts.get(ticker)
-        if account is None or intent.action is not StrategyAction.BUY:
+        maker = engine.broker.maker_accounts.get(ticker)
+        if maker is None or intent.action is not StrategyAction.BUY:
             return quantity
-        position = engine.broker.get_positions(user.client_id).get(ticker)
+        position = engine.broker.get_positions(account.client_id).get(ticker)
         held = position.size if position is not None else Decimal(0)
         resting = sum(
             (
                 order.remaining
-                for order in engine.matching_engine.order_book.orders_of(user.client_id)
+                for order in engine.matching_engine.order_book.orders_of(
+                    account.client_id
+                )
                 if order.ticker == ticker and order.action is OrderAction.BUY
             ),
             Decimal(0),
         )
         room = (
-            (account.quotas * BOT_QUOTA_LIMIT).to_integral_value(rounding=ROUND_FLOOR)
+            (maker.quotas * BOT_QUOTA_LIMIT).to_integral_value(rounding=ROUND_FLOOR)
             - held
             - resting
         )
@@ -640,7 +716,21 @@ class StrategyRunner:
     # Contexto
     # =========================
 
-    def _market(self, today: date) -> _Market:
+    def _account_market(self, market: _Market, account: StrategyAccount) -> _Market:
+        """O mercado que a conta enxerga: a gestora não negocia cota de gestora."""
+        if account.fund_id is None:
+            return market
+        return _Market(
+            quotes={
+                ticker: quote
+                for ticker, quote in market.quotes.items()
+                if ticker not in self._engine.fund_references
+            },
+            offers=market.offers,
+            indicators=market.indicators,
+        )
+
+    def _market(self, today: date, account: StrategyAccount | None = None) -> _Market:
         engine = self._engine
         quotes: dict[str, Quote] = {}
         for ticker in engine.stocks:
@@ -663,7 +753,7 @@ class StrategyRunner:
                 engine.fund_references.get(ticker),
                 engine.state_fair_values.get(ticker),
             )
-        return _Market(
+        market = _Market(
             quotes=quotes,
             offers=[
                 offer(asset, today, engine.tax_policy_on(today))
@@ -676,10 +766,13 @@ class StrategyRunner:
                 ipca=annual_index_rate(IndicatorSeries.IPCA, today),
             ),
         )
+        return market if account is None else self._account_market(market, account)
 
-    def _context(self, user: UserDTO, market: _Market, today: date) -> StrategyContext:
+    def _context(
+        self, account: StrategyAccount, market: _Market, today: date
+    ) -> StrategyContext:
         engine = self._engine
-        client_id = user.client_id
+        client_id = account.client_id
         return StrategyContext(
             date=today,
             cash=max(engine.get_cash(client_id), Decimal(0)),
@@ -716,7 +809,7 @@ class StrategyRunner:
                 )
                 for o in engine.matching_engine.order_book.orders_of(client_id)
             ],
-            seed=user.id,
+            seed=account.seed,
             history_source=lambda ticker, days: self._history.window(
                 ticker, today, days
             ),
@@ -738,7 +831,7 @@ class StrategyRunner:
 
     def _push_mode(
         self,
-        user: UserDTO,
+        account: StrategyAccount,
         kind: StrategyLogKind,
         key: str | None,
         params: dict | None,
@@ -751,7 +844,8 @@ class StrategyRunner:
         EventManager.push_event(
             StrategyEventDTO(
                 simulation_id=self._engine.simulation_id,
-                user_id=user.id,
+                user_id=account.user_id,
+                fund_id=account.fund_id,
                 event_date=today,
                 kind=kind,
                 strategy_key=key,
@@ -762,13 +856,16 @@ class StrategyRunner:
             )
         )
 
-    def _finish_mode_change(self, user: UserDTO, *, active: bool) -> None:
+    def _finish_mode_change(self, account: StrategyAccount, *, active: bool) -> None:
         EventManager.flush()
-        notify(
-            "strategy_update",
-            StrategyUpdateEventDTO(active=active).to_json(),
-            to=user.client_id,
-        )
+        self._notify_update(account, StrategyUpdateEventDTO(active=active))
+
+    def _notify_update(
+        self, account: StrategyAccount, event: StrategyUpdateEventDTO
+    ) -> None:
+        """A conta pessoal avisa o jogador; a gestora avisa quem opera a carteira dela."""
+        for client_id in self._engine.audience(account.client_id)[0]:
+            notify("strategy_update", event.to_json(), to=client_id)
 
 
 @dataclass(frozen=True)
@@ -810,13 +907,19 @@ def _order_result(order: Order) -> dict:
     }
 
 
-def _canceled_phrase(count: int, strategy_name: str | None) -> str:
+def _canceled_phrase(
+    count: int, strategy_name: str | None, account: StrategyAccount
+) -> str:
     """Quantas ordens abertas foram canceladas na mudança, ou nada quando nenhuma."""
     if count == 0:
         return ""
     noun = "1 ordem" if count == 1 else f"{count} ordens"
     if strategy_name is None:
         verb = "foi cancelada" if count == 1 else "foram canceladas"
+        if account.fund_id is not None:
+            return (
+                f" · {noun} da gestora, {'aberta' if count == 1 else 'abertas'}, {verb}"
+            )
         return (
             f" · {noun} sua, aberta, {verb}"
             if count == 1

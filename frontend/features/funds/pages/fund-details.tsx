@@ -131,7 +131,7 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
         {/* Carteira, só do gestor */}
         {manager && (
           <TabsContent value="portfolio">
-            <PortfolioTab fund={fund} />
+            <PortfolioTab fund={fund} actions={actions} />
           </TabsContent>
         )}
 

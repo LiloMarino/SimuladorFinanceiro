@@ -36,6 +36,28 @@ export function TradeLockNotice({ lock }: { lock: TradeLock }) {
     );
   }
 
+  if (lock.reason === "fund-automatic") {
+    return (
+      <div className="flex items-center gap-2.5 rounded-lg border border-border bg-subtle px-3 py-2.5 text-[13px]">
+        <Lock className="size-4 shrink-0 text-muted-foreground" />
+        <span className="grid gap-0.5">
+          <b className="font-semibold">O automático opera a carteira de {lock.name}</b>
+          <span className="text-xs text-muted-foreground">
+            {lock.until === null
+              ? "Para operar à mão, desligue o automático em Configurações."
+              : `Desligar o automático congela a carteira até ${displayShortDate(lock.until)}, o fim do mandato.`}
+          </span>
+        </span>
+        <Link
+          to={`/funds/${lock.fundId}?tab=settings`}
+          className="ml-auto text-xs font-medium whitespace-nowrap text-primary hover:text-primary-hover"
+        >
+          Ir para Configurações
+        </Link>
+      </div>
+    );
+  }
+
   if (lock.reason === "sovereign") {
     return (
       <div className="flex items-center gap-2.5 rounded-lg border border-border bg-subtle px-3 py-2.5 text-[13px]">

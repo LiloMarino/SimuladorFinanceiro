@@ -286,6 +286,8 @@ class FundBook:
     A gestora congela enquanto o gestor governa o país: `frozen_until` devolve o último dia do
     mandato dele, lido do governo a cada consulta. A sala segue negociando a cota; só a conta da
     gestora e o que o gestor decide nela (aporte, oferta, taxas) param, e as taxas não correm.
+    Com uma estratégia ligada na carteira, a gestora segue operando por ela: a carteira descongela
+    (`portfolio_frozen_until`) e as decisões do gestor continuam congeladas.
     """
 
     def __init__(
@@ -298,6 +300,8 @@ class FundBook:
         participants: Callable[[], list[UserDTO]] | None = None,
         grace_ends: date | None = None,
         manager_cap: Decimal | None = None,
+        automatic: Callable[[UUID], bool] | None = None,
+        stop_automatic: Callable[[Fund, str], None] | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
@@ -305,6 +309,9 @@ class FundBook:
         self._publish = publish
         # O último dia do mandato do gestor que governa, por id de usuário; nulo se ele não governa
         self._manager_frozen_until = frozen_until or (lambda _user_id: None)
+        # Se a conta da gestora (por client_id) tem uma estratégia ligada, e como desligá-la com o motivo
+        self._automatic = automatic or (lambda _client_id: False)
+        self._stop_automatic = stop_automatic or (lambda _fund, _reason: None)
         # Os jogadores e bots da partida, lidos a cada consulta
         self.participants = participants or (lambda: [])
         # No modo aquisição hostil, a fração das cotas que o gestor mantém depois da carência;
@@ -412,6 +419,14 @@ class FundBook:
         """O último dia em que a gestora fica congelada: o fim do mandato do gestor presidente."""
         return self._manager_frozen_until(fund.terms.manager_user_id)
 
+    def automatic(self, fund: Fund) -> bool:
+        """Se uma estratégia opera a carteira da gestora."""
+        return self._automatic(fund.account.client_id)
+
+    def portfolio_frozen_until(self, fund: Fund) -> date | None:
+        """O último dia em que a carteira da gestora fica sem operar: o do congelamento, e nenhum com a estratégia ligada."""
+        return None if self.automatic(fund) else self.frozen_until(fund)
+
     def price(self, fund: Fund) -> Decimal | None:
         """O preço do último negócio da cota: o de hoje se já negociou, senão o do último pregão com negócio."""
         today = fund.account.day
@@ -449,6 +464,7 @@ class FundBook:
             ),
             offer_ends_on=offer_ends_on(open_on) if open_on else None,
             frozen_until=self.frozen_until(fund),
+            automatic=self.automatic(fund),
             leave_until=(
                 self._manager_frozen_until(fund.terms.leave_manager_user_id)
                 if fund.terms.leave_manager_user_id is not None
@@ -1279,10 +1295,23 @@ class FundBook:
     def answer_comanager_invite(
         self, ticker: str, user: UserDTO, accept: bool
     ) -> FundComanagerDTO:
-        """O convidado aceita (a parte vale nas taxas do mês seguinte) ou recusa."""
-        return self._comanagers.answer(
-            self._funds[ticker], user, accept, self._engine.current_date
+        """O convidado aceita (a parte vale nas taxas do mês seguinte) ou recusa.
+
+        Com a gestora congelada pela presidência do principal, o co-gestor que aceita assume
+        na hora, com o presidente em licença, e a carteira descongela.
+        """
+        fund = self._funds[ticker]
+        answered = self._comanagers.answer(
+            fund, user, accept, self._engine.current_date
         )
+        president_id = fund.terms.manager_user_id
+        if (
+            accept
+            and self.frozen_until(fund) is not None
+            and self._manager_frozen_until(user.id) is None
+        ):
+            self._hand_over(fund, answered, answered.future_share, president_id)
+        return answered
 
     def change_comanager_share(
         self, ticker: str, user_id: int, share: Decimal
@@ -1449,6 +1478,8 @@ class FundBook:
         A proposta de aumento de taxa é do gestor que sai: a votação dela encerra sem resultado.
         """
         self._sync_buyback(fund)
+        # A estratégia da carteira é do principal que sai: a gestora volta ao manual
+        self._stop_automatic(fund, "A gestão mudou de mãos: a gestora voltou ao manual")
         self._assemblies.cancel_open(fund, FEE, self._engine.current_date)
         # A oferta de cotas é do principal que sai
         self._directed.cancel(fund)
@@ -1476,9 +1507,9 @@ class FundBook:
 
         Com co-gestor ativo a gestora segue operando: o de maior parte vira o principal e o
         presidente sai da gestão em licença, com a parte do herdeiro guardada para `on_leave_office`.
-        Sem co-gestor ela congela até o fim do mandato.
+        Sem co-gestor ela congela até o fim do mandato, salvo com a estratégia ligada, que mantém
+        a carteira operando.
         """
-        today = self._engine.current_date
         for fund in self._funds.values():
             if fund.terms.manager_user_id != manager_user_id:
                 continue
@@ -1486,15 +1517,25 @@ class FundBook:
             heir = heir_of(fund)
             if heir is None:
                 continue
-            self._comanagers.succeed(fund, heir, today)
-            self._replace_manager(fund, heir.user_id)
-            fund.terms = fund.terms.model_copy(
-                update={
-                    "leave_manager_user_id": manager_user_id,
-                    "leave_heir_share": heir.share,
-                }
-            )
-            self._save(fund)
+            self._hand_over(fund, heir, heir.share, manager_user_id)
+
+    def _hand_over(
+        self,
+        fund: Fund,
+        heir: FundComanagerDTO,
+        heir_share: Decimal,
+        president_id: int,
+    ) -> None:
+        """O herdeiro vira o principal e o presidente sai em licença, com a parte do herdeiro guardada para o retorno."""
+        self._comanagers.succeed(fund, heir, self._engine.current_date)
+        self._replace_manager(fund, heir.user_id)
+        fund.terms = fund.terms.model_copy(
+            update={
+                "leave_manager_user_id": president_id,
+                "leave_heir_share": heir_share,
+            }
+        )
+        self._save(fund)
 
     def on_leave_office(self, president_id: int) -> None:
         """O presidente deixou a presidência sem reeleição (fim do mandato ou impeachment): a gestão volta a ele.
@@ -1506,6 +1547,11 @@ class FundBook:
         """
         today = self._engine.current_date
         for fund in self._funds.values():
+            # A gestora que seguiu no automático sob o presidente volta ao manual com o fim do mandato
+            if fund.terms.manager_user_id == president_id:
+                self._stop_automatic(
+                    fund, "O mandato acabou: a gestora voltou ao manual"
+                )
             if fund.terms.leave_manager_user_id != president_id:
                 continue
             heir_id = fund.terms.manager_user_id

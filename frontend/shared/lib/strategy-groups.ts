@@ -11,3 +11,6 @@ export const GROUP_SECTION: Record<StrategyGroup, { title: string; hint: string 
     hint: "Regras que reagem ao preço e escolhem quando comprar e vender. Têm parâmetros que você ajusta e vê no gráfico antes de salvar.",
   },
 };
+
+/** O nome de cada grupo no selo da estratégia. */
+export const GROUP_LABEL: Record<StrategyGroup, string> = { reference: "Referência", tactic: "Tática" };

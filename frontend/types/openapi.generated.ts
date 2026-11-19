@@ -3488,6 +3488,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/strategy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o automático da gestora
+         * @description Retorna a estratégia que opera a carteira da gestora (ou nenhuma, no manual), o erro que a devolveu ao manual e o painel desde que ligou. O principal e os co-gestores ativos consultam.
+         */
+        get: operations["get_fund_strategy_api_funds__fund_id__strategy_get"];
+        /**
+         * Ligar, ajustar ou desligar o automático da gestora
+         * @description Liga a estratégia na carteira da gestora, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. A estratégia opera pela conta da gestora e não compra cota de gestora. O principal e os co-gestores ativos ligam, inclusive na presidência do principal, quando a estratégia descongela a carteira.
+         */
+        put: operations["set_fund_strategy_api_funds__fund_id__strategy_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/strategy/{key}/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Calcular o que a estratégia faria na carteira da gestora
+         * @description Valida os parâmetros e devolve o ranking ou a alocação da estratégia sobre a carteira da gestora de hoje, sem salvar nem executar nada.
+         */
+        post: operations["get_fund_strategy_view_api_funds__fund_id__strategy__key__view_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/strategy/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar o registro do automático da gestora
+         * @description Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela.
+         */
+        get: operations["get_fund_strategy_log_api_funds__fund_id__strategy_log_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/strategies": {
         parameters: {
             query?: never;
@@ -3497,7 +3561,7 @@ export interface paths {
         };
         /**
          * Listar as estratégias
-         * @description Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida.
+         * @description Retorna as estratégias do app, com a regra, os parâmetros, a faixa de cada um e o padrão calculado para a partida. Com `fund`, só as que operam a carteira de uma gestora (sem Cotas de gestoras).
          */
         get: operations["list_strategies_api_strategies_get"];
         put?: never;
@@ -7785,6 +7849,11 @@ export interface components {
             cash: string;
             /** Frozen Until */
             frozen_until: string | null;
+            /**
+             * Automatic
+             * @default false
+             */
+            automatic: boolean;
             /** Eliminated On */
             eliminated_on: string | null;
             /** Role */
@@ -8192,6 +8261,11 @@ export interface components {
             offer_ends_on: string | null;
             /** Frozen Until */
             frozen_until: string | null;
+            /**
+             * Automatic
+             * @default false
+             */
+            automatic: boolean;
             /** Leave Until */
             leave_until: string | null;
             /** Holders */
@@ -8823,6 +8897,11 @@ export interface components {
             offer_ends_on: string | null;
             /** Frozen Until */
             frozen_until: string | null;
+            /**
+             * Automatic
+             * @default false
+             */
+            automatic: boolean;
             /** Leave Until */
             leave_until: string | null;
             /** My Quotas */
@@ -8916,6 +8995,11 @@ export interface components {
             offer_ends_on: string | null;
             /** Frozen Until */
             frozen_until: string | null;
+            /**
+             * Automatic
+             * @default false
+             */
+            automatic: boolean;
             /** Leave Until */
             leave_until: string | null;
         };
@@ -23455,9 +23539,182 @@ export interface operations {
             };
         };
     };
-    list_strategies_api_strategies_get: {
+    get_fund_strategy_api_funds__fund_id__strategy_get: {
         parameters: {
             query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyStrategyDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_fund_strategy_api_funds__fund_id__strategy_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetStrategyRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_fund_strategy_view_api_funds__fund_id__strategy__key__view_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StrategyViewRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyViewDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_fund_strategy_log_api_funds__fund_id__strategy_log_get: {
+        parameters: {
+            query?: {
+                kind?: components["schemas"]["LogFilter"];
+                offset?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StrategyLogPageDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_strategies_api_strategies_get: {
+        parameters: {
+            query?: {
+                fund?: boolean;
+            };
             header?: never;
             path?: never;
             cookie?: never;

@@ -219,6 +219,8 @@ class FundSummaryDTO(FundTermsDTO):
     offer_ends_on: date | None
     # O último dia do mandato do gestor presidente, em que a gestora fica congelada; nulo se opera
     frozen_until: date | None
+    # Uma estratégia opera a carteira da gestora: as boletas dela travam, e na presidência a carteira segue operando
+    automatic: bool = False
     # O último dia do mandato do gestor em licença, em que a gestão volta a ele; nulo sem licença
     leave_until: date | None = None
 
@@ -642,7 +644,10 @@ class FundAccountDTO(BaseDTO):
     name: str
     ticker: str | None
     cash: Decimal
+    # O último dia em que a carteira desta conta fica sem operar; nulo se opera
     frozen_until: date | None
+    # Uma estratégia opera a carteira da gestora: as boletas dela travam
+    automatic: bool = False
     # O dia em que o jogador perdeu a assembleia da própria gestora e passou a só assistir;
     # nulo nas gestoras e para quem segue na partida
     eliminated_on: date | None = None
