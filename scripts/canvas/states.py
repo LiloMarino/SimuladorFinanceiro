@@ -1293,8 +1293,17 @@ FUNDS_LIST_PATTERN = re.compile(r"/api/funds$")
 
 
 def open_funds_page(page: Page) -> None:
-    """A página das gestoras pelo menu: com gestora própria ela abre na página da gestora."""
-    page.goto("/funds")
+    """A página das gestoras: a da gestora do host quando ele tem uma, senão o convite e a lista da sala."""
+    nickname = demo_settings()["host"]["nickname"]
+    mine = next(
+        (
+            fund
+            for fund in api_json(page, "/api/funds")
+            if fund["manager_nickname"] == nickname
+        ),
+        None,
+    )
+    page.goto(f"/funds/{mine['id']}" if mine else "/funds")
     page.wait_for_load_state("networkidle")
     dismiss_topic(page)
 
@@ -1374,17 +1383,24 @@ def tab_portfolio(page: Page) -> None:
     fund_tab_page(page, "offer-closed", "Carteira", "Patrimônio da gestora")
 
 
+def turn_off_fund_strategy(page: Page) -> None:
+    """Deixa a gestora do host no manual: a partida reaproveitada pode ter vindo de um estado com o automático ligado."""
+    fund_id = api_json(page, "/api/funds")[0]["id"]
+    api_send(page, "PUT", f"/api/funds/{fund_id}/strategy", {"key": None, "params": {}})
+
+
 def tab_portfolio_frozen(page: Page) -> None:
-    """Dado forjado: o gestor governa e a carteira da gestora fica congelada."""
+    """Dado forjado: o gestor governa, a gestora não tem co-gestor nem estratégia e a carteira fica congelada, com as duas saídas."""
 
     def change(body: dict | list) -> None:
         assert isinstance(body, dict)
         body["frozen_until"] = FROZEN_UNTIL
 
     fund_match(page, stage="offer-closed")
+    turn_off_fund_strategy(page)
     patch_get(page, FUND_DETAIL_PATTERN, change)
     open_funds_page(page)
-    open_fund_tab(page, "Carteira", "Patrimônio da gestora")
+    open_fund_tab(page, "Carteira", "Para a carteira seguir enquanto você governa")
 
 
 def tab_quotas(page: Page) -> None:
@@ -1405,6 +1421,95 @@ def tab_report(page: Page) -> None:
 def tab_settings(page: Page) -> None:
     """A aba Configurações do gestor."""
     fund_tab_page(page, "offer-closed", "Configurações", "Taxas")
+
+
+def settings_automatic(page: Page) -> None:
+    """A aba Configurações no modo Automático: a lista de estratégias da gestora e a escolhida em detalhe."""
+    fund_match(page, stage="offer-closed")
+    turn_off_fund_strategy(page)
+    open_funds_page(page)
+    open_fund_tab(page, "Configurações", "Automático da carteira")
+    page.get_by_role("button", name="Automático", exact=True).click()
+    page.get_by_role("button", name=re.compile(r"^Rebalanceamento por meta")).click()
+    page.get_by_role("button", name="Ligar esta estratégia").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def turn_on_fund_strategy(page: Page, fund_id: int) -> str:
+    """Liga na gestora o Rebalanceamento por meta, ou a primeira da lista que aceita os parâmetros padrão, e devolve o nome dela."""
+    strategies = api_json(page, "/api/strategies?fund=true")
+    strategies.sort(key=lambda strategy: strategy["name"] != "Rebalanceamento por meta")
+    for strategy in strategies:
+        try:
+            api_send(
+                page,
+                "PUT",
+                f"/api/funds/{fund_id}/strategy",
+                {"key": strategy["key"], "params": {}},
+            )
+        except RuntimeError:
+            continue
+        return strategy["name"]
+    raise RuntimeError("Nenhuma estratégia aceitou os parâmetros padrão.")
+
+
+def forged_strategy_log(name: str) -> dict:
+    """O registro de ordens que a estratégia teria mandado pela gestora: uma venda e duas compras no mesmo dia."""
+
+    def order(
+        row_id: int,
+        action: str,
+        ticker: str | None,
+        quantity: str,
+        price: str,
+        reason: str,
+    ) -> dict:
+        return {
+            "id": row_id,
+            "event_date": FORGED_DATE,
+            "kind": "order",
+            "strategy_key": None,
+            "strategy_name": name,
+            "action": action,
+            "ticker": ticker,
+            "asset_name": None if ticker else "Tesouro Selic 2029",
+            "quantity": quantity,
+            "price": price,
+            "order_type": "market",
+            "reason": reason,
+            "status": "executed",
+            "detail": None,
+        }
+
+    return {
+        "total": 3,
+        "items": [
+            order(3, "buy", None, "100", "2884.30", "Renda fixa abaixo da meta"),
+            order(2, "buy", "VALE3", "2500", "62.10", "Ações abaixo da meta"),
+            order(1, "sell", "PETR4", "4000", "37.90", "Ações acima da meta"),
+        ],
+    }
+
+
+def fund_automatic_presidency(page: Page) -> None:
+    """Dado forjado sobre a estratégia real da gestora: o gestor governa, a carteira segue o automático e Suas ações mostra o que ele fez."""
+    fund_match(page, stage="offer-closed")
+    fund_id = api_json(page, "/api/funds")[0]["id"]
+    name = turn_on_fund_strategy(page, fund_id)
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["frozen_until"] = FROZEN_UNTIL
+
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+    fulfill_get(
+        page,
+        re.compile(r"/api/funds/\d+/strategy/log"),
+        json.dumps(forged_strategy_log(name)),
+    )
+    open_funds_page(page)
+    page.get_by_text("O que o automático fez").wait_for()
+    page.wait_for_load_state("networkidle")
 
 
 def assembly_tally(total: float, favor: float, against: float) -> dict:
@@ -1933,9 +2038,10 @@ def fund_governing(page: Page) -> None:
         body["frozen_until"] = FROZEN_UNTIL
 
     fund_match(page, stage="contributed")
+    turn_off_fund_strategy(page)
     patch_get(page, FUND_DETAIL_PATTERN, change)
     open_funds_page(page)
-    page.get_by_text("A carteira está congelada").wait_for()
+    page.get_by_text("não tem co-gestor nem estratégia ligada").wait_for()
     page.wait_for_load_state("networkidle")
 
 
@@ -2457,6 +2563,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/aba-rendimentos": tab_income,
     "gestoras/aba-relatorio": tab_report,
     "gestoras/aba-config": tab_settings,
+    "gestoras/config-automatico": settings_automatic,
+    "gestoras/carteira-automatico": fund_automatic_presidency,
     "gestoras/aba-assembleia": tab_assembly,
     "gestoras/aba-assembleia-taxa": tab_assembly_fee,
     "gestoras/aba-assembleia-vazia": tab_assembly_empty,
