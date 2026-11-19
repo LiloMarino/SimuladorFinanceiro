@@ -1027,6 +1027,7 @@ MENU_LAYER = '[role="menu"]'
 TOOLTIP_LAYER = '[data-slot="tooltip-content"]'
 STATE_GLOB = "**/api/get-simulation-state"
 ACCOUNTS_GLOB = "**/api/funds/accounts"
+PENDING_GLOB = "**/api/pending"
 GOVERNMENT_GLOB = "**/api/government"
 
 
@@ -1711,6 +1712,144 @@ def funds_viewer(page: Page) -> None:
     page.wait_for_load_state("networkidle")
 
 
+def forge_room(page: Page, rows: Callable[[dict], list[dict]]) -> None:
+    """
+    Dado forjado sobre a lista da sala: `rows` recebe a gestora real do host (cotas dele em
+    `my_quotas`) e devolve a lista que a página recebe; cada gestora forjada é uma cópia dela
+    com id, nome e dados próprios.
+    """
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, list)
+        body[:] = rows(body[0])
+
+    patch_get(page, FUNDS_LIST_PATTERN, change)
+
+
+def room_fund(base: dict, fund_id: int, **fields: object) -> dict:
+    """Uma gestora da sala forjada: cópia de `base` com o `fund_id` e os `fields` pedidos."""
+    return base | {
+        "id": fund_id,
+        "founder_user_id": OTHER_MANAGER_ID,
+        "manager_user_id": OTHER_MANAGER_ID,
+        "manager_nickname": "Duda",
+        "frozen_until": None,
+        "leave_until": None,
+        "leave_manager_user_id": None,
+        "comanager_nicknames": [],
+        "i_comanage": False,
+        "my_quotas": "0",
+        **fields,
+    }
+
+
+def open_room(page: Page) -> None:
+    """A lista da sala aberta pelo menu Gestoras."""
+    open_funds_page(page)
+    page.get_by_role("heading", name="Gestoras da sala").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def room_blocks(page: Page) -> None:
+    """A sala nos três blocos: o host gere uma, tem cotas de outra e vê duas da sala."""
+    fund_match(page, stage="offer-open")
+    fund_id = api_json(page, "/api/funds")[0]["id"]
+
+    def decisions(body: dict | list) -> None:
+        assert isinstance(body, list)
+        body += [
+            {
+                "key": f"FUND_ASSEMBLY_VOTE:{number}",
+                "type": "FUND_ASSEMBLY_VOTE",
+                "severity": "WARNING",
+                "title": "Votação na gestora",
+                "detail": "",
+                "resolves": "",
+                "loan_id": None,
+                "fund_id": fund_id,
+            }
+            for number in range(3)
+        ]
+
+    patch_get(page, PENDING_GLOB, decisions)
+
+    def rows(mine: dict) -> list[dict]:
+        return [
+            mine | {"my_quotas": "0", "comanager_nicknames": ["Duda"]},
+            room_fund(
+                mine,
+                9001,
+                name="Boreal Renda",
+                ticker="BORE11",
+                manager_nickname="Duda",
+                my_quotas="12",
+            ),
+            room_fund(
+                mine,
+                9002,
+                name="Cerrado Ações",
+                ticker="CERR11",
+                manager_user_id=OTHER_MANAGER_ID + 1,
+                manager_nickname="Caio",
+            ),
+            room_fund(
+                mine,
+                9003,
+                name="Delta Crédito",
+                ticker="DELT11",
+                manager_user_id=OTHER_MANAGER_ID + 2,
+                manager_nickname="Eva",
+            ),
+        ]
+
+    forge_room(page, rows)
+    open_room(page)
+
+
+def room_president(page: Page) -> None:
+    """O host governa e a gestora dele está em licença: o vice a gere e ela volta no fim do mandato."""
+    fund_match(page, stage="offer-open")
+    host_id = api_json(page, "/api/funds")[0]["manager_user_id"]
+
+    def rows(mine: dict) -> list[dict]:
+        return [
+            mine
+            | {
+                "manager_user_id": OTHER_MANAGER_ID,
+                "manager_nickname": "Duda",
+                "leave_manager_user_id": host_id,
+                "leave_until": FROZEN_UNTIL,
+            },
+            room_fund(mine, 9002, name="Cerrado Ações", ticker="CERR11"),
+        ]
+
+    forge_room(page, rows)
+    open_room(page)
+
+
+def room_two_held(page: Page) -> None:
+    """O host gere duas gestoras: a que fundou e a que ganhou da assembleia."""
+    fund_match(page, stage="offer-open")
+    first = api_json(page, "/api/funds")[0]
+
+    def rows(mine: dict) -> list[dict]:
+        return [
+            mine,
+            room_fund(
+                mine,
+                9001,
+                name="Boreal Renda",
+                ticker="BORE11",
+                manager_user_id=first["manager_user_id"],
+                manager_nickname=first["manager_nickname"],
+                manager_since="2003-11-10",
+            ),
+        ]
+
+    forge_room(page, rows)
+    open_room(page)
+
+
 def found_fund_open(page: Page) -> None:
     """A tela de fundar a gestora, de quem ainda não fundou."""
     fund_match(page, stage="none")
@@ -2292,6 +2431,9 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/erro": funds_error,
     "gestoras/texto-longo": funds_long_text,
     "gestoras/cotista": funds_viewer,
+    "gestoras/lista-blocos": room_blocks,
+    "gestoras/lista-presidente": room_president,
+    "gestoras/lista-duas-geridas": room_two_held,
     "gestoras/fundar": found_fund_open,
     "gestoras/fundar-preenchida": found_fund_filled,
     "gestoras/fundar-sigla-recusada": found_fund_ticker_taken,
