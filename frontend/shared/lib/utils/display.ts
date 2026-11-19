@@ -210,6 +210,11 @@ export function displayDayMonth(isoDate: string) {
   return `${part("day")} ${part("month")}`;
 }
 
+/** "2023-03-14" → "14/03", o dia e o mês numéricos dos prazos das ofertas. */
+export function displayNumericDayMonth(isoDate: string) {
+  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(parseLocalDate(isoDate));
+}
+
 /** "2023-03-14" → "mar/2023", o período compacto de listas. */
 export function displayMonthSlashYear(isoDate: string) {
   const d = parseLocalDate(isoDate);

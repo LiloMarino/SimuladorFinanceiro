@@ -62,6 +62,7 @@ from backend.core.dto.fund import (
     FundIssuanceSubscriptionPreviewDTO,
     FundIssuanceSubscriptionRequest,
     FundMonthlyReportDTO,
+    FundOffersDTO,
     FundRoomItemDTO,
     FundSummaryDTO,
     FundTickerCheckDTO,
@@ -232,6 +233,7 @@ from backend.features.fixed_income.liquidity import total_redeemable
 from backend.features.funds.fund_book import Fund, FundBook
 from backend.features.funds.fund_details import FundDetailsBuilder
 from backend.features.funds.fund_preview import FundPreviewBuilder
+from backend.features.funds.offers_panel import FundOffersBuilder
 from backend.features.government import presidency
 from backend.features.government.base_panel import build_base
 from backend.features.government.base_panel import (
@@ -1438,6 +1440,12 @@ class Simulation:
                 )
             )
         return room
+
+    @synchronized
+    def get_fund_offers(self, user: UserDTO) -> FundOffersDTO:
+        """As ofertas públicas como `user` as vê: a preferência dele, as abertas a todos e as encerradas."""
+        book = self._ensure_funds()
+        return FundOffersBuilder(book, self._engine.current_date).build(user)
 
     @synchronized
     def get_fund(self, user: UserDTO, fund_id: int) -> FundDetailsDTO:

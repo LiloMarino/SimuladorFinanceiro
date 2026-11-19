@@ -80,6 +80,16 @@ O gestor principal, e os co-gestores ativos, podem pôr uma **estratégia** para
 
 Só funda quem **não tem gestora**: quem já tem uma não funda outra, e a gestora em licença pela presidência conta como dele. Gerir mais de uma é normal no jogo: o co-gestor que assume a gestora de um presidente, ou que ganha uma em assembleia, passa a gerir as duas. Quem perde a gestora pode fundar outra, respeitando o prazo de 6 meses depois de afastado por assembleia.
 
+## Ofertas públicas
+
+O menu **Ofertas públicas**, logo depois de Gestoras, reúne as vendas de cotas novas a preço fixo e por tempo limitado. O número ao lado do nome é a quantidade de ofertas abertas agora. A página tem três blocos:
+
+- **Sua preferência:** as emissões em que você já é cotista e ainda pode comprar antes dos outros, com a quantidade a que você tem direito, o custo, o prazo e quanto dos cotistas já comprou. Só aparece quando você tem direito a comprar.
+- **Abertas a qualquer investidor:** a oferta pública inicial de uma gestora nova e a sobra de uma emissão, depois da preferência dos cotistas. Cada cartão mostra o preço fixo, quantas cotas ainda estão à venda, até quando vai e as taxas. Se o seu caixa compra menos do que resta, o cartão avisa quantas cotas ele alcança. Com uma gestora ativa, o cartão avisa que a compra sai da carteira pessoal e oferece voltar para ela.
+- **Encerradas:** as ofertas que já fecharam, com o preço pago na oferta ao lado do preço da cota hoje no mercado e a diferença entre os dois. Ex.: uma oferta a R$ 100,00 com a cota hoje a R$ 101,80 aparece como "1,8% acima da oferta".
+
+A compra sai pelo detalhe da cota, na renda variável: os botões **Comprar na oferta** e **Ver cota** levam até lá. Quando uma gestora abre oferta pública, o [Jornal](jornal.md) mostra a manchete numa janela central, com o botão **Comprar cotas**.
+
 ## A lista da sala
 
 O menu **Gestoras** abre a lista da sala em três blocos: **Você gere** (as que você gere, as em licença e as de que você é co-gestor ativo), **Você tem cotas** e **Outras da sala**. Na linha da gestora que você opera aparecem os co-gestores, o selo "N para decidir" quando há convite, votação ou oferta esperando você, e o aviso de quando a gestora foi ganha em assembleia. O botão **Fundar minha gestora** fica no topo só para quem não tem gestora; ser co-gestor não conta como ter uma. Quem perdeu a gestora para a assembleia vê o aviso da troca e o botão **Fundar outra gestora**. A gestora em licença aparece no bloco **Você gere** com o aviso de que volta no fim do mandato.

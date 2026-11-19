@@ -8789,6 +8789,53 @@
         ]
       }
     },
+    "/api/funds/offers": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Listar as ofertas públicas",
+        "description": "A preferência de quem consulta nas emissões abertas, as vendas abertas a qualquer investidor (oferta de abertura de gestora nova e sobra de emissão) e as encerradas com o preço da cota hoje ao lado do preço da oferta.",
+        "operationId": "get_fund_offers_api_funds_offers_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundOffersDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/funds/ticker-check": {
       "get": {
         "tags": [
@@ -24153,6 +24200,75 @@
           "canceled"
         ]
       },
+      "FundClosedOfferDTO": {
+        "properties": {
+          "fund_id": {
+            "type": "integer",
+            "title": "Fund Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FundClosedOfferKind"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "sold": {
+            "type": "string",
+            "title": "Sold"
+          },
+          "closed_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Closed On"
+          },
+          "market_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Market Price"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fund_id",
+          "ticker",
+          "name",
+          "kind",
+          "price",
+          "quotas",
+          "sold",
+          "closed_on",
+          "market_price"
+        ],
+        "title": "FundClosedOfferDTO",
+        "description": "Uma oferta ou emissão que já encerrou, com o preço dela e o da cota no mercado hoje."
+      },
+      "FundClosedOfferKind": {
+        "type": "string",
+        "enum": [
+          "initial",
+          "issuance"
+        ]
+      },
       "FundComanagerInviteRequest": {
         "properties": {
           "nickname": {
@@ -26332,6 +26448,161 @@
         ],
         "title": "FundOfferRequest"
       },
+      "FundOffersDTO": {
+        "properties": {
+          "preference": {
+            "items": {
+              "$ref": "#/components/schemas/FundPreferenceOfferDTO"
+            },
+            "type": "array",
+            "title": "Preference"
+          },
+          "open": {
+            "items": {
+              "$ref": "#/components/schemas/FundOpenOfferDTO"
+            },
+            "type": "array",
+            "title": "Open"
+          },
+          "closed": {
+            "items": {
+              "$ref": "#/components/schemas/FundClosedOfferDTO"
+            },
+            "type": "array",
+            "title": "Closed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "preference",
+          "open",
+          "closed"
+        ],
+        "title": "FundOffersDTO",
+        "description": "A página Ofertas públicas como quem consulta a vê."
+      },
+      "FundOpenOfferDTO": {
+        "properties": {
+          "fund_id": {
+            "type": "integer",
+            "title": "Fund Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "manager_nickname": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manager Nickname"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/FundOpenOfferKind"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "remaining": {
+            "type": "string",
+            "title": "Remaining"
+          },
+          "session": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Session"
+          },
+          "ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Ends On"
+          },
+          "sessions_left": {
+            "type": "integer",
+            "title": "Sessions Left"
+          },
+          "management_fee": {
+            "type": "string",
+            "title": "Management Fee"
+          },
+          "performance_fee": {
+            "type": "string",
+            "title": "Performance Fee"
+          },
+          "preference_ends_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preference Ends On"
+          },
+          "preference_bought": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preference Bought"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fund_id",
+          "ticker",
+          "name",
+          "manager_nickname",
+          "kind",
+          "price",
+          "quotas",
+          "remaining",
+          "session",
+          "ends_on",
+          "sessions_left",
+          "management_fee",
+          "performance_fee",
+          "preference_ends_on",
+          "preference_bought"
+        ],
+        "title": "FundOpenOfferDTO",
+        "description": "Uma venda de cotas novas aberta a qualquer investidor, a preço fixo."
+      },
+      "FundOpenOfferKind": {
+        "type": "string",
+        "enum": [
+          "initial",
+          "leftover"
+        ]
+      },
       "FundPositionDTO": {
         "properties": {
           "ticker": {
@@ -26384,6 +26655,72 @@
         ],
         "title": "FundPositionDTO",
         "description": "Uma posição da gestora: o caixa, uma ação (com quantidade) ou um título de renda fixa."
+      },
+      "FundPreferenceOfferDTO": {
+        "properties": {
+          "fund_id": {
+            "type": "integer",
+            "title": "Fund Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "issuance_quotas": {
+            "type": "string",
+            "title": "Issuance Quotas"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "my_rights": {
+            "type": "string",
+            "title": "My Rights"
+          },
+          "my_left": {
+            "type": "string",
+            "title": "My Left"
+          },
+          "holders_bought": {
+            "type": "string",
+            "title": "Holders Bought"
+          },
+          "preference_ends_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Preference Ends On"
+          },
+          "sessions_left": {
+            "type": "integer",
+            "title": "Sessions Left"
+          },
+          "leftover_sessions": {
+            "type": "integer",
+            "title": "Leftover Sessions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fund_id",
+          "ticker",
+          "name",
+          "issuance_quotas",
+          "price",
+          "my_rights",
+          "my_left",
+          "holders_bought",
+          "preference_ends_on",
+          "sessions_left",
+          "leftover_sessions"
+        ],
+        "title": "FundPreferenceOfferDTO",
+        "description": "A preferência de quem consulta numa emissão aberta: o que ele ainda pode comprar antes do público."
       },
       "FundPreparationDTO": {
         "properties": {

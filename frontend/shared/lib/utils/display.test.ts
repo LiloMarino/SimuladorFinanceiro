@@ -15,6 +15,7 @@ import {
   displayMonthShort,
   displayMonthSlashYear,
   displayNumber,
+  displayNumericDayMonth,
   displayPercent,
   displayPercentagePoints,
   displayQuantity,
@@ -168,5 +169,12 @@ describe("displayQuantity", () => {
   it("mantém as oito casas da cripto e agrupa o milhar", () => {
     expect(displayQuantity("0.00000001")).toBe("0,00000001");
     expect(displayQuantity("1500")).toBe("1.500");
+  });
+});
+
+describe("displayNumericDayMonth", () => {
+  it("mostra o dia e o mês com dois dígitos, sem o recuo de um dia do fuso", () => {
+    expect(displayNumericDayMonth("2026-11-20")).toBe("20/11");
+    expect(displayNumericDayMonth("2026-01-03")).toBe("03/01");
   });
 });

@@ -26,6 +26,8 @@ export interface NavItem {
   pendingTypes?: PendingType[];
   /** Abre a janela Como jogar em vez de navegar; só aparece quando o jogador escolheu o acesso pelo menu */
   tutorial?: boolean;
+  /** O selo mostra quantas ofertas públicas estão abertas, enquanto há alguma */
+  offersCount?: boolean;
   /** Só aparece nas partidas com a expansão ligada */
   expansion?: "government" | "funds";
 }

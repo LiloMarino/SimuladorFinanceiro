@@ -110,8 +110,8 @@ NEWS: tuple[NewsSpec, ...] = (
         NewsType.FUND_OFFER_OPENED,
         NewsSection.COMPANIES,
         "Oferta de cotas de uma gestora",
-        "“MEUS11 abre oferta pública de 10 mil cotas”",
-        NewsLevel.JOURNAL,
+        "“Cedro Capital abre oferta de 30.000 cotas a R$ 100”",
+        NewsLevel.WINDOW,
     ),
     NewsSpec(
         NewsType.FUND_ISSUANCE_OPENED,
@@ -119,6 +119,7 @@ NEWS: tuple[NewsSpec, ...] = (
         "Emissão de cotas de uma gestora",
         "“MEUS11 emite 5 mil cotas a R$ 104,30”",
         NewsLevel.JOURNAL,
+        portfolio_filter=True,
     ),
     NewsSpec(
         NewsType.FUND_ISSUANCE_CLOSED,

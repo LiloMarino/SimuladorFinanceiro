@@ -578,7 +578,28 @@ class FundBook:
     def open_offer(self, ticker: str, size: Decimal) -> None:
         """Abre a oferta pública de `size` cotas novas ao PL de hoje e anuncia no jornal."""
         self._open_offer(ticker, size)
-        self._announce(self._engine.current_date, headlines.offer_opened(ticker, size))
+        fund = self._funds[ticker]
+        today = self._engine.current_date
+        manager = next(
+            (
+                user.nickname
+                for user in self.participants()
+                if user.id == fund.terms.manager_user_id
+            ),
+            None,
+        )
+        self._announce(
+            today,
+            headlines.offer_opened(
+                fund.terms.name,
+                ticker,
+                manager,
+                size,
+                fund.terms.offer_price or Decimal(0),
+                offer_ends_on(today),
+                OFFER_SESSIONS,
+            ),
+        )
 
     def _open_offer(self, ticker: str, size: Decimal) -> None:
         """Lista a gestora com a oferta pública de `size` cotas novas ao PL de hoje.

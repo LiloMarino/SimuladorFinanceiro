@@ -8,11 +8,20 @@ from backend.features.notifications.news import Headline
 FEE_DEK = "A taxa nova vale a partir do primeiro dia útil do mês seguinte."
 
 
-def offer_opened(ticker: str, quotas: Decimal) -> Headline:
+def offer_opened(
+    name: str,
+    ticker: str,
+    manager: str | None,
+    quotas: Decimal,
+    price: Decimal,
+    ends_on: date,
+    sessions: int,
+) -> Headline:
+    who = f"A gestora nova de {manager}" if manager else "A gestora nova"
     return Headline(
         NewsType.FUND_OFFER_OPENED,
-        f"{ticker} abre oferta pública de {format_quantity(quotas)} cotas",
-        "As cotas saem ao patrimônio líquido do dia.",
+        f"{name} abre oferta de {format_quantity(quotas)} cotas a {_whole_money(price)}",
+        f"{who} vende cotas a preço fixo por {sessions} pregões, até {ends_on:%d/%m}. Quem compra agora entra com a carteira começando do zero.",
         (ticker,),
     )
 
@@ -103,6 +112,11 @@ def performance_fee_changed(ticker: str, rate: Decimal) -> Headline:
         FEE_DEK,
         (ticker,),
     )
+
+
+def _whole_money(value: Decimal) -> str:
+    """Real sem centavos quando o valor é inteiro: R$ 100; com centavos, R$ 104,30."""
+    return format_money(value).removesuffix(",00")
 
 
 def _percent(rate: Decimal) -> str:

@@ -20,6 +20,7 @@ import {
   Gavel,
   GraduationCap,
   LineChart,
+  Megaphone,
   Newspaper,
 } from "lucide-react";
 import type { NavItem } from "@/types";
@@ -31,6 +32,7 @@ import GovernmentPage from "./features/government/pages/government";
 import MapPage from "./features/government/pages/map";
 import FundDetailsPage from "./features/funds/pages/fund-details";
 import FundFoundPage from "./features/funds/pages/fund-found";
+import FundOffersPage from "./features/funds/pages/fund-offers";
 import FundsPage from "./features/funds/pages/funds";
 import PortfolioPage from "./features/portfolio/pages/portfolio";
 import SettingsPage from "./features/settings/pages/settings";
@@ -121,6 +123,15 @@ const navItems: NavItem[] = [
     group: "Expansões",
     expansion: "funds",
   },
+  {
+    key: "offers",
+    label: "Ofertas públicas",
+    endpoint: "/offers",
+    icon: Megaphone,
+    group: "Expansões",
+    expansion: "funds",
+    offersCount: true,
+  },
   { key: "correlation", label: "Correlação", endpoint: "/correlation", icon: Grid3x3, group: "Ferramentas" },
   { key: "tutorial", label: "Como jogar", endpoint: "", icon: GraduationCap, group: "Ferramentas", tutorial: true },
   {
@@ -200,6 +211,7 @@ export default function App() {
                           <Route path="/funds" element={<FundsPage />} />
                           <Route path="/funds/new" element={<FundFoundPage />} />
                           <Route path="/funds/:fundId" element={<FundDetailsPage />} />
+                          <Route path="/offers" element={<FundOffersPage />} />
                         </Route>
                         <Route element={<SimulationModeLayout navItems={navItems} />}>
                           <Route path="/correlation" element={<CorrelationPage />} />

@@ -436,7 +436,15 @@ def test_every_newsroom_type_is_in_the_registry_with_its_section():
     assert registered[NewsType.COPOM_DECISION].section.value == "ECONOMY"
     assert registered[NewsType.STRONG_MOVE].portfolio_filter
     assert registered[NewsType.WEEK_HIGH].portfolio_filter
+    assert registered[NewsType.FUND_ISSUANCE_OPENED].portfolio_filter
+    assert not registered[NewsType.FUND_OFFER_OPENED].portfolio_filter
     assert registered[NewsType.HISTORICAL_MILESTONE].section.value == "HISTORY"
+
+
+def test_issuance_offers_the_portfolio_filter_off_until_the_player_turns_it_on():
+    assert registry.news_held_only({})[NewsType.FUND_ISSUANCE_OPENED] is False
+    chosen = {NewsType.FUND_ISSUANCE_OPENED: True}
+    assert registry.news_held_only(chosen)[NewsType.FUND_ISSUANCE_OPENED] is True
 
 
 def candle(ticker: str, close: float, price_date: date) -> CandleDTO:

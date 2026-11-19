@@ -17,6 +17,7 @@ export type FundPreparationRequest = components["schemas"]["FundPreparationReque
 export type FundSummary = components["schemas"]["FundSummaryDTO"];
 export type FundRoomItem = components["schemas"]["FundRoomItemDTO"];
 export type FundDetails = components["schemas"]["FundDetailsDTO"];
+export type FundOffers = components["schemas"]["FundOffersDTO"];
 export type FundTickerCheck = components["schemas"]["FundTickerCheckDTO"];
 export type FundFoundRequest = components["schemas"]["FundFoundRequest"];
 export type FundContributionRequest = components["schemas"]["FundContributionRequest"];

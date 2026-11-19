@@ -23,6 +23,7 @@ import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { useAchievementTally } from "@/shared/hooks/queries/useAchievementTally";
+import { useFundOffers } from "@/shared/hooks/queries/useFundOffers";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
@@ -51,6 +52,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const { data: portfolio } = usePortfolio();
   const { data: myStrategy } = useMyStrategy();
   const { data: pending } = usePending();
+  const { data: offers } = useFundOffers({ enabled: !!simulation?.simulation?.funds_enabled });
 
   const debug = useDebugMode();
 
@@ -149,6 +151,9 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
                             <span className="text-sidebar-muted">Desligada</span>
                           )}
                         </SidebarMenuBadge>
+                      )}
+                      {item.offersCount && offers && offers.open.length > 0 && (
+                        <SidebarMenuBadge>{offers.open.length}</SidebarMenuBadge>
                       )}
                       {item.achievementTally && tally && (
                         <SidebarMenuBadge>

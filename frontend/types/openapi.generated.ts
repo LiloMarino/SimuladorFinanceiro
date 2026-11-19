@@ -2912,6 +2912,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar as ofertas públicas
+         * @description A preferência de quem consulta nas emissões abertas, as vendas abertas a qualquer investidor (oferta de abertura de gestora nova e sobra de emissão) e as encerradas com o preço da cota hoje ao lado do preço da oferta.
+         */
+        get: operations["get_fund_offers_api_funds_offers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/ticker-check": {
         parameters: {
             query?: never;
@@ -8112,6 +8132,34 @@ export interface components {
         };
         /** @enum {string} */
         FundBuybackState: "open" | "done" | "canceled";
+        /**
+         * FundClosedOfferDTO
+         * @description Uma oferta ou emissão que já encerrou, com o preço dela e o da cota no mercado hoje.
+         */
+        FundClosedOfferDTO: {
+            /** Fund Id */
+            fund_id: number;
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            kind: components["schemas"]["FundClosedOfferKind"];
+            /** Price */
+            price: string;
+            /** Quotas */
+            quotas: string;
+            /** Sold */
+            sold: string;
+            /**
+             * Closed On
+             * Format: date
+             */
+            closed_on: string;
+            /** Market Price */
+            market_price: string | null;
+        };
+        /** @enum {string} */
+        FundClosedOfferKind: "initial" | "issuance";
         /** FundComanagerInviteRequest */
         FundComanagerInviteRequest: {
             /** Nickname */
@@ -8772,6 +8820,58 @@ export interface components {
             quotas: number;
         };
         /**
+         * FundOffersDTO
+         * @description A página Ofertas públicas como quem consulta a vê.
+         */
+        FundOffersDTO: {
+            /** Preference */
+            preference: components["schemas"]["FundPreferenceOfferDTO"][];
+            /** Open */
+            open: components["schemas"]["FundOpenOfferDTO"][];
+            /** Closed */
+            closed: components["schemas"]["FundClosedOfferDTO"][];
+        };
+        /**
+         * FundOpenOfferDTO
+         * @description Uma venda de cotas novas aberta a qualquer investidor, a preço fixo.
+         */
+        FundOpenOfferDTO: {
+            /** Fund Id */
+            fund_id: number;
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            /** Manager Nickname */
+            manager_nickname: string | null;
+            kind: components["schemas"]["FundOpenOfferKind"];
+            /** Price */
+            price: string;
+            /** Quotas */
+            quotas: string;
+            /** Remaining */
+            remaining: string;
+            /** Session */
+            session: number | null;
+            /**
+             * Ends On
+             * Format: date
+             */
+            ends_on: string;
+            /** Sessions Left */
+            sessions_left: number;
+            /** Management Fee */
+            management_fee: string;
+            /** Performance Fee */
+            performance_fee: string;
+            /** Preference Ends On */
+            preference_ends_on: string | null;
+            /** Preference Bought */
+            preference_bought: string | null;
+        };
+        /** @enum {string} */
+        FundOpenOfferKind: "initial" | "leftover";
+        /**
          * FundPositionDTO
          * @description Uma posição da gestora: o caixa, uma ação (com quantidade) ou um título de renda fixa.
          */
@@ -8787,6 +8887,37 @@ export interface components {
             value: string;
             /** Fraction */
             fraction: string;
+        };
+        /**
+         * FundPreferenceOfferDTO
+         * @description A preferência de quem consulta numa emissão aberta: o que ele ainda pode comprar antes do público.
+         */
+        FundPreferenceOfferDTO: {
+            /** Fund Id */
+            fund_id: number;
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            /** Issuance Quotas */
+            issuance_quotas: string;
+            /** Price */
+            price: string;
+            /** My Rights */
+            my_rights: string;
+            /** My Left */
+            my_left: string;
+            /** Holders Bought */
+            holders_bought: string;
+            /**
+             * Preference Ends On
+             * Format: date
+             */
+            preference_ends_on: string;
+            /** Sessions Left */
+            sessions_left: number;
+            /** Leftover Sessions */
+            leftover_sessions: number;
         };
         /**
          * FundPreparationDTO
@@ -22202,6 +22333,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FundAccountDTO"][];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_fund_offers_api_funds_offers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundOffersDTO"];
                 };
             };
             /** @description Unprocessable Content */

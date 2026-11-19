@@ -255,7 +255,7 @@ def test_notification_types_list_the_registry_in_importance_order(
     fixed = {n["type"] for n in catalog["news"] if n["fixed"]}
     assert fixed == {"ELECTION_RESULT", "CAMPAIGN_OPENED"}
     held_only = {n["type"] for n in catalog["news"] if n["portfolio_filter"]}
-    assert held_only == {"STRONG_MOVE", "WEEK_HIGH"}
+    assert held_only == {"STRONG_MOVE", "WEEK_HIGH", "FUND_ISSUANCE_OPENED"}
     assert [s["section"] for s in catalog["sections"]] == [
         "ECONOMY",
         "COMPANIES",

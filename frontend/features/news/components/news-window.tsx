@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Clock, X } from "lucide-react";
+import { Clock, ShoppingCart, X } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card } from "@/shared/components/ui/card";
@@ -20,6 +20,8 @@ type NewsWindowProps = {
 export function NewsWindow({ news, onClose }: NewsWindowProps) {
   const { data: state } = useSimulationState();
   const paused = state?.speed === 0;
+  // A abertura de oferta leva direto à cota que está à venda
+  const offerTicker = news.news_type === "FUND_OFFER_OPENED" ? news.tickers[0] : undefined;
 
   return (
     <Card
@@ -63,9 +65,21 @@ export function NewsWindow({ news, onClose }: NewsWindowProps) {
         <Button variant="outline" size="sm" nativeButton={false} render={<Link to="/journal" onClick={onClose} />}>
           Abrir o jornal
         </Button>
-        <Button variant="dark" size="sm" onClick={onClose}>
-          Fechar
-        </Button>
+        {offerTicker ? (
+          <Button
+            variant="fund"
+            size="sm"
+            nativeButton={false}
+            render={<Link to={`/variable-income/${offerTicker}`} onClick={onClose} />}
+          >
+            <ShoppingCart />
+            Comprar cotas
+          </Button>
+        ) : (
+          <Button variant="dark" size="sm" onClick={onClose}>
+            Fechar
+          </Button>
+        )}
       </div>
     </Card>
   );

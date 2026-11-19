@@ -410,6 +410,76 @@ class FundIssuanceStatusDTO(FundIssuanceDTO):
     my_bought: Decimal | None
 
 
+# O que a gestora vende ao público: a oferta de abertura ou a sobra de uma emissão
+type FundOpenOfferKind = Literal["initial", "leftover"]
+# O que já encerrou: a oferta de abertura ou uma emissão
+type FundClosedOfferKind = Literal["initial", "issuance"]
+
+
+class FundPreferenceOfferDTO(BaseDTO):
+    """A preferência de quem consulta numa emissão aberta: o que ele ainda pode comprar antes do público."""
+
+    fund_id: int
+    ticker: str
+    name: str
+    issuance_quotas: Decimal
+    price: Decimal
+    # O direito no anúncio, o que falta usar e o que os cotistas já compraram da emissão
+    my_rights: Decimal
+    my_left: Decimal
+    holders_bought: Decimal
+    preference_ends_on: date
+    # Pregões que restam da preferência, contando hoje, e os da sobra que vêm depois
+    sessions_left: int
+    leftover_sessions: int
+
+
+class FundOpenOfferDTO(BaseDTO):
+    """Uma venda de cotas novas aberta a qualquer investidor, a preço fixo."""
+
+    fund_id: int
+    ticker: str
+    name: str
+    manager_nickname: str | None
+    kind: FundOpenOfferKind
+    price: Decimal
+    # As cotas postas à venda (da oferta ou da emissão) e o que ainda não foi vendido
+    quotas: Decimal
+    remaining: Decimal
+    # O pregão de hoje na oferta de abertura e quantos pregões ainda restam depois de hoje
+    session: int | None
+    ends_on: date
+    sessions_left: int
+    management_fee: Decimal
+    performance_fee: Decimal
+    # Só na sobra de emissão: até quando valeu a preferência dos cotistas e quanto eles compraram
+    preference_ends_on: date | None
+    preference_bought: Decimal | None
+
+
+class FundClosedOfferDTO(BaseDTO):
+    """Uma oferta ou emissão que já encerrou, com o preço dela e o da cota no mercado hoje."""
+
+    fund_id: int
+    ticker: str
+    name: str
+    kind: FundClosedOfferKind
+    price: Decimal
+    quotas: Decimal
+    sold: Decimal
+    closed_on: date
+    # O preço do último negócio da cota; nulo se nunca negociou
+    market_price: Decimal | None
+
+
+class FundOffersDTO(BaseDTO):
+    """A página Ofertas públicas como quem consulta a vê."""
+
+    preference: list[FundPreferenceOfferDTO]
+    open: list[FundOpenOfferDTO]
+    closed: list[FundClosedOfferDTO]
+
+
 type FundAssemblyStance = Literal["favor", "against", "abstain"]
 # "manager_only" é a pauta que só o gestor principal propõe
 type FundAssemblyBlock = Literal[

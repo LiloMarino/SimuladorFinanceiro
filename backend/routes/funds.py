@@ -30,6 +30,7 @@ from backend.core.dto.fund import (
     FundIssuanceSubscriptionRequest,
     FundMonthlyReportDTO,
     FundOfferRequest,
+    FundOffersDTO,
     FundRoomItemDTO,
     FundSummaryDTO,
     FundTickerCheckDTO,
@@ -78,6 +79,16 @@ def found_fund(
 )
 def get_fund_accounts(simulation: ActiveSimulation, user: CurrentUser):
     return simulation.get_fund_accounts(user)
+
+
+@funds_router.get(
+    "/offers",
+    response_model=FundOffersDTO,
+    summary="Listar as ofertas públicas",
+    description="A preferência de quem consulta nas emissões abertas, as vendas abertas a qualquer investidor (oferta de abertura de gestora nova e sobra de emissão) e as encerradas com o preço da cota hoje ao lado do preço da oferta.",
+)
+def get_fund_offers(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_fund_offers(user)
 
 
 @funds_router.get(

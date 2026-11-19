@@ -15,13 +15,14 @@ O **Jornal** conta o que acontece no mercado e no país: movimento de ações, d
 
 ## Eventos raros abrem a janela
 
-Três tipos de notícia são raros e por isso abrem a **janela central por padrão**:
+Quatro tipos de notícia são raros e por isso abrem a **janela central por padrão**:
 
 - **Ação de campanha em destaque:** uma ação que viraliza ou dá errado, e todo ataque entre partidos.
 - **Programa de governo com nome:** o auxílio ou as obras ganham nome, são rebatizados ou acabam.
 - **Ruptura de partido:** expulsão, federação formada ou desfeita, acordo de apoio rompido ou deixado.
+- **Abertura de oferta pública:** uma gestora abre a venda de cotas a qualquer investidor. A janela traz o botão **Comprar cotas**, que leva ao detalhe da cota na renda variável. A emissão de cotas novas não abre janela: ela segue no cartão do canto, com o botão **Ver**, que leva à página Ofertas públicas. Em Configurações, o tipo oferece **Só ativos da minha carteira**, desligado por padrão: ligado, a emissão só aparece (no canto e no Jornal) para quem tem cotas da gestora.
 
-Quem já salvou as preferências do Jornal antes dessas notícias existirem tem o mapa completo gravado e precisa subir esses três tipos para **Janela** à mão; quem nunca mexeu recebe o padrão novo.
+Quem já salvou as preferências do Jornal antes dessas notícias existirem tem o mapa completo gravado e precisa subir esses quatro tipos para **Janela** à mão; quem nunca mexeu recebe o padrão novo.
 
 ## Movimento forte e máxima de 52 semanas
 

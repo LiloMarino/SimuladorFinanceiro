@@ -81,4 +81,10 @@ describe("levelFor", () => {
     expect(levelFor("WINDOW", true, ["VALE3"], held)).toBe("OFF");
     expect(levelFor("WINDOW", true, [], held)).toBe("OFF");
   });
+
+  it("a emissão de uma gestora segue o ticker da cota: o cotista mantém o nível e quem não tem a cota perde", () => {
+    const quotaHolder = new Set(["AURO11"]);
+    expect(levelFor("JOURNAL", true, ["AURO11"], quotaHolder)).toBe("JOURNAL");
+    expect(levelFor("JOURNAL", true, ["AURO11"], held)).toBe("OFF");
+  });
 });

@@ -25,9 +25,16 @@ export function NewsCard({ news, others }: NewsCardProps) {
       </div>
       <div className="flex items-center justify-between border-t border-paper-border px-3.5 py-1.5 text-xs">
         <span className="text-muted-foreground">{others > 0 && `+${others} neste pregão`}</span>
-        <Button variant="link" size="xs" nativeButton={false} render={<Link to="/journal" />}>
-          Abrir o jornal ›
-        </Button>
+        <span className="flex items-center gap-2">
+          <Button variant="link" size="xs" nativeButton={false} render={<Link to="/journal" />}>
+            Abrir o jornal ›
+          </Button>
+          {news.news_type === "FUND_ISSUANCE_OPENED" && (
+            <Button variant="outline" size="sm" nativeButton={false} render={<Link to="/offers" />}>
+              Ver
+            </Button>
+          )}
+        </span>
       </div>
     </Card>
   );

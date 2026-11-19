@@ -35,6 +35,8 @@ export const progressIndicatorVariants = cva("h-full rounded-full transition-all
       success: "bg-success",
       warning: "bg-warning",
       destructive: "bg-destructive",
+      // Vendas das gestoras: a cor da expansão
+      fund: "bg-fund",
     },
   },
   defaultVariants: { tone: "default" },

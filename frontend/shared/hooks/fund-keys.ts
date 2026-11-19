@@ -2,6 +2,7 @@
 export const fundKeys = {
   all: () => ["funds"] as const,
   list: () => ["funds", "list"] as const,
+  offers: () => ["funds", "offers"] as const,
   detail: (fundId: number) => ["funds", "detail", fundId] as const,
   tickerCheck: (ticker: string) => ["funds", "ticker-check", ticker] as const,
   issuancePreview: (fundId: number, quotas: number) => ["funds", "issuance-preview", fundId, quotas] as const,
