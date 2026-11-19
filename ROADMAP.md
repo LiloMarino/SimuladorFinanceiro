@@ -84,12 +84,11 @@
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
-| [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | Baixo | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (53 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (54 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | — | — | ✅ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
+| [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | ✅ |
 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
@@ -161,7 +161,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 32/38 concluídos
+> **Progresso:** 33/38 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -189,7 +189,7 @@
 | 22 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | — | ✅ Concluído |
 | 23 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | — | ✅ Concluído |
 | 24 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | — | ✅ Concluído |
-| 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | [F299](#f299) | ⏳ Pendente |
+| 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | — | ✅ Concluído |
 | 26 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | — | ✅ Concluído |
 | 27 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | — | ⏳ Pendente |
 | 28 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | ✅ Concluído |
@@ -297,7 +297,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 · 27º | 0 | Baixo | Bom | ⏳ |
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
@@ -365,7 +364,6 @@
 | **F304** | Feature | Co-gestão combinada no lobby | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
-| **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 | [F299](#f299) | Médio | Baixo | Médio | Bom |
 | **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 | [F301](#f301), [F313](#f313) | Alto | Alto | Médio | Médio |
 | **F312** | Melhoria | Cor da expansão na conta que opera | N15, N23 | — | M18 · 4.2 | — | Baixo | Baixo | Médio | Bom |
 
@@ -578,9 +576,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
 
-<a id="f310"></a>
-**F310 — Página Ofertas públicas.** Serve N23. Da rodada de canvas da tela da gestora em abas, em 17/11. A compra na oferta pública e na sobra da emissão já sai pelo livro do detalhe da cota na renda variável, que mostra a venda em aberto (preço fixo, quanto sobra e até quando); a tela da gestora leva até lá. Falta quem não tem gestora achar as ofertas da sala: como no app das corretoras, uma página própria no menu lateral, "Ofertas públicas", com as ofertas e emissões abertas da sala, cada uma com o preço fixo, os pregões que faltam e a preferência do cotista na emissão (o gestor a tem só como cotista, na proporção das cotas, sem vantagem de gestor), o atalho para o detalhe da cota e o histórico das encerradas. A emissão segue no card da gestora. A abertura da oferta pública passa a chegar em janela (o nível WINDOW do jornal, no centro da tela, sem pausar), com o botão que leva à compra; a emissão segue no cartão do canto. Desenho na rodada de canvas da linha da gestora.
-
 <a id="f311"></a>
 **F311 — Fusão de gestoras.** Serve N23. Da conversa sobre posse de gestoras, em 18/11. No modo aquisição hostil (F305) o jogador acaba gerindo várias gestoras (F301), e controlar dez ao mesmo tempo é inviável. A fusão junta duas: a gestora mãe incorpora a filha, o ticker que fica é o da mãe, e tudo o que a filha tem (caixa, ações, títulos e cotas de outros ativos) passa para a mãe; a filha deixa de existir e sai da renda variável. **Decidido em 18/11: as assembleias das duas aprovam.** Quem gere as duas propõe a fusão, e ela vira pauta na assembleia de cada uma, com 5 pregões de votação; sai se a maioria de quem votou aprovar nas duas. Cada cotista da filha recebe cotas da mãe pela relação entre os patrimônios por cota do dia da aprovação (filha a R$ 50 e mãe a R$ 100: duas cotas da filha viram uma da mãe), e quem votou contra pode sair recebendo o patrimônio por cota, pago pela filha antes da incorporação. O que o caixa da filha não cobre, a mãe paga com o próprio caixa logo depois da incorporação: pagar pelo patrimônio por cota não tira nada de quem fica. Se nem o caixa somado das duas cobre, a fusão trava e o placar mostra quanto falta. Só os cotistas da filha podem sair; os da mãe não, porque ela continua existindo. Depende da assembleia com aba própria (F313). Desenho na rodada de canvas da linha da gestora.
 
@@ -700,6 +695,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 |
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
+| **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 |
 | **F313** | Feature | Assembleia de cotistas com aba própria e aumento de taxa | N23 | — | M18 · 4.2 |
 
 <a id="f44"></a>
@@ -924,6 +920,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f308"></a>
 **F308 — Spike: impacto do jogador no preço, teto do k e oscilação no pregão.** Serve N3 e N10; condicionado por D22. Do playtest de 17/11: a partida das estatais rodou com k 3,0, contra 0,05 das outras, houve preço de 1.837 a 237.871 e o gráfico da estatal saltou e voltou ao pausar. Mediu a faixa realista do k sobre 8 séries reais de preço e volume (81 ativo-anos, 21.315 pregões) com o script `measure_k.py` em `.claude/trabalho/impacto-k/`. **Resultado:** a volatilidade diária mediana é de 2,06% (quartis de 1,70% e 2,61%), o que dá k de 0,01 a 0,04, centrado em 0,02; o teste com preço e volume reais ajusta Y em 0,77 (k ≈ 0,016, um teto). O preset Realista (0,02) está no centro da faixa e o Forte (0,05) logo acima. **Feito:** o campo do k segue sem teto e o lobby avisa acima de 0,10 (compra de 4 vezes o volume médio: k 0,10 sobe 20%, k 1 sobe 200%, com a faixa realista no texto). **A causa do gráfico que saltava ao pausar** era a vela de fechamento da cota de gestora e da estatal fundada, que ia crua pelo tempo real enquanto a leitura de detalhes a multiplicava pelo fator das ordens; esses ativos têm o preço formado pelo livro e passaram a ficar fora do fator (`price_impact.py` e o fluxo de ordens do repositório), com testes. **Impacto dentro do pregão como opção da sala:** viável sem tocar no backtest, com um flag da sala separado de `price_impact_enabled`, mas fica de fora por mudar o fator por dia, os caches, a publicação de preço a cada ordem e a liquidez do livro; a D22 registra quando reabrir. **Limitações:** não há dado real de ordens, só preço e volume, e a amostra tem poucos ativos: a faixa vale como ordem de grandeza. O relatório completo está em `.claude/trabalho/impacto-k/resultado.md`.
+
+<a id="f310"></a>
+**F310 — Página Ofertas públicas.** Serve N23. Da rodada de canvas da tela da gestora em abas, em 17/11. A compra na oferta pública e na sobra da emissão já sai pelo livro do detalhe da cota na renda variável, que mostra a venda em aberto (preço fixo, quanto sobra e até quando); a tela da gestora leva até lá. Falta quem não tem gestora achar as ofertas da sala: como no app das corretoras, uma página própria no menu lateral, "Ofertas públicas", com as ofertas e emissões abertas da sala, cada uma com o preço fixo, os pregões que faltam e a preferência do cotista na emissão (o gestor a tem só como cotista, na proporção das cotas, sem vantagem de gestor), o atalho para o detalhe da cota e o histórico das encerradas. A emissão segue no card da gestora. A abertura da oferta pública passa a chegar em janela (o nível WINDOW do jornal, no centro da tela, sem pausar), com o botão que leva à compra; a emissão segue no cartão do canto. Desenho na rodada de canvas da linha da gestora.
 
 <a id="f313"></a>
 **F313 — Assembleia de cotistas com aba própria e aumento de taxa.** Serve N23. Do comentário no canvas da tela da gestora, em 18/11. A assembleia de cotistas existe em toda partida com Gestoras (`fund_assembly.py`): quem tem 10% das cotas convoca, a votação dura 5 pregões, vence a maioria de quem votou (bots e formador de mercado não votam) e a única pauta é trocar o gestor. Ela mora num bloco da página da gestora (`fund-assembly.tsx`) e não chega às pendências, que só levam o convite de candidato (`FUND_ASSEMBLY_INVITE`). **Decidido em 18/11.** **Aba Assembleia na tela da gestora, no nível da aba Congresso do governo:** a votação aberta com placar, pauta, prazo e o voto; a convocação; o histórico das encerradas. **Pautas:** trocar o gestor (a de hoje), a fusão de gestoras (F311) e o aumento de taxa: subir a taxa de administração ou a de performance passa a depender de aprovação e vale no mês seguinte ao resultado; baixar continua livre. Cada pauta tem a própria votação; o intervalo de 3 meses entre convocações segue valendo para a troca de gestor. **Pendência:** a votação aberta vira pendência para quem tem cota e ainda não votou, com o prazo, e entra no "Decida agora" da aba Suas ações. Desenho na rodada de canvas da linha da gestora. **Conflito de interesse:** gestor e co-gestores não votam no aumento de taxa, porque ganham com ele, e votam nas outras pautas (a Ana, com 54,8% das cotas, fica fora e a Bia e o Caio decidem). Sem nenhum voto a pauta não passa: na sala em que as outras cotas são só de bots, a taxa só desce.
