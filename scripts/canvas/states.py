@@ -2487,6 +2487,34 @@ def stock_state_company_detail(page: Page) -> None:
     dismiss_topic(page)
 
 
+def offers_page(page: Page) -> None:
+    """A página Ofertas públicas com a oferta inicial da gestora do host aberta."""
+    fund_match(page, stage="offer-open")
+    page.goto("/offers")
+    page.get_by_role("heading", name="Abertas a qualquer investidor").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def offers_empty(page: Page) -> None:
+    """A página Ofertas públicas numa sala sem oferta aberta."""
+    fund_match(page, stage="none")
+    page.goto("/offers")
+    page.get_by_role("heading", name="Nenhuma oferta aberta agora").wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def offers_window(page: Page) -> None:
+    """
+    A janela central da abertura de oferta pública. A gestora do host está fechada com cotas
+    e abre a oferta pela API com a partida em pé: a manchete chega pelo tempo real e a janela
+    fica no ar por alguns segundos.
+    """
+    fund_match(page, stage="contributed")
+    fund_id = api_json(page, "/api/funds")[0]["id"]
+    api_send(page, "POST", f"/api/funds/{fund_id}/offer", {"quotas": 20})
+    page.get_by_role("dialog", name="Edição extra do jornal").wait_for()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -2588,4 +2616,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/sem-gestora-lista": funds_room_list,
     "renda-variavel/estatal": stock_state_owned,
     "estatal/detalhe": stock_state_company_detail,
+    "ofertas/pagina": offers_page,
+    "ofertas/vazia": offers_empty,
+    "ofertas/janela": offers_window,
 }
