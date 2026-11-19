@@ -79,3 +79,26 @@ def test_split_and_fraction_sale_are_not_market_flow(match: tuple[int, int]):
 
     # Só a compra de 10 é pressão de mercado; o desdobramento e a fração ficam de fora
     assert [(f.ticker, f.quantity) for f in flow] == [("ABCD", Decimal(10))]
+
+
+def test_fund_shares_are_not_market_flow(match: tuple[int, int]):
+    """O preço da cota nasce do livro de ofertas: a compra dela não entra no fluxo do impacto."""
+    portfolio_id, simulation_id = match
+    repository.stock.add_stock("FNDA", "FNDA", AssetClass.FUND)
+
+    def buy(ticker: str) -> EquityEventDTO:
+        return EquityEventDTO(
+            simulation_id=simulation_id,
+            portfolio_id=portfolio_id,
+            event_date=DAY,
+            ticker=ticker,
+            event_type=EquityEventType.BUY,
+            quantity=Decimal(10),
+            price=Decimal(1),
+        )
+
+    repository.event.insert_many([buy("ABCD"), buy("FNDA")])
+
+    flow = repository.event.get_daily_equity_flow(simulation_id)
+
+    assert [f.ticker for f in flow] == ["ABCD"]

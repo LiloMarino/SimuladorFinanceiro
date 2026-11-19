@@ -71,6 +71,8 @@ class EconomyAdjustment(Protocol):
 
     def dividend_factor(self, ticker: str, day: date) -> float: ...
 
+    def founded(self, ticker: str) -> bool: ...
+
 
 class EconomicRepository:
     def __init__(self) -> None:
@@ -120,6 +122,11 @@ class EconomicRepository:
         """O quanto o efeito do governo move o preço da ação no dia; 1 sem efeito."""
         adjustment = self._adjustments.get(simulation_id)
         return 1.0 if adjustment is None else adjustment.stock_factor(ticker, day)
+
+    def is_founded(self, simulation_id: int, ticker: str) -> bool:
+        """A ação é uma estatal fundada na partida: o preço dela nasce do livro de ofertas."""
+        adjustment = self._adjustments.get(simulation_id)
+        return adjustment is not None and adjustment.founded(ticker)
 
     def dividend_factor(self, simulation_id: int, ticker: str, day: date) -> float:
         """O quanto o efeito do governo move o provento da ação no dia; 1 sem efeito."""

@@ -12,7 +12,7 @@ from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
 from backend.core.dto.events.strategy import StrategyEventDTO
-from backend.core.enum import CashflowEventType
+from backend.core.enum import AssetClass, CashflowEventType
 from backend.core.models.models import (
     EventCashflow,
     EventCredit,
@@ -108,6 +108,7 @@ class EventRepository:
         """
         Quantidade líquida (compras - vendas) por ativo e dia, a partir de `since`.
         Desdobramento e venda de fração são ajustes da empresa, não pressão de mercado.
+        Cota de gestora fica de fora: o preço dela nasce do livro de ofertas.
         """
         quantity = func.sum(
             Case(
@@ -120,6 +121,7 @@ class EventRepository:
             select(Stock.ticker, EventEquity.event_date, quantity)
             .join(Stock, Stock.id == EventEquity.stock_id)
             .where(EventEquity.simulation_id == simulation_id)
+            .where(Stock.asset_class != AssetClass.FUND.value)
             .group_by(Stock.ticker, EventEquity.event_date)
             .order_by(EventEquity.event_date)
         )

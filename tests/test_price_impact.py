@@ -144,6 +144,26 @@ def test_order_moves_only_following_days(flows: list[DailyEquityFlowDTO]):
     assert price_impact.apply(_candle()).close == round(10.5 * 1.0063246, 2)
 
 
+def test_founded_state_company_keeps_the_book_price(
+    flows: list[DailyEquityFlowDTO], monkeypatch: pytest.MonkeyPatch
+):
+    """A estatal fundada tem o preço formado pelo livro: o fator das ordens vale 1 no candle e no histórico."""
+    monkeypatch.setattr(
+        repository.economic, "is_founded", lambda simulation_id, ticker: True
+    )
+    flows.append(_flow(100_000))
+    price_impact = _impact()
+    price_impact.refresh(TUESDAY)
+
+    assert price_impact.apply(_candle()) == _candle()
+    history = [
+        StockPriceHistoryDTO(
+            price_date=TUESDAY, open=10.0, high=11.0, low=9.0, close=10.5, volume=500
+        )
+    ]
+    assert price_impact.apply_history("ABCD", history) == history
+
+
 def test_impact_decays_across_weekend(flows: list[DailyEquityFlowDTO]):
     """Sexta → segunda é um pregão só: segunda ainda recebe o impacto cheio."""
     flows.append(_flow(100_000, FRIDAY))
@@ -228,6 +248,9 @@ class Market:
 
     def stock_factor(self, ticker: str, day: date) -> float:
         return self.factor if ticker == "ABCD" else 1.0
+
+    def founded(self, ticker: str) -> bool:
+        return False
 
 
 @pytest.fixture

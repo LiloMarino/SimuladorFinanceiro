@@ -1,8 +1,20 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
+import { TriangleAlert } from "lucide-react";
+import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Field, FieldError, FieldLabel, FieldLegend, FieldSet } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { PRICE_IMPACT_MODE_LABELS, type PriceImpactMode } from "@/shared/lib/price-impact";
+import {
+  isPriceImpactKHigh,
+  PRICE_IMPACT_MODE_LABELS,
+  PRICE_IMPACT_REALISTIC_RANGE,
+  PRICE_IMPACT_WARNING_EXAMPLE_VOLUME,
+  PRICE_IMPACT_WARNING_K,
+  priceImpactJump,
+  type PriceImpactMode,
+} from "@/shared/lib/price-impact";
+import { normalizeNumberString } from "@/shared/lib/utils";
+import { displayDecimal, displayPercent } from "@/shared/lib/utils/display";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { SimulationFormValues } from "../../lib/simulation-form";
 import { PriceImpactExample } from "../price-impact-example";
@@ -80,6 +92,22 @@ export function PriceImpactFields({
             )}
           />
         </div>
+      )}
+
+      {/* Aviso de k alto */}
+      {mode === "CUSTOM" && isPriceImpactKHigh(k) && (
+        <Alert variant="warning">
+          <TriangleAlert />
+          <AlertDescription>
+            Com k acima de {displayDecimal(PRICE_IMPACT_WARNING_K)} o preço salta. Comprar{" "}
+            {PRICE_IMPACT_WARNING_EXAMPLE_VOLUME} vezes o volume médio diário de uma ação sobe o preço{" "}
+            <b className="font-mono">{displayPercent(priceImpactJump(Number(normalizeNumberString(k))), 0)}</b> com o k
+            atual: com k {displayDecimal(PRICE_IMPACT_WARNING_K)} sobe{" "}
+            {displayPercent(priceImpactJump(PRICE_IMPACT_WARNING_K), 0)}
+            e com k 1 sobe {displayPercent(priceImpactJump(1), 0)}. No histórico real, o k fica entre{" "}
+            {displayDecimal(PRICE_IMPACT_REALISTIC_RANGE.min)} e {displayDecimal(PRICE_IMPACT_REALISTIC_RANGE.max)}.
+          </AlertDescription>
+        </Alert>
       )}
 
       {enabled && <PriceImpactExample k={k} decayDays={decayDays} ticker={exampleTicker} />}

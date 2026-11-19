@@ -439,12 +439,16 @@ class EconomyLayer:
         """O dólar da partida contra o da história."""
         return math.exp(sum(self.dollar_exponents(day)))
 
+    def founded(self, ticker: str) -> bool:
+        """A ação é uma estatal fundada na partida."""
+        return self._state is not None and self._state.founded(ticker)
+
     def stock_factor(self, ticker: str, day: date) -> float:
         """O quanto o efeito do governo move o preço da ação no dia: a bolsa, o setor e as ordens na estatal."""
         state = self._state
         if state is None:
             return self._market_factor(ticker, day)
-        if state.founded(ticker):
+        if self.founded(ticker):
             return 1.0
         return self._market_factor(ticker, day) * state.price(ticker, day)
 

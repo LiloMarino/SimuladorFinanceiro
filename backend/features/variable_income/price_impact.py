@@ -102,6 +102,7 @@ class PriceImpact:
         self._factors = {
             ticker: self._factor_on(flows, today)
             for ticker, flows in flows_by_ticker.items()
+            if not self._priced_by_book(ticker)
         }
         self._factors_by_day[today] = self._factors
 
@@ -126,7 +127,7 @@ class PriceImpact:
 
     def _orders_factors(self, ticker: str, days: list[date]) -> dict[date, float]:
         """Só o efeito das ordens: os dias sem refresh saem dos eventos, uma vez cada."""
-        if not self.enabled:
+        if not self.enabled or self._priced_by_book(ticker):
             return dict.fromkeys(days, 1.0)
 
         earlier = self._earlier_days.setdefault(ticker, {})
@@ -148,6 +149,10 @@ class PriceImpact:
             else earlier[day]
             for day in days
         }
+
+    def _priced_by_book(self, ticker: str) -> bool:
+        """A estatal fundada tem o preço formado pelas ordens no livro: o fator das ordens vale 1, como o do governo. A cota de gestora sai dos fluxos no repositório."""
+        return repository.economic.is_founded(self.simulation_id, ticker)
 
     def _market(self, ticker: str, day: date) -> float:
         """O efeito das medidas do governo na bolsa vale com o impacto das ordens ligado ou não."""
