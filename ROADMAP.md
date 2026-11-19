@@ -141,10 +141,10 @@
 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 | — | — | — | ✅ |
 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 | — | — | — | ✅ |
 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 | — | — | — | ✅ |
-| [**F300**](#f300) | Melhoria | Tela da gestora em abas (Ações, Visão geral, Carteira, Cotas, Rendimentos, Assembleia, Relatório e Configurações, com ?tab= e Carteira/Configurações só para o gestor): topo num cartão com os indicadores, gestor desde quando e compradores da oferta guardados no banco, gráfico com o preço de ranking e a faixa do dia, relatório mensal por rota com seletor dos meses publicados, empréstimo completo na Carteira com a gestora na topbar e recompra com os textos do desenho; cartões de ação e o crédito promovidos para o compartilhado. | M18 · 4.2 | — | — | — | ✅ |
+| [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | M18 · 4.2 | — | — | — | ✅ |
 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 | — | — | — | ✅ |
-| [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública: emissão dirigida do gestor principal para si (liquida na hora) ou para um co-gestor ativo (oferta de 7 dias nas pendências), paga do caixa pessoal ao maior entre patrimônio por cota e preço de ranking, com o teto combinado dos gestores no modo aquisição hostil; empréstimo em nome da gestora pela página de Crédito com a gestora na topbar, nota pelo histórico diário dela e taxa a pagar como dívida; Crédito travado no Fundo Soberano e para o co-gestor. | M18 · 4.2 | — | — | — | ✅ |
-| [**F307**](#f307) | Correção | Preço da estatal fundada anda todo dia em volta do valor justo (Ibovespa da partida com β 0,8, ruído de 1,2% ao dia, meia-vida de 30 pregões, PIB no valor justo); vela sem negócio fecha na referência; estratégia de bot Estatais; tela da ação com lucro, dividendo e valor justo por mês, o porquê do mês e quem tem as ações; link na aba Estatais do governo. | M18 · 4.2 | — | — | — | ✅ |
+| [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 | — | — | — | ✅ |
+| [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
@@ -190,16 +190,16 @@
 | 23 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | — | ✅ Concluído |
 | 24 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | — | ✅ Concluído |
 | 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | [F299](#f299) | ⏳ Pendente |
-| 26 | [**F300**](#f300) | Melhoria | Tela da gestora em abas (Ações, Visão geral, Carteira, Cotas, Rendimentos, Assembleia, Relatório e Configurações, com ?tab= e Carteira/Configurações só para o gestor): topo num cartão com os indicadores, gestor desde quando e compradores da oferta guardados no banco, gráfico com o preço de ranking e a faixa do dia, relatório mensal por rota com seletor dos meses publicados, empréstimo completo na Carteira com a gestora na topbar e recompra com os textos do desenho; cartões de ação e o crédito promovidos para o compartilhado. | — | ✅ Concluído |
+| 26 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | — | ✅ Concluído |
 | 27 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | — | ⏳ Pendente |
 | 28 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | ⏳ Pendente |
 | 29 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | — | ✅ Concluído |
 | 30 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ⏳ Pendente |
 | 31 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ⏳ Pendente |
-| 32 | [**F307**](#f307) | Correção | Preço da estatal fundada anda todo dia em volta do valor justo (Ibovespa da partida com β 0,8, ruído de 1,2% ao dia, meia-vida de 30 pregões, PIB no valor justo); vela sem negócio fecha na referência; estratégia de bot Estatais; tela da ação com lucro, dividendo e valor justo por mês, o porquê do mês e quem tem as ações; link na aba Estatais do governo. | — | ✅ Concluído |
+| 32 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | — | ✅ Concluído |
 | 33 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ✅ Concluído |
 | 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ⏳ Pendente |
-| 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública: emissão dirigida do gestor principal para si (liquida na hora) ou para um co-gestor ativo (oferta de 7 dias nas pendências), paga do caixa pessoal ao maior entre patrimônio por cota e preço de ranking, com o teto combinado dos gestores no modo aquisição hostil; empréstimo em nome da gestora pela página de Crédito com a gestora na topbar, nota pelo histórico diário dela e taxa a pagar como dívida; Crédito travado no Fundo Soberano e para o co-gestor. | — | ✅ Concluído |
+| 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | ✅ Concluído |
 | 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ⏳ Pendente |
 | 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | [F300](#f300) | ⏳ Pendente |
 | 38 | [**F311**](#f311) | Feature | Fusão de gestoras | [F301](#f301), [F313](#f313) | ⏳ Pendente |
@@ -707,10 +707,10 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F297** | Correção | Correções do playtest: governo e eleição | N34 | — | M18 · 4.2 |
 | **F298** | Correção | Correções do playtest: lobby, bots e profissões | N39, N8 | — | M18 · 4.2 |
 | **F299** | Feature | Cota de gestora negociada na renda variável | N23 | — | M18 · 4.2 |
-| **F300** | Melhoria | Tela da gestora em abas (Ações, Visão geral, Carteira, Cotas, Rendimentos, Assembleia, Relatório e Configurações, com ?tab= e Carteira/Configurações só para o gestor): topo num cartão com os indicadores, gestor desde quando e compradores da oferta guardados no banco, gráfico com o preço de ranking e a faixa do dia, relatório mensal por rota com seletor dos meses publicados, empréstimo completo na Carteira com a gestora na topbar e recompra com os textos do desenho; cartões de ação e o crédito promovidos para o compartilhado. | N23, N15 | — | M18 · 4.2 |
+| **F300** | Melhoria | Tela da gestora em abas, como a do governo | N23, N15 | — | M18 · 4.2 |
 | **F302** | Correção | Caixa da gestora sem ficar negativo | N23 | — | M18 · 4.2 |
-| **F303** | Feature | Dinheiro novo na gestora depois da oferta pública: emissão dirigida do gestor principal para si (liquida na hora) ou para um co-gestor ativo (oferta de 7 dias nas pendências), paga do caixa pessoal ao maior entre patrimônio por cota e preço de ranking, com o teto combinado dos gestores no modo aquisição hostil; empréstimo em nome da gestora pela página de Crédito com a gestora na topbar, nota pelo histórico diário dela e taxa a pagar como dívida; Crédito travado no Fundo Soberano e para o co-gestor. | N23 | — | M18 · 4.2 |
-| **F307** | Correção | Preço da estatal fundada anda todo dia em volta do valor justo (Ibovespa da partida com β 0,8, ruído de 1,2% ao dia, meia-vida de 30 pregões, PIB no valor justo); vela sem negócio fecha na referência; estratégia de bot Estatais; tela da ação com lucro, dividendo e valor justo por mês, o porquê do mês e quem tem as ações; link na aba Estatais do governo. | N34 | — | M18 · 4.2 |
+| **F303** | Feature | Dinheiro novo na gestora depois da oferta pública | N23 | — | M18 · 4.2 |
+| **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
 
 <a id="f44"></a>
