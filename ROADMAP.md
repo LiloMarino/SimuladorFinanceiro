@@ -88,7 +88,6 @@
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | Alto | Bom | ⏳ |
-| [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
@@ -96,7 +95,7 @@
 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (45 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (47 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -120,6 +119,7 @@
 | **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F290](#f290), [F293](#f293) | — | — | ✅ |
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
+| **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 | — | — | — | ✅ |
 | [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 | — | — | — | ✅ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
@@ -145,6 +145,7 @@
 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 | — | — | — | ✅ |
 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 | — | — | — | ✅ |
 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 | — | — | — | ✅ |
+| [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -160,7 +161,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 25/38 concluídos
+> **Progresso:** 26/38 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -196,7 +197,7 @@
 | 30 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ⏳ Pendente |
 | 31 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ⏳ Pendente |
 | 32 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | — | ⏳ Pendente |
-| 33 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ⏳ Pendente |
+| 33 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ✅ Concluído |
 | 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ⏳ Pendente |
 | 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | ⏳ Pendente |
 | 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ⏳ Pendente |
@@ -303,7 +304,6 @@
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 · 30º | 0 | Médio | Bom | ⏳ |
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 · 31º | 0 | Médio | Bom | ⏳ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 · 32º | 0 | Alto | Bom | ⏳ |
-| [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 · 33º | 0 | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 · 35º | 0 | Alto | Bom | ⏳ |
 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 0 | Médio | Bom | ⏳ |
@@ -373,7 +373,6 @@
 | **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 | — | Médio | Médio | Médio | Bom |
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 | — | Alto | Médio | Alto | Bom |
-| **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 | — | Médio | Baixo | Alto | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 | [F299](#f299) | Médio | Baixo | Médio | Bom |
 | **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 | [F301](#f301), [F313](#f313) | Alto | Alto | Médio | Médio |
@@ -601,9 +600,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f307"></a>
 **F307 — Estatais com preço vivo e lucro à vista.** Serve N34. Do playtest de 17/11. A estatal fundada ficou em linha reta: o valor justo sorteia um retorno por ano (`fair_value.py`, média abaixo do juro real, desvio de 10%) e o divide em fatores iguais por dia, então dentro do ano é uma reta, e num ano de sorteio negativo é uma reta descendo; sem negócio, o fechamento repete o último preço; o impacto da compra do jogador decai e parece "só cair"; e num mês de lucro negativo não há dividendo. O volume 0 com milhões no livro é a escada do formador de mercado esperando: volume conta só negócio fechado. A política de dividendos do governo já vale (Reinvestir paga 25% do lucro e cresce o porte 1% ao mês; Normal 50%; Espremer 80% e encolhe o porte, `payout.py`, `gdp.py`). **Decidido em 18/11.** **Preço de referência diário em três camadas:** a tendência do ano ligada ao PIB (ano de PIB acima da média dá retorno maior, e o que o presidente faz no PIB mexe na estatal), a sensibilidade à bolsa do dia (0,8 para começar: a bolsa cai 2% e a estatal cai 1,6%) e um ruído próprio que puxa de volta para o valor justo. Sem negócio, o fechamento é essa referência, e a escada do formador se monta em volta dela. A fonte do retorno da bolsa e a calibração se fecham no plano. **Os bots negociam estatais** como qualquer ação ou cota. **Tela da estatal:** gráfico mensal de lucro, dividendo e valor justo, com o que o jogo já guarda (`state_company_months`), sem receita, que o modelo não tem; o mês sem dividendo diz por quê; a fatia do governo aparece na composição. A estatal importada segue o preço e os proventos da história, com o controle de preço e a política do governo como multiplicadores (`book.py:584-594`); as três camadas valem para a fundada. **Onde mora:** no detalhe da ação na renda variável, onde o investidor decide comprar; a linha da estatal na aba Estatais do governo ganha o link "Ver lucro e dividendos", que leva para lá, porque o presidente escolhe a política olhando esses números. A estatal usa as cores da renda variável, com o selo "Estatal" na cor do governo (`--expansion-government`), e não o verde-água da gestora.
 
-<a id="f308"></a>
-**F308 — Spike: impacto do jogador no preço, teto do k e oscilação no pregão.** Serve N3 e N10. Do playtest de 17/11. A partida das estatais rodou com intensidade do impacto (k) 3,0, contra 0,05 das outras; houve negócios a preços absurdos (uma ação foi de 1.837 a 237.871) e o gráfico da estatal saltou e voltou ao pausar. O impacto (`k·√(qtd/volume médio)` com decaimento) entra nas leituras e não nos candles salvos, por isso o preço volta ao pausar. **Decidido em 18/11: o campo do k fica sem teto, com aviso.** Acima de 0,10, o lobby avisa que o preço salta, com o exemplo da compra de 4 vezes o volume médio (k 0,10 sobe 20%; k 1 sobe 200%). O spike mede contra o histórico real a faixa realista de k, o texto do aviso com esses números e se o impacto dentro do pregão pode ser opção da sala sem mexer no modelo realista que o backtest usa.
-
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
 
@@ -726,6 +722,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F298** | Correção | Correções do playtest: lobby, bots e profissões | N39, N8 | — | M18 · 4.2 |
 | **F299** | Feature | Cota de gestora negociada na renda variável | N23 | — | M18 · 4.2 |
 | **F302** | Correção | Caixa da gestora sem ficar negativo | N23 | — | M18 · 4.2 |
+| **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
 
 <a id="f44"></a>
 **F44 — Expansão "Gestoras": fundar a gestora e abrir capital.** Serve N23. Inspiração: o Capitalism Lab (oferta pública, emissão de novas ações, recompra, compra de ações dos concorrentes), o OpenTTD e o Software Inc. Lá cada jogador é uma empresa que fabrica ou transporta; aqui tudo é finanças, então a empresa de cada jogador é uma gestora, e o que ela vende é o próprio desempenho. **Como expansão:** ligável por partida numa **aba própria "Expansões"** no lobby, com banner, emblema e "o que muda", como a loja de DLC dos jogos da Paradox; é enfeite visual, o sistema é o mesmo ligado ou não. **A gestora** tem nome e ticker de 4 letras mais 11, como cota de FII na B3 (o servidor recusa letras que já existam entre os ativos importados), e no livro de ofertas redesenhado (F211) cada linha leva a cor e a sigla de quem pôs a ordem, jogador ou bot, para não se confundir com ativo real. O jogador a funda levando **caixa, ações e títulos** da carteira em troca de cotas, e a opera **pelo rótulo do caixa na topbar** ("Caixa · Aurora Gestão ▾"): o rótulo abre a lista das contas, a pessoal e as gestoras que ele gere, e a escolhida vale para todas as telas de mercado, com uma faixa verde-petróleo dizendo qual conta está ativa. O botão "Operando" do desenho de 22/out sai, porque disputava a linha com a corrida e o governo (F179). **É um fundo fechado listado, como um FII:** (1) **oferta pública** quando o gestor quiser — cotas novas ao preço do patrimônio por cota (patrimônio de R$ 100 mil em 1.000 cotas dá R$ 100), e o dinheiro de quem compra entra na gestora: é investir no amigo; (2) **mercado** — depois da oferta, as cotas são negociadas no livro de ofertas que a renda variável já tem, e o preço sai da oferta e da procura, acima do patrimônio por cota (ágio) quando a sala acredita no gestor e abaixo (deságio) quando não; (3) **liquidez** — a liquidez de fundo do livro nasce dos candles de cada ativo, e a cota não tem candle, então um formador de mercado sintético põe ordens de compra e venda em volta do patrimônio por cota, numa faixa de 20% para cima e para baixo recalculada todo dia; dentro da faixa, o preço sai dos jogadores, e o livro tem contraparte até numa sala de 2; (4) **taxas** — a gestora paga aos gestores taxa de administração todo mês sobre o patrimônio e taxa de performance a cada 6 meses sobre o que passar do CDI, com teto na partida de **2% ao ano de administração e 20% de performance**, e cada gestor escolhe até o teto. Uma taxa nova passa a valer no mês seguinte, com aviso no jornal para a sala. A performance respeita a **marca d'água**, o maior patrimônio por cota sobre o qual a taxa já foi cobrada: se a cota cai de R$ 100 para 80 e volta a 100, a recuperação não paga performance. **O lucro fica dentro da gestora** e valoriza a cota. **Por que abrir capital, e quando:** as taxas são sobre o dinheiro dos outros, e com ágio as cotas do próprio gestor valem mais no ranking; o custo é ficar exposto, porque vender mais da metade abre a porta para perder o controle (F103). Abrir cedo, sem histórico, tende a sair com pouca procura; abrir depois de um bom ano tende a sair com ágio. **O gestor e a própria gestora:** o gestor negocia com a gestora pelo livro como qualquer jogador; a linha leva a sigla dele, então a negociação fica à vista, e quem cobra é a sala, vendendo a cota (deságio) ou trocando o gestor (F103). **Quem compra cotas:** pessoas, jogadores e bots, e o Fundo Soberano do governo; nunca gestoras, o que impede a participação cruzada (A com cotas da B, que tem cotas da A). **Os bots** não fundam gestora: compram e vendem cotas pelas estratégias que já têm, com a cota como mais um ativo do livro, e cada bot fica com no máximo 20% das cotas de uma gestora, para não decidir a assembleia; na assembleia (F103) eles se abstêm. **Regras para o cálculo fechar:** No ranking, cada jogador soma a carteira pessoal, as taxas recebidas e as cotas que tem pelo **preço de ranking**: a média dos negócios dos últimos 20 pregões, ponderada pelo volume e limitada a 30% acima ou abaixo do patrimônio por cota; sem negócio no período, vale o patrimônio por cota. Um ágio de até 30% conta, e um negócio forçado a R$ 1.000 numa cota de R$ 100 conta no máximo como R$ 130. A carteira da gestora só conta através das cotas, sem contar o mesmo dinheiro duas vezes. **Estrutura:** a carteira própria da gestora é a F101; a cota é um ativo no livro de ofertas, com o patrimônio por cota publicado a cada dia. **Com a expansão Governo & Política (F95):** quando o gestor vence a eleição, na posse ele deixa de operar a gestora e de receber as taxas, porque a carteira do presidente fica congelada; um co-gestor (F104) assume e, sem co-gestor, a gestora congela até o fim do mandato; as cotas que ele tem continuam dele. A F95 sai antes, então a carteira congelada do presidente já existe quando a gestora for implementada: cabe a esta feature estender o congelamento à gestora. **Nas features seguintes:** emissão de novas cotas e recompra (F102), troca de gestor pela assembleia (F103), co-gestores (F104) e rendimentos mensais (F105).
@@ -931,6 +928,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f302"></a>
 **F302 — Caixa da gestora sem ficar negativo.** Serve N23. Do playtest de 17/11. A gestora ficou com caixa negativo em 106 dias, o pior em −239 mil: a taxa de performance de 225,6 mil foi cobrada logo depois de uma distribuição de 1,14 milhão ter esvaziado o caixa. `charge_fund_fee` cobra sem olhar o caixa, e a distribuição não reserva as taxas. **Decidido em 18/11: taxa a pagar.** A parte da taxa que o caixa não cobre vira "taxa a pagar", uma dívida da gestora com o gestor: ela desconta do patrimônio pelo termo de dívida que `nav_per_quota` já tem, e o próximo dinheiro que entra (dividendo, juro, venda de ativo) quita a taxa a pagar antes de qualquer outra coisa. A distribuição paga só o caixa que sobra depois da taxa a pagar. O gestor recebe quando a gestora paga, e os co-gestores pela divisão de hoje (`split_fee`). A Carteira e o Relatório mostram a taxa a pagar em aberto.
+
+<a id="f308"></a>
+**F308 — Spike: impacto do jogador no preço, teto do k e oscilação no pregão.** Serve N3 e N10; condicionado por D22. Do playtest de 17/11: a partida das estatais rodou com k 3,0, contra 0,05 das outras, houve preço de 1.837 a 237.871 e o gráfico da estatal saltou e voltou ao pausar. Mediu a faixa realista do k sobre 8 séries reais de preço e volume (81 ativo-anos, 21.315 pregões) com o script `measure_k.py` em `.claude/trabalho/impacto-k/`. **Resultado:** a volatilidade diária mediana é de 2,06% (quartis de 1,70% e 2,61%), o que dá k de 0,01 a 0,04, centrado em 0,02; o teste com preço e volume reais ajusta Y em 0,77 (k ≈ 0,016, um teto). O preset Realista (0,02) está no centro da faixa e o Forte (0,05) logo acima. **Feito:** o campo do k segue sem teto e o lobby avisa acima de 0,10 (compra de 4 vezes o volume médio: k 0,10 sobe 20%, k 1 sobe 200%, com a faixa realista no texto). **A causa do gráfico que saltava ao pausar** era a vela de fechamento da cota de gestora e da estatal fundada, que ia crua pelo tempo real enquanto a leitura de detalhes a multiplicava pelo fator das ordens; esses ativos têm o preço formado pelo livro e passaram a ficar fora do fator (`price_impact.py` e o fluxo de ordens do repositório), com testes. **Impacto dentro do pregão como opção da sala:** viável sem tocar no backtest, com um flag da sala separado de `price_impact_enabled`, mas fica de fora por mudar o fator por dia, os caches, a publicação de preço a cada ordem e a liquidez do livro; a D22 registra quando reabrir. **Limitações:** não há dado real de ordens, só preço e volume, e a amostra tem poucos ativos: a faixa vale como ordem de grandeza. O relatório completo está em `.claude/trabalho/impacto-k/resultado.md`.
 
 ---
 

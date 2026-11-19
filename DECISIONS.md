@@ -5,7 +5,7 @@
 > **IDs:** `N#` necessidade · `D#` decisão transversal · `F#` feature · `M#` marco.
 > **Sincronização:** criar ou alterar um `N#`/`D#` aqui exige espelhar no `ROADMAP.md` (`upsert-ref`) na mesma mudança.
 >
-> **Última mudança (2026-11-11):** Registrado na D7 que os futuros de Monte Carlo moram na dimensão de versão e, na D20, que as estatais entram no molde da economia.
+> **Última mudança (2026-11-19):** Registrada a D22: a faixa realista do k do impacto de preço (0,01 a 0,04), o aviso acima de 0,10 e o impacto só a partir do pregão seguinte.
 
 ---
 
@@ -345,3 +345,15 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - Um coeficiente escrito em dois lugares diverge calado no dia em que o playtest o recalibra.
 
 **Consequências:** toda dica ou tópico do jogo que cita um conceito nasce com o "Saiba mais" para a página dele, e a página nasce junto. A reorganização da docs ganha uma categoria de explicação, que é a wiki do projeto. Sem internet, só o "Saiba mais" deixa de abrir; o resto do jogo se basta.
+
+### D22 — O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte
+**Status:** ✅ Decidida
+
+**Decisão:** a faixa realista do k (a intensidade do impacto de preço das ordens, `k·√(quantidade ÷ volume médio de 20 pregões)`) é de 0,01 a 0,04, centrada em 0,02. O campo do k no lobby segue sem teto; acima de 0,10 mostra um aviso (não bloqueia) com a compra de exemplo de 4 vezes o volume médio: k 0,10 sobe 20%, k 1 sobe 200%, e o aviso diz que o histórico real fica entre 0,01 e 0,04. As ações cujo preço nasce do livro de ofertas (cota de gestora e estatal fundada) ficam fora do fator das ordens. O impacto continua valendo só a partir do pregão seguinte à ordem.
+**Por quê:**
+- **Faixa medida:** com 81 ativo-anos de 8 séries reais (21.315 pregões), o desvio-padrão diário do preço (σ) tem mediana de 2,06% e quartis de 1,70% e 2,61%. Na lei da raiz quadrada do impacto, k = Y·σ, com Y entre 0,5 e 1,5 na literatura; isso dá k de 0,008 a 0,039. O teste com preço e volume reais confirma o formato: o movimento do dia cresce com a raiz do volume (de 0,40σ com volume baixo a 2,85σ com 3 vezes a média, em 92 dias), e o ajuste dá Y = 0,77, ou k ≈ 0,016, que é um teto, porque o volume total é maior que o desequilíbrio entre compra e venda.
+- **Presets:** o Realista (0,02) é o centro da faixa; o Forte (0,05) fica logo acima do limite superior.
+- **Limiar do aviso:** 0,10 é cerca de 2,5 vezes o topo da faixa. Nele, comprar 1 vez o volume médio sobe 10% (4,8σ) e 4 vezes sobe 20% (9,6σ), movimentos que o histórico real não mostra num dia. O playtest rodou com k 3: a compra de 4 vezes sobe 600%, e o preço foi de 1.837 a 237.871 (fator 129,5, o equivalente a ~1.800 vezes o volume médio comprado num dia, sem teto no fator).
+- **O gráfico que saltava ao pausar** não era o k: a vela criada no fechamento da cota e da estatal fundada ia crua pelo tempo real, e a leitura de detalhes a multiplicava pelo fator das ordens. O preço desses ativos já nasce do livro, então o fator os ignora e os dois caminhos concordam por construção.
+- **Impacto dentro do pregão como opção da sala:** é viável sem tocar no backtest, que só lê `price_impact_enabled`, `k` e `T`: um flag novo da sala, separado deles, mantém o modelo realista. Fica de fora agora porque o tick é um pregão inteiro e muda a conta do fator por dia, os caches, a publicação de preço a cada ordem e a liquidez do livro, além de seis testes do impacto.
+**Consequências:** a medição não tem dado real de ordens (só preço e volume) e a amostra tem poucos ativos, então a faixa vale como ordem de grandeza, não como calibração fina. Reabre se: o playtest sentir falta de ver o preço reagir no mesmo dia (aí o flag da sala entra, com o backtest intacto); a amostra crescer com mais ativos e o Y medido sair de 0,5 a 1,5; ou um k acima de 0,10 virar uso comum e o aviso precisar de teto.
