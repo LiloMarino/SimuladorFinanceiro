@@ -1,56 +1,143 @@
-import { displayIsoDate, displayQuantity } from "@/shared/lib/utils/display";
-import type { FundDetails } from "@/types";
+import { displayIsoDate, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
+import type { FundAssemblyAgenda, FundDetails } from "@/types";
 
 type Panel = FundDetails["assembly"];
 
-/** A assembleia em andamento, como o cotista a vê. */
-export type AssemblyCurrent = NonNullable<Panel["current"]>;
+/** Uma votação em andamento, como o cotista a vê. */
+export type AssemblyCurrent = Panel["current"][number];
 
 /** O placar em cotas: a favor, contra e abstenção. */
 export type AssemblyTally = NonNullable<AssemblyCurrent["tally"]>;
 
-/** O que cada trecho da barra pesa no total de cotas (frações de 0 a 1). */
-export function tallyFractions(tally: AssemblyTally) {
-  const total = Number(tally.total);
-  const part = (value: string) => (total > 0 ? Number(value) / total : 0);
-  return { favor: part(tally.in_favor), abstention: part(tally.abstention), against: part(tally.against) };
+/** As taxas de uma pauta de aumento: as de quando foi proposta e as propostas. */
+export type AssemblyFee = NonNullable<AssemblyCurrent["fee"]>;
+
+/** Uma votação concluída do histórico. */
+export type AssemblyResult = Panel["history"][number];
+
+/** Uma pauta que a assembleia aceita e o motivo de quem não pode convocá-la. */
+export type AssemblyOption = Panel["options"][number];
+
+/** As pautas, na ordem em que a convocação as lista. */
+export const AGENDAS = ["REPLACE_MANAGER", "FEE_INCREASE"] as const satisfies readonly FundAssemblyAgenda[];
+
+export const AGENDA_LABEL: Record<FundAssemblyAgenda, string> = {
+  REPLACE_MANAGER: "Trocar o gestor",
+  FEE_INCREASE: "Aumento de taxa",
+};
+
+export const AGENDA_SUMMARY: Record<FundAssemblyAgenda, string> = {
+  REPLACE_MANAGER: "Os cotistas escolhem quem assume a gestão; quem for escolhido aceita o convite em até 5 pregões.",
+  FEE_INCREASE:
+    "Sobe a taxa de administração ou de performance; aprovada, vale no mês seguinte ao resultado. Baixar não precisa de votação.",
+};
+
+/** A votação em andamento de uma pauta, se houver. */
+export const currentOf = (panel: Panel, agenda: FundAssemblyAgenda) =>
+  panel.current.find((assembly) => assembly.agenda === agenda);
+
+/** A pauta como a convocação a oferece a quem consulta. */
+export const optionOf = (panel: Panel, agenda: FundAssemblyAgenda) =>
+  panel.options.find((option) => option.agenda === agenda);
+
+/** As votações abertas que esperam o voto de quem consulta. */
+export const votesToCastOf = (panel: Panel) =>
+  panel.current.filter((assembly) => assembly.status === "VOTING" && assembly.can_vote && assembly.my_vote === null);
+
+const FEE_LABEL = { management: "taxa de administração", performance: "taxa de performance" } as const;
+
+const feePercent = (fraction: string) => displayPercent(fraction, 1, { trim: true });
+
+/** As taxas que a proposta muda, cada uma com o valor de hoje e o proposto. */
+function feeChanges(fee: AssemblyFee) {
+  const changes = [
+    { key: "management", label: FEE_LABEL.management, from: fee.management_from, to: fee.management_to },
+    { key: "performance", label: FEE_LABEL.performance, from: fee.performance_from, to: fee.performance_to },
+  ] as const;
+  return changes
+    .filter((change) => Number(change.from) !== Number(change.to))
+    .map((change) => ({ ...change, from: feePercent(change.from), to: feePercent(change.to) }));
 }
 
-/** "Faltam N cotas a favor para trocar" ou o aviso de que a troca já vence. */
-export function missingText(tally: AssemblyTally): string {
-  const missing = Number(tally.missing_to_replace);
-  if (missing <= 0) return "A favor já supera o gestor: se nada mudar, a gestão troca.";
-  return `Faltam ${displayQuantity(tally.missing_to_replace)} ${missing === 1 ? "cota" : "cotas"} a favor para a gestão trocar. Empate mantém o gestor.`;
+/** O nome do aumento: "Aumento da taxa de administração (1,5% para 2%)". */
+export function feeTitle(fee: AssemblyFee): string {
+  const changes = feeChanges(fee);
+  const [only] = changes;
+  if (changes.length === 1 && only) return `Aumento da ${only.label} (${only.from} para ${only.to})`;
+  return `Aumento das taxas (${changes.map((change) => `${change.key === "management" ? "administração" : "performance"} ${change.from} para ${change.to}`).join("; ")})`;
 }
 
-/** O motivo escrito de quem não pode convocar; nulo quando pode. */
-export function blockReason(panel: Panel): string | null {
-  switch (panel.block) {
+/** O título da votação em andamento. */
+export function currentTitle(assembly: AssemblyCurrent): string {
+  if (assembly.agenda === "FEE_INCREASE" && assembly.fee !== null) return feeTitle(assembly.fee);
+  return `Trocar o gestor por ${assembly.candidate_nickname ?? "um candidato"}`;
+}
+
+/** O título da votação concluída. */
+export function resultTitle(result: AssemblyResult): string {
+  if (result.agenda === "FEE_INCREASE" && result.fee !== null) return feeTitle(result.fee);
+  return `Trocar o gestor (${result.previous_manager_nickname} por ${result.candidate_nickname ?? "—"})`;
+}
+
+/** O peso de cada lado entre as cotas que votaram (frações de 0 a 1). */
+export function voteShares(tally: AssemblyTally) {
+  const voted = Number(tally.in_favor) + Number(tally.against);
+  return voted > 0
+    ? { favor: Number(tally.in_favor) / voted, against: Number(tally.against) / voted }
+    : { favor: 0, against: 0 };
+}
+
+/** As cotas que votaram e as que podem votar (o total menos bots, Mercado e quem opera a gestora). */
+export function participation(tally: AssemblyTally, nonVoting: string) {
+  const voted = Number(tally.in_favor) + Number(tally.against);
+  const eligible = Number(tally.total) - Number(nonVoting);
+  return { voted, eligible, share: eligible > 0 ? voted / eligible : 0 };
+}
+
+/** "Faltam N cotas a favor" ou o aviso de que a pauta já vence. */
+export function missingText(tally: AssemblyTally, agenda: FundAssemblyAgenda): string {
+  const missing = Number(tally.missing_to_win);
+  const outcome = agenda === "FEE_INCREASE" ? "a taxa subir" : "a gestão trocar";
+  const tie = agenda === "FEE_INCREASE" ? "Empate, ou sem votos, mantém a taxa." : "Empate mantém o gestor.";
+  if (missing <= 0) return `A favor já supera os contra: se nada mudar, ${outcome}.`;
+  return `Faltam ${displayQuantity(tally.missing_to_win)} ${missing === 1 ? "cota" : "cotas"} a favor para ${outcome}. ${tie}`;
+}
+
+/** O motivo escrito de quem não pode convocar a pauta; nulo quando pode. */
+export function blockReason(option: AssemblyOption | undefined, panel: Panel): string | null {
+  if (option === undefined) return null;
+  switch (option.block) {
     case null:
       return null;
     case "share":
       return `Convocar exige ${displayQuantity(panel.convene_quotas)} cotas (10% da gestora) e você tem ${displayQuantity(panel.my_quotas)}.`;
     case "interval":
-      return panel.next_allowed_on === null
-        ? "Há uma assembleia por gestora a cada 3 meses."
-        : `Há uma assembleia por gestora a cada 3 meses: a próxima pode ser convocada em ${displayIsoDate(panel.next_allowed_on)}.`;
+      return option.next_allowed_on === null
+        ? "Há uma troca de gestor por gestora a cada 3 meses."
+        : `Há uma troca de gestor a cada 3 meses: a próxima pode ser convocada em ${displayIsoDate(option.next_allowed_on)}.`;
     case "pending":
-      return "Já existe uma assembleia em andamento.";
+      return "A gestora já tem uma votação aberta desta pauta.";
     case "manager":
       return "O gestor não convoca assembleia contra si mesmo.";
+    case "manager_only":
+      return "Só o gestor propõe aumento de taxa.";
     case "unlisted":
       return "A assembleia só existe depois da oferta pública.";
     case "grace":
-      return panel.next_allowed_on === null
+      return option.next_allowed_on === null
         ? "A assembleia só abre depois da carência."
-        : `A assembleia só abre depois da carência, em ${displayIsoDate(panel.next_allowed_on)}.`;
+        : `A assembleia só abre depois da carência, em ${displayIsoDate(option.next_allowed_on)}.`;
   }
 }
 
-/** O que o resultado de uma assembleia concluída diz, em uma frase. */
-export function resultText(result: NonNullable<Panel["last_result"]>): string {
-  const closed = displayIsoDate(result.closed_on);
-  return result.status === "REPLACED"
-    ? `${result.candidate_nickname} assumiu a gestão no lugar de ${result.previous_manager_nickname} em ${closed}.`
-    : `${result.previous_manager_nickname} segue na gestão: a votação fechou em ${closed} sem maioria para trocar.`;
+/** O placar de uma votação concluída em uma frase: "18,2% a favor · vale a partir de 01/12/2026". */
+export function resultScore(result: AssemblyResult): string {
+  const { favor } = voteShares(result.tally);
+  const voted = Number(result.tally.in_favor) + Number(result.tally.against);
+  const score = voted > 0 ? `${displayPercent(favor, 1)} a favor` : "sem votos";
+  return result.effective_on === null ? score : `${score} · vale a partir de ${displayIsoDate(result.effective_on)}`;
 }
+
+/** A votação aprovada, qualquer que seja a pauta: a troca feita ou o aumento aprovado. */
+export const isApproved = (result: Pick<AssemblyResult, "status">) =>
+  result.status === "REPLACED" || result.status === "APPROVED";

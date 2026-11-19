@@ -39,6 +39,12 @@ describe("pendingTarget", () => {
     expect(pendingTarget(item)).toEqual({ label: "Responder", to: "/funds/7" });
   });
 
+  it("leva a votação aberta à aba Assembleia da gestora", () => {
+    const item = pending({ type: "FUND_ASSEMBLY_VOTE", key: "FUND_ASSEMBLY_VOTE:7:FEE_INCREASE", fund_id: 7 });
+
+    expect(pendingTarget(item)).toEqual({ label: "Votar", to: "/funds/7?tab=assembly" });
+  });
+
   it("leva o convite de co-gestor à página da gestora", () => {
     const item = pending({ type: "COMANAGER_INVITE", key: "COMANAGER_INVITE:4" });
 

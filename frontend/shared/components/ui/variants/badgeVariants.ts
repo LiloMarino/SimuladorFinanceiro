@@ -41,6 +41,8 @@ export const badgeVariants = cva(
         "owner-neutral": "min-w-[34px] rounded-md bg-sidebar-muted font-bold tracking-wide text-white",
         // Contagem do que espera resposta do jogador ("1" convite): vermelho cheio
         count: "bg-destructive font-bold text-white",
+        // Nota neutra de uma frase, como o motivo de uma opção travada
+        note: "bg-muted text-muted-foreground",
       },
       size: {
         default: "h-6",
@@ -51,6 +53,8 @@ export const badgeVariants = cva(
         status: "h-8 px-3 text-[13px]",
         // Contador ao lado do rótulo de um botão
         count: "h-5 min-w-5 px-1.5 text-xs",
+        // Nota de uma frase que quebra linha, alinhada à esquerda
+        note: "h-auto min-h-6 justify-start rounded-md px-2.5 py-1 text-left whitespace-normal",
         // Círculo numerado de um passo
         step: "size-5.5 px-0 font-semibold",
       },

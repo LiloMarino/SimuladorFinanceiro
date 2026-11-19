@@ -9935,6 +9935,67 @@
         }
       }
     },
+    "/api/funds/{fund_id}/assembly/fee-increase": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Levar um aumento de taxa à assembleia",
+        "description": "Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.",
+        "operationId": "propose_fund_fee_increase_api_funds__fund_id__assembly_fee_increase_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundAssemblyFeeProposalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}/assembly/acceptance": {
       "post": {
         "tags": [
@@ -10043,7 +10104,7 @@
           "Funds"
         ],
         "summary": "Votar na assembleia",
-        "description": "O cotista vota a favor ou contra a troca, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. O gestor não vota: as cotas dele contam contra.",
+        "description": "O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam. Cada pauta tem a sua votação.",
         "operationId": "vote_fund_assembly_api_funds__fund_id__assembly_vote_put",
         "security": [
           {
@@ -10601,7 +10662,7 @@
           "Funds"
         ],
         "summary": "Mudar as taxas da gestora",
-        "description": "As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida.",
+        "description": "As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida. Em gestora com cotistas só a baixa passa por aqui: subir taxa vai à assembleia.",
         "operationId": "set_fund_fees_api_funds__fund_id__fees_put",
         "security": [
           {
@@ -23065,6 +23126,15 @@
         "title": "FundAccountDTO",
         "description": "Uma conta com que o jogador opera: a pessoal (sem gestora), uma gestora que ele gere ou, ao presidente, o Fundo Soberano."
       },
+      "FundAssemblyAgenda": {
+        "type": "string",
+        "enum": [
+          "REPLACE_MANAGER",
+          "FEE_INCREASE"
+        ],
+        "title": "FundAssemblyAgenda",
+        "description": "A pauta de uma assembleia de cotistas; cada pauta tem a sua votação."
+      },
       "FundAssemblyBlock": {
         "type": "string",
         "enum": [
@@ -23073,7 +23143,8 @@
           "pending",
           "manager",
           "unlisted",
-          "grace"
+          "grace",
+          "manager_only"
         ]
       },
       "FundAssemblyConveneRequest": {
@@ -23094,27 +23165,78 @@
         "type": "object",
         "title": "FundAssemblyConveneRequest"
       },
-      "FundAssemblyPanelDTO": {
+      "FundAssemblyFeeDTO": {
         "properties": {
-          "current": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/FundAssemblyStatusDTO"
-              },
-              {
-                "type": "null"
-              }
-            ]
+          "management_from": {
+            "type": "string",
+            "title": "Management From"
           },
-          "last_result": {
+          "management_to": {
+            "type": "string",
+            "title": "Management To"
+          },
+          "performance_from": {
+            "type": "string",
+            "title": "Performance From"
+          },
+          "performance_to": {
+            "type": "string",
+            "title": "Performance To"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "management_from",
+          "management_to",
+          "performance_from",
+          "performance_to"
+        ],
+        "title": "FundAssemblyFeeDTO",
+        "description": "As taxas da pauta de aumento: as de quando foi proposto e as propostas, em fração (0,02 é 2%)."
+      },
+      "FundAssemblyFeeProposalRequest": {
+        "properties": {
+          "management_fee": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/FundAssemblyResultDTO"
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
-                "type": "null"
+                "type": "string"
               }
-            ]
+            ],
+            "title": "Management Fee"
+          },
+          "performance_fee": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Performance Fee"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "management_fee",
+          "performance_fee"
+        ],
+        "title": "FundAssemblyFeeProposalRequest",
+        "description": "As taxas que o gestor leva à votação dos cotistas."
+      },
+      "FundAssemblyOptionDTO": {
+        "properties": {
+          "agenda": {
+            "$ref": "#/components/schemas/FundAssemblyAgenda"
           },
           "can_convene": {
             "type": "boolean",
@@ -23130,14 +23252,6 @@
               }
             ]
           },
-          "convene_quotas": {
-            "type": "string",
-            "title": "Convene Quotas"
-          },
-          "my_quotas": {
-            "type": "string",
-            "title": "My Quotas"
-          },
           "next_allowed_on": {
             "anyOf": [
               {
@@ -23149,6 +23263,49 @@
               }
             ],
             "title": "Next Allowed On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "agenda",
+          "can_convene",
+          "block",
+          "next_allowed_on"
+        ],
+        "title": "FundAssemblyOptionDTO",
+        "description": "Uma pauta que a assembleia aceita e se quem consulta pode pô-la em votação agora."
+      },
+      "FundAssemblyPanelDTO": {
+        "properties": {
+          "current": {
+            "items": {
+              "$ref": "#/components/schemas/FundAssemblyStatusDTO"
+            },
+            "type": "array",
+            "title": "Current"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/FundAssemblyResultDTO"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/FundAssemblyOptionDTO"
+            },
+            "type": "array",
+            "title": "Options"
+          },
+          "convene_quotas": {
+            "type": "string",
+            "title": "Convene Quotas"
+          },
+          "my_quotas": {
+            "type": "string",
+            "title": "My Quotas"
           },
           "blocked_founding_until": {
             "anyOf": [
@@ -23167,22 +23324,23 @@
         "type": "object",
         "required": [
           "current",
-          "last_result",
-          "can_convene",
-          "block",
+          "history",
+          "options",
           "convene_quotas",
           "my_quotas",
-          "next_allowed_on",
           "blocked_founding_until"
         ],
         "title": "FundAssemblyPanelDTO",
-        "description": "A seção Assembleia da página da gestora: a em andamento, o último resultado e quem pode convocar."
+        "description": "A seção Assembleia da página da gestora: as votações em andamento (uma por pauta), o histórico e as pautas que quem consulta pode convocar."
       },
       "FundAssemblyResultDTO": {
         "properties": {
           "id": {
             "type": "integer",
             "title": "Id"
+          },
+          "agenda": {
+            "$ref": "#/components/schemas/FundAssemblyAgenda"
           },
           "status": {
             "$ref": "#/components/schemas/FundAssemblyStatus"
@@ -23192,7 +23350,14 @@
             "title": "Convener Nickname"
           },
           "candidate_nickname": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Candidate Nickname"
           },
           "previous_manager_nickname": {
@@ -23211,22 +23376,47 @@
           },
           "tally": {
             "$ref": "#/components/schemas/FundAssemblyTallyDTO"
+          },
+          "fee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyFeeDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "effective_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective On"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "id",
+          "agenda",
           "status",
           "convener_nickname",
           "candidate_nickname",
           "previous_manager_nickname",
           "started_on",
           "closed_on",
-          "tally"
+          "tally",
+          "fee",
+          "effective_on"
         ],
         "title": "FundAssemblyResultDTO",
-        "description": "O resultado da última votação concluída."
+        "description": "O resultado de uma votação concluída."
       },
       "FundAssemblyStance": {
         "type": "string",
@@ -23243,18 +23433,23 @@
           "VOTING",
           "REPLACED",
           "KEPT",
+          "APPROVED",
+          "REJECTED",
           "DECLINED",
           "EXPIRED",
           "CANCELLED"
         ],
         "title": "FundAssemblyStatus",
-        "description": "O andamento de uma assembleia de troca de gestor: do convite ao aliado ao resultado."
+        "description": "O andamento de uma assembleia de cotistas: do convite ao aliado (só na troca de gestor) ao resultado."
       },
       "FundAssemblyStatusDTO": {
         "properties": {
           "id": {
             "type": "integer",
             "title": "Id"
+          },
+          "agenda": {
+            "$ref": "#/components/schemas/FundAssemblyAgenda"
           },
           "status": {
             "$ref": "#/components/schemas/FundAssemblyStatus"
@@ -23268,12 +23463,36 @@
             "title": "Convener Nickname"
           },
           "candidate_user_id": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Candidate User Id"
           },
           "candidate_nickname": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Candidate Nickname"
+          },
+          "fee": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyFeeDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "called_on": {
             "type": "string",
@@ -23346,11 +23565,13 @@
         "type": "object",
         "required": [
           "id",
+          "agenda",
           "status",
           "convener_user_id",
           "convener_nickname",
           "candidate_user_id",
           "candidate_nickname",
+          "fee",
           "called_on",
           "started_on",
           "ends_on",
@@ -23383,9 +23604,9 @@
             "type": "string",
             "title": "Total"
           },
-          "missing_to_replace": {
+          "missing_to_win": {
             "type": "string",
-            "title": "Missing To Replace"
+            "title": "Missing To Win"
           }
         },
         "additionalProperties": false,
@@ -23395,13 +23616,16 @@
           "against",
           "abstention",
           "total",
-          "missing_to_replace"
+          "missing_to_win"
         ],
         "title": "FundAssemblyTallyDTO",
         "description": "O placar em cotas: a favor, contra e abstenção (quem não votou, bots e formador de mercado)."
       },
       "FundAssemblyVoteRequest": {
         "properties": {
+          "agenda": {
+            "$ref": "#/components/schemas/FundAssemblyAgenda"
+          },
           "in_favor": {
             "type": "boolean",
             "title": "In Favor"
@@ -23410,6 +23634,7 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
+          "agenda",
           "in_favor"
         ],
         "title": "FundAssemblyVoteRequest"
@@ -33400,6 +33625,7 @@
           "DEAL_DEMAND",
           "SELIC_MEETING",
           "FUND_ASSEMBLY_INVITE",
+          "FUND_ASSEMBLY_VOTE",
           "COMANAGER_INVITE",
           "DIRECTED_ISSUANCE_OFFER",
           "FUND_DISTRIBUTION_SHORT_CASH"

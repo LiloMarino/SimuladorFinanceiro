@@ -21,7 +21,7 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
-from backend.core.enum import AssetClass, OrderAction
+from backend.core.enum import AssetClass, FundAssemblyAgenda, OrderAction
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.features.simulation.simulation import Simulation
 from backend.features.variable_income.entities.order import MarketOrder
@@ -66,7 +66,9 @@ class _Book:
     def answer_assembly_invite(self, ticker: str, user: UserDTO, accept: bool) -> None:
         self.calls.append(("answer", ticker, user.id, accept))
 
-    def cast_assembly_vote(self, ticker: str, user: UserDTO, in_favor: bool) -> None:
+    def cast_assembly_vote(
+        self, ticker: str, agenda: FundAssemblyAgenda, user: UserDTO, in_favor: bool
+    ) -> None:
         self.calls.append(("vote", ticker, user.id, in_favor))
 
     def accept_directed(self, ticker: str, user: UserDTO) -> None:
@@ -262,7 +264,7 @@ def test_only_the_manager_operates_the_fund(method: str, path: str, body: dict |
         (
             "put",
             "/api/funds/5/assembly/vote",
-            {"in_favor": False},
+            {"agenda": "REPLACE_MANAGER", "in_favor": False},
             ("vote", "AURA11", 2, False),
         ),
     ],
@@ -377,13 +379,11 @@ def _page(fund_id: int) -> FundDetailsDTO:
         issuance=None,
         buyback=None,
         assembly=FundAssemblyPanelDTO(
-            current=None,
-            last_result=None,
-            can_convene=False,
-            block="share",
+            current=[],
+            history=[],
+            options=[],
             convene_quotas=zero,
             my_quotas=zero,
-            next_allowed_on=None,
             blocked_founding_until=None,
         ),
         frozen_until=None,

@@ -27,7 +27,7 @@ import type { FundDetails } from "@/types";
 import { useAnswerComanagerInvite } from "../../hooks/mutations/useAnswerComanagerInvite";
 import { useAnswerDirectedIssuance } from "../../hooks/mutations/useAnswerDirectedIssuance";
 import { useCloseFundOffer } from "../../hooks/mutations/useCloseFundOffer";
-import { blockReason } from "../../lib/fund-assembly";
+import { blockReason, currentOf, currentTitle, optionOf } from "../../lib/fund-assembly";
 import { MAX_COMANAGERS, type Comanager } from "../../lib/fund-comanagers";
 import type { DirectedOffer } from "../../lib/fund-directed";
 import { FIRST_QUOTA_PRICE } from "../../lib/fund-math";
@@ -95,11 +95,11 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
   const payable = Number(fund.fees.payable);
   const issuanceOpenNow = fund.issuance !== null && fund.issuance.closed_on === null;
   const buybackOpenNow = fund.buyback?.state === "open";
-  const assemblyOpenNow = fund.assembly.current !== null;
+  const assemblyOpenNow = currentOf(fund.assembly, "REPLACE_MANAGER") !== undefined;
   const pending = fundPending(fund, userId);
   const pendingCount = fundPendingCount(pending);
   const issuance = fund.issuance;
-  const conveneReason = blockReason(fund.assembly);
+  const conveneReason = blockReason(optionOf(fund.assembly, "REPLACE_MANAGER"), fund.assembly);
   const sellable = Number(fund.sellable_keeping_control ?? 0);
   const tradeUrl = `/variable-income/${fund.ticker}`;
 
@@ -136,6 +136,18 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
               primary
             />
           )}
+          {pending.votes.map((vote) => (
+            <ActionRow
+              key={vote.id}
+              tone="fund"
+              title={`Votação: ${currentTitle(vote)}`}
+              chip={`até ${displayShortDate(vote.ends_on)}`}
+              description={`Os cotistas votam até ${displayShortDate(vote.ends_on)}. Você tem ${displayQuantity(fund.my_quotas)} cotas e ainda não votou; o voto pode ser mudado até o fim.`}
+              alsoIn="Assembleia"
+              actionLabel="Votar"
+              onAction={() => actions.goTo("assembly")}
+            />
+          ))}
           {pending.directed && <DirectedRow fund={fund} offer={pending.directed} />}
           {pending.invite && <InviteRow fund={fund} invite={pending.invite} />}
         </DecideNow>

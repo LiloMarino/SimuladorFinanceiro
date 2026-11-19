@@ -1,24 +1,41 @@
-import { Gavel } from "lucide-react";
-import { FundSection } from "@/shared/components/fund-section";
+import { Gavel, Info } from "lucide-react";
+import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import type { FundDetails } from "@/types";
+import { currentOf } from "../../lib/fund-assembly";
 import type { FundTabActions } from "../../lib/fund-tabs";
-import { FundAssembly } from "../fund-assembly";
+import { AssemblyHistoryCard } from "../assembly-history-card";
+import { AssemblyInviteCard } from "../assembly-invite-card";
+import { AssemblyVoteCard } from "../assembly-vote-card";
+import { ConveneCard } from "../convene-card";
+import { ConveneDialog } from "../convene-dialog";
 
-type AssemblyTabProps = { fund: FundDetails; actions: Pick<FundTabActions, "open"> };
+type AssemblyTabProps = { fund: FundDetails; actions: Pick<FundTabActions, "open" | "goTo"> };
 
-/** A assembleia: a votação em curso, o último resultado e, ao gestor, a defesa durante a votação. */
+/** A assembleia: as votações abertas, a convocação de uma pauta e o histórico; ao gestor, a defesa durante a troca. */
 export function AssemblyTab({ fund, actions }: AssemblyTabProps) {
+  const [conveneOpen, setConveneOpen] = useState(false);
+  const panel = fund.assembly;
   const manager = fund.my_role === "manager";
-  const voting = fund.assembly.current?.status === "VOTING";
+  const swap = currentOf(panel, "REPLACE_MANAGER");
   const buybackOpen = fund.buyback?.state === "open";
   const quotas = Number(fund.quotas);
+  const open = panel.current.length > 0;
 
   return (
     <div className="grid gap-5 pt-3">
+      {/* Regra da assembleia */}
+      <Alert variant="info">
+        <Info />
+        <AlertDescription>
+          <b className="font-semibold">Como a assembleia decide:</b> com 10% das cotas, qualquer cotista convoca; a
+          votação dura 5 pregões e vence a maioria das cotas que votaram. Empate, ou nenhum voto, mantém tudo como está.
+        </AlertDescription>
+      </Alert>
+
       {/* Defesa do gestor durante a votação */}
-      {voting && manager && (
+      {swap?.status === "VOTING" && manager && (
         <Alert variant="destructive">
           <Gavel />
           <AlertTitle>Há uma assembleia para trocar você da gestão</AlertTitle>
@@ -43,19 +60,34 @@ export function AssemblyTab({ fund, actions }: AssemblyTabProps) {
         </Alert>
       )}
 
-      {/* Votação, resultado e convocação */}
-      <FundAssembly fund={fund} />
-      {fund.assembly.current === null &&
-        fund.assembly.last_result === null &&
-        (fund.assembly.block === "unlisted" || fund.assembly.block === "manager") && (
-          <FundSection title="Assembleia">
-            <p className="text-[13px] text-muted-foreground">
-              {fund.assembly.block === "unlisted"
-                ? "A assembleia nasce com a oferta pública: antes dela, ninguém além do gestor tem cotas para votar."
-                : "Nenhum cotista convocou assembleia para trocar você da gestão."}
-            </p>
-          </FundSection>
+      {/* Votações abertas e convocação */}
+      <div className={open ? "grid items-start gap-5 xl:grid-cols-[2fr_1fr]" : "grid gap-5"}>
+        {open && (
+          <div className="grid gap-5">
+            {swap?.status === "INVITED" && <AssemblyInviteCard fundId={fund.id} assembly={swap} />}
+            {panel.current
+              .filter((assembly) => assembly.status === "VOTING")
+              .map((assembly) => (
+                <AssemblyVoteCard key={assembly.id} fund={fund} assembly={assembly} />
+              ))}
+          </div>
         )}
+        <ConveneCard
+          fund={fund}
+          onConveneSwap={() => setConveneOpen(true)}
+          onProposeFee={() => actions.goTo("settings")}
+        />
+      </div>
+
+      {panel.history.length > 0 && <AssemblyHistoryCard history={panel.history} />}
+
+      <ConveneDialog
+        open={conveneOpen}
+        onOpenChange={setConveneOpen}
+        fundId={fund.id}
+        fundName={fund.name}
+        managerNickname={fund.manager_nickname}
+      />
     </div>
   );
 }

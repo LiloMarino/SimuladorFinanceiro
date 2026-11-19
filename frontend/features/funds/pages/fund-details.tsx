@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui
 import { useFund } from "@/shared/hooks/queries/useFund";
 import { useAuth } from "@/shared/hooks/useAuth";
 import usePageLabel from "@/shared/hooks/usePageLabel";
-import { fundStage, managerQuotasOf } from "@/shared/lib/fund-view";
+import { managerQuotasOf } from "@/shared/lib/fund-view";
 import type { FundDetails } from "@/types";
 import { ActionsTab } from "../components/tabs/actions-tab";
 import { AssemblyTab } from "../components/tabs/assembly-tab";
@@ -30,6 +30,7 @@ import { IssuanceDialog } from "../components/issuance-dialog";
 import { OfferDialog } from "../components/offer-dialog";
 import type { Comanager } from "../lib/fund-comanagers";
 import { FIRST_QUOTA_PRICE } from "../lib/fund-math";
+import { votesToCastOf } from "../lib/fund-assembly";
 import { fundPending, fundPendingCount } from "../lib/fund-pending";
 import {
   FUND_TAB_LABEL,
@@ -81,8 +82,7 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
   const tabs = visibleTabs(manager);
   const tab = tabFrom(params.get("tab"), tabs);
   const pendingCount = fundPendingCount(fundPending(fund, userId));
-  const votingOpen =
-    fundStage(fund) === "listed" && fund.assembly.current?.status === "VOTING" && Number(fund.my_quotas) > 0;
+  const votesToCast = votesToCastOf(fund.assembly).length;
   const total = Number(fund.quotas);
   const nav = fund.nav === null ? FIRST_QUOTA_PRICE : Number(fund.nav);
 
@@ -109,9 +109,9 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
                   {pendingCount}
                 </Badge>
               )}
-              {item === "assembly" && votingOpen && (
-                <Badge variant="warning" size="sm" aria-label="Votação aberta">
-                  1
+              {item === "assembly" && votesToCast > 0 && (
+                <Badge variant="warning" size="sm" aria-label={`${votesToCast} votações abertas`}>
+                  {votesToCast}
                 </Badge>
               )}
             </TabsTrigger>

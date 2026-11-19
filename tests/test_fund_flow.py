@@ -310,7 +310,7 @@ def test_saved_fund_resumes_with_the_maker_state_and_the_pending_fees(flow, star
         ana,
         fund.id,
         FundFeesRequest(
-            management_fee=Decimal("0.02"), performance_fee=Decimal("0.20")
+            management_fee=Decimal("0.005"), performance_fee=Decimal("0.10")
         ),
     )
     sim.next_tick()
@@ -326,8 +326,8 @@ def test_saved_fund_resumes_with_the_maker_state_and_the_pending_fees(flow, star
     assert after.account.maker_quotas == before.account.maker_quotas
     assert round(after.account.maker_cash, 6) == round(before.account.maker_cash, 6)
     assert after.account.offer_remaining == before.account.offer_remaining
-    assert after.terms.pending_management_fee == Decimal("0.02")
-    assert after.terms.pending_performance_fee == Decimal("0.20")
+    assert after.terms.pending_management_fee == Decimal("0.005")
+    assert after.terms.pending_performance_fee == Decimal("0.10")
     assert after.terms.pending_from == before.terms.pending_from
     held = resumed._engine.broker.get_positions(after.account.client_id)["BANK_A"]
     assert held.size == 40
@@ -907,7 +907,7 @@ def test_each_manager_action_announces_the_funds_update(flow, sent_events):
         ana,
         fund.id,
         FundFeesRequest(
-            management_fee=Decimal("0.02"), performance_fee=Decimal("0.20")
+            management_fee=Decimal("0.005"), performance_fee=Decimal("0.10")
         ),
     )
     assert sent_events.count("funds_update") == 4

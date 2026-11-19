@@ -30,6 +30,7 @@ const TARGETS: Record<PendingType, (item: Pending) => PendingTarget> = {
   UNPAID_CONTRIBUTION: () => ({ label: "Mudar valor", to: "/election", state: { dialog: "contribution" } }),
   // A chave do convite é "FUND_ASSEMBLY_INVITE:<id da gestora>"
   FUND_ASSEMBLY_INVITE: (item) => ({ label: "Responder", to: `/funds/${item.key.split(":")[1]}` }),
+  FUND_ASSEMBLY_VOTE: (item) => ({ label: "Votar", to: `${fundLink(item, "/funds")}?tab=assembly` }),
   // A chave do convite é "COMANAGER_INVITE:<id da gestora>"
   COMANAGER_INVITE: (item) => ({ label: "Responder", to: `/funds/${item.key.split(":")[1]}` }),
   DIRECTED_ISSUANCE_OFFER: (item) => ({ label: "Responder", to: fundLink(item, "/funds") }),

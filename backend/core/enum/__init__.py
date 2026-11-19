@@ -1412,6 +1412,7 @@ class PendingType(Enum):
     DEAL_DEMAND = "DEAL_DEMAND"
     SELIC_MEETING = "SELIC_MEETING"
     FUND_ASSEMBLY_INVITE = "FUND_ASSEMBLY_INVITE"
+    FUND_ASSEMBLY_VOTE = "FUND_ASSEMBLY_VOTE"
     COMANAGER_INVITE = "COMANAGER_INVITE"
     DIRECTED_ISSUANCE_OFFER = "DIRECTED_ISSUANCE_OFFER"
     FUND_DISTRIBUTION_SHORT_CASH = "FUND_DISTRIBUTION_SHORT_CASH"
@@ -1442,15 +1443,24 @@ class ToastType(Enum):
     COMANAGER_ANSWER = "COMANAGER_ANSWER"
 
 
+class FundAssemblyAgenda(Enum):
+    """A pauta de uma assembleia de cotistas; cada pauta tem a sua votação."""
+
+    REPLACE_MANAGER = "REPLACE_MANAGER"
+    FEE_INCREASE = "FEE_INCREASE"
+
+
 class FundAssemblyStatus(Enum):
-    """O andamento de uma assembleia de troca de gestor: do convite ao aliado ao resultado."""
+    """O andamento de uma assembleia de cotistas: do convite ao aliado (só na troca de gestor) ao resultado."""
 
     # O aliado indicado ainda não respondeu ao convite
     INVITED = "INVITED"
     VOTING = "VOTING"
-    # Concluídas pela votação: o gestor foi trocado ou ficou
+    # Concluídas pela votação: o gestor foi trocado ou ficou; a taxa nova foi aprovada ou rejeitada
     REPLACED = "REPLACED"
     KEPT = "KEPT"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
     # Encerradas sem votação: o aliado recusou, o convite venceu ou quem convocou cancelou
     DECLINED = "DECLINED"
     EXPIRED = "EXPIRED"

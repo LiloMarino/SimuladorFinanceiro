@@ -1,5 +1,6 @@
 import type { FundDetails } from "@/types";
 import { myInviteOf, type Comanager } from "./fund-comanagers";
+import { votesToCastOf, type AssemblyCurrent } from "./fund-assembly";
 import type { DirectedOffer } from "./fund-directed";
 
 type Issuance = NonNullable<FundDetails["issuance"]>;
@@ -15,9 +16,11 @@ export type FundPending = {
   directed: DirectedOffer | undefined;
   /** O direito de preferência que ainda resta na emissão aberta, em cotas */
   preferenceLeft: number;
+  /** As votações abertas que esperam o voto do jogador */
+  votes: AssemblyCurrent[];
 };
 
-/** O que espera decisão do jogador nesta gestora: convite, oferta dirigida e preferência da emissão. */
+/** O que espera decisão do jogador nesta gestora: convite, oferta dirigida, preferência da emissão e votação aberta. */
 export function fundPending(fund: FundDetails, userId: number): FundPending {
   const issuance = fund.issuance;
   const preferenceOpen = issuance !== null && issuance.closed_on === null && issuance.phase === "preference";
@@ -27,8 +30,9 @@ export function fundPending(fund: FundDetails, userId: number): FundPending {
     invite: myInviteOf(fund, userId),
     directed: directed !== null && directed.buyer_user_id === userId ? directed : undefined,
     preferenceLeft: preferenceOpen ? rightsLeftOf(issuance) : 0,
+    votes: votesToCastOf(fund.assembly),
   };
 }
 
 export const fundPendingCount = (pending: FundPending) =>
-  (pending.invite ? 1 : 0) + (pending.directed ? 1 : 0) + (pending.preferenceLeft > 0 ? 1 : 0);
+  (pending.invite ? 1 : 0) + (pending.directed ? 1 : 0) + (pending.preferenceLeft > 0 ? 1 : 0) + pending.votes.length;

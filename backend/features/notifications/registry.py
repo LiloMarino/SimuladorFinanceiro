@@ -465,6 +465,12 @@ PENDING: tuple[PendingSpec, ...] = (
         "Some ao responder, quando quem convocou cancela ou quando o convite vence",
     ),
     PendingSpec(
+        PendingType.FUND_ASSEMBLY_VOTE,
+        PendingSeverity.WARNING,
+        "Votação aberta numa gestora",
+        "Some ao votar ou quando a votação fecha; vale para quem tem cotas e pode votar na pauta",
+    ),
+    PendingSpec(
         PendingType.COMANAGER_INVITE,
         PendingSeverity.WARNING,
         "Convite para co-gerir uma gestora",

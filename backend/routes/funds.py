@@ -7,6 +7,7 @@ from fastapi import APIRouter, Path, Query, Response, status
 from backend.core.dto.fund import (
     FundAccountDTO,
     FundAssemblyConveneRequest,
+    FundAssemblyFeeProposalRequest,
     FundAssemblyVoteRequest,
     FundBuybackDTO,
     FundBuybackPreviewDTO,
@@ -316,6 +317,21 @@ def convene_fund_assembly(
     simulation.convene_fund_assembly(user, fund_id, payload)
 
 
+@funds_router.post(
+    "/{fund_id}/assembly/fee-increase",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Levar um aumento de taxa à assembleia",
+    description="Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.",
+)
+def propose_fund_fee_increase(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: FundAssemblyFeeProposalRequest,
+):
+    simulation.propose_fund_fee_increase(user, fund_id, payload)
+
+
 @funds_router.delete(
     "/{fund_id}/assembly",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -354,7 +370,7 @@ def refuse_fund_assembly_invite(
     "/{fund_id}/assembly/vote",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Votar na assembleia",
-    description="O cotista vota a favor ou contra a troca, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. O gestor não vota: as cotas dele contam contra.",
+    description="O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam. Cada pauta tem a sua votação.",
 )
 def vote_fund_assembly(
     simulation: ActiveSimulation,
@@ -482,7 +498,7 @@ def set_fund_distribution(
     "/{fund_id}/fees",
     response_model=FundSummaryDTO,
     summary="Mudar as taxas da gestora",
-    description="As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida.",
+    description="As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida. Em gestora com cotistas só a baixa passa por aqui: subir taxa vai à assembleia.",
 )
 def set_fund_fees(
     simulation: ActiveSimulation,

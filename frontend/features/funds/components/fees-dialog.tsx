@@ -1,4 +1,4 @@
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, Vote } from "lucide-react";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -13,11 +13,14 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { useSimulation } from "@/shared/hooks/useSimulation";
-import { displayIsoDate, displayMoney } from "@/shared/lib/utils/display";
+import { displayIsoDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
+import { useProposeFeeIncrease } from "../hooks/mutations/useProposeFeeIncrease";
 import { useSetFundFees } from "../hooks/mutations/useSetFundFees";
-import { aboveWaterMark, feeToBody, feeToPoints, snapFee } from "../lib/fund-fees";
-import { netWorthOf } from "@/shared/lib/fund-view";
+import { blockReason, feeTitle, optionOf } from "../lib/fund-assembly";
+import { futureShareOf } from "../lib/fund-comanagers";
+import { aboveWaterMark, feeToBody, feeToPoints, managementPerMonth, raisesFee, snapFee } from "../lib/fund-fees";
+import { fundStage, netWorthOf } from "@/shared/lib/fund-view";
 import { FeeControls } from "./fee-controls";
 
 type FeesDialogProps = {
@@ -52,6 +55,47 @@ function WaterMarkToday({ fund }: { fund: FundDetails }) {
   );
 }
 
+type RaiseNoteProps = { fund: FundDetails; management: number; performance: number };
+
+/** O que o aumento pede: a votação dos cotistas, o prazo e quanto a administração rende a mais por mês. */
+function RaiseNote({ fund, management, performance }: RaiseNoteProps) {
+  const title = feeTitle({
+    management_from: fund.management_fee,
+    management_to: feeToBody(management),
+    performance_from: fund.performance_fee,
+    performance_to: feeToBody(performance),
+  });
+  const extra =
+    managementPerMonth(netWorthOf(fund), management) -
+    managementPerMonth(netWorthOf(fund), feeToPoints(fund.management_fee));
+  const comanagers = fund.comanagers.filter((comanager) => comanager.status === "ACTIVE");
+  const managerShare = 1 - comanagers.reduce((sum, comanager) => sum + futureShareOf(comanager), 0);
+  const split = [
+    `você (${displayPercent(managerShare, 0, { trim: true })})`,
+    ...comanagers.map(
+      (comanager) => `${comanager.nickname} (${displayPercent(futureShareOf(comanager), 0, { trim: true })})`,
+    ),
+  ];
+
+  return (
+    <Alert variant="info">
+      <Vote />
+      <AlertTitle>Subir a taxa vai à assembleia</AlertTitle>
+      <AlertDescription>
+        {title} tem 5 pregões de votação dos cotistas e, aprovado, vale no mês seguinte ao resultado.
+        {extra > 0 && (
+          <>
+            {" "}
+            Seriam cerca de {displayMoney(extra)} a mais por mês
+            {comanagers.length > 0 ? `, divididos entre ${split.join(" e ")}` : ""}.
+          </>
+        )}{" "}
+        Baixar vale no mês seguinte, sem votação.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
 type FeesFormProps = { fund: FundDetails; rules: Rules; onOpenChange: (open: boolean) => void };
 
 /** O formulário nasce a cada abertura: parte das taxas em vigor, ou das pendentes quando já há mudança marcada. */
@@ -63,12 +107,20 @@ function FeesForm({ fund, rules, onOpenChange }: FeesFormProps) {
   const [management, setManagement] = useState(() => snapFee(startManagement, capManagement));
   const [performance, setPerformance] = useState(() => snapFee(startPerformance, capPerformance));
   const setFees = useSetFundFees(fund.id);
+  const propose = useProposeFeeIncrease(fund.id);
 
   const changed =
     feeToBody(management) !== feeToBody(startManagement) || feeToBody(performance) !== feeToBody(startPerformance);
 
+  // Subir acima das taxas em vigor é votação dos cotistas; baixar ou manter é decisão do gestor
+  const raises =
+    fundStage(fund) === "listed" &&
+    raisesFee({ management: fund.management_fee, performance: fund.performance_fee }, { management, performance });
+  const reason = raises ? blockReason(optionOf(fund.assembly, "FEE_INCREASE"), fund.assembly) : null;
+  const mutation = raises ? propose : setFees;
+
   const submit = () =>
-    setFees.mutate(
+    mutation.mutate(
       { management_fee: feeToBody(management), performance_fee: feeToBody(performance) },
       { onSuccess: () => onOpenChange(false) },
     );
@@ -86,22 +138,27 @@ function FeesForm({ fund, rules, onOpenChange }: FeesFormProps) {
           netWorth={netWorthOf(fund)}
           waterMark={<WaterMarkToday fund={fund} />}
         />
-        <Alert variant="info">
-          <CalendarClock />
-          <AlertTitle>A taxa nova vale no mês seguinte</AlertTitle>
-          <AlertDescription>
-            A mudança entra no primeiro dia útil do mês que vem, e o jornal avisa a sala antes. Até lá valem as taxas de
-            hoje.
-          </AlertDescription>
-        </Alert>
+        {raises ? (
+          <RaiseNote fund={fund} management={management} performance={performance} />
+        ) : (
+          <Alert variant="info">
+            <CalendarClock />
+            <AlertTitle>A taxa nova vale no mês seguinte</AlertTitle>
+            <AlertDescription>
+              A mudança entra no primeiro dia útil do mês que vem, e o jornal avisa a sala antes. Até lá valem as taxas
+              de hoje.
+            </AlertDescription>
+          </Alert>
+        )}
+        {reason !== null && <p className="text-[13px] text-destructive">{reason}</p>}
       </DialogBody>
       <DialogFooter variant="divided">
         <Button variant="outline" onClick={() => onOpenChange(false)}>
           Cancelar
         </Button>
-        <Button variant="fund" disabled={!changed || setFees.isPending} onClick={submit}>
-          {setFees.isPending && <Spinner />}
-          Salvar as taxas
+        <Button variant="fund" disabled={!changed || mutation.isPending || reason !== null} onClick={submit}>
+          {mutation.isPending && <Spinner />}
+          {raises ? "Levar à assembleia" : "Salvar as taxas"}
         </Button>
       </DialogFooter>
     </>

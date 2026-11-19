@@ -11,7 +11,7 @@ import pytest
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fund import FundAssemblyDTO, FundAssemblyVoteDTO, FundDayDTO
-from backend.core.enum import AssetClass, FundAssemblyStatus
+from backend.core.enum import AssetClass, FundAssemblyAgenda, FundAssemblyStatus
 from tests.fakes import client, simulation_settings
 
 DAY = date(2020, 1, 6)
@@ -162,6 +162,7 @@ def test_quota_stays_out_of_the_imported_stock_lists(match: Match):
 def _assembly(match: Match, status: FundAssemblyStatus) -> FundAssemblyDTO:
     return FundAssemblyDTO(
         id=0,
+        agenda=FundAssemblyAgenda.REPLACE_MANAGER,
         convener_user_id=match.user_id,
         candidate_user_id=match.user_id,
         previous_manager_user_id=match.user_id,

@@ -7,7 +7,7 @@ import pytest
 
 from backend.core.dto.user import UserDTO
 from backend.features.funds.fund_book import maker_stake, takeover_offer_size
-from tests.test_fund_assembly import BETO, CAIO, _assemblable, _close_all_sessions
+from tests.test_fund_assembly import BETO, CAIO, SWAP, _assemblable, _close_all_sessions
 from tests.test_fund_book import (
     BUYER,
     MANAGER,
@@ -233,7 +233,7 @@ def _lose_the_assembly(memory: MemoryFunds) -> Setup:
     setup = _assemblable(memory)
     setup.book._manager_cap = CAP
     setup.book.convene_assembly(TICKER, ANA, None)
-    setup.book.cast_assembly_vote(TICKER, BETO, True)
+    setup.book.cast_assembly_vote(TICKER, SWAP, BETO, True)
     _close_all_sessions(setup)
     return setup
 
@@ -248,7 +248,7 @@ def test_the_founder_who_loses_the_assembly_is_eliminated(memory: MemoryFunds):
 def test_losing_the_assembly_without_the_mode_eliminates_nobody(memory: MemoryFunds):
     setup = _assemblable(memory)
     setup.book.convene_assembly(TICKER, ANA, None)
-    setup.book.cast_assembly_vote(TICKER, BETO, True)
+    setup.book.cast_assembly_vote(TICKER, SWAP, BETO, True)
     _close_all_sessions(setup)
 
     assert setup.book.eliminated == {}
@@ -277,7 +277,7 @@ def test_the_eliminated_manager_loses_the_other_fund_to_its_largest_holder(
             user.client_id, "BETA11", Decimal(quotas), NAV
         )
     setup.book.convene_assembly(TICKER, ANA, None)
-    setup.book.cast_assembly_vote(TICKER, BETO, True)
+    setup.book.cast_assembly_vote(TICKER, SWAP, BETO, True)
 
     _close_all_sessions(setup)
 

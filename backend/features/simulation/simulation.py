@@ -39,6 +39,8 @@ from backend.core.dto.fund import (
     FUND_TICKER_PATTERN,
     FundAccountDTO,
     FundAssemblyConveneRequest,
+    FundAssemblyDTO,
+    FundAssemblyFeeProposalRequest,
     FundAssemblyVoteRequest,
     FundBuybackDTO,
     FundBuybackPreviewDTO,
@@ -127,6 +129,7 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
     FixedIncomeType,
+    FundAssemblyAgenda,
     GameType,
     IndicatorSeries,
     LifeEventEffect,
@@ -331,6 +334,16 @@ def synchronized(
                     self._publish_government_panels()
 
     return call
+
+
+_AGENDA_TITLES = {
+    FundAssemblyAgenda.REPLACE_MANAGER: "Troca de gestor",
+    FundAssemblyAgenda.FEE_INCREASE: "Aumento de taxa",
+}
+
+
+def _agenda_title(assembly: FundAssemblyDTO) -> str:
+    return _AGENDA_TITLES[assembly.agenda]
 
 
 def _overdraft_rate(day: date) -> Decimal:
@@ -1457,6 +1470,21 @@ class Simulation:
         self._notify_funds_update()
 
     @synchronized
+    def propose_fund_fee_increase(
+        self, user: UserDTO, fund_id: int, request: FundAssemblyFeeProposalRequest
+    ) -> None:
+        book = self._ensure_funds()
+        fund = self._managed_fund(user, fund_id)
+        self._ensure_fees_within_ceiling(
+            request.management_fee, request.performance_fee
+        )
+        book.propose_fee_increase(
+            fund.ticker, user, request.management_fee, request.performance_fee
+        )
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
     def cancel_fund_assembly(self, user: UserDTO, fund_id: int) -> None:
         book = self._ensure_funds()
         book.cancel_assembly(book.by_id(fund_id).ticker, user)
@@ -1622,7 +1650,9 @@ class Simulation:
     ) -> None:
         self._ensure_not_eliminated(user)
         book = self._ensure_funds()
-        book.cast_assembly_vote(book.by_id(fund_id).ticker, user, request.in_favor)
+        book.cast_assembly_vote(
+            book.by_id(fund_id).ticker, request.agenda, user, request.in_favor
+        )
         EventManager.flush()
         self._notify_funds_update()
 
@@ -1879,6 +1909,16 @@ class Simulation:
                     title=f"Convite para gerir a {fund.ticker}",
                 )
                 for fund, invite, convener in self._funds.invites_for(user)
+            ]
+            items += [
+                registry.pending(
+                    PendingType.FUND_ASSEMBLY_VOTE,
+                    f"{_agenda_title(assembly)} na {fund.ticker} · vote até {assembly.ends_on:%d/%m}",
+                    ref=str(assembly.id),
+                    title=f"Votação na {fund.ticker}",
+                    fund_id=fund.terms.id,
+                )
+                for fund, assembly in self._funds.open_votes_for(user)
             ]
             items += [
                 registry.pending(

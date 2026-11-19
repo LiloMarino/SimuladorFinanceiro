@@ -9,7 +9,7 @@ import { DIVIDEND_YIELD } from "@/shared/lib/fund-metrics";
 import { fundStage } from "@/shared/lib/fund-view";
 import { cn } from "@/shared/lib/utils";
 import { displayMoney, displayMonthName, displayPercent } from "@/shared/lib/utils/display";
-import type { FundDetails } from "@/types";
+import type { FundAssemblyAgenda, FundDetails } from "@/types";
 import { HOLDING_CLASSES } from "../../lib/fund-classes";
 import type { FundTabActions } from "../../lib/fund-tabs";
 import { fundYield } from "../../lib/fund-yield";
@@ -63,10 +63,15 @@ function ReturnsCard({ fund }: { fund: FundDetails }) {
   );
 }
 
+const VOTING_NOTE: Record<FundAssemblyAgenda, string> = {
+  REPLACE_MANAGER: "Os cotistas decidem quem gere a gestora",
+  FEE_INCREASE: "Os cotistas decidem se a taxa sobe",
+};
+
 /** O card "Agora na gestora": o que está em andamento e para onde ir ver. */
 function NowCard({ fund, actions }: { fund: FundDetails; actions: Pick<FundTabActions, "goTo"> }) {
   const plan = fund.distribution;
-  const voting = fund.assembly.current?.status === "VOTING";
+  const voting = fund.assembly.current.filter((assembly) => assembly.status === "VOTING");
 
   return (
     <FundSection title="Agora na gestora">
@@ -82,17 +87,17 @@ function NowCard({ fund, actions }: { fund: FundDetails; actions: Pick<FundTabAc
             Rendimentos
           </Button>
         </div>
-        {voting && (
-          <div className="flex items-center gap-3 border-t border-muted py-2.5">
+        {voting.map((assembly) => (
+          <div key={assembly.id} className="flex items-center gap-3 border-t border-muted py-2.5">
             <div className="grid min-w-0 flex-1 gap-0.5">
               <b className="text-[13px] font-semibold">Votação aberta</b>
-              <span className="text-xs text-muted-foreground">Os cotistas decidem quem gere a gestora</span>
+              <span className="text-xs text-muted-foreground">{VOTING_NOTE[assembly.agenda]}</span>
             </div>
             <Button size="xs" variant="outline" onClick={() => actions.goTo("assembly")}>
               Assembleia
             </Button>
           </div>
-        )}
+        ))}
       </div>
     </FundSection>
   );

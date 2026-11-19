@@ -6,6 +6,7 @@ import {
   feeToPoints,
   managementPerMonth,
   performanceExample,
+  raisesFee,
   snapFee,
 } from "./fund-fees";
 
@@ -39,5 +40,13 @@ describe("taxas da gestora", () => {
     expect(aboveWaterMark(108, 110)).toBe(0);
     expect(aboveWaterMark(115, 110)).toBe(5);
     expect(aboveWaterMark(115, null)).toBe(0);
+  });
+
+  it("subir qualquer uma das taxas acima da em vigor é aumento; igual ou menor não é", () => {
+    const inForce = { management: "0.015000", performance: "0.200000" };
+    expect(raisesFee(inForce, { management: 2, performance: 20 })).toBe(true);
+    expect(raisesFee(inForce, { management: 1, performance: 25 })).toBe(true);
+    expect(raisesFee(inForce, { management: 1.5, performance: 20 })).toBe(false);
+    expect(raisesFee(inForce, { management: 1, performance: 10 })).toBe(false);
   });
 });

@@ -30,6 +30,7 @@ from backend.core.dto.stock import StockDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
+    FundAssemblyAgenda,
     FundAssemblyStatus,
     FundComanagerStatus,
     FundDirectedIssuanceStatus,
@@ -60,7 +61,12 @@ from backend.features.funds.fees import (
     split_payable,
 )
 from backend.features.funds.fund_account import FundAccount
-from backend.features.funds.fund_assembly import FundAssemblies
+from backend.features.funds.fund_assembly import (
+    FEE,
+    SWAP,
+    FundAssemblies,
+    raises_fee,
+)
 from backend.features.funds.fund_comanagers import (
     FundComanagers,
     expires_on,
@@ -237,11 +243,14 @@ class Fund:
     # A recompra aberta e a ordem de compra dela no livro
     buyback: FundBuybackDTO | None = None
     buyback_order: LimitOrder | None = None
-    # A assembleia de troca de gestor em andamento (convite ou votação), os votos dela por id de
-    # usuário e a última votação concluída, que marca o intervalo até a próxima
-    assembly: FundAssemblyDTO | None = None
-    assembly_votes: dict[int, bool] = field(default_factory=dict)
-    last_assembly: FundAssemblyDTO | None = None
+    # A assembleia em andamento de cada pauta (convite ou votação), os votos dela por id de
+    # usuário e as votações concluídas, da mais antiga à mais nova: delas sai o intervalo até
+    # a próxima troca de gestor
+    assemblies: dict[FundAssemblyAgenda, FundAssemblyDTO] = field(default_factory=dict)
+    assembly_votes: dict[FundAssemblyAgenda, dict[int, bool]] = field(
+        default_factory=dict
+    )
+    assembly_history: list[FundAssemblyDTO] = field(default_factory=list)
     # Os co-gestores: convites pendentes e ativos, que operam a carteira e dividem as taxas
     comanagers: list[FundComanagerDTO] = field(default_factory=list)
     # A oferta de cotas novas do principal que espera a resposta de um co-gestor
@@ -742,7 +751,7 @@ class FundBook:
             raise ConflictError("A gestora já tem uma oferta ou emissão em andamento")
         if fund.buyback is not None:
             raise ConflictError("Encerre a recompra antes de emitir cotas")
-        if fund.assembly is not None:
+        if SWAP in fund.assemblies:
             raise ConflictError(
                 "A gestora tem uma assembleia em andamento e não emite cotas até o resultado"
             )
@@ -815,7 +824,7 @@ class FundBook:
             raise ConflictError("A gestora já tem uma oferta ou emissão em andamento")
         if fund.buyback is not None:
             raise ConflictError("Encerre a recompra antes de emitir cotas")
-        if fund.assembly is not None:
+        if SWAP in fund.assemblies:
             raise ConflictError(
                 "A gestora tem uma assembleia em andamento e não emite cotas até o resultado"
             )
@@ -1190,11 +1199,34 @@ class FundBook:
         """Quem convocou cancela o convite que o aliado ainda não respondeu."""
         self._assemblies.cancel(self._funds[ticker], user, self._engine.current_date)
 
-    def cast_assembly_vote(self, ticker: str, user: UserDTO, in_favor: bool) -> None:
-        """O cotista vota na assembleia aberta; mudar o voto vale até o fim."""
-        self._assemblies.vote(
-            self._funds[ticker], user, in_favor, self._engine.current_date
+    def propose_fee_increase(
+        self,
+        ticker: str,
+        proposer: UserDTO,
+        management_fee: Decimal,
+        performance_fee: Decimal,
+    ) -> None:
+        """O gestor principal leva um aumento de taxa à votação dos cotistas."""
+        fund = self._funds[ticker]
+        self._assemblies.propose_fee(
+            fund, proposer, management_fee, performance_fee, self._engine.current_date
         )
+
+    def cast_assembly_vote(
+        self, ticker: str, agenda: FundAssemblyAgenda, user: UserDTO, in_favor: bool
+    ) -> None:
+        """O cotista vota na pauta aberta; mudar o voto vale até o fim."""
+        self._assemblies.vote(
+            self._funds[ticker], agenda, user, in_favor, self._engine.current_date
+        )
+
+    def open_votes_for(self, user: UserDTO) -> list[tuple[Fund, FundAssemblyDTO]]:
+        """As votações abertas em que `user` pode votar e ainda não votou, com a gestora de cada uma."""
+        return [
+            (fund, assembly)
+            for fund in self._funds.values()
+            for assembly in self._assemblies.open_votes_for(fund, user)
+        ]
 
     def assembly_panel(
         self,
@@ -1212,11 +1244,11 @@ class FundBook:
         """Os convites de assembleia que esperam a resposta de `user`: a gestora, o convite e o apelido de quem convocou."""
         names = self._nicknames()
         return [
-            (fund, fund.assembly, names.get(fund.assembly.convener_user_id, "?"))
+            (fund, invite, names.get(invite.convener_user_id, "?"))
             for fund in self._funds.values()
-            if fund.assembly is not None
-            and fund.assembly.status is FundAssemblyStatus.INVITED
-            and fund.assembly.candidate_user_id == user.id
+            if (invite := fund.assemblies.get(SWAP)) is not None
+            and invite.status is FundAssemblyStatus.INVITED
+            and invite.candidate_user_id == user.id
         ]
 
     # =========================
@@ -1286,8 +1318,12 @@ class FundBook:
 
     def _announce_voting_opened(self, fund: Fund, today: date) -> None:
         """A manchete da convocação sai quando a votação abre."""
-        assembly = fund.assembly
-        if assembly is None or assembly.status is not FundAssemblyStatus.VOTING:
+        assembly = fund.assemblies.get(SWAP)
+        if (
+            assembly is None
+            or assembly.status is not FundAssemblyStatus.VOTING
+            or assembly.candidate_user_id is None
+        ):
             return
         names = self._nicknames()
         self._announce(
@@ -1302,21 +1338,33 @@ class FundBook:
 
     def _advance_assembly(self, fund: Fund, today: date) -> None:
         """O fechamento do pregão da assembleia: o convite sem resposta cai e a votação do
-        último pregão é apurada; se a troca vence, o candidato assume na hora."""
+        último pregão é apurada; se a troca vence, o candidato assume na hora, e o aumento de
+        taxa aprovado vale no mês seguinte ao resultado."""
         self._assemblies.expire_invite(fund, today)
-        closed = self._assemblies.close_voting(fund, today)
-        if closed is None:
+        for agenda in FundAssemblyAgenda:
+            closed = self._assemblies.close_voting(fund, agenda, today)
+            if closed is not None:
+                self._apply_outcome(fund, closed[0], today)
+
+    def _apply_outcome(
+        self, fund: Fund, assembly: FundAssemblyDTO, today: date
+    ) -> None:
+        """Aplica o desfecho da pauta que acabou de fechar."""
+        if assembly.agenda is FEE:
+            self._apply_fee_outcome(fund, assembly, today)
             return
-        assembly, _ = closed
+        candidate_id = assembly.candidate_user_id
+        if candidate_id is None:
+            return
         names = self._nicknames()
         if assembly.status is FundAssemblyStatus.REPLACED:
-            self._replace_manager(fund, assembly.candidate_user_id)
+            self._replace_manager(fund, candidate_id)
             self._announce(
                 today,
                 headlines.assembly_replaced(
                     fund.ticker,
                     names.get(assembly.previous_manager_user_id, "?"),
-                    names.get(assembly.candidate_user_id, "?"),
+                    names.get(candidate_id, "?"),
                 ),
             )
             if (
@@ -1329,6 +1377,40 @@ class FundBook:
                 today,
                 headlines.assembly_kept(
                     fund.ticker, names.get(assembly.previous_manager_user_id, "?")
+                ),
+            )
+
+    def _apply_fee_outcome(
+        self, fund: Fund, assembly: FundAssemblyDTO, today: date
+    ) -> None:
+        """A taxa aprovada fica pendente e vale no primeiro dia útil do mês seguinte ao resultado."""
+        if (
+            assembly.status is not FundAssemblyStatus.APPROVED
+            or assembly.closed_on is None
+            or assembly.proposed_management_fee is None
+            or assembly.proposed_performance_fee is None
+        ):
+            return
+        fund.terms = fund.terms.model_copy(
+            update={
+                "pending_management_fee": assembly.proposed_management_fee,
+                "pending_performance_fee": assembly.proposed_performance_fee,
+                "pending_from": next_month_turn(assembly.closed_on),
+            }
+        )
+        self._save(fund)
+        if assembly.proposed_management_fee != assembly.previous_management_fee:
+            self._announce(
+                today,
+                headlines.management_fee_changed(
+                    fund.ticker, assembly.proposed_management_fee
+                ),
+            )
+        if assembly.proposed_performance_fee != assembly.previous_performance_fee:
+            self._announce(
+                today,
+                headlines.performance_fee_changed(
+                    fund.ticker, assembly.proposed_performance_fee
                 ),
             )
 
@@ -1349,8 +1431,12 @@ class FundBook:
                 self._replace_manager(fund, max(holders, key=lambda h: holders[h]))
 
     def _replace_manager(self, fund: Fund, manager_user_id: int) -> None:
-        """O candidato assume: as ordens do gestor afastado saem do livro e a recompra dele cai."""
+        """O candidato assume: as ordens do gestor afastado saem do livro e a recompra dele cai.
+
+        A proposta de aumento de taxa é do gestor que sai: a votação dela encerra sem resultado.
+        """
         self._sync_buyback(fund)
+        self._assemblies.cancel_open(fund, FEE, self._engine.current_date)
         # A oferta de cotas é do principal que sai
         self._directed.cancel(fund)
         # O candidato que já era co-gestor passa a principal e deixa a lista deles
@@ -1393,9 +1479,14 @@ class FundBook:
         """Pede as taxas novas, que valem no primeiro dia útil do mês seguinte.
 
         Pedir as taxas de hoje desfaz o pedido pendente. Cada taxa que muda vira manchete quando
-        a gestora já é pública.
+        a gestora já é pública. Subir taxa de gestora com cotistas passa pela assembleia
+        (`propose_fee_increase`); baixar vale sem votação.
         """
         fund = self._funds[ticker]
+        if fund.listed and raises_fee(fund, management_fee, performance_fee):
+            raise ConflictError(
+                "Subir taxa de uma gestora com cotistas vai à assembleia: leve a proposta à votação"
+            )
         terms = fund.terms
         today = self._engine.current_date
         management_changed = management_fee != terms.management_fee
@@ -1835,13 +1926,13 @@ class FundBook:
             (i for i in repository.fund.issuances(terms.id) if i.closed_on is None),
             None,
         )
-        assembly, assembly_votes, last_assembly = self._assemblies.load(terms.id)
+        assemblies, assembly_votes, assembly_history = self._assemblies.load(terms.id)
         fund = Fund(
             terms=terms,
             account=account,
-            assembly=assembly,
+            assemblies=assemblies,
             assembly_votes=assembly_votes,
-            last_assembly=last_assembly,
+            assembly_history=assembly_history,
             comanagers=self._comanagers.load(terms.id),
             directed=self._directed.load(terms.id),
             distributions=repository.fund.distributions(terms.id, after),

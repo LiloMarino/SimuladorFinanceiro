@@ -30,3 +30,11 @@ export function performanceExample(points: number) {
 /** O quanto a cota está acima da marca d'água: a base sobre a qual a performance pode ser cobrada. */
 export const aboveWaterMark = (nav: number, waterMark: number | null) =>
   waterMark === null ? 0 : Math.max(0, nav - waterMark);
+
+/** A proposta sobe alguma taxa acima da que vale hoje? Pontos da régua contra as frações em vigor. */
+export const raisesFee = (
+  inForce: { management: string; performance: string },
+  points: { management: number; performance: number },
+) =>
+  Number(feeToBody(points.management)) > Number(inForce.management) ||
+  Number(feeToBody(points.performance)) > Number(inForce.performance);

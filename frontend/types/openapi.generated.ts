@@ -3228,6 +3228,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/assembly/fee-increase": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Levar um aumento de taxa à assembleia
+         * @description Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.
+         */
+        post: operations["propose_fund_fee_increase_api_funds__fund_id__assembly_fee_increase_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/assembly/acceptance": {
         parameters: {
             query?: never;
@@ -3278,7 +3298,7 @@ export interface paths {
         get?: never;
         /**
          * Votar na assembleia
-         * @description O cotista vota a favor ou contra a troca, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. O gestor não vota: as cotas dele contam contra.
+         * @description O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam. Cada pauta tem a sua votação.
          */
         put: operations["vote_fund_assembly_api_funds__fund_id__assembly_vote_put"];
         post?: never;
@@ -3458,7 +3478,7 @@ export interface paths {
         get?: never;
         /**
          * Mudar as taxas da gestora
-         * @description As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida.
+         * @description As taxas novas ficam pendentes e valem a partir do primeiro dia útil do mês seguinte, dentro dos tetos da partida. Em gestora com cotistas só a baixa passa por aqui: subir taxa vai à assembleia.
          */
         put: operations["set_fund_fees_api_funds__fund_id__fees_put"];
         post?: never;
@@ -7770,44 +7790,86 @@ export interface components {
             /** Role */
             role: ("manager" | "comanager" | "president") | null;
         };
+        /**
+         * FundAssemblyAgenda
+         * @description A pauta de uma assembleia de cotistas; cada pauta tem a sua votação.
+         * @enum {string}
+         */
+        FundAssemblyAgenda: "REPLACE_MANAGER" | "FEE_INCREASE";
         /** @enum {string} */
-        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace";
+        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace" | "manager_only";
         /** FundAssemblyConveneRequest */
         FundAssemblyConveneRequest: {
             /** Candidate Nickname */
             candidate_nickname?: string | null;
         };
         /**
-         * FundAssemblyPanelDTO
-         * @description A seção Assembleia da página da gestora: a em andamento, o último resultado e quem pode convocar.
+         * FundAssemblyFeeDTO
+         * @description As taxas da pauta de aumento: as de quando foi proposto e as propostas, em fração (0,02 é 2%).
          */
-        FundAssemblyPanelDTO: {
-            current: components["schemas"]["FundAssemblyStatusDTO"] | null;
-            last_result: components["schemas"]["FundAssemblyResultDTO"] | null;
+        FundAssemblyFeeDTO: {
+            /** Management From */
+            management_from: string;
+            /** Management To */
+            management_to: string;
+            /** Performance From */
+            performance_from: string;
+            /** Performance To */
+            performance_to: string;
+        };
+        /**
+         * FundAssemblyFeeProposalRequest
+         * @description As taxas que o gestor leva à votação dos cotistas.
+         */
+        FundAssemblyFeeProposalRequest: {
+            /** Management Fee */
+            management_fee: number | string;
+            /** Performance Fee */
+            performance_fee: number | string;
+        };
+        /**
+         * FundAssemblyOptionDTO
+         * @description Uma pauta que a assembleia aceita e se quem consulta pode pô-la em votação agora.
+         */
+        FundAssemblyOptionDTO: {
+            agenda: components["schemas"]["FundAssemblyAgenda"];
             /** Can Convene */
             can_convene: boolean;
             block: components["schemas"]["FundAssemblyBlock"] | null;
+            /** Next Allowed On */
+            next_allowed_on: string | null;
+        };
+        /**
+         * FundAssemblyPanelDTO
+         * @description A seção Assembleia da página da gestora: as votações em andamento (uma por pauta), o histórico e as pautas que quem consulta pode convocar.
+         */
+        FundAssemblyPanelDTO: {
+            /** Current */
+            current: components["schemas"]["FundAssemblyStatusDTO"][];
+            /** History */
+            history: components["schemas"]["FundAssemblyResultDTO"][];
+            /** Options */
+            options: components["schemas"]["FundAssemblyOptionDTO"][];
             /** Convene Quotas */
             convene_quotas: string;
             /** My Quotas */
             my_quotas: string;
-            /** Next Allowed On */
-            next_allowed_on: string | null;
             /** Blocked Founding Until */
             blocked_founding_until: string | null;
         };
         /**
          * FundAssemblyResultDTO
-         * @description O resultado da última votação concluída.
+         * @description O resultado de uma votação concluída.
          */
         FundAssemblyResultDTO: {
             /** Id */
             id: number;
+            agenda: components["schemas"]["FundAssemblyAgenda"];
             status: components["schemas"]["FundAssemblyStatus"];
             /** Convener Nickname */
             convener_nickname: string;
             /** Candidate Nickname */
-            candidate_nickname: string;
+            candidate_nickname: string | null;
             /** Previous Manager Nickname */
             previous_manager_nickname: string;
             /**
@@ -7821,15 +7883,18 @@ export interface components {
              */
             closed_on: string;
             tally: components["schemas"]["FundAssemblyTallyDTO"];
+            fee: components["schemas"]["FundAssemblyFeeDTO"] | null;
+            /** Effective On */
+            effective_on: string | null;
         };
         /** @enum {string} */
         FundAssemblyStance: "favor" | "against" | "abstain";
         /**
          * FundAssemblyStatus
-         * @description O andamento de uma assembleia de troca de gestor: do convite ao aliado ao resultado.
+         * @description O andamento de uma assembleia de cotistas: do convite ao aliado (só na troca de gestor) ao resultado.
          * @enum {string}
          */
-        FundAssemblyStatus: "INVITED" | "VOTING" | "REPLACED" | "KEPT" | "DECLINED" | "EXPIRED" | "CANCELLED";
+        FundAssemblyStatus: "INVITED" | "VOTING" | "REPLACED" | "KEPT" | "APPROVED" | "REJECTED" | "DECLINED" | "EXPIRED" | "CANCELLED";
         /**
          * FundAssemblyStatusDTO
          * @description A assembleia em andamento como quem consulta a vê.
@@ -7837,15 +7902,17 @@ export interface components {
         FundAssemblyStatusDTO: {
             /** Id */
             id: number;
+            agenda: components["schemas"]["FundAssemblyAgenda"];
             status: components["schemas"]["FundAssemblyStatus"];
             /** Convener User Id */
             convener_user_id: number;
             /** Convener Nickname */
             convener_nickname: string;
             /** Candidate User Id */
-            candidate_user_id: number;
+            candidate_user_id: number | null;
             /** Candidate Nickname */
-            candidate_nickname: string;
+            candidate_nickname: string | null;
+            fee: components["schemas"]["FundAssemblyFeeDTO"] | null;
             /**
              * Called On
              * Format: date
@@ -7885,11 +7952,12 @@ export interface components {
             abstention: string;
             /** Total */
             total: string;
-            /** Missing To Replace */
-            missing_to_replace: string;
+            /** Missing To Win */
+            missing_to_win: string;
         };
         /** FundAssemblyVoteRequest */
         FundAssemblyVoteRequest: {
+            agenda: components["schemas"]["FundAssemblyAgenda"];
             /** In Favor */
             in_favor: boolean;
         };
@@ -11269,7 +11337,7 @@ export interface components {
          * @description Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar.
          * @enum {string}
          */
-        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "COMANAGER_INVITE" | "DIRECTED_ISSUANCE_OFFER" | "FUND_DISTRIBUTION_SHORT_CASH";
+        PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "FUND_ASSEMBLY_VOTE" | "COMANAGER_INVITE" | "DIRECTED_ISSUANCE_OFFER" | "FUND_DISTRIBUTION_SHORT_CASH";
         /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
@@ -22743,6 +22811,48 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    propose_fund_fee_increase_api_funds__fund_id__assembly_fee_increase_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundAssemblyFeeProposalRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             204: {

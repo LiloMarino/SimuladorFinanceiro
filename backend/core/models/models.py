@@ -1665,7 +1665,7 @@ class FundBuybacks(Base):
 
 
 class FundAssemblies(Base):
-    """Uma assembleia de troca de gestor: convite ao aliado, votação dos cotistas e resultado."""
+    """Uma assembleia de cotistas: a pauta, o convite ao aliado (troca de gestor), a votação e o resultado."""
 
     __tablename__ = "fund_assemblies"
     __table_args__ = (
@@ -1715,9 +1715,14 @@ class FundAssemblies(Base):
     )
     fund_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     convener_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    candidate_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # O indicado a gestor; nulo nas pautas que não trocam o gestor
+    candidate_user_id: Mapped[int | None] = mapped_column(Integer)
     # O gestor de quando a assembleia foi convocada
     previous_manager_user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Um valor de `FundAssemblyAgenda`
+    agenda: Mapped[str] = mapped_column(
+        Text, nullable=False, server_default=text("'REPLACE_MANAGER'")
+    )
     # Um valor de `FundAssemblyStatus`
     status: Mapped[str] = mapped_column(Text, nullable=False)
     called_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
@@ -1730,6 +1735,19 @@ class FundAssemblies(Base):
     in_favor_quotas: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
     against_quotas: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
     abstention_quotas: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    # As taxas da pauta de aumento: as de quando foi proposto e as propostas; nulas nas outras pautas
+    previous_management_fee: Mapped[decimal.Decimal | None] = mapped_column(
+        Numeric(8, 6)
+    )
+    previous_performance_fee: Mapped[decimal.Decimal | None] = mapped_column(
+        Numeric(8, 6)
+    )
+    proposed_management_fee: Mapped[decimal.Decimal | None] = mapped_column(
+        Numeric(8, 6)
+    )
+    proposed_performance_fee: Mapped[decimal.Decimal | None] = mapped_column(
+        Numeric(8, 6)
+    )
 
 
 class FundAssemblyVotes(Base):

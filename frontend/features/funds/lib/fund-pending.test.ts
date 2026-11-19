@@ -7,7 +7,13 @@ const offer = { buyer_user_id: 7 };
 const issuance = { closed_on: null, phase: "preference", my_rights: "322", my_bought: "22" };
 
 const fundWith = (parts: Record<string, unknown>) =>
-  ({ comanagers: [], directed_issuance: null, issuance: null, ...parts }) as unknown as FundDetails;
+  ({
+    comanagers: [],
+    directed_issuance: null,
+    issuance: null,
+    assembly: { current: [] },
+    ...parts,
+  }) as unknown as FundDetails;
 
 describe("rightsLeftOf", () => {
   it("desconta o que o jogador já comprou do direito", () => {
@@ -26,6 +32,15 @@ describe("fundPending", () => {
 
     expect(pending.preferenceLeft).toBe(300);
     expect(fundPendingCount(pending)).toBe(3);
+  });
+
+  it("conta a votação aberta que espera o voto do jogador", () => {
+    const open = { status: "VOTING", can_vote: true, my_vote: null };
+    const voted = { status: "VOTING", can_vote: true, my_vote: true };
+    const pending = fundPending(fundWith({ assembly: { current: [open, voted] } }), 7);
+
+    expect(pending.votes).toHaveLength(1);
+    expect(fundPendingCount(pending)).toBe(1);
   });
 
   it("ignora a oferta dirigida a outro jogador e a preferência já encerrada", () => {

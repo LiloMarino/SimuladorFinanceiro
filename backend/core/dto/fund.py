@@ -9,6 +9,7 @@ from pydantic import Field, StringConstraints
 
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import (
+    FundAssemblyAgenda,
     FundAssemblyStatus,
     FundComanagerStatus,
     FundDirectedIssuanceStatus,
@@ -150,11 +151,13 @@ class FundBuybackDTO(BaseDTO):
 
 
 class FundAssemblyDTO(BaseDTO):
-    """Uma assembleia de troca de gestor, como a linha de `fund_assemblies` a guarda."""
+    """Uma assembleia de cotistas, como a linha de `fund_assemblies` a guarda."""
 
     id: int
+    agenda: FundAssemblyAgenda
     convener_user_id: int
-    candidate_user_id: int
+    # O indicado a gestor; nulo nas pautas que não trocam o gestor
+    candidate_user_id: int | None
     # O gestor de quando a assembleia foi convocada
     previous_manager_user_id: int
     status: FundAssemblyStatus
@@ -168,6 +171,11 @@ class FundAssemblyDTO(BaseDTO):
     in_favor_quotas: Decimal | None
     against_quotas: Decimal | None
     abstention_quotas: Decimal | None
+    # As taxas da pauta de aumento: as de quando foi proposto e as propostas; nulas nas outras pautas
+    previous_management_fee: Decimal | None = None
+    previous_performance_fee: Decimal | None = None
+    proposed_management_fee: Decimal | None = None
+    proposed_performance_fee: Decimal | None = None
 
 
 class FundAssemblyVoteDTO(BaseDTO):
@@ -382,8 +390,9 @@ class FundIssuanceStatusDTO(FundIssuanceDTO):
 
 
 type FundAssemblyStance = Literal["favor", "against", "abstain"]
+# "manager_only" é a pauta que só o gestor principal propõe
 type FundAssemblyBlock = Literal[
-    "share", "interval", "pending", "manager", "unlisted", "grace"
+    "share", "interval", "pending", "manager", "unlisted", "grace", "manager_only"
 ]
 
 
@@ -407,19 +416,31 @@ class FundAssemblyTallyDTO(BaseDTO):
     against: Decimal
     abstention: Decimal
     total: Decimal
-    # Cotas a favor que faltam para a troca vencer; zero quando ela já vence (empate mantém o gestor)
-    missing_to_replace: Decimal
+    # Cotas a favor que faltam para a pauta vencer; zero quando ela já vence (o empate rejeita)
+    missing_to_win: Decimal
+
+
+class FundAssemblyFeeDTO(BaseDTO):
+    """As taxas da pauta de aumento: as de quando foi proposto e as propostas, em fração (0,02 é 2%)."""
+
+    management_from: Decimal
+    management_to: Decimal
+    performance_from: Decimal
+    performance_to: Decimal
 
 
 class FundAssemblyStatusDTO(BaseDTO):
     """A assembleia em andamento como quem consulta a vê."""
 
     id: int
+    agenda: FundAssemblyAgenda
     status: FundAssemblyStatus
     convener_user_id: int
     convener_nickname: str
-    candidate_user_id: int
-    candidate_nickname: str
+    candidate_user_id: int | None
+    candidate_nickname: str | None
+    # As taxas propostas; nulas fora da pauta de aumento
+    fee: FundAssemblyFeeDTO | None
     called_on: date
     started_on: date | None
     ends_on: date
@@ -438,31 +459,43 @@ class FundAssemblyStatusDTO(BaseDTO):
 
 
 class FundAssemblyResultDTO(BaseDTO):
-    """O resultado da última votação concluída."""
+    """O resultado de uma votação concluída."""
 
     id: int
+    agenda: FundAssemblyAgenda
     status: FundAssemblyStatus
     convener_nickname: str
-    candidate_nickname: str
+    candidate_nickname: str | None
     previous_manager_nickname: str
     started_on: date
     closed_on: date
     tally: FundAssemblyTallyDTO
+    # As taxas da pauta de aumento e o dia em que a aprovada passa a valer
+    fee: FundAssemblyFeeDTO | None
+    effective_on: date | None
 
 
-class FundAssemblyPanelDTO(BaseDTO):
-    """A seção Assembleia da página da gestora: a em andamento, o último resultado e quem pode convocar."""
+class FundAssemblyOptionDTO(BaseDTO):
+    """Uma pauta que a assembleia aceita e se quem consulta pode pô-la em votação agora."""
 
-    current: FundAssemblyStatusDTO | None
-    last_result: FundAssemblyResultDTO | None
+    agenda: FundAssemblyAgenda
     can_convene: bool
     # Por que quem consulta não pode convocar; nulo quando pode
     block: FundAssemblyBlock | None
+    # Quando a pauta aceita nova votação, se o intervalo é o que bloqueia
+    next_allowed_on: date | None
+
+
+class FundAssemblyPanelDTO(BaseDTO):
+    """A seção Assembleia da página da gestora: as votações em andamento (uma por pauta), o histórico e as pautas que quem consulta pode convocar."""
+
+    current: list[FundAssemblyStatusDTO]
+    # As votações concluídas pelo voto, da mais nova à mais antiga
+    history: list[FundAssemblyResultDTO]
+    options: list[FundAssemblyOptionDTO]
     # Cotas mínimas para convocar (10% das em circulação) e as de quem consulta
     convene_quotas: Decimal
     my_quotas: Decimal
-    # Quando a gestora aceita nova assembleia, se o intervalo é o que bloqueia
-    next_allowed_on: date | None
     # Até quando quem consulta, afastado de uma gestora, não pode fundar outra
     blocked_founding_until: date | None
 
@@ -665,7 +698,15 @@ class FundAssemblyConveneRequest(BaseDTO):
     candidate_nickname: str | None = None
 
 
+class FundAssemblyFeeProposalRequest(BaseDTO):
+    """As taxas que o gestor leva à votação dos cotistas."""
+
+    management_fee: FeeRate
+    performance_fee: FeeRate
+
+
 class FundAssemblyVoteRequest(BaseDTO):
+    agenda: FundAssemblyAgenda
     in_favor: bool
 
 

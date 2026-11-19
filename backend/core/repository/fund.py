@@ -28,6 +28,7 @@ from backend.core.enum import (
     AssetClass,
     DataOrigin,
     EquityEventType,
+    FundAssemblyAgenda,
     FundAssemblyStatus,
 )
 from backend.core.models.models import (
@@ -87,6 +88,7 @@ def _to_dto(fund: Funds, ticker: str) -> FundDTO:
 def _assembly_dto(row: FundAssemblies) -> FundAssemblyDTO:
     return FundAssemblyDTO(
         id=row.id,
+        agenda=FundAssemblyAgenda(row.agenda),
         convener_user_id=row.convener_user_id,
         candidate_user_id=row.candidate_user_id,
         previous_manager_user_id=row.previous_manager_user_id,
@@ -98,6 +100,10 @@ def _assembly_dto(row: FundAssemblies) -> FundAssemblyDTO:
         in_favor_quotas=row.in_favor_quotas,
         against_quotas=row.against_quotas,
         abstention_quotas=row.abstention_quotas,
+        previous_management_fee=row.previous_management_fee,
+        previous_performance_fee=row.previous_performance_fee,
+        proposed_management_fee=row.proposed_management_fee,
+        proposed_performance_fee=row.proposed_performance_fee,
     )
 
 
@@ -488,6 +494,7 @@ class FundRepository:
         """Grava a assembleia recém-convocada; devolve com o id."""
         values = assembly.model_dump(exclude={"id"})
         values["status"] = assembly.status.value
+        values["agenda"] = assembly.agenda.value
         row = FundAssemblies(fund_id=fund_id, **values)
         session.add(row)
         session.flush()
