@@ -20,31 +20,31 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | **N1** | — | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — | — | — | — |
 | **N2** | — | Jogar com amigos pela internet sem que cada um instale uma VPN | — | [F5](#f5), [F6](#f6) | — | — | — |
-| **N3** | — | Confiar que os números do simulador são exatos e reprodutíveis | — | [F308](#f308) | — | — | — |
-| **N4** | — | Testar uma estratégia de investimento automática e ver como ela se sai | — | [F110](#f110), [F111](#f111), [F197](#f197), [F279](#f279), [F306](#f306) | — | — | — |
+| **N3** | — | Confiar que os números do simulador são exatos e reprodutíveis | — | — | — | — | — |
+| **N4** | — | Testar uma estratégia de investimento automática e ver como ela se sai | — | [F110](#f110), [F111](#f111), [F197](#f197), [F279](#f279) | — | — | — |
 | **N7** | — | Que o simulador cobre os custos de operar do mercado real | — | — | — | — | — |
-| **N8** | — | Jogar contra oponentes controlados pelo computador | — | [F279](#f279), [F294](#f294), [F298](#f298) | — | — | — |
+| **N8** | — | Jogar contra oponentes controlados pelo computador | — | [F279](#f279) | — | — | — |
 | **N9** | — | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — | — | — | — |
-| **N10** | — | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | [F28](#f28), [F202](#f202), [F308](#f308) | — | — | — |
+| **N10** | — | Testar uma hipótese de estratégia num período inteiro sem esperar o tempo do jogo | — | [F28](#f28), [F202](#f202) | — | — | — |
 | **N11** | — | Que o cenário econômico simulado seja o histórico real | — | — | — | — | — |
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F179](#f179), [F211](#f211), [F287](#f287), [F288](#f288), [F295](#f295), [F300](#f300), [F312](#f312) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123) | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
-| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285), [F287](#f287), [F288](#f288) | — | — | — |
+| **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
-| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F44](#f44), [F55](#f55), [F101](#f101), [F102](#f102), [F103](#f103), [F104](#f104), [F105](#f105), [F290](#f290), [F293](#f293), [F296](#f296), [F299](#f299), [F300](#f300), [F301](#f301), [F302](#f302), [F303](#f303), [F304](#f304), [F305](#f305), [F306](#f306), [F310](#f310), [F311](#f311), [F312](#f312), [F313](#f313), [F314](#f314) | — | — | — |
+| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | — | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
-| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225), [F289](#f289) | — | — | — |
+| **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225) | — | — | — |
 | **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F255](#f255), [F284](#f284), [F290](#f290), [F292](#f292), [F293](#f293), [F297](#f297), [F307](#f307) | — | — | — |
-| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F289](#f289), [F291](#f291), [F298](#f298), [F309](#f309), [F315](#f315) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F284](#f284) | — | — | — |
+| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F315](#f315) | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
-| **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227), [F255](#f255), [F292](#f292) | — | — | — |
+| **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227) | — | — | — |
 | **N42** | — | Chegar a um estado da partida sem jogar até ele | — | [F286](#f286) | — | — | — |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.6 | — | — | — | 🔍 |
 | [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.6 | — | Médio | Bom | ⏳ |
@@ -84,7 +84,7 @@
 | [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (61 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -95,7 +95,7 @@
 | **D6** | — | A retomada continua no dia seguinte ao último evento | — | — | — | — | ✅ |
 | **D7** | — | O simulador lê as séries sem saber a origem | — | [F28](#f28) | — | — | ✅ |
 | **D8** | — | Bot, modo automático e backtest são o mesmo mecanismo | — | [F110](#f110), [F111](#f111), [F202](#f202) | — | — | ✅ |
-| **D9** | — | De onde nasce uma mudança de schema | — | [F101](#f101) | — | — | ✅ |
+| **D9** | — | De onde nasce uma mudança de schema | — | — | — | — | ✅ |
 | **D10** | — | Como a nota geral é calculada | — | — | — | — | ✅ |
 | **D11** | — | Sobre qual base o shadcn monta os componentes: Radix ou Base UI | — | — | — | — | ✅ |
 | **D12** | — | Como numerar as versões | — | — | — | — | ✅ |
@@ -105,50 +105,11 @@
 | **D16** | — | Estratégias do app no host, personalização pela API | — | — | — | — | ✅ |
 | **D17** | — | Os tópicos do tutorial se animam em código, com o motion | — | — | — | — | ✅ |
 | **D18** | — | Uma migration por versão; caminho antigo só cai numa major | — | [F90](#f90), [F93](#f93) | — | — | ✅ |
-| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176), [F290](#f290), [F293](#f293) | — | — | ✅ |
-| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
+| **D19** | — | O eleitorado são grupos, cada um com apoio e rejeição por partido | — | [F176](#f176) | — | — | ✅ |
+| **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
 | **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315) | — | — | ✅ |
-| [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 | — | — | — | ✅ |
-| [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 | — | — | — | ✅ |
-| [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
-| [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | M18 · 4.2 | — | — | — | ✅ |
-| [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | M18 · 4.2 | — | — | — | ✅ |
-| [**F104**](#f104) | Feature | Gestoras: co-gestores | M18 · 4.2 | — | — | — | ✅ |
-| [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | M18 · 4.2 | — | — | — | ✅ |
-| [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | M18 · 4.2 | — | — | — | ✅ |
-| [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | M18 · 4.2 | — | — | — | ✅ |
-| [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | M18 · 4.2 | — | — | — | ✅ |
-| [**F255**](#f255) | Feature | Estatais | M18 · 4.2 | — | — | — | ✅ |
-| [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | M18 · 4.2 | — | — | — | ✅ |
-| [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | M18 · 4.2 | — | — | — | ✅ |
-| [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | M18 · 4.2 | — | — | — | ✅ |
-| [**F290**](#f290) | Feature | Profissões novas | M18 · 4.2 | — | — | — | ✅ |
-| [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | M18 · 4.2 | — | — | — | ✅ |
-| [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | M18 · 4.2 | — | — | — | ✅ |
-| [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | M18 · 4.2 | — | — | — | ✅ |
-| [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | M18 · 4.2 | — | — | — | ✅ |
-| [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | M18 · 4.2 | — | — | — | ✅ |
-| [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | M18 · 4.2 | — | — | — | ✅ |
-| [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | M18 · 4.2 | — | — | — | ✅ |
-| [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | M18 · 4.2 | — | — | — | ✅ |
-| [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | M18 · 4.2 | — | — | — | ✅ |
-| [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | M18 · 4.2 | — | — | — | ✅ |
-| [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | M18 · 4.2 | — | — | — | ✅ |
-| [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 | — | — | — | ✅ |
-| [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 | — | — | — | ✅ |
-| [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 | — | — | — | ✅ |
-| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | — | — | ✅ |
-| [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | — | — | ✅ |
-| [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
-| [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
-| [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | — | — | ✅ |
-| [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | ✅ |
-| [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | — | — | ✅ |
-| [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | — | — | ✅ |
-| [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | — | — | ✅ |
-| [**F314**](#f314) | Feature | Aquisição hostil no modo Equipes | M18 · 4.2 | — | — | — | ✅ |
 
 </details>
 
@@ -157,56 +118,6 @@
 ## 🚀 Próximas versões
 
 > O que entra em cada versão, na ordem de trabalho. Item arquivado conta como concluído.
-
-### 4.2 — Expansão Gestoras (M18)
-
-> **Objetivo:** Fundar a própria gestora, abrir capital e disputar as cotas na sala; o governo também funda estatais, segura o preço, privatiza e investe pelo Fundo Soberano; a preparação ganha profissões novas.
->
-> **Serve:** N23, N34, N41
->
-> **Progresso:** 39/39 concluídos
-
-| # | ID | Tipo | Resumo | Depende de | Status |
-| --- | --- | --- | --- | --- | --- |
-| 1 | [**F249**](#f249) | Manutenção | Núcleo do backend sem import de features | — | ✅ Concluído |
-| 2 | [**F101**](#f101) | Feature | Carteira separada do jogador | — | ✅ Concluído |
-| 3 | [**F211**](#f211) | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | — | ✅ Concluído |
-| 4 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | — | ✅ Concluído |
-| 5 | [**F179**](#f179) | Melhoria | Topbar que cabe com a corrida e o governo | — | ✅ Concluído |
-| 6 | [**F102**](#f102) | Feature | Gestoras: emissão de novas cotas e recompra | — | ✅ Concluído |
-| 7 | [**F103**](#f103) | Feature | Gestoras: troca de gestor pela assembleia | — | ✅ Concluído |
-| 8 | [**F55**](#f55) | Feature | Modo aquisição hostil | — | ✅ Concluído |
-| 9 | [**F104**](#f104) | Feature | Gestoras: co-gestores | — | ✅ Concluído |
-| 10 | [**F105**](#f105) | Feature | Gestoras: rendimentos mensais | — | ✅ Concluído |
-| 11 | [**F255**](#f255) | Feature | Estatais | — | ✅ Concluído |
-| 12 | [**F292**](#f292) | Feature | Fundo Soberano: o governo compra ações e cotas | — | ✅ Concluído |
-| 13 | [**F287**](#f287) | Melhoria | Slots dos jogadores do lobby no desenho anterior | — | ✅ Concluído |
-| 14 | [**F288**](#f288) | Melhoria | Badge de profissão legível no lobby e na Minha preparação | — | ✅ Concluído |
-| 15 | [**F289**](#f289) | Melhoria | Cards de profissão com vantagens e desvantagens | — | ✅ Concluído |
-| 16 | [**F290**](#f290) | Feature | Profissões novas | — | ✅ Concluído |
-| 17 | [**F293**](#f293) | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | — | ✅ Concluído |
-| 18 | [**F291**](#f291) | Melhoria | Locador com aluguel de 1,1× o salário | — | ✅ Concluído |
-| 19 | [**F294**](#f294) | Melhoria | Adicionar vários bots de uma vez | — | ✅ Concluído |
-| 20 | [**F295**](#f295) | Manutenção | Orçamento, painel econômico e base do governo por tempo real | — | ✅ Concluído |
-| 21 | [**F296**](#f296) | Correção | Correções do playtest: gestoras e renda variável | — | ✅ Concluído |
-| 22 | [**F297**](#f297) | Correção | Correções do playtest: governo e eleição | — | ✅ Concluído |
-| 23 | [**F298**](#f298) | Correção | Correções do playtest: lobby, bots e profissões | — | ✅ Concluído |
-| 24 | [**F299**](#f299) | Feature | Cota de gestora negociada na renda variável | — | ✅ Concluído |
-| 25 | [**F310**](#f310) | Feature | Página Ofertas públicas | — | ✅ Concluído |
-| 26 | [**F300**](#f300) | Melhoria | Tela da gestora em abas, como a do governo | — | ✅ Concluído |
-| 27 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | — | ✅ Concluído |
-| 28 | [**F301**](#f301) | Correção | Gestor que vira presidente e mais de uma gestora por jogador | — | ✅ Concluído |
-| 29 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | — | ✅ Concluído |
-| 30 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | — | ✅ Concluído |
-| 31 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ✅ Concluído |
-| 32 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | — | ✅ Concluído |
-| 33 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ✅ Concluído |
-| 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ✅ Concluído |
-| 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | ✅ Concluído |
-| 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ✅ Concluído |
-| 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | — | ✅ Concluído |
-| 38 | [**F311**](#f311) | Feature | Fusão de gestoras | — | ✅ Concluído |
-| 39 | [**F314**](#f314) | Feature | Aquisição hostil no modo Equipes | — | ✅ Concluído |
 
 ### 4.3 — Profissões (M29)
 
@@ -288,12 +199,12 @@
 | 4 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | — | 🔍 Em avaliação |
 | 5 | [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | [F158](#f158) | 🔍 Em avaliação |
 | 6 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | — | 🔍 Em avaliação |
-| 7 | [**F159**](#f159) | Feature | Rodada de novas conquistas e revisão das existentes | [F44](#f44), [F123](#f123) | 🔍 Em avaliação |
+| 7 | [**F159**](#f159) | Feature | Rodada de novas conquistas e revisão das existentes | [F123](#f123) | 🔍 Em avaliação |
 | 8 | [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | — | ⏳ Pendente |
-| 9 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | [F44](#f44) | ⏳ Pendente |
+| 9 | [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | — | ⏳ Pendente |
 | 10 | [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | [F140](#f140) | ⏳ Pendente |
 | 11 | [**F37**](#f37) | Feature | Tema escuro | — | ⏳ Pendente |
-| 12 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | [F44](#f44) | ⏳ Pendente |
+| 12 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | — | ⏳ Pendente |
 | 13 | [**F141**](#f141) | Docs | README com as features de hoje | [F139](#f139) | ⏳ Pendente |
 
 ### Sem versão
@@ -363,8 +274,8 @@
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.7 | — | Médio | Baixo | Alto | Bom |
 | **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | D21 | M28 · 4.7 | — | Baixo | Baixo | Médio | Bom |
-| **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.7 | [F44](#f44) | Médio | Baixo | Alto | Bom |
-| **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.7 | [F44](#f44) | Alto | Baixo | Alto | Bom |
+| **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.7 | — | Médio | Baixo | Alto | Bom |
+| **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.7 | — | Alto | Baixo | Alto | Bom |
 | **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.7 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
 | **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | M24 · 4.4 | — | Baixo | Baixo | Médio | Bom |
 | **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.4 | — | Médio | Médio | Médio | Bom |
@@ -589,7 +500,7 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F123** | Melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | M28 · 4.7 | — | Escolher o desenho do aviso no canvas; liga à F122 |
 | **F131** | Feature | Catálogo de padrões de vela | N19 | — | M28 · 4.7 | — | Tópico do Como jogar com cada padrão animado |
 | **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.7 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
-| **F159** | Feature | Rodada de novas conquistas e revisão das existentes | N22 | D1 | M28 · 4.7 | [F44](#f44), [F123](#f123) | Quais conquistas novas entram e o que muda nas existentes; decidido com o usuário numa rodada de ideias |
+| **F159** | Feature | Rodada de novas conquistas e revisão das existentes | N22 | D1 | M28 · 4.7 | [F123](#f123) | Quais conquistas novas entram e o que muda nas existentes; decidido com o usuário numa rodada de ideias |
 | **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.7 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.5 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.4 | — | Medir as estratégias atuais em várias bases com governo, dólar e crédito; calibrar os níveis de dificuldade; escolher as estratégias novas |
@@ -658,304 +569,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 ## ✅ Concluído
 
-| ID | Tipo | Resumo | Serve | D# | Marco |
-| --- | --- | --- | --- | --- | --- |
-| **F44** | Feature | Expansão Gestoras: fundar a gestora e abrir capital | N23 | — | M18 · 4.2 |
-| **F55** | Feature | Modo aquisição hostil | N23 | — | M18 · 4.2 |
-| **F101** | Feature | Carteira separada do jogador | N23 | D9 | M18 · 4.2 |
-| **F102** | Feature | Gestoras: emissão de novas cotas e recompra | N23 | — | M18 · 4.2 |
-| **F103** | Feature | Gestoras: troca de gestor pela assembleia | N23 | — | M18 · 4.2 |
-| **F104** | Feature | Gestoras: co-gestores | N23 | — | M18 · 4.2 |
-| **F105** | Feature | Gestoras: rendimentos mensais | N23 | — | M18 · 4.2 |
-| **F179** | Melhoria | Topbar que cabe com a corrida e o governo | N15 | — | M18 · 4.2 |
-| **F211** | Melhoria | Livro de ofertas e ordens abertas do detalhe do ativo | N15 | — | M18 · 4.2 |
-| **F249** | Manutenção | Núcleo do backend sem import de features | — | — | M18 · 4.2 |
-| **F255** | Feature | Estatais | N34, N41 | D20 | M18 · 4.2 |
-| **F287** | Melhoria | Slots dos jogadores do lobby no desenho anterior | N15, N20 | — | M18 · 4.2 |
-| **F288** | Melhoria | Badge de profissão legível no lobby e na Minha preparação | N15, N20 | — | M18 · 4.2 |
-| **F289** | Melhoria | Cards de profissão com vantagens e desvantagens | N39, N25 | — | M18 · 4.2 |
-| **F290** | Feature | Profissões novas | N23, N34 | D19 | M18 · 4.2 |
-| **F291** | Melhoria | Locador com aluguel de 1,1× o salário | N39 | — | M18 · 4.2 |
-| **F292** | Feature | Fundo Soberano: o governo compra ações e cotas | N34, N41 | — | M18 · 4.2 |
-| **F293** | Feature | Profissões das expansões: Comissionado e Banqueiro de ofertas | N23, N34 | D19 | M18 · 4.2 |
-| **F294** | Melhoria | Adicionar vários bots de uma vez | N8 | — | M18 · 4.2 |
-| **F295** | Manutenção | Orçamento, painel econômico e base do governo por tempo real | N15 | — | M18 · 4.2 |
-| **F296** | Correção | Correções do playtest: gestoras e renda variável | N23 | — | M18 · 4.2 |
-| **F297** | Correção | Correções do playtest: governo e eleição | N34 | — | M18 · 4.2 |
-| **F298** | Correção | Correções do playtest: lobby, bots e profissões | N39, N8 | — | M18 · 4.2 |
-| **F299** | Feature | Cota de gestora negociada na renda variável | N23 | — | M18 · 4.2 |
-| **F300** | Melhoria | Tela da gestora em abas, como a do governo | N23, N15 | — | M18 · 4.2 |
-| **F301** | Correção | Gestor que vira presidente e mais de uma gestora por jogador | N23 | — | M18 · 4.2 |
-| **F302** | Correção | Caixa da gestora sem ficar negativo | N23 | — | M18 · 4.2 |
-| **F303** | Feature | Dinheiro novo na gestora depois da oferta pública | N23 | — | M18 · 4.2 |
-| **F304** | Feature | Co-gestão combinada no lobby | N23 | — | M18 · 4.2 |
-| **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 |
-| **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 |
-| **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
-| **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
-| **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 |
-| **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 |
-| **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 |
-| **F312** | Melhoria | Cor da expansão na conta que opera | N15, N23 | — | M18 · 4.2 |
-| **F313** | Feature | Assembleia de cotistas com aba própria e aumento de taxa | N23 | — | M18 · 4.2 |
-| **F314** | Feature | Aquisição hostil no modo Equipes | N23 | — | M18 · 4.2 |
-
-<a id="f44"></a>
-**F44 — Expansão "Gestoras": fundar a gestora e abrir capital.** Serve N23. Inspiração: o Capitalism Lab (oferta pública, emissão de novas ações, recompra, compra de ações dos concorrentes), o OpenTTD e o Software Inc. Lá cada jogador é uma empresa que fabrica ou transporta; aqui tudo é finanças, então a empresa de cada jogador é uma gestora, e o que ela vende é o próprio desempenho. **Como expansão:** ligável por partida numa **aba própria "Expansões"** no lobby, com banner, emblema e "o que muda", como a loja de DLC dos jogos da Paradox; é enfeite visual, o sistema é o mesmo ligado ou não. **A gestora** tem nome e ticker de 4 letras mais 11, como cota de FII na B3 (o servidor recusa letras que já existam entre os ativos importados), e no livro de ofertas redesenhado (F211) cada linha leva a cor e a sigla de quem pôs a ordem, jogador ou bot, para não se confundir com ativo real. O jogador a funda levando **caixa, ações e títulos** da carteira em troca de cotas, e a opera **pelo rótulo do caixa na topbar** ("Caixa · Aurora Gestão ▾"): o rótulo abre a lista das contas, a pessoal e as gestoras que ele gere, e a escolhida vale para todas as telas de mercado, com uma faixa verde-petróleo dizendo qual conta está ativa. O botão "Operando" do desenho de 22/out sai, porque disputava a linha com a corrida e o governo (F179). **É um fundo fechado listado, como um FII:** (1) **oferta pública** quando o gestor quiser — cotas novas ao preço do patrimônio por cota (patrimônio de R$ 100 mil em 1.000 cotas dá R$ 100), e o dinheiro de quem compra entra na gestora: é investir no amigo; (2) **mercado** — depois da oferta, as cotas são negociadas no livro de ofertas que a renda variável já tem, e o preço sai da oferta e da procura, acima do patrimônio por cota (ágio) quando a sala acredita no gestor e abaixo (deságio) quando não; (3) **liquidez** — a liquidez de fundo do livro nasce dos candles de cada ativo, e a cota não tem candle, então um formador de mercado sintético põe ordens de compra e venda em volta do patrimônio por cota, numa faixa de 20% para cima e para baixo recalculada todo dia; dentro da faixa, o preço sai dos jogadores, e o livro tem contraparte até numa sala de 2; (4) **taxas** — a gestora paga aos gestores taxa de administração todo mês sobre o patrimônio e taxa de performance a cada 6 meses sobre o que passar do CDI, com teto na partida de **2% ao ano de administração e 20% de performance**, e cada gestor escolhe até o teto. Uma taxa nova passa a valer no mês seguinte, com aviso no jornal para a sala. A performance respeita a **marca d'água**, o maior patrimônio por cota sobre o qual a taxa já foi cobrada: se a cota cai de R$ 100 para 80 e volta a 100, a recuperação não paga performance. **O lucro fica dentro da gestora** e valoriza a cota. **Por que abrir capital, e quando:** as taxas são sobre o dinheiro dos outros, e com ágio as cotas do próprio gestor valem mais no ranking; o custo é ficar exposto, porque vender mais da metade abre a porta para perder o controle (F103). Abrir cedo, sem histórico, tende a sair com pouca procura; abrir depois de um bom ano tende a sair com ágio. **O gestor e a própria gestora:** o gestor negocia com a gestora pelo livro como qualquer jogador; a linha leva a sigla dele, então a negociação fica à vista, e quem cobra é a sala, vendendo a cota (deságio) ou trocando o gestor (F103). **Quem compra cotas:** pessoas, jogadores e bots, e o Fundo Soberano do governo; nunca gestoras, o que impede a participação cruzada (A com cotas da B, que tem cotas da A). **Os bots** não fundam gestora: compram e vendem cotas pelas estratégias que já têm, com a cota como mais um ativo do livro, e cada bot fica com no máximo 20% das cotas de uma gestora, para não decidir a assembleia; na assembleia (F103) eles se abstêm. **Regras para o cálculo fechar:** No ranking, cada jogador soma a carteira pessoal, as taxas recebidas e as cotas que tem pelo **preço de ranking**: a média dos negócios dos últimos 20 pregões, ponderada pelo volume e limitada a 30% acima ou abaixo do patrimônio por cota; sem negócio no período, vale o patrimônio por cota. Um ágio de até 30% conta, e um negócio forçado a R$ 1.000 numa cota de R$ 100 conta no máximo como R$ 130. A carteira da gestora só conta através das cotas, sem contar o mesmo dinheiro duas vezes. **Estrutura:** a carteira própria da gestora é a F101; a cota é um ativo no livro de ofertas, com o patrimônio por cota publicado a cada dia. **Com a expansão Governo & Política (F95):** quando o gestor vence a eleição, na posse ele deixa de operar a gestora e de receber as taxas, porque a carteira do presidente fica congelada; um co-gestor (F104) assume e, sem co-gestor, a gestora congela até o fim do mandato; as cotas que ele tem continuam dele. A F95 sai antes, então a carteira congelada do presidente já existe quando a gestora for implementada: cabe a esta feature estender o congelamento à gestora. **Nas features seguintes:** emissão de novas cotas e recompra (F102), troca de gestor pela assembleia (F103), co-gestores (F104) e rendimentos mensais (F105).
- **Na preparação do lobby:** a identidade da gestora (nome e ticker) fica salva no perfil, no molde do Meu partido, e entra numa aba própria da preparação (F174); a gestora preparada é fundada no 1º dia, vazia, e o jogador leva para ela o que quiser da carteira.
-
-**Plano.**
-
-1. **Protótipo pelo CLI**, antes de qualquer tela: uma partida com bots e duas gestoras, o formador sintético na faixa de 20% e jogadores simulados comprando e vendendo cotas, para calibrar a faixa e o preço de ranking.
-2. **Redesenho no canvas** das telas das Gestoras na largura de referência de 1920, dentro do layout base, na mesma sessão da topbar (F179): página da gestora, fundar, ações do gestor, a troca de conta pelo caixa, a cota vista pelos outros e os estados. Os desenhos de 22/out são de 1440 e anteriores ao layout atual.
-3. **Backend:** a gestora como conta sobre a carteira separada (F101), a cota como ativo do livro com o patrimônio por cota publicado a cada dia, o formador sintético, as taxas com marca d'água, o preço de ranking e o teto de 20% por bot.
-4. **Frontend:** a aba Expansões, a aba da gestora na preparação, as telas desenhadas e a troca de conta pelo caixa.
-5. **Gestora do presidente:** o congelamento da carteira do presidente passa a valer para a gestora dele.
-
-**Aceite:** no protótipo, sem procura a cota negocia perto do patrimônio por cota; com compra contínua, o preço sobe dentro da faixa e aparece ágio; o formador nunca negocia fora da faixa de 20%; um negócio forçado não leva o preço de ranking além de 30% do patrimônio por cota.
-
-<a id="f55"></a>
-**F55 — Modo aquisição hostil.** Todo jogador funda a gestora no 1º dia; no fim da carência o gestor acima do limite entra em oferta automática ao patrimônio líquido e o formador compra a sobra; perder a assembleia da própria gestora elimina o jogador, e a partida acaba quando resta um só ativo.
-
-<a id="f101"></a>
-**F101 — Carteira separada do jogador.** Serve N23; segue a D9. A base da expansão Gestoras (F44): hoje eventos e snapshots pertencem ao jogador (`user_id`), e a gestora precisa de carteira própria. Entra uma tabela `portfolios`, e eventos e snapshots passam a apontar para a carteira; a carteira pessoal de cada jogador é migrada uma a uma, inclusive nas partidas salvas. Nada muda na tela: cada jogador segue com uma carteira só até a F44 existir. Gatilho: a F44 sair da avaliação.
-
-<a id="f102"></a>
-**F102 — Gestoras: emissão de novas cotas e recompra.** Emissão com preço fixo, preferência de 10 pregões e sobra de 5, recompra pelo livro com queima das cotas e prévias calculadas no backend; página das gestoras na documentação.
-
-<a id="f103"></a>
-**F103 — Gestoras: troca de gestor pela assembleia.** Serve N23; amplia a expansão Gestoras (F44). É o custo de abrir capital; a defesa é a recompra (F102) e comprar cotas com as taxas recebidas. O modo aquisição hostil (F55) se apoia nesta regra.
-
-**Regras.**
-
-1. **Convocar:** quem tem pelo menos 10% das cotas convoca a assembleia e já indica o novo gestor: ele mesmo ou um aliado que aceite o convite.
-2. **Votação:** dura 5 pregões. Cada cotista vota a favor ou contra, e o voto conta as cotas que ele tem no fim da janela, então comprar cotas durante a votação vira uma corrida entre quem quer trocar e quem defende. O gestor vota com as cotas dele; os bots se abstêm.
-3. **Resultado:** vence a maioria das cotas que votaram; empate mantém o gestor.
-4. **O gestor afastado** vira cotista comum: mantém as cotas e as taxas já recebidas, perde a operação e as taxas futuras, e só funda outra gestora depois de 6 meses de jogo.
-5. **Intervalo:** cada gestora tem no máximo uma assembleia a cada 3 meses, para a convocação não virar assédio permanente.
-
-**Plano.** Backend da assembleia: convocação, votos, apuração no fim do 5º pregão e a troca do gestor, que leva junto o acesso à conta da gestora. Aviso a todos os cotistas e manchete no jornal na convocação e no resultado. A tela de votação entra na sessão de canvas das Gestoras.
-
-**Aceite:** comprar cotas no último pregão da votação muda o resultado; empate mantém o gestor; o afastado não funda gestora antes de 6 meses.
-
-<a id="f104"></a>
-**F104 — Gestoras: co-gestores.** Serve N23; amplia a expansão Gestoras (F44). A gestora pode ter mais de um gestor: eles operam a mesma carteira pela troca de conta no caixa da topbar e dividem as taxas, como sócios.
-
-**Quem manda:** o gestor principal convida, escolhe a parte das taxas de cada co-gestor (por exemplo, 30% para o co-gestor e 70% para ele) e pode tirá-lo a qualquer momento. O co-gestor aceita o convite e pode sair quando quiser. A parte das taxas não depende das cotas: quem tem cotas ganha pela cota, e o controle continua seguindo as cotas pela assembleia (F103).
-
-**Com Governo & Política:** o co-gestor assume a gestora quando o gestor vira presidente (F95); com mais de um, assume o que tem a maior parte das taxas.
-
-**Plano.** Convite e aceite por aviso; a lista de co-gestores na página da gestora, com a parte de cada um; a divisão no pagamento mensal da administração e no semestral da performance; a saída e a remoção. O acesso à conta da gestora pelo caixa vale para todos os gestores. As telas entram na sessão de canvas das Gestoras.
-
-**Aceite:** a soma das partes dá 100% da taxa; remover um co-gestor tira o acesso no mesmo pregão.
-
-<a id="f105"></a>
-**F105 — Gestoras: rendimentos mensais.** A gestora distribui parte do lucro realizado do mês (padrão 95%, de 0 a 100%, escolhida pelo gestor); a performance e a marca d'água seguem o retorno total.
-
-<a id="f179"></a>
-**F179 — Topbar que cabe com a corrida e o governo.** Serve N15. O controle de velocidade (`layouts/partial/topbar.tsx`) é largo: depois do selo de pausa vêm a data, o play e os cinco botões de velocidade (1×, 2×, 4×, 10× e 100×). Com a corrida pela meta, o governo, o Como jogar e o caixa na mesma linha, a topbar quebra. Com as Gestoras, governo, gestora e corrida ligados juntos passam a ser o caso comum, então a topbar é resolvida na 4.2, no mesmo desenho das Gestoras (F44). A referência é 1920 de largura, e em 1366 nada pode quebrar; o estado de teste é corrida, governo e gestora ligados, pausa com o motivo mais longo e o 100× destacado.
-
-**Desenho aprovado em 14/nov** (board "Topbar recombinada" e os estados dela, no canvas). O que muda:
-
-- a velocidade vira tracinhos com o número ao lado, um clique por tracinho, e a dica mostra a tecla (1 a 5); Espaço pausa e retoma, sem agir quando o foco está num campo de texto;
-- o selo "Pausado" sai: a data ganha o fundo âmbar e o texto "Pausado · data", e o motivo da pausa fica na dica;
-- o caixa vira o seletor de conta: "Caixa · Aurora Gestão ▾" abre a lista (carteira pessoal e gestoras), e com a gestora escolhida uma faixa verde-petróleo aparece sob a topbar; o botão "Operando" das Gestoras não existe;
-- o selo "Carteira congelada" do presidente sai: o cadeado entra no rótulo do caixa e nas contas do menu, com a dica "Congelada até <data>".
-
-**Meta e governo ficam como no app de hoje.** O board desenha os dois de forma aproximada, e o código segue os componentes reais (`topbar-goal.tsx`, `topbar-government.tsx`), sem mudar o estilo deles. O que o board não mostra e o app tem: a trilha da meta com 240 px de largura (o board usa 150) e um marcador por jogador ou equipe; a linha sob a meta com o reajuste pelo IPCA, o aviso "quase lá" e a "média da sua equipe"; o governo com presidente no cargo (emblema, nome, aprovação com a seta e a dica ao passar o mouse), que o board só desenha como a pílula "Governo do computador até a posse"; e o botão Como jogar.
-
-**Plano.**
-
-1. **Medir antes de mexer:** o bloco da direita com os componentes de hoje (meta com trilha de 240 px, governo com presidente, Como jogar, tempo e caixa) a 1366 e a 1920, com a velocidade em tracinhos e a pausa dobrada na data. Se a meta e o governo reais não couberem a 1366, o ponto de decisão é aberto e vai para o usuário: encolher a trilha (o board usa 150 px) ou compactar o governo, que o card já previa.
-2. **Tempo:** os tracinhos no lugar do `ToggleGroup`, a data âmbar no lugar do selo, o motivo da pausa na dica e os atalhos Espaço e 1 a 5.
-3. **Caixa:** o rótulo com o seletor de conta, o menu, a faixa verde-petróleo e o cadeado da carteira congelada (fica para quando a gestora existir, na F44; sem ela o rótulo é "Caixa" como hoje).
-4. **Estados:** conferir com a receita do canvas (tudo ligado a 1920 e a 1366, pausado, dica do teclado, menu aberto, governando, cheque especial, nome longo, partida clássica sem expansões, carregando).
-
-**Aceite:** a 1366 a topbar com corrida, governo e gestora ligados cabe numa linha, sem quebra; o 100× e a pausa com o motivo mais longo continuam legíveis; Espaço pausa e 1 a 5 trocam a velocidade, e digitar num campo não aciona nada.
-
-<a id="f211"></a>
-**F211 — Livro de ofertas e ordens abertas do detalhe do ativo.** Serve N15. O livro (`features/variable-income/components/order-book-card.tsx`) simula a profundidade de mercado a partir do candle do dia, e a ordem do jogador se perde no meio dele. O que o código faz hoje:
-- **O livro vem do candle do dia corrente**, o pregão que o jogo acabou de avançar (`market_liquidity.py`: compra abaixo do preço típico `(máxima + mínima + fechamento) / 3`, venda acima, com a distribuição de volume do candle). Não é o candle do dia seguinte.
-- **A ordem do jogador entra no livro com a data do dia em que foi enviada** (`operation.py:185`) e só executa quando o candle do dia seguinte injeta liquidez do outro lado; ela executa no preço dela (`matching_engine.py:197`).
-- **O livro não vem ordenado por preço**: `order_book.py:93-107` devolve o heap na ordem interna e a tela não define ordenação inicial (`order-book-card.tsx:69`), por isso a ordem do jogador aparece no meio.
-
-**Falta** desenhar, numa rodada no canvas em Opus com variantes e estados (como numa feature nova), a tela do livro. O desenho de 03/11 parte de: a ordem aberta do jogador numa faixa no topo com Cancelar à mão; o livro em duas colunas, Compra (maior preço no topo) e Venda (menor preço no topo), com a melhor compra e a melhor venda em destaque, ligadas à boleta; uma barra de quantidade; a coluna Situação sai (repetia "Aberta"); o balão "Tópico" some. O usuário gostou do rumo e pediu o refinamento pelo método completo. A rodada decide também o que o livro diz sobre si mesmo (que é a pressão ao redor do preço do candle de hoje) e se a ordenação por preço passa a vir do backend. Entra na 4.2, antes das Gestoras: a cota da gestora é negociada nesse livro, e cada linha leva a sigla e a cor de quem pôs a ordem (jogador ou bot), então o livro já é desenhado com essas linhas.
-
-<a id="f249"></a>
-**F249 — Núcleo do backend sem import de features.** `core/` importava de `features/` em `user_manager`, `room_preparation`, `dependencies` e `tunnel_manager`, o inverso do que a pasta promete.
-
-O túnel foi para `features/tunnel/`, a preparação da sala para `features/government/` e as dependências do FastAPI, que só as rotas usam, para `routes/dependencies/`. A interface `RealtimeBroker` e os eventos de presença do jogador subiram para o core, e o `UserManager` publica pelo `RealtimeBrokerManager`. A resolução e a validação da estratégia dos bots foram para `features/strategy/bots.py`: `add_bot` e `update_bot` recebem o `BotConfig` pronto, que já leva o nome da estratégia.
-
-**Aceite:** nenhum import de `backend.features` em tempo de execução no core; ficam o import só de anotação do `SimulationManager` e os prefixos de logger em `core/logger.py`, que são texto de configuração. `uv run pyright` e `uv run pytest -n 4` limpos.
-
-<a id="f255"></a>
-**F255 — Estatais.** O presidente funda estatais em três portes (medida votada, paga com dívida, 51% do governo e 49% no formador), comanda o controle de preço em degraus de 5 a 20% com teto de 1,5 ponto de inflação represada que volta ao soltar, escolhe a política de dividendos (Reinvestir, Normal, Espremer) e privatiza por oferta de 5 pregões com reserva e rateio; a importação marca a estatal histórica, e sem ordem a partida segue a história. O Fundo Soberano fica na F292, e a conferência da tela contra o canvas ficou pendente.
-
-<a id="f287"></a>
-**F287 — Slots dos jogadores do lobby no desenho anterior.** Serve N15 e N20. O redesenho do topo do lobby também refez o card de cada jogador (`lobby-player-list.tsx`): o nome ficou sozinho na primeira linha, a profissão e os papéis desceram para uma segunda linha, a presença e o partido preparado viraram uma terceira, e as vagas livres viraram uma faixa só ("N vagas livres · a sala aceita até 12"), com "Adicionar bot" numa faixa à parte. O usuário preferiu o desenho anterior e pediu a volta.
-
-**O que voltou** (o estado do arquivo antes do commit "Redesenhado o topo do lobby e movida a profissão para a Minha preparação"): o nome com os badges ao lado na mesma linha (Host, Novo e profissão); embaixo, a presença do jogador ou a estratégia do bot; o partido preparado à direita do card ("candidato" ou "sem partido"); cada vaga livre como um card próprio, na altura do card de jogador, e "Adicionar bot" ocupando a primeira vaga.
-
-**O que ficou:** o topo do lobby redesenhado e a escolha da profissão dentro da Minha preparação. Na linha do nome volta só o badge de profissão (leitura), sem o seletor.
-
-**Onde o desenho mudou em relação ao anterior:** com 2 colunas de 264 px, o badge de profissão e o "Bot" deixavam o nome do bot cortado (6 de 11 nomes, com a sala cheia). O badge "Bot" saiu, porque o avatar de robô e a estratégia já dizem que é bot, e os cards ficaram em uma coluna só, na largura do card do próprio jogador: nenhum nome corta a 1366 e a 1920. O custo é a altura: o card Jogadores tem cerca de 1013 px em qualquer sala (as 12 posições ficam à vista), contra cerca de 680 px em 2 colunas. O card do bot não mostra mais "robô não prepara" (bot nunca tem partido, o lado direito fica vazio) e a estratégia trunca com a dica do nome inteiro.
-
-**Conferência feita:** sala com 12 jogadores, bots com nomes e estratégias longas e o próprio jogador com partido de candidato, a 1366 e a 1920: nenhum texto sobreposto nem cortado, vaga e card de jogador com 66 px.
-
-<a id="f288"></a>
-**F288 — Badge de profissão legível no lobby e na Minha preparação.** Serve N15 e N20. Dois problemas vistos no lobby:
-
-- **Contraste.** O `ProfessionBadge` (`frontend/shared/components/profession-badge.tsx`) usa a variante `secondary` do Badge (`bg-muted`, texto `secondary-foreground`, sem borda). Sobre o card do jogador (`bg-card`, e o do próprio jogador em `bg-info-soft`) o fundo do badge quase some e não se vê onde ele começa. Os badges "Bot" e "Novo" do mesmo card usam a mesma variante e sofrem igual.
-- **Botão Minha preparação.** O botão do topo (`preparation-button.tsx`) mostra a profissão como texto solto ("CLT" cinza, sem ícone), quando o desenho aprovado no canvas tinha o badge com ícone, e antes do redesenho a profissão aparecia como badge no card do jogador.
-
-**Plano:** a variante do badge de etiqueta ganha contraste no próprio design system (`badgeVariants.ts`): borda `border-input` e fundo que se destaca do card nos dois temas, seja ajustando a `secondary` (se todos os usos dela ganham com isso) ou criando uma variante nova de etiqueta usada pelo badge de profissão, pelo "Bot" e pelo "Novo". Sem `className` por cima da variante. O botão Minha preparação passa a renderizar o `ProfessionBadge` no lugar do texto.
-
-**Aceite:** a borda ou o fundo do badge tem contraste de pelo menos 3:1 contra o fundo do card, no tema claro e no escuro, no card comum e no card do próprio jogador.
-
-<a id="f289"></a>
-**F289 — Cards de profissão com vantagens e desvantagens.** Serve N39 e N25. A aba Profissão da Minha preparação (`ProfessionCards` em `frontend/shared/components/profession-grid.tsx`) mostra, em cada card, o ícone, o nome, o "N× o salário" e um parágrafo (`feels` em `frontend/shared/lib/professions.ts`) que mistura demissão, reajuste e imposto. O usuário achou denso demais: ninguém lê prosa para escolher. Na escolha, o que importa é o que cada profissão ganha e o que ela perde.
-
-**Proposta:** o parágrafo vira duas partes. **Vantagens** (✓) e **desvantagens** (✗) em lista curta respondem "vale a pena?". **Afetado por** responde "o que eu acompanho durante a partida": as variáveis que movem a renda (da economia ou do governo), como etiquetas curtas, sem dizer se é bom ou ruim. As etiquetas e as frases saem das regras da profissão (`ProfessionRule`: imposto, reajuste, PIB, auxílio, sorteio de demissão), e as listas moram em `PROFESSIONS` no lugar do `feels`, como fonte única do texto.
-
-**Decidido em 13/11:**
-
-- **Renda em R$ e em múltiplo:** cada card mostra o valor do mês com o salário que o host definiu ("R$ 6.000 por mês") e, embaixo, o "1,2× o salário". A nota de rodapé que explicava o "× o salário" sai.
-- **Auxílio:** mostra o total, 0,9× (R$ 4.500), com a divisão "0,5× do bico + 0,4× do auxílio" embaixo.
-- **Regras da sala:** o card mostra só o que vale na sala. Sem o Governo, saem as etiquetas e as vantagens que dependem dele (aumento dos servidores e dos aposentados, gasto com auxílio, impostos); sem a correção pela inflação, sai o aumento. Card sem nenhuma etiqueta diz "Nada que mude na partida".
-- **Dica das etiquetas:** hovercard com o que a variável é e uma tabela curta do efeito em R$ (PIB do empreendedor, desemprego com a frequência do sorteio, imposto, gasto com auxílio, aumento do governo). Sem dica de texto corrido: etiqueta sem tabela fica só com o nome.
-- **Locador:** passa a 1,1× o salário, no card próprio dele no roadmap; os cards já o mostram com R$ 5.500.
-
-**Falta:** o usuário escolher no canvas a variante do card (A: três colunas com lista única; B: duas colunas com Ganha e Perde lado a lado; C: tabela comparativa) e revisar as frases de cada profissão.
-
-<a id="f290"></a>
-**F290 — Profissões novas.** Serve N23 e N34; condicionado por D19. As seis profissões de hoje (`backend/core/professions.py`, `frontend/shared/lib/professions.ts`) ligam a renda ao desemprego, ao PIB, ao reajuste do governo e a um dos três impostos. Cada profissão nova aposta numa variável que a partida já simula e que nenhuma das seis usa, para a escolha ser uma leitura da economia, e cada uma tem um preço. Os múltiplos abaixo são o ponto de partida; os números finais saem da calibragem.
-
-- **Exportador:** a renda segue o dólar; ganha quando o real se desvaloriza e perde quando ele se valoriza. Imposto de empresa. Grupo dos empreendedores; o governo chega por câmbio e imposto de empresa.
-- **Bancário:** a renda segue a Selic; ganha com juro alto e perde quando o Banco Central corta. Tem sorteio de demissão e imposto de renda. Grupo dos trabalhadores formais; o governo chega pela Selic.
-- **Autônomo:** cerca de 1,4× o salário, sem reajuste nem correção pela inflação, então a inflação come a renda ao longo da partida; o sorteio de demissão vira "mês sem cliente", um mês sem renda. Imposto de renda. Grupo dos empreendedores.
-- **Corretor:** a renda segue o Ibovespa dos últimos 12 meses. Imposto de renda. Grupo dos investidores.
-- **Herdeiro:** sem renda nenhuma; começa com um patrimônio calibrado para empatar com o CLT aplicado no CDI na duração padrão da partida. É trocar a renda pelo capital de partida: ganha de quem investe mal e perde para quem investe bem o salário. Grupo dos investidores; o governo chega pela Selic, que decide quanto o patrimônio rende.
-- **Recém-formado:** começa com patrimônio zero e cerca de 0,6× o salário, que sobe até cerca de 1,5× em 10 anos; o risco de demissão é maior no começo. Imposto de renda. Grupo dos trabalhadores formais.
-
-Os bots recebem uma profissão sorteada entre todas, e o host pode fixá-la no slot do bot. Os cards usam o formato Ganha | Perde dos cards de profissão.
-
-**Plano.**
-
-1. **Calibragem pelo CLI:** cada profissão nova contra o CLT em várias bases e sorteios, ajustando os múltiplos e o patrimônio do Herdeiro.
-2. **Backend:** os campos novos do `ProfessionRule` (renda que segue dólar, Selic ou bolsa; sem reajuste; patrimônio inicial; a curva de renda do Recém-formado; a demissão como mês sem cliente) e a profissão sorteada dos bots.
-3. **Frontend:** os seis cards Ganha | Perde e o seletor de profissão no slot do bot.
-
-**Aceite:** na calibragem, cada profissão nova termina acima do CLT em algum cenário e abaixo em outro; o Herdeiro que deixa tudo no CDI termina perto do CLT que investe o salário no CDI.
-
-<a id="f291"></a>
-**F291 — Locador com aluguel de 1,1× o salário.** Serve N39. Hoje o Locador (`backend/core/professions.py`) rende 1× o salário, paga o imposto de renda das pessoas e corre o sorteio de demissão como vacância, igual ao CLT, mas sem o aumento acima da inflação que o CLT ganha quando o PIB cresce. Ele sai igual ou pior que o CLT em tudo, e com as vantagens e desvantagens escritas no card da profissão isso fica à vista: ninguém escolhe o Locador.
-
-**Decidido em 13/11:** o aluguel passa a 1,1× o salário (R$ 5.500 com salário de R$ 5.000), 10% mais que o CLT, e segue só com a inflação. A escolha vira uma troca: mais renda agora contra o CLT, que cresce. Com PIB de 2% ao ano o CLT ganha 1% ao ano acima da inflação e alcança o Locador em uns 10 anos de partida. Muda o `income_multiple` do Locador no backend e no `frontend/shared/lib/professions.ts`, e os testes de profissão que fixam o 1×.
-
-<a id="f292"></a>
-**F292 — Fundo Soberano: o governo compra ações e cotas.** Serve N34 e N41. O governo investe em empresas com uma carteira própria. A referência é o Fundo Soberano do Brasil (2008 a 2019): criado com dinheiro do Tesouro, comprou ações da Petrobras e do Banco do Brasil e foi extinto em 2019, com o saldo usado para pagar dívida.
-
-**Regras.**
-
-1. **É um destino do gasto público**, como o auxílio e as obras: o aporte é uma medida que passa pelo Congresso. A medida sempre existe, sem chave nas configurações do governo.
-2. **O presidente escolhe as compras**, ativo por ativo, fora da fila do Congresso, porque o dinheiro já foi aprovado. Toda compra e toda venda sai no jornal.
-3. **Como compra:** o presidente troca o caixa da topbar para o Fundo Soberano, como faz com uma gestora, e compra na Renda Variável de sempre, com gráfico, livro de ofertas e busca; uma faixa avisa que a ordem é do fundo. A compra passa pelo livro e mexe no preço, como a de qualquer jogador grande.
-4. **O que o fundo compra:** ações importadas, inclusive as das estatais, e até 20% das cotas de cada gestora (F44). Comprar a gestora de um aliado, do partido do presidente ou da base, dá manchete de favorecimento e rejeição nos grupos do eleitorado.
-5. **Sem impulso no PIB:** comprar ação na bolsa não constrói nada, o dinheiro só troca de mão. Venda e dividendos voltam ao Tesouro e abatem a dívida.
-6. **A carteira do fundo** é uma carteira separada (F101). As telas estão desenhadas no canvas, na linha das Estatais (F255), com a compra pelo caixa da topbar.
-
-**Plano.** A medida de aporte entre os gastos públicos; a carteira do governo; as ações de compra e venda do presidente; as manchetes de compra, de venda e de favorecimento; o teto de 20% por gestora; o retorno de venda e dividendos ao Tesouro.
-
-**Riscos.** O presidente pode usar o fundo para inflar a cota de um aliado; o teto de 20%, a manchete e a rejeição são o preço. Comprar antes de uma medida que valoriza o ativo é informação privilegiada, aceita como nas estatais, porque o aporte passa pelo Congresso à vista de todos.
-
-**Aceite:** sem aporte aprovado o fundo não compra nada; vender devolve o dinheiro ao Tesouro e abate a dívida; o fundo nunca passa de 20% das cotas de uma gestora; comprar ação não move o PIB.
-
-<a id="f293"></a>
-**F293 — Profissões das expansões.** Serve N23 e N34; condicionado por D19. Duas profissões que só aparecem com a expansão delas ligada, no formato Ganha | Perde dos cards de profissão. Os múltiplos são o ponto de partida; os números finais saem da calibragem.
-
-- **Comissionado**, com Governo & Política: cerca de 1,5× o salário enquanto o partido escolhido na preparação, de um jogador ou do computador, ocupa a presidência ou está na base do governo, e cerca de 0,5× fora dela. A eleição decide a renda. Grupo dos servidores públicos.
-- **Banqueiro de ofertas**, com Gestoras: cerca de 0,7× o salário mais 1% de toda oferta pública e emissão de cotas da sala (F102), descontado do valor captado pela gestora, como a comissão dos bancos nas ofertas reais. Ganha quando a sala abre capital. Grupo dos investidores.
-
-**Plano.** A profissão com requisito de expansão, que só aparece com ela ligada; a escolha do partido na aba Profissão da preparação; a renda do Comissionado lida da presidência e da base a cada mês; a comissão do Banqueiro paga a cada oferta e emissão; os dois cards Ganha | Perde.
-
-**Aceite:** com a expansão desligada a profissão não aparece; o Comissionado muda de renda no mês seguinte à troca de governo; uma oferta de R$ 100 mil paga R$ 1 mil ao Banqueiro.
-
-<a id="f294"></a>
-**F294 — Adicionar vários bots de uma vez.** Serve N8. O diálogo de adicionar bot (`frontend/features/lobby/components/lobby-bot-dialog.tsx`) ganhou o campo de quantidade, de 1 até as vagas livres da sala, e, com quantidade maior que 1, o item "Sortear para cada bot" na lista de estratégias. No lote, o nome sai da lista da estratégia e a cor, a profissão e o time são automáticos; cada bot continua editável no slot depois. Com quantidade 1 o diálogo é o de sempre. Os bots entram pela rota `POST /api/simulation/bots/batch`, sob um único lock: se faltar vaga ou algum nome se repetir, nenhum entra. O desenho é registrado no canvas depois de implementado.
-
-<a id="f295"></a>
-**F295 — Orçamento, painel econômico e base do governo por tempo real.** O orçamento do país (`useBudget`), o painel econômico (`useEconomyPanel`) e a base do governo (`features/government/hooks/queries/useBase.ts`) buscam os dados de novo a cada 10 s por `refetchInterval`. O resto do app atualiza por tempo real: o backend emite um evento pelo websocket quando o dado muda e o hook invalida a query.
-
-**Aceite:** os três hooks sem `refetchInterval`; um evento do backend para cada dado, emitido quando ele muda (no tick ou na ação que o altera), e o hook invalidando a query ao receber. Molde: `useFixedIncomeAssets` com `fixed_assets_update`, e as páginas da gestora com `funds_update`. O painel de desempenho do modo debug segue buscando de tempo em tempo, porque mede o servidor.
-
-<a id="f296"></a>
-**F296 — Correções do playtest: gestoras e renda variável.**
-
-Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botão de oferta pública só antes da oferta, total vendido na oferta encerrada, menu e tela do presidente com Fundo Soberano, selo de estatal na lista, nome Mercado nas duas pontas do livro e filtros da renda variável em duas linhas a 1366 px.
-
-<a id="f297"></a>
-**F297 — Correções do playtest: governo e eleição.** Serve N34. Lote do playtest de 17/11. (1) Linha do tempo do segundo turno fora de ordem (04 jan, 02 jan, 09 jan, 2º turno) e marcadores de aliança entre os pontos errados: `map_timeline.py:141-226` monta os pontos sem ordenar e o front (`map-timeline.ts:14-34`) dispõe por índice, com o marcador na média dos vizinhos (`map-timeline-ruler.tsx:243-256`); os pontos saem ordenados por data. (2) Convidar vice dentro da partida inscreve a chapa e o convite não chega: `government_book.py:2024-2056` emite VICE_INVITED e deixa o vice pendente, mas a pendência do convidado não aparece; reproduzir no app de teste e corrigir. (3) "Prometido" mostra o valor prometido no hover do selo e no diálogo de mudar (`taxes-card.tsx:196-212`, `spending-card.tsx:151-155`, `measure-action.tsx`): o DTO passa a mandar o valor além do `promised: bool` (`dto/government.py:969, 996`). (4) O selo "Novo" das Estatais é fixo (`government.tsx:93-96`) e sai. (5) Privatizar não chegou ao Congresso: na partida, nenhuma medida de privatização foi registrada; o botão só aparece com `isPresident && company.can_command` (`state-companies-table.tsx:242-247`); reproduzir e corrigir o caminho até a medida. (6) O Fundo Soberano não teve nenhum aporte nem compra na partida (zero fluxos e zero eventos na conta 0); reproduzir o aporte e a compra e corrigir.
-
-<a id="f298"></a>
-**F298 — Correções do playtest: lobby, bots e profissões.** Serve N39 e N8. Lote do playtest de 17/11. (1) Adicionar 4 bots dá 422 "O nome do bot precisa ter de 1 a 20 caracteres, sem # nem /": esgotados os 3 nomes da estratégia, `bot-names.ts:12-15` gera "<nome> #N" e `user_manager.py:1211-1221` recusa o "#", derrubando o lote inteiro; o nome numerado passa a usar um formato aceito. (2) O diálogo de bots ganha duas abas, como a preparação: "Em lote" (quantidade e sorteio) e "Individual" (o diálogo de um bot, sem o campo de quantidade). (3) Fim de partida dessincronizado: um jogador viu derrota e o outro vitória até recarregar; o caminho é `simulation_ended` → invalidação das estatísticas → `/match-result`; reproduzir com dois navegadores e garantir que o resultado só aparece com o placar final. (4) Cards de profissão: o Herdeiro mostra o capital inicial (o valor que importa, já que o salário é zero) e um selo de "difícil"; as profissões das expansões levam o selo da expansão (`profession-cards.tsx`). (5) O Comissionado e o Banqueiro de ofertas não deixam selecionar (`profession-tab.tsx:47-56` exige o partido do Comissionado): reproduzir e corrigir. (6) A profissão escolhida não volta ao lobby depois de uma partida: na partida jogada, `simulation_players.profession` ficou nulo para todos, embora `users.settings` guardasse a profissão (`settings.py:103-116`, carga em `user_manager.py:199-206`).
-
-<a id="f299"></a>
-**F299 — Cota de gestora negociada na renda variável.** Serve N23. Do playtest de 17/11: quem abria a oferta pública não achava a cota em lugar nenhum, porque a lista da renda variável e o catálogo dos bots excluíam a classe FUND, e sem negócio o preço de ranking descolou do patrimônio por cota (330,20 contra 552,20). Feito: a cota listada (desde a abertura da oferta) entra na lista da renda variável com o selo de gestora; a gestora fechada fica fora. O detalhe do ativo serve a cota com livro, gráfico e análise técnica, mais os cards da gestora (patrimônio por cota, ágio e P/VP com dica, taxas, rendimentos, gestor e link), o card da oferta ou da sobra da emissão em aberto, e na boleta o ágio pago, a posição depois da ordem e o aviso de perder o controle com "Vender só N". O painel de compra e venda saiu da tela da gestora, que agora leva ao detalhe ("Comprar na oferta", "Vender cotas", "Negociar cotas"). Toda compra automática de cota tem teto de P/VP 1,2. Estratégia nova dos bots, "Cotas de gestoras", só nas salas com a expansão: dá à cota o patrimônio por cota mais um prêmio de 2× o desempenho sobre o CDI em 126 pregões (limitado a ±20%) e uma opinião do dia de ±5% por bot; compra abaixo desse valor, vende acima, e na oferta ou na sobra só compra no último pregão, se o preço fixo couber. O backtest lista as estratégias sem gestoras.
-
-<a id="f300"></a>
-**F300 — Tela da gestora em abas, como a do governo.** Serve N23 e N15. Do playtest de 17/11. A tela da gestora mistura tudo numa página: a oferta pública encerrada fica sempre à vista, os botões de ação ficam soltos no topo, a tabela de rendimentos cresce sem paginar (`fund-distributions-card.tsx`) e empurra os cards para baixo, o relatório mensal fica escondido num botão da composição (`fund-composition.tsx:42-62`), e a recompra tem dois jeitos no diálogo (`buyback-dialog.tsx:70-101`). **Decidido em 18/11.** **Topo fixo acima das abas, em todas elas:** identidade (marca, nome, ticker, etapa), os quatro números comuns com ⓘ (patrimônio, patrimônio por cota, preço no mercado, ágio) e o aviso da fase; o patrimônio por cota começa em R$ 100, como `FIRST_NAV`. **Primeira aba "Suas ações", no molde da aba de mesmo nome do governo** (`actions-tab.tsx`, `action-row.tsx`, `action-card.tsx`): um cartão por papel (Como gestor, Como cotista), cada ação numa linha com ícone, explicação, o motivo quando está travada e um botão; botão cheio só na ação principal, os outros contornados; o bloco "Decida agora" no topo para o que tem prazo (votação aberta, preferência da emissão, convite de co-gestão). Quem não gere também vê a aba, com as ações de cotista: comprar na emissão com preferência, votar ou convocar a assembleia, negociar a cota na renda variável, responder convite; sem cota, só a oferta aberta e o atalho para negociar. Os componentes de linha e de grupo do governo sobem para `shared/` (dois consumidores). **Gestora fechada:** os passos (levar da carteira, conferir as taxas, abrir a oferta pública) moram em Suas ações, e a Visão geral vira um estado vazio que explica que preço e histórico chegam com a bolsa. **Abas do gestor:** Suas ações, Visão geral, Carteira, Cotas (cotistas, emissões e a oferta encerrada como histórico), Rendimentos (paginada), Assembleia (F313), Relatório e Configurações (taxas, parte do lucro distribuída e o automático da F306). Quem não gere vê Suas ações, Visão geral, Cotas, Rendimentos, Assembleia e Relatório. **Visão geral:** o gráfico do preço contra o patrimônio por cota ganha a terceira linha, o preço de ranking, com a faixa de ±30% e o número com ⓘ. **Rendimentos:** "parte do lucro distribuída" é a fração do lucro realizado do mês que vai aos cotistas (padrão 95%, vale no mês seguinte), e o controle mostra a prévia em reais por cota com o lucro do mês; o dividend yield é consequência, não controle. **Relatório:** aberto a qualquer cotista, com a rosca da alocação da carteira. **Recompra:** um caminho só, explicado no próprio diálogo. **Cor:** todas as abas no verde-água da expansão (o token `fund`: ícone, botão cheio e sublinhado da aba), escolhido no canvas em 18/11. Desenho na rodada de canvas da linha da gestora, com todas as telas da 4.2 juntas.
-
-<a id="f301"></a>
-**F301 — Gestor que vira presidente e mais de uma gestora por jogador.** Serve N23. Do playtest de 17/11. O gestor de uma gestora fechada virou presidente; na posse, `on_office` (`fund_book.py:1163-1179`) passou a gestão ao co-gestor (outro jogador, que já tinha a própria gestora), embora o gestor tivesse 100% das cotas. Daí: a lista de gestoras diz "gerida por" quem tem fatia mínima ou nenhuma; o co-gestor promovido não alcança a tela de gestão da segunda gestora (o front supõe uma gestora por jogador: `funds.tsx:33-34`, `sidebar.tsx:72-73`); o dono-presidente perde o acesso à própria gestora e vê "Funde a sua gestora". **A posse segue a regra de hoje:** o co-gestor de maior participação assume e, sem co-gestor, a gestora congela com a carteira do presidente ou segue no automático (F306). **No fim do mandato sem reeleição, o ex-presidente retoma a gestão:** a gestora congelada volta para a mão dele, e a que passou a um co-gestor volta a tê-lo como gestor principal; hoje nada desfaz a troca da posse. **Gerir mais de uma gestora é um caso normal do jogo,** porque a aquisição hostil (F305) termina nele. **O menu Gestoras vira a lista da sala (decidido em 18/11):** três blocos, as que você gere, as em que você tem cotas e as outras, cada linha com ticker, gestor, patrimônio e a sua parte, abrindo a gestora; "Funde a sua gestora" vira um botão no topo, só para quem não tem gestora. O seletor de conta lista todas as geridas, e a tela distingue gestor, co-gestor e cotista. **Fundar exige não ter gestora:** quem perdeu a sua (a assembleia trocou o gestor, alguém comprou o controle) funda outra; quem tem uma, inclusive congelada pela presidência, não. O backend recusa em `found_fund` (`simulation.py:1305-1330`), que hoje só tem o redirecionamento do front (`fund-found.tsx:20`). **O Fundo Soberano não é gestora:** ele só reaproveita o seletor do caixa, e o menu lateral e a lista de gestoras nunca o tratam como uma. As cotas de quem não gere chegam pela renda variável (F299). Desenho da lista na rodada de canvas da linha da gestora. O item do menu lateral se chama sempre "Gestoras", porque leva à lista da sala; o rótulo com o nome da gestora do jogador (`labelOf` em `sidebar.tsx`) sai.
-
-<a id="f302"></a>
-**F302 — Caixa da gestora sem ficar negativo.** Serve N23. Do playtest de 17/11. A gestora ficou com caixa negativo em 106 dias, o pior em −239 mil: a taxa de performance de 225,6 mil foi cobrada logo depois de uma distribuição de 1,14 milhão ter esvaziado o caixa. `charge_fund_fee` cobra sem olhar o caixa, e a distribuição não reserva as taxas. **Decidido em 18/11: taxa a pagar.** A parte da taxa que o caixa não cobre vira "taxa a pagar", uma dívida da gestora com o gestor: ela desconta do patrimônio pelo termo de dívida que `nav_per_quota` já tem, e o próximo dinheiro que entra (dividendo, juro, venda de ativo) quita a taxa a pagar antes de qualquer outra coisa. A distribuição paga só o caixa que sobra depois da taxa a pagar. O gestor recebe quando a gestora paga, e os co-gestores pela divisão de hoje (`split_fee`). A Carteira e o Relatório mostram a taxa a pagar em aberto.
-
-<a id="f303"></a>
-**F303 — Dinheiro novo na gestora depois da oferta pública.** Serve N23. Do playtest de 17/11. Depois da oferta pública não há como pôr dinheiro novo na gestora: o aporte existe só antes da listagem (`contribute`, `fund_book.py:450`), a emissão vai a público, o co-gestor não aporta e o crédito pega sempre a conta pessoal (`routes/credit.py:25-104` usa o ClientID; `credit_book` não conhece gestora). Desde a cota negociada na renda variável, os bots compram a sobra da emissão no último pregão quando o preço fica abaixo do que acham que a cota vale, e a emissão pública deve passar a vender. **Decidido em 18/11.** **Emissão dirigida ao gestor e aos co-gestores:** o gestor emite cotas novas para si ou para um co-gestor, que aceita na pendência; elas são liquidadas no mesmo pregão e pagas pelo caixa pessoal de quem compra. **Preço: o maior entre o patrimônio por cota e o preço de ranking.** Com deságio, a cota sai ao patrimônio por cota e ninguém é diluído; com ágio, sai ao preço de ranking e o ganho fica na gestora (patrimônio por cota de R$ 100 e ranking de R$ 120: sai a R$ 120). No modo aquisição hostil, a emissão respeita o teto do gestor somado aos co-gestores (1 − participação mínima do mercado: com mínimo de 30%, os dois juntos ficam com até 70% das cotas). **Empréstimo em nome da gestora:** o crédito passa a atender a conta ativa, e a gestora toma empréstimo pelas mesmas regras da conta pessoal (`credit/rules.py`): a nota sai da alavancagem, da volatilidade e do histórico de pagamento sobre o patrimônio da gestora, as parcelas saem do caixa dela e a dívida desconta do patrimônio por cota. Só o gestor principal toma, sem assembleia, e a taxa a pagar conta como dívida no limite. Emissão, empréstimo e fusão ficam com o gestor principal; o co-gestor opera a carteira, como hoje. A emissão dirigida a um cotista qualquer fica fora (abriria o aliado que fura o teto da aquisição hostil). Desenho do diálogo da emissão dirigida na rodada de canvas da linha da gestora.
-
-<a id="f304"></a>
-**F304 — Co-gestão combinada no lobby.** Serve N23. Do playtest de 17/11. A co-gestão só se combina dentro da partida (convite com validade de 7 dias). No lobby, o jogador escolhe começar como co-gestor da gestora de outro jogador, no mesmo molde do convite de vice dos partidos: quem funda convida, o convidado aceita na própria preparação e a partida começa com a co-gestão de pé. Respeita o teto de 3 co-gestores. Desenho do convite no lobby na rodada de canvas da linha da gestora. Aceitar a co-gestão no lobby não impede fundar a própria gestora.
-
-<a id="f305"></a>
-**F305 — Aquisição hostil como modo de vitória.** Serve N23. Do playtest de 17/11. O modo aquisição hostil é um interruptor no card da expansão de gestoras (`funds-card.tsx:152-186`), e isso dá a entender que ele combina com qualquer tipo de partida, quando ele mesmo define como se vence. **Decidido em 18/11.** A aquisição hostil vira um tipo de partida (`GameType`, `game-types.ts`), ao lado de Clássica, Corrida pela meta, Independência financeira e Política, e sai do card da expansão. **Tipo exclusivo de expansão:** a Aquisição hostil (das Gestoras) e a Política (do Governo) aparecem sempre na lista de tipos; com a expansão desligada, o tipo fica desabilitado com o motivo ("ligue a expansão Gestoras"), e para escolher liga-se a expansão; com o tipo escolhido, o interruptor da expansão trava ligado, com o motivo. A Política deixa de sumir sem o Governo. Com o tipo escolhido, a carência e a participação mínima do mercado aparecem embaixo do tipo, como a meta nos tipos de meta. **Vitória: o último de pé,** como o código já conta: quem perde para a assembleia a gestora que fundou é eliminado e vira espectador, e a partida acaba quando sobra um jogador ativo (`simulation.py:2262`). Se a data final chega com mais de um de pé, vence o maior patrimônio do ranking. A dica do lobby diz "sobra um jogador", e não "sobra uma gestora". Quem conquista gestoras passa a gerir várias (F301) e as junta pela fusão (F311). O ícone da Aquisição hostil é o prédio comercial (`Building`), distinto do `Building2` do Locador. Desenho do tipo no lobby na rodada de canvas da linha da gestora.
-
-<a id="f306"></a>
-**F306 — Automático só na carteira da gestora.** Serve N23 e N4. Do playtest de 17/11. O automático (a estratégia que opera pelo jogador, `useMyStrategy`) vale só para a conta pessoal e trava as boletas dela. O gestor liga uma estratégia só na carteira da gestora, na aba Configurações da gestora, e segue operando à mão a conta pessoal; o lock das boletas (`useTradeLock.ts`) passa a olhar a conta ativa. **Na presidência:** o gestor que toma posse sem co-gestor deixa a gestora no automático em vez de congelada, e ela segue operando durante o mandato pela estratégia escolhida; no fim do mandato sem reeleição ele retoma o controle e desliga o automático (a regra da posse está na F301). **Lista do automático:** a aba Configurações usa a mesma lista de estratégias da página Estratégias e da aba Estratégias da Minha preparação, com as seções por grupo (Referências e Táticas, com a dica ⓘ), o ícone do grupo em cada linha e a marca da ativa. Hoje as duas telas têm cada uma a sua cópia da lista (`strategy-list.tsx` e `strategies-tab.tsx`), e só os títulos e o ícone moram em `shared`; com a gestora, a lista vira um componente de `shared/components` usado pelas três. **Posse sem estratégia escolhida:** a gestora congela até o presidente ligar uma estratégia ou convidar um co-gestor, e o co-gestor que aceita assume na hora e descongela a carteira. O automático da gestora não compra cotas de outras gestoras.
-
-<a id="f307"></a>
-**F307 — Estatais com preço vivo e lucro à vista.** Serve N34. Do playtest de 17/11. A estatal fundada ficou em linha reta: o valor justo sorteia um retorno por ano (`fair_value.py`, média abaixo do juro real, desvio de 10%) e o divide em fatores iguais por dia, então dentro do ano é uma reta, e num ano de sorteio negativo é uma reta descendo; sem negócio, o fechamento repete o último preço; o impacto da compra do jogador decai e parece "só cair"; e num mês de lucro negativo não há dividendo. O volume 0 com milhões no livro é a escada do formador de mercado esperando: volume conta só negócio fechado. A política de dividendos do governo já vale (Reinvestir paga 25% do lucro e cresce o porte 1% ao mês; Normal 50%; Espremer 80% e encolhe o porte, `payout.py`, `gdp.py`). **Decidido em 18/11.** **Preço de referência diário em três camadas:** a tendência do ano ligada ao PIB (ano de PIB acima da média dá retorno maior, e o que o presidente faz no PIB mexe na estatal), a sensibilidade à bolsa do dia (0,8 para começar: a bolsa cai 2% e a estatal cai 1,6%) e um ruído próprio que puxa de volta para o valor justo. Sem negócio, o fechamento é essa referência, e a escada do formador se monta em volta dela. A fonte do retorno da bolsa e a calibração se fecham no plano. **Os bots negociam estatais** como qualquer ação ou cota. **Tela da estatal:** gráfico mensal de lucro, dividendo e valor justo, com o que o jogo já guarda (`state_company_months`), sem receita, que o modelo não tem; o mês sem dividendo diz por quê; a fatia do governo aparece na composição. A estatal importada segue o preço e os proventos da história, com o controle de preço e a política do governo como multiplicadores (`book.py:584-594`); as três camadas valem para a fundada. **Onde mora:** no detalhe da ação na renda variável, onde o investidor decide comprar; a linha da estatal na aba Estatais do governo ganha o link "Ver lucro e dividendos", que leva para lá, porque o presidente escolhe a política olhando esses números. A estatal usa as cores da renda variável, com o selo "Estatal" na cor do governo (`--expansion-government`), e não o verde-água da gestora.
-
-<a id="f308"></a>
-**F308 — Spike: impacto do jogador no preço, teto do k e oscilação no pregão.** Serve N3 e N10; condicionado por D22. Do playtest de 17/11: a partida das estatais rodou com k 3,0, contra 0,05 das outras, houve preço de 1.837 a 237.871 e o gráfico da estatal saltou e voltou ao pausar. Mediu a faixa realista do k sobre 8 séries reais de preço e volume (81 ativo-anos, 21.315 pregões) com o script `measure_k.py` em `.claude/trabalho/impacto-k/`. **Resultado:** a volatilidade diária mediana é de 2,06% (quartis de 1,70% e 2,61%), o que dá k de 0,01 a 0,04, centrado em 0,02; o teste com preço e volume reais ajusta Y em 0,77 (k ≈ 0,016, um teto). O preset Realista (0,02) está no centro da faixa e o Forte (0,05) logo acima. **Feito:** o campo do k segue sem teto e o lobby avisa acima de 0,10 (compra de 4 vezes o volume médio: k 0,10 sobe 20%, k 1 sobe 200%, com a faixa realista no texto). **A causa do gráfico que saltava ao pausar** era a vela de fechamento da cota de gestora e da estatal fundada, que ia crua pelo tempo real enquanto a leitura de detalhes a multiplicava pelo fator das ordens; esses ativos têm o preço formado pelo livro e passaram a ficar fora do fator (`price_impact.py` e o fluxo de ordens do repositório), com testes. **Impacto dentro do pregão como opção da sala:** viável sem tocar no backtest, com um flag da sala separado de `price_impact_enabled`, mas fica de fora por mudar o fator por dia, os caches, a publicação de preço a cada ordem e a liquidez do livro; a D22 registra quando reabrir. **Limitações:** não há dado real de ordens, só preço e volume, e a amostra tem poucos ativos: a faixa vale como ordem de grandeza. O relatório completo está em `.claude/trabalho/impacto-k/resultado.md`.
-
-<a id="f309"></a>
-**F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão e o capital inicial dele foi de 1,58 milhão, porque a validação comparava a meta com o caixa da sala, e não com o capital do Herdeiro. **Decidido em 18/11: meta acima do capital de todos.** A criação da partida recusa a meta abaixo do maior capital inicial da sala, bots incluídos, e o lobby mostra "Meta mínima de R$ X" com a despesa ou a taxa de saque que destrava. **Decidido em 20/11: ajuste mínimo de números para a 4.2, mecânica própria na 4.3.** A calibração mediu cada profissão contra o CLT em 5, 10 e 26 anos, nas salas com e sem correção pelo IPCA, e só as mais fora da curva mudaram de número: Servidor e Aposentado passam a ganhar 0,95× o salário, o Auxílio sobe para 0,45×, o Empreendedor cai para 1,1× e o Recém-formado começa em 0,85× e chega a 1,3× em 10 anos. O Herdeiro, o Autônomo e o Bancário ficam como estavam: o Autônomo cai com o tempo porque a renda dele não acompanha a inflação, e isso pede mecânica, não número. As ações próprias de cada profissão ligadas à macroeconomia seguem em F315.
-
-<a id="f310"></a>
-**F310 — Página Ofertas públicas.** Serve N23. Da rodada de canvas da tela da gestora em abas, em 17/11. A compra na oferta pública e na sobra da emissão já sai pelo livro do detalhe da cota na renda variável, que mostra a venda em aberto (preço fixo, quanto sobra e até quando); a tela da gestora leva até lá. Falta quem não tem gestora achar as ofertas da sala: como no app das corretoras, uma página própria no menu lateral, "Ofertas públicas", com as ofertas e emissões abertas da sala, cada uma com o preço fixo, os pregões que faltam e a preferência do cotista na emissão (o gestor a tem só como cotista, na proporção das cotas, sem vantagem de gestor), o atalho para o detalhe da cota e o histórico das encerradas. A emissão segue no card da gestora. A abertura da oferta pública passa a chegar em janela (o nível WINDOW do jornal, no centro da tela, sem pausar), com o botão que leva à compra; a emissão segue no cartão do canto. Desenho na rodada de canvas da linha da gestora.
-
-<a id="f311"></a>
-**F311 — Fusão de gestoras.** Serve N23. Da conversa sobre posse de gestoras, em 18/11. No modo aquisição hostil (F305) o jogador acaba gerindo várias gestoras (F301), e controlar dez ao mesmo tempo é inviável. A fusão junta duas: a gestora mãe incorpora a filha, o ticker que fica é o da mãe, e tudo o que a filha tem (caixa, ações, títulos e cotas de outros ativos) passa para a mãe; a filha deixa de existir e sai da renda variável. **Decidido em 18/11: as assembleias das duas aprovam.** Quem gere as duas propõe a fusão, e ela vira pauta na assembleia de cada uma, com 5 pregões de votação; sai se a maioria de quem votou aprovar nas duas. Cada cotista da filha recebe cotas da mãe pela relação entre os patrimônios por cota do dia da aprovação (filha a R$ 50 e mãe a R$ 100: duas cotas da filha viram uma da mãe), e quem votou contra pode sair recebendo o patrimônio por cota, pago pela filha antes da incorporação. O que o caixa da filha não cobre, a mãe paga com o próprio caixa logo depois da incorporação: pagar pelo patrimônio por cota não tira nada de quem fica. Se nem o caixa somado das duas cobre, a fusão trava e o placar mostra quanto falta. Só os cotistas da filha podem sair; os da mãe não, porque ela continua existindo. Depende da assembleia com aba própria (F313). Desenho na rodada de canvas da linha da gestora.
-
-<a id="f312"></a>
-**F312 — Cor da expansão na conta que opera.** Serve N15 e N23. Do comentário no canvas da tela da gestora, em 18/11. Os desenhos perderam a cor da expansão, e no app nada lembra o jogador de que a ordem sai pela gestora. Quando a conta ativa no topo é uma gestora, a boleta e o botão de comprar e vender ficam na cor da expansão Gestoras (a variante `fund` do botão já existe); com a conta do Fundo Soberano, na cor da expansão do governo. **A boleta inteira muda de cor**, escolhida no canvas em 18/11: borda, cabeçalho "Operando pela <gestora>" e o botão "Comprar pela gestora"; a faixa do alto e o seletor de conta ficam como estão.
-
-<a id="f313"></a>
-**F313 — Assembleia de cotistas com aba própria e aumento de taxa.** Serve N23. Do comentário no canvas da tela da gestora, em 18/11. A assembleia de cotistas existe em toda partida com Gestoras (`fund_assembly.py`): quem tem 10% das cotas convoca, a votação dura 5 pregões, vence a maioria de quem votou (bots e formador de mercado não votam) e a única pauta é trocar o gestor. Ela mora num bloco da página da gestora (`fund-assembly.tsx`) e não chega às pendências, que só levam o convite de candidato (`FUND_ASSEMBLY_INVITE`). **Decidido em 18/11.** **Aba Assembleia na tela da gestora, no nível da aba Congresso do governo:** a votação aberta com placar, pauta, prazo e o voto; a convocação; o histórico das encerradas. **Pautas:** trocar o gestor (a de hoje), a fusão de gestoras (F311) e o aumento de taxa: subir a taxa de administração ou a de performance passa a depender de aprovação e vale no mês seguinte ao resultado; baixar continua livre. Cada pauta tem a própria votação; o intervalo de 3 meses entre convocações segue valendo para a troca de gestor. **Pendência:** a votação aberta vira pendência para quem tem cota e ainda não votou, com o prazo, e entra no "Decida agora" da aba Suas ações. Desenho na rodada de canvas da linha da gestora. **Conflito de interesse:** gestor e co-gestores não votam no aumento de taxa, porque ganham com ele, e votam nas outras pautas (a Ana, com 54,8% das cotas, fica fora e a Bia e o Caio decidem). Sem nenhum voto a pauta não passa: na sala em que as outras cotas são só de bots, a taxa só desce.
-
-<a id="f314"></a>
-**F314 — A equipe é a gestora.** Na Aquisição hostil com Equipes ligado, a equipe nasce da gestora: o fundador e os co-gestores aceitos no lobby (até 3, equipes de até 4 pessoas). O lobby não mostra o seletor de equipe; a equipe leva o nome da gestora. Decidido em 20/11.
-
-**Formação no lobby:** todo humano funda uma gestora ou aceita ser co-gestor de uma, e de uma só (ser de duas é estar em dois times). Quem está numa equipe não funda nem aceita outro convite; a partida só começa com cada humano em exatamente uma equipe e pelo menos 2 gestoras, e o conflito aparece no aviso do lobby como os da aquisição hostil. No 1º dia o caixa de cada membro, co-gestor incluído, entra na gestora da equipe e vira cotas dele.
-
-**Times fixos até o fim:** na partida não há convite de co-gestor, saída nem remoção; os co-gestores defendem a gestora junto com o líder, como os filiados de um partido. A assembleia de troca de gestor serve só para tomar a gestora de outra equipe: quem é da equipe não convoca na própria gestora nem é candidato nela.
-
-**Eliminação e vitória:** gestora tomada pela assembleia elimina a equipe inteira, e os co-gestores perdem o posto; quem toma passa a gerir as duas. Vence a última equipe de pé; na data final, a de maior patrimônio médio dos membros (média, não soma: a equipe A com R$ 30 mil e R$ 10 mil tem R$ 20 mil e perde para a B, de um jogador com R$ 25 mil). Equipe eliminada fica abaixo das que estão de pé.
-
-**Bots:** ficam sem equipe e fora do placar das equipes, e seguem no mercado; não bloqueiam o início por falta de equipe.
-
-**Política fica de fora:** a vitória dela já é do partido (o de mais capital político vence e os membros dele vencem juntos). O modo Equipes segue desligado nela, com o texto "Na Política a equipe é o partido: quem está no partido vencedor vence junto".
+> Nenhum item neste status.
 
 ---
 
