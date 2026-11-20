@@ -42,49 +42,50 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
 | **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F255](#f255), [F284](#f284), [F290](#f290), [F292](#f292), [F293](#f293), [F297](#f297), [F307](#f307) | — | — | — |
-| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F289](#f289), [F291](#f291), [F298](#f298), [F309](#f309) | — | — | — |
+| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F289](#f289), [F291](#f291), [F298](#f298), [F309](#f309), [F315](#f315) | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
 | **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227), [F255](#f255), [F292](#f292) | — | — | — |
 | **N42** | — | Chegar a um estado da partida sem jogar até ele | — | [F286](#f286) | — | — | — |
-| [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 | — | — | — | 🔍 |
-| [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.5 | — | Médio | Bom | ⏳ |
-| [**F14**](#f14) | Feature | Janela desktop nativa | M27 · 4.5 | — | Baixo | Bom | ⏳ |
-| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.4 | — | Alto | Bom | ⏳ |
-| [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 | — | — | — | 🔍 |
-| [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 | — | Médio | Médio | ⏳ |
-| [**F56**](#f56) | Feature | Novidades no app | M27 · 4.5 | — | Baixo | Bom | ⏳ |
-| [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | M27 · 4.5 | — | Baixo | Bom | ⏳ |
-| [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | M24 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | M27 · 4.5 | — | Baixo | Médio | ⏳ |
-| [**F90**](#f90) | Feature | Cenários | M25 · 4.4 | — | Alto | Bom | ⏳ |
-| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 | — | Médio | Médio | ⏳ |
-| [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.4 | — | Médio | Bom | ⏳ |
-| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M25 · 4.4 | — | Baixo | Bom | ⏳ |
-| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 | — | — | — | 🔍 |
-| [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.6 | — | — | — | 🔍 |
-| [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | M28 · 4.6 | — | Médio | Bom | ⏳ |
-| [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.6 | — | Baixo | Bom | ⏳ |
-| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M28 · 4.6 | — | Médio | Bom | ⏳ |
-| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | M28 · 4.6 | — | Alto | Bom | ⏳ |
-| [**F141**](#f141) | Docs | README com as features de hoje | M28 · 4.6 | — | Baixo | Excelente | ⏳ |
-| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.6 | — | — | — | 🔍 |
-| [**F159**](#f159) | Feature | Rodada de novas conquistas e revisão das existentes | M28 · 4.6 | — | — | — | 🔍 |
-| [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | M24 · 4.3 | — | Baixo | Bom | ⏳ |
+| [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.6 | — | — | — | 🔍 |
+| [**F6**](#f6) | Feature | Link de convite pela internet no lobby | M27 · 4.6 | — | Médio | Bom | ⏳ |
+| [**F14**](#f14) | Feature | Janela desktop nativa | M27 · 4.6 | — | Baixo | Bom | ⏳ |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.5 | — | Alto | Bom | ⏳ |
+| [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.4 | — | — | — | 🔍 |
+| [**F37**](#f37) | Feature | Tema escuro | M28 · 4.7 | — | Médio | Médio | ⏳ |
+| [**F56**](#f56) | Feature | Novidades no app | M27 · 4.6 | — | Baixo | Bom | ⏳ |
+| [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | M27 · 4.6 | — | Baixo | Bom | ⏳ |
+| [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | M24 · 4.4 | — | Médio | Bom | ⏳ |
+| [**F81**](#f81) | Manutenção | CORS restrito à mesma origem | M27 · 4.6 | — | Baixo | Médio | ⏳ |
+| [**F90**](#f90) | Feature | Cenários | M25 · 4.5 | — | Alto | Bom | ⏳ |
+| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.5 | — | Médio | Médio | ⏳ |
+| [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.5 | — | Médio | Bom | ⏳ |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 | — | Baixo | Bom | ⏳ |
+| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.7 | — | — | — | 🔍 |
+| [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.7 | — | — | — | 🔍 |
+| [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | M28 · 4.7 | — | Médio | Bom | ⏳ |
+| [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.7 | — | Baixo | Bom | ⏳ |
+| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M28 · 4.7 | — | Médio | Bom | ⏳ |
+| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | M28 · 4.7 | — | Alto | Bom | ⏳ |
+| [**F141**](#f141) | Docs | README com as features de hoje | M28 · 4.7 | — | Baixo | Excelente | ⏳ |
+| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.7 | — | — | — | 🔍 |
+| [**F159**](#f159) | Feature | Rodada de novas conquistas e revisão das existentes | M28 · 4.7 | — | — | — | 🔍 |
+| [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | M24 · 4.4 | — | Baixo | Bom | ⏳ |
 | [**F176**](#f176) | Feature | Cadeiras do Congresso por região | — | — | Médio | Médio | 💤 |
-| [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.6 | — | — | — | 🔍 |
-| [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.4 | — | — | — | 🔍 |
-| [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.6 | — | Alto | Bom | ⏳ |
-| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 | — | Alto | Médio | ⏳ |
-| [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M24 · 4.3 | — | — | — | 🔍 |
+| [**F193**](#f193) | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | M28 · 4.7 | — | — | — | 🔍 |
+| [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.4 | — | Médio | Bom | ⏳ |
+| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.5 | — | — | — | 🔍 |
+| [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 | — | Médio | Bom | ⏳ |
+| [**F225**](#f225) | Docs | Conceitos de economia real na docs e nomeados na tela | M28 · 4.7 | — | Alto | Bom | ⏳ |
+| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.7 | — | Alto | Médio | ⏳ |
+| [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M24 · 4.4 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
+| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
+| [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (59 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (60 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -109,6 +110,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227), [F255](#f255) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
+| **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315) | — | — | ✅ |
 | [**F44**](#f44) | Feature | Expansão Gestoras: fundar a gestora e abrir capital | M18 · 4.2 | — | — | — | ✅ |
 | [**F55**](#f55) | Feature | Modo aquisição hostil | M18 · 4.2 | — | — | — | ✅ |
 | [**F101**](#f101) | Feature | Carteira separada do jogador | M18 · 4.2 | — | — | — | ✅ |
@@ -206,7 +208,21 @@
 | 38 | [**F311**](#f311) | Feature | Fusão de gestoras | — | ✅ Concluído |
 | 39 | [**F314**](#f314) | Feature | Aquisição hostil no modo Equipes | — | ✅ Concluído |
 
-### 4.3 — Mesa do trader (M24)
+### 4.3 — Profissões (M29)
+
+> **Objetivo:** Cada profissão ganha uma ação própria ligada à macroeconomia, como uma classe de RPG: nenhuma é ruim e cada uma tem como sair na frente se bem jogada; os bots usam as ações, tomam crédito, e o modo debug ganha comandos para testar e calibrar.
+>
+> **Serve:** N39
+>
+> **Progresso:** 0/3 concluídos
+
+| # | ID | Tipo | Resumo | Depende de | Status |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | — | ⏳ Pendente |
+| 2 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
+| 3 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
+
+### 4.4 — Mesa do trader (M24)
 
 > **Objetivo:** O detalhe do ativo vira mesa de operação: a lista de ações aguenta muitas ações, o gráfico abre em tela cheia com as notícias marcadas, o livro de ofertas e o rebalanceamento por meta chegam, e os gráficos seguem um molde só.
 >
@@ -223,13 +239,13 @@
 | 5 | [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | — | ⏳ Pendente |
 | 6 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | — | 🔍 Em avaliação |
 
-### 4.4 — Futuros, cenários e estratégias (M25)
+### 4.5 — Futuros, cenários e estratégias (M25)
 
 > **Objetivo:** A partida testa a carteira em muitos futuros e em cenários com objetivo, com bots que combinam estratégias e tomam crédito, e o backtest corre rápido.
 >
 > **Serve:** N10, N12, N22, N31
 >
-> **Progresso:** 0/6 concluídos
+> **Progresso:** 0/5 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -238,9 +254,8 @@
 | 3 | [**F90**](#f90) | Feature | Cenários | — | ⏳ Pendente |
 | 4 | [**F93**](#f93) | Feature | Rumores antecipados | — | ⏳ Pendente |
 | 5 | [**F110**](#f110) | Feature | Combinar estratégias | — | ⏳ Pendente |
-| 6 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
 
-### 4.5 — Jogo pela internet e servidor (M27)
+### 4.6 — Jogo pela internet e servidor (M27)
 
 > **Objetivo:** Amigos de longe entram na sala por um link de convite, o servidor roda sem tela e com CORS certo, o jogo abre numa janela própria e o app conta o que há de novo.
 >
@@ -257,7 +272,7 @@
 | 5 | [**F14**](#f14) | Feature | Janela desktop nativa | — | ⏳ Pendente |
 | 6 | [**F56**](#f56) | Feature | Novidades no app | — | ⏳ Pendente |
 
-### 4.6 — Ensino (M28)
+### 4.7 — Ensino (M28)
 
 > **Objetivo:** O Como jogar ensina o jogo e os conceitos sobre as telas mais recentes, o jogo ganha o tema escuro, e a docs, a demonstração e o README mostram o jogo com tudo que entrou.
 >
@@ -289,7 +304,6 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | N34 | — | 0 | ⏳ Pendente |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | 0 | 🔍 Em avaliação |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | N42 | [F54](#f54) | 0 | ⏳ Pendente |
 
 ---
 
@@ -300,34 +314,35 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
-| [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
-| [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
-| [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
-| [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | M24 · 4.3 · 4º | 0 | Baixo | Bom | ⏳ |
-| [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | M24 · 4.3 · 5º | 0 | Médio | Bom | ⏳ |
-| [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M24 · 4.3 · 6º | 0 | — | — | 🔍 |
-| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.4 · 1º | 0 | — | — | 🔍 |
-| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.4 · 2º | 0 | Alto | Bom | ⏳ |
-| [**F90**](#f90) | Feature | Cenários | M25 · 4.4 · 3º | 0 | Alto | Bom | ⏳ |
-| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.4 · 4º | 0 | Médio | Médio | ⏳ |
-| [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.4 · 5º | 0 | Médio | Bom | ⏳ |
-| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M25 · 4.4 · 6º | 0 | Baixo | Bom | ⏳ |
-| [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.5 · 1º | 2 | — | — | 🔍 |
-| [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | M27 · 4.5 · 4º | 0 | Baixo | Bom | ⏳ |
-| [**F14**](#f14) | Feature | Janela desktop nativa | M27 · 4.5 · 5º | 0 | Baixo | Bom | ⏳ |
-| [**F56**](#f56) | Feature | Novidades no app | M27 · 4.5 · 6º | 0 | Baixo | Bom | ⏳ |
-| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.6 · 1º | 1 | — | — | 🔍 |
-| [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | M28 · 4.6 · 2º | 0 | Médio | Bom | ⏳ |
-| [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.6 · 3º | 0 | Baixo | Bom | ⏳ |
-| [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.6 · 4º | 0 | — | — | 🔍 |
-| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.6 · 6º | 1 | — | — | 🔍 |
-| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.6 · 8º | 0 | Alto | Médio | ⏳ |
-| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | M28 · 4.6 · 9º | 1 | Alto | Bom | ⏳ |
-| [**F37**](#f37) | Feature | Tema escuro | M28 · 4.6 · 11º | 0 | Médio | Médio | ⏳ |
-| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M28 · 4.6 · 12º | 1 | Médio | Bom | ⏳ |
+| [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 · 1º | 0 | Alto | Bom | ⏳ |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 2º | 0 | Baixo | Bom | ⏳ |
+| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
+| [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
+| [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.4 · 2º | 0 | — | — | 🔍 |
+| [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.4 · 3º | 0 | Médio | Bom | ⏳ |
+| [**F167**](#f167) | Feature | Notícias do ativo como marcadores no gráfico de preço | M24 · 4.4 · 4º | 0 | Baixo | Bom | ⏳ |
+| [**F72**](#f72) | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | M24 · 4.4 · 5º | 0 | Médio | Bom | ⏳ |
+| [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M24 · 4.4 · 6º | 0 | — | — | 🔍 |
+| [**F202**](#f202) | Performance | Backtest que corre mais rápido que a partida comum | M25 · 4.5 · 1º | 0 | — | — | 🔍 |
+| [**F28**](#f28) | Feature | Muitos futuros (Monte Carlo) | M25 · 4.5 · 2º | 0 | Alto | Bom | ⏳ |
+| [**F90**](#f90) | Feature | Cenários | M25 · 4.5 · 3º | 0 | Alto | Bom | ⏳ |
+| [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.5 · 4º | 0 | Médio | Médio | ⏳ |
+| [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.5 · 5º | 0 | Médio | Bom | ⏳ |
+| [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.6 · 1º | 2 | — | — | 🔍 |
+| [**F60**](#f60) | Feature | Modo servidor dedicado (--headless) | M27 · 4.6 · 4º | 0 | Baixo | Bom | ⏳ |
+| [**F14**](#f14) | Feature | Janela desktop nativa | M27 · 4.6 · 5º | 0 | Baixo | Bom | ⏳ |
+| [**F56**](#f56) | Feature | Novidades no app | M27 · 4.6 · 6º | 0 | Baixo | Bom | ⏳ |
+| [**F158**](#f158) | Melhoria | Animações do Como jogar revistas | M28 · 4.7 · 1º | 1 | — | — | 🔍 |
+| [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | M28 · 4.7 · 2º | 0 | Médio | Bom | ⏳ |
+| [**F133**](#f133) | Feature | Tópicos de conceitos do Como jogar | M28 · 4.7 · 3º | 0 | Baixo | Bom | ⏳ |
+| [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.7 · 4º | 0 | — | — | 🔍 |
+| [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.7 · 6º | 1 | — | — | 🔍 |
+| [**F227**](#f227) | Feature | Intensidade das ligações e laboratório da economia | M28 · 4.7 · 8º | 0 | Alto | Médio | ⏳ |
+| [**F140**](#f140) | Docs | Docs reorganizada por tipo de leitor | M28 · 4.7 · 9º | 1 | Alto | Bom | ⏳ |
+| [**F37**](#f37) | Feature | Tema escuro | M28 · 4.7 · 11º | 0 | Médio | Médio | ⏳ |
+| [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M28 · 4.7 · 12º | 1 | Médio | Bom | ⏳ |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | 0 | — | — | 🔍 |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | 0 | Médio | Bom | ⏳ |
 
 ---
 
@@ -335,31 +350,32 @@
 
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Esforço | Risco | Valor | Custo-benefício |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **F6** | Feature | Link de convite pela internet no lobby | N2 | — | M27 · 4.5 | [F5](#f5) | Médio | Médio | Alto | Bom |
-| **F14** | Feature | Janela desktop nativa | — | — | M27 · 4.5 | — | Baixo | Baixo | Baixo | Bom |
-| **F28** | Feature | Muitos futuros (Monte Carlo) | N10 | D7 | M25 · 4.4 | — | Alto | Alto | Alto | Bom |
-| **F37** | Feature | Tema escuro | N15 | — | M28 · 4.6 | — | Médio | Baixo | Médio | Médio |
-| **F56** | Feature | Novidades no app | N14 | — | M27 · 4.5 | — | Baixo | Baixo | Médio | Bom |
-| **F60** | Feature | Modo servidor dedicado (--headless) | — | — | M27 · 4.5 | — | Baixo | Baixo | Baixo | Bom |
-| **F72** | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | M24 · 4.3 | — | Médio | Baixo | Médio | Bom |
-| **F81** | Manutenção | CORS restrito à mesma origem | — | — | M27 · 4.5 | [F6](#f6) | Baixo | Médio | Baixo | Médio |
-| **F90** | Feature | Cenários | N22 | D18 | M25 · 4.4 | — | Alto | Médio | Alto | Bom |
-| **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.4 | — | Médio | Médio | Médio | Médio |
-| **F110** | Feature | Combinar estratégias | N4 | D8 | M25 · 4.4 | — | Médio | Médio | Médio | Bom |
-| **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M25 · 4.4 | — | Baixo | Baixo | Médio | Bom |
-| **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.6 | — | Médio | Baixo | Alto | Bom |
-| **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | D21 | M28 · 4.6 | — | Baixo | Baixo | Médio | Bom |
-| **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.6 | [F44](#f44) | Médio | Baixo | Alto | Bom |
-| **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.6 | [F44](#f44) | Alto | Baixo | Alto | Bom |
-| **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.6 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
-| **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | M24 · 4.3 | — | Baixo | Baixo | Médio | Bom |
-| **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
-| **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.3 | — | Médio | Médio | Médio | Bom |
-| **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.6 | [F140](#f140) | Alto | Baixo | Alto | Bom |
-| **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
+| **F6** | Feature | Link de convite pela internet no lobby | N2 | — | M27 · 4.6 | [F5](#f5) | Médio | Médio | Alto | Bom |
+| **F14** | Feature | Janela desktop nativa | — | — | M27 · 4.6 | — | Baixo | Baixo | Baixo | Bom |
+| **F28** | Feature | Muitos futuros (Monte Carlo) | N10 | D7 | M25 · 4.5 | — | Alto | Alto | Alto | Bom |
+| **F37** | Feature | Tema escuro | N15 | — | M28 · 4.7 | — | Médio | Baixo | Médio | Médio |
+| **F56** | Feature | Novidades no app | N14 | — | M27 · 4.6 | — | Baixo | Baixo | Médio | Bom |
+| **F60** | Feature | Modo servidor dedicado (--headless) | — | — | M27 · 4.6 | — | Baixo | Baixo | Baixo | Bom |
+| **F72** | Manutenção | Gráficos padronizados sobre o ChartContainer do shadcn | N15 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
+| **F81** | Manutenção | CORS restrito à mesma origem | — | — | M27 · 4.6 | [F6](#f6) | Baixo | Médio | Baixo | Médio |
+| **F90** | Feature | Cenários | N22 | D18 | M25 · 4.5 | — | Alto | Médio | Alto | Bom |
+| **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.5 | — | Médio | Médio | Médio | Médio |
+| **F110** | Feature | Combinar estratégias | N4 | D8 | M25 · 4.5 | — | Médio | Médio | Médio | Bom |
+| **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
+| **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.7 | — | Médio | Baixo | Alto | Bom |
+| **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | D21 | M28 · 4.7 | — | Baixo | Baixo | Médio | Bom |
+| **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.7 | [F44](#f44) | Médio | Baixo | Alto | Bom |
+| **F140** | Docs | Docs reorganizada por tipo de leitor | N25 | D21 | M28 · 4.7 | [F44](#f44) | Alto | Baixo | Alto | Bom |
+| **F141** | Docs | README com as features de hoje | N25 | — | M28 · 4.7 | [F139](#f139) | Baixo | Baixo | Alto | Excelente |
+| **F167** | Feature | Notícias do ativo como marcadores no gráfico de preço | — | — | M24 · 4.4 | — | Baixo | Baixo | Médio | Bom |
+| **F197** | Melhoria | Rebalanceamento por meta com várias classes | N4 | — | M24 · 4.4 | — | Médio | Médio | Médio | Bom |
+| **F221** | Performance | Lista de ações que aguenta muitas ações | N40 | — | M24 · 4.4 | — | Médio | Médio | Médio | Bom |
+| **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.7 | [F140](#f140) | Alto | Baixo | Alto | Bom |
+| **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
-| **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
+| **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
+| **F315** | Feature | Profissões com ações próprias ligadas à macroeconomia | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -564,21 +580,24 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
 
+<a id="f315"></a>
+**F315 — Profissões com ações próprias ligadas à macroeconomia.** Serve N39. Do playtest de 17/11 e da conversa de 20/11. Hoje a profissão é só um multiplicador de salário com um risco macro, e as que começam atrás não têm como recuperar: o Aposentado e o Recém-formado não têm saída (sem caixa no começo, os juros compostos do CLT nunca são alcançados, e 1,5× em 10 anos chega tarde). **A direção:** cada profissão vira uma classe de RPG, como os personagens de Risk of Rain 2: nenhuma é ruim, cada uma tem uma ação ou um bônus próprio que, bem explorado, a põe na frente. A ação tem de fazer sentido na vida real e conversar com a macroeconomia da partida. **Ideias levantadas (a fechar em sessão de design):** Locador compra imóveis e recebe aluguel, com a vacância subindo quando o PIB cai e o desemprego sobe; Servidor toma o consignado a juros baixos; Aposentado tem a previdência acumulada para sacar ou aplicar; Recém-formado mora com os pais (despesa baixa no começo) e pode pagar uma especialização que adianta a carreira; Autônomo define a tabela de preços (mais caro, menos clientes na crise); Empreendedor reinveste o lucro no negócio; Exportador trava o câmbio; Bancário tem o CDB da casa com taxa melhor; Corretor tem corretagem zero e ganha com o volume da sala; Auxílio ganha Pé-de-Meia e tarifa social; Herdeiro recalibra a herança com e sem correção. Comissionado e Banqueiro das ofertas já têm mecânica. **A decidir:** onde a ação da profissão mora na tela; quais séries de dados novas cada ação pede (aluguel, vacância, consignado); como os bots usam as ações; e a calibragem, com cada profissão entre 0,8× e 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, nas salas com e sem correção pelo IPCA. O card se divide em vários quando a sessão de design fechar o desenho.
+
 ---
 
 ## 🔍 Em avaliação
 
 | ID | Tipo | Resumo | Serve | D# | Marco | Depende de | Falta |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| **F5** | Spike | Spike: provider de túnel pela internet | N2 | — | M27 · 4.5 | — | Escolhe o provider da F6 |
-| **F34** | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | M24 · 4.3 | — | Escolhe a biblioteca de gráfico |
-| **F123** | Melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | M28 · 4.6 | — | Escolher o desenho do aviso no canvas; liga à F122 |
-| **F131** | Feature | Catálogo de padrões de vela | N19 | — | M28 · 4.6 | — | Tópico do Como jogar com cada padrão animado |
-| **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.6 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
-| **F159** | Feature | Rodada de novas conquistas e revisão das existentes | N22 | D1 | M28 · 4.6 | [F44](#f44), [F123](#f123) | Quais conquistas novas entram e o que muda nas existentes; decidido com o usuário numa rodada de ideias |
-| **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.6 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
-| **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
-| **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.3 | — | Medir as estratégias atuais em várias bases com governo, dólar e crédito; calibrar os níveis de dificuldade; escolher as estratégias novas |
+| **F5** | Spike | Spike: provider de túnel pela internet | N2 | — | M27 · 4.6 | — | Escolhe o provider da F6 |
+| **F34** | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | N19 | — | M24 · 4.4 | — | Escolhe a biblioteca de gráfico |
+| **F123** | Melhoria | Redesenhar o aviso de conquista desbloqueada | N22, N15 | — | M28 · 4.7 | — | Escolher o desenho do aviso no canvas; liga à F122 |
+| **F131** | Feature | Catálogo de padrões de vela | N19 | — | M28 · 4.7 | — | Tópico do Como jogar com cada padrão animado |
+| **F158** | Melhoria | Animações do Como jogar revistas | N25 | — | M28 · 4.7 | — | O visual numa rodada no canvas dedicada: animações atuais contra as primeiras, número do passo fora da cena, cursor e destaque, e o palco em tamanho real mostrando só o trecho do passo |
+| **F159** | Feature | Rodada de novas conquistas e revisão das existentes | N22 | D1 | M28 · 4.7 | [F44](#f44), [F123](#f123) | Quais conquistas novas entram e o que muda nas existentes; decidido com o usuário numa rodada de ideias |
+| **F193** | Feature | Indicadores técnicos e padrões de vela explicados no Como jogar | N25, N19 | D21 | M28 · 4.7 | [F158](#f158) | O molde do tópico em fases, quais indicadores entram primeiro e onde o 'i' abre o tópico sem cobrir a tela (F183). |
+| **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.5 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
+| **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.4 | — | Medir as estratégias atuais em várias bases com governo, dólar e crédito; calibrar os níveis de dificuldade; escolher as estratégias novas |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | — | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
 
 <a id="f5"></a>

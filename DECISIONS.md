@@ -357,3 +357,14 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 - **O gráfico que saltava ao pausar** não era o k: a vela criada no fechamento da cota e da estatal fundada ia crua pelo tempo real, e a leitura de detalhes a multiplicava pelo fator das ordens. O preço desses ativos já nasce do livro, então o fator os ignora e os dois caminhos concordam por construção.
 - **Impacto dentro do pregão como opção da sala:** é viável sem tocar no backtest, que só lê `price_impact_enabled`, `k` e `T`: um flag novo da sala, separado deles, mantém o modelo realista. Fica de fora agora porque o tick é um pregão inteiro e muda a conta do fator por dia, os caches, a publicação de preço a cada ordem e a liquidez do livro, além de seis testes do impacto.
 **Consequências:** a medição não tem dado real de ordens (só preço e volume) e a amostra tem poucos ativos, então a faixa vale como ordem de grandeza, não como calibração fina. Reabre se: o playtest sentir falta de ver o preço reagir no mesmo dia (aí o flag da sala entra, com o backtest intacto); a amostra crescer com mais ativos e o Y medido sair de 0,5 a 1,5; ou um k acima de 0,10 virar uso comum e o aviso precisar de teto.
+
+### D23 — A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia
+**Status:** ✅ Decidida
+
+**Decisão:** a profissão deixa de ser só um multiplicador de salário com um risco macro. Cada uma ganha uma ação ou um bônus próprio, como as classes de um RPG: nenhuma é ruim, e cada uma tem como sair na frente se for bem jogada. A ação imita o que a profissão faz na vida real e reage à economia da partida (o Locador compra imóveis, e a vacância sobe quando o PIB cai e o desemprego sobe). A calibragem fecha com cada profissão entre 0,8× e 1,25× o patrimônio final do CLT em 5, 10 e 26 anos, nas salas com e sem correção pelo IPCA.
+
+**Por quê:**
+- No playtest de 17/11, as profissões que começam atrás não tinham como recuperar: sem caixa no começo, o Recém-formado nunca alcança os juros compostos de quem começa ganhando, e o Aposentado não tem nada a fazer além de esperar.
+- Ajustar só o multiplicador nivela a média, mas deixa todas as profissões iguais de jogar; a ação própria dá a cada uma um jeito de vencer.
+
+**Consequências:** a 4.2 sai com as profissões como estão, com a meta mínima acima do capital de todos e um ajuste de números só nas muito fora da curva. A versão 4.3 (Profissões) desenha as ações, as séries de dados novas que elas pedirem e o uso pelos bots, que trazem junto o crédito nas estratégias e os comandos de trapaça do modo debug para testar e calibrar.
