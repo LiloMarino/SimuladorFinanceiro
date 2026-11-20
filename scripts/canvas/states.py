@@ -1408,6 +1408,95 @@ def tab_quotas(page: Page) -> None:
     fund_tab_page(page, "offer-closed", "Cotas", "Emissões")
 
 
+def tab_quotas_issuance(page: Page) -> None:
+    """Dado forjado: a gestora do host com uma emissão em andamento na preferência (direito do gestor e explicação de quem compra) e uma emissão antiga encerrada sem venda na tabela Emissões."""
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["issuance"] = {
+            "id": 1,
+            "announced_on": "2031-03-03",
+            "quotas": "200",
+            "price": "100",
+            "preference_ends_on": "2031-03-14",
+            "ends_on": "2031-03-21",
+            "sold": "0",
+            "closed_on": None,
+            "phase": "preference",
+            "raised": "0",
+            "my_rights": "40",
+            "my_bought": "0",
+        }
+        body["movements"] = [
+            {
+                "day": "2030-11-10",
+                "type": "issuance_closed",
+                "quotas": "0",
+                "price": "100",
+                "amount": "0",
+                "ticker": None,
+            },
+            *body["movements"],
+        ]
+
+    fund_match(page, stage="offer-closed")
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+    open_funds_page(page)
+    open_fund_tab(page, "Cotas", "Quem compra e quando")
+
+
+REPORT_MONTHS = [
+    f"{year}-{month:02d}-01"
+    for year, month in [(2030, m) for m in range(1, 13)] + [(2031, 1), (2031, 2)]
+]
+
+
+def tab_report_months(page: Page) -> None:
+    """Dado forjado: a gestora do host com catorze relatórios mensais, para o seletor de meses mostrar os recentes e o resto em Anteriores."""
+
+    def forge_detail(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["last_report"] = {"day": "2031-02-28", "positions": [], "fee_payable": "0"}
+
+    def forge_report(route: Route) -> None:
+        month = route.request.url.rsplit("/", 1)[-1]
+        route.fulfill(
+            json={
+                "month": f"{month}-01",
+                "months": REPORT_MONTHS,
+                "report": {
+                    "day": f"{month}-28",
+                    "positions": [
+                        {
+                            "ticker": None,
+                            "name": "Caixa",
+                            "asset_class": "cash",
+                            "quantity": None,
+                            "value": "5000",
+                            "fraction": "1",
+                        }
+                    ],
+                    "fee_payable": "0",
+                },
+                "loan_debt": "0",
+                "nav_start": "100",
+                "nav_end": "101",
+                "cdi_return": "0.01",
+                "distribution": None,
+                "management_fee_paid": "8",
+                "performance_fee_paid": "0",
+                "operations": [],
+            }
+        )
+
+    fund_match(page, stage="offer-closed")
+    patch_get(page, FUND_DETAIL_PATTERN, forge_detail)
+    page.route(re.compile(r"/api/funds/\d+/reports/[\d-]+$"), forge_report)
+    open_funds_page(page)
+    open_fund_tab(page, "Relatório")
+    page.get_by_role("button", name=re.compile(r"^Anteriores")).wait_for()
+
+
 def tab_income(page: Page) -> None:
     """A aba Rendimentos."""
     fund_tab_page(page, "offer-closed", "Rendimentos", "Quanto a cota paga")
@@ -2995,6 +3084,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/aba-carteira": tab_portfolio,
     "gestoras/aba-carteira-congelada": tab_portfolio_frozen,
     "gestoras/aba-cotas": tab_quotas,
+    "gestora/cotas-emissao": tab_quotas_issuance,
+    "gestora/relatorio-meses": tab_report_months,
     "gestoras/aba-rendimentos": tab_income,
     "gestoras/aba-relatorio": tab_report,
     "gestoras/aba-config": tab_settings,
