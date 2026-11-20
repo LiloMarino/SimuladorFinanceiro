@@ -5,10 +5,13 @@ version: 2
 # maior fica fora do grupo e vem em PR própria por pacote. Alerta de segurança
 # ignora o agendamento e a janela de espera, e chega na hora.
 # Os commits seguem o padrão do projeto, `tipo: Descrição` sem escopo.
+# As PRs de versão nascem sobre a dev; alerta de segurança vai sempre para a main,
+# o branch padrão.
 
 updates:
   # Python (pyproject.toml e uv.lock)
   - package-ecosystem: "uv"
+    target-branch: "dev"
     directory: "/"
     schedule:
       interval: "monthly"
@@ -25,6 +28,7 @@ updates:
 
   # Frontend (React)
   - package-ecosystem: "npm"
+    target-branch: "dev"
     directory: "/frontend"
     schedule:
       interval: "monthly"
@@ -41,6 +45,7 @@ updates:
 
   # Documentação (Docusaurus)
   - package-ecosystem: "npm"
+    target-branch: "dev"
     directory: "/docs"
     schedule:
       interval: "monthly"
@@ -57,6 +62,7 @@ updates:
 
   # Ferramentas de desenvolvimento da raiz (concurrently, gifski)
   - package-ecosystem: "npm"
+    target-branch: "dev"
     directory: "/"
     schedule:
       interval: "monthly"
@@ -73,6 +79,7 @@ updates:
 
   # Actions dos workflows
   - package-ecosystem: "github-actions"
+    target-branch: "dev"
     directory: "/"
     schedule:
       interval: "monthly"

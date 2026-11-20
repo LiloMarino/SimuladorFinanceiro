@@ -1,10 +1,12 @@
 name: Checagem das PRs do Dependabot
 
-# Roda só quando o Dependabot abre ou atualiza uma PR: push na main e PR de
-# outra origem não disparam este workflow
+# Roda só quando o Dependabot abre ou atualiza uma PR: push e PR de outra
+# origem não disparam este workflow. As PRs de versão apontam para a dev e as de
+# segurança para a main.
 on:
   pull_request:
     branches:
+      - dev
       - main
 
 # Uma checagem por PR; um rebase do Dependabot cancela a anterior
