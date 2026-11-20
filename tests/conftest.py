@@ -187,33 +187,39 @@ def _store_market() -> None:
 class WorkingCopy:
     """
     Cópia do modelo que serve a sessão inteira e volta ao estado do modelo depois de
-    cada teste. Um gatilho por tabela anota em `_seed.dirty` onde o teste escreveu, e
-    o reset esvazia e regrava só essas tabelas e as que apontam para elas.
+    cada teste. Um gatilho por tabela anota em `_seed.dirty` onde o teste escreveu e
+    se só inseriu. A tabela que só recebeu linhas perde as novas; a que teve linha
+    alterada ou apagada é esvaziada e regravada junto com as que apontam para ela.
     """
 
     engine: Engine
     tables: tuple[str, ...]
     seeded: frozenset[str]
+    keys: dict[str, tuple[str, ...]]
     referenced_by: dict[str, frozenset[str]]
     sequences: tuple[tuple[str, int, bool], ...]
 
     def reset(self) -> None:
-        # O pool fecha antes, e as conexões que um teste deixou abertas caem, para o
-        # TRUNCATE não esperar por trava de ninguém.
-        self.engine.dispose()
         with self.engine.begin() as connection:
-            connection.execute(
+            # Conexão ociosa no pool não segura trava e segue viva para o próximo
+            # teste; a que um teste deixou no meio de uma transação cai.
+            stuck = connection.execute(
                 text(
-                    "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
-                    "WHERE datname = current_database() AND pid <> pg_backend_pid()"
+                    "SELECT count(pg_terminate_backend(pid)) FROM pg_stat_activity "
+                    "WHERE datname = current_database() AND pid <> pg_backend_pid() "
+                    "AND state <> 'idle'"
                 )
-            )
-            dirty = set(
-                connection.execute(text("SELECT name FROM _seed.dirty")).scalars()
-            )
+            ).scalar()
+            dirty: dict[str, bool] = {
+                name: rewritten
+                for name, rewritten in connection.execute(
+                    text("SELECT name, rewritten FROM _seed.dirty")
+                )
+            }
             if dirty:
-                self._restore(connection, self._with_dependents(dirty))
-        self.engine.dispose()
+                self._restore(connection, dirty)
+        if stuck:
+            self.engine.dispose()
 
     def _with_dependents(self, dirty: set[str]) -> list[str]:
         """As tabelas sujas e, por chave estrangeira, todas as que apontam para elas."""
@@ -225,20 +231,44 @@ class WorkingCopy:
                     pending.append(child)
         return [table for table in self.tables if table in closure]
 
-    def _restore(self, connection: Connection, tables: list[str]) -> None:
-        # Sem CASCADE: a lista já fecha as chaves estrangeiras, e o Postgres recusa o
-        # TRUNCATE se faltar alguma tabela que aponta para outra da lista.
-        quoted = ", ".join(f'"{table}"' for table in tables)
-        connection.execute(text(f"TRUNCATE {quoted}"))
-        # As linhas voltam na ordem das chaves estrangeiras e com os ids originais,
-        # inclusive nas colunas de identidade.
-        for table in tables:
+    def _restore(self, connection: Connection, dirty: dict[str, bool]) -> None:
+        # Tabela com linhas do modelo e sem chave primária não separa as novas das
+        # antigas: volta inteira.
+        rewritten = self._with_dependents(
+            {
+                table
+                for table, changed in dirty.items()
+                if changed or (table in self.seeded and table not in self.keys)
+            }
+        )
+        if rewritten:
+            # Sem CASCADE: a lista já fecha as chaves estrangeiras, e o Postgres recusa
+            # o TRUNCATE se faltar alguma tabela que aponta para outra da lista.
+            quoted = ", ".join(f'"{table}"' for table in rewritten)
+            connection.execute(text(f"TRUNCATE {quoted}"))
+            # As linhas voltam na ordem das chaves estrangeiras e com os ids
+            # originais, inclusive nas colunas de identidade.
+            for table in rewritten:
+                if table in self.seeded:
+                    seed = (
+                        f'INSERT INTO "{table}" OVERRIDING SYSTEM VALUE '  # noqa: S608
+                        f'SELECT * FROM _seed."{table}"'
+                    )
+                    connection.execute(text(seed))
+        # As linhas novas saem dos filhos para os pais, depois da regravação: uma
+        # tabela regravada já não aponta para linha nova de outra.
+        for table in reversed(self.tables):
+            if table not in dirty or table in rewritten:
+                continue
             if table in self.seeded:
-                seed = (
-                    f'INSERT INTO "{table}" OVERRIDING SYSTEM VALUE '  # noqa: S608
-                    f'SELECT * FROM _seed."{table}"'
+                key = ", ".join(f'"{column}"' for column in self.keys[table])
+                appended = (
+                    f'DELETE FROM "{table}" WHERE ({key}) NOT IN '  # noqa: S608
+                    f'(SELECT {key} FROM _seed."{table}")'
                 )
-                connection.execute(text(seed))
+            else:
+                appended = f'DELETE FROM "{table}"'  # noqa: S608
+            connection.execute(text(appended))
         for sequence, last_value, is_called in self.sequences:
             connection.execute(
                 text("SELECT setval(:sequence, :value, :called)"),
@@ -290,6 +320,19 @@ def _working_copy_of(template: URL, server: URL) -> Iterator[WorkingCopy]:
                 )
             ):
                 referenced_by.setdefault(parent, set()).add(child)
+            keys = {
+                table: tuple(columns)
+                for table, columns in connection.execute(
+                    text(
+                        "SELECT c.relname, array_agg(a.attname ORDER BY a.attnum) "
+                        "FROM pg_index i JOIN pg_class c ON c.oid = i.indrelid "
+                        "JOIN pg_attribute a ON a.attrelid = c.oid "
+                        "AND a.attnum = ANY(i.indkey) "
+                        "WHERE i.indisprimary AND c.relnamespace = 'public'::regnamespace "
+                        "GROUP BY c.relname"
+                    )
+                )
+            }
             sequences = tuple(
                 (name, int(value), bool(called))
                 for name, value, called in connection.execute(
@@ -304,6 +347,7 @@ def _working_copy_of(template: URL, server: URL) -> Iterator[WorkingCopy]:
             engine,
             tables,
             frozenset(seeded),
+            keys,
             {parent: frozenset(children) for parent, children in referenced_by.items()},
             sequences,
         )
@@ -313,12 +357,19 @@ def _working_copy_of(template: URL, server: URL) -> Iterator[WorkingCopy]:
 
 
 def _install_dirty_triggers(connection: Connection, tables: tuple[str, ...]) -> None:
-    connection.execute(text("CREATE TABLE _seed.dirty (name text PRIMARY KEY)"))
+    connection.execute(
+        text(
+            "CREATE TABLE _seed.dirty (name text PRIMARY KEY, rewritten boolean NOT NULL)"
+        )
+    )
+    # O upsert dispara o gatilho de INSERT e o de UPDATE, e conta como alteração
     connection.execute(
         text(
             "CREATE FUNCTION _seed.mark_dirty() RETURNS trigger "
             "LANGUAGE plpgsql AS $$ BEGIN "
-            "INSERT INTO _seed.dirty VALUES (TG_TABLE_NAME) ON CONFLICT DO NOTHING; "
+            "INSERT INTO _seed.dirty VALUES (TG_TABLE_NAME, TG_OP <> 'INSERT') "
+            "ON CONFLICT (name) DO UPDATE SET rewritten = true "
+            "WHERE excluded.rewritten AND NOT _seed.dirty.rewritten; "
             "RETURN NULL; END $$"
         )
     )
