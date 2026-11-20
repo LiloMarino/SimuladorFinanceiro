@@ -83,7 +83,6 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
-| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | — | Médio | Bom | ⏳ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | — | Médio | Bom | ⏳ |
 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | — | — | Baixo | Bom | ⏳ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | — | Médio | Bom | ⏳ |
@@ -106,7 +105,7 @@
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -132,6 +131,7 @@
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
 | **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334) | — | — | ✅ |
+| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | — | — | — | ✅ |
 
 </details>
 
@@ -253,7 +253,6 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | N34 | — | 0 | ⏳ Pendente |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | 0 | 🔍 Em avaliação |
-| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | 0 | ⏳ Pendente |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | 0 | ⏳ Pendente |
 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | N23 | — | 0 | ⏳ Pendente |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | 0 | ⏳ Pendente |
@@ -299,7 +298,6 @@
 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M28 · 4.7 · 12º | 1 | Médio | Bom | ⏳ |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | 0 | — | — | 🔍 |
-| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | 0 | Médio | Bom | ⏳ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | 0 | Médio | Bom | ⏳ |
 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | — | 0 | Baixo | Bom | ⏳ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | 0 | Médio | Bom | ⏳ |
@@ -336,7 +334,6 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
-| **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | — | — | Médio | Baixo | Alto | Bom |
 | **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | — | — | Médio | Baixo | Alto | Bom |
 | **F318** | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | N23 | — | — | — | Baixo | Baixo | Médio | Bom |
 | **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | — | — | Médio | Médio | Alto | Bom |
@@ -569,17 +566,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 **Aceite:** a página mostra card e séries para toda profissão; a troca no meio da partida tem teste; `pnpm run check` verde.
 
-<a id="f316"></a>
-**F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
-
-- **Comprar com preferência para o gestor:** o atalho de Suas ações leva à aba Cotas, mas o formulário de compra da emissão aparece só para quem não é o gestor (`viewer = fund.my_role !== "manager"` em `quotas-tab.tsx`, condição em `fund-issuance-card.tsx`). O backend aceita a compra do gestor; o formulário passa a aparecer para todo cotista com direito, gestor incluído.
-- **Meses do Relatório:** com muitos meses, o seletor de mês (ToggleGroup em `report-tab.tsx`) passa da largura da tela. Segue o molde do mapa das eleições (`map-timeline-years.tsx`): os meses mais recentes à vista e um botão "Anteriores · N" que abre a grade com todos. Com dois consumidores, o seletor sobe para `shared/components`.
-- **Emissão que não capta:** o cartão da emissão explica quem compra e quando: cotistas na fase de preferência (10 pregões); na sobra (5 pregões), qualquer um, e os bots só no último pregão, se o preço da emissão couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI). Encerrada sem venda, o cartão diz por quê.
-- **Gestora paga com a liquidez diária:** parcela, taxa a pagar e as outras saídas da gestora resgatam primeiro a renda fixa de liquidez diária dela, como a conta pessoal já faz (`cover_before_debit` em `simulation_engine.py`, que hoje pula a gestora).
-- **Rendimentos na renda variável:** o cartão de rendimentos da cota no detalhe da renda variável (`fund-distributions-card.tsx`) lista todos os meses. Ganha a paginação da aba Rendimentos da gestora (`HistoryCard` em `income-tab.tsx`), que sobe para `shared` com os dois consumidores.
-- **Comprar a própria cota na emissão:** teste que reproduz o gestor comprando na preferência e na sobra pública e confere que a participação dele depois fica acima da que teria sem comprar. O cartão mostra quantas cotas mantêm a participação de hoje.
-- **Gestora comprando cota de outra gestora:** o backend recusa ("A gestora não compra cota de gestora.", em `create_order`), mas a boleta não diz nada antes. Com uma gestora ativa no topo, a boleta de uma cota fica desabilitada com o motivo.
-
 <a id="f317"></a>
 **F317 — Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos fora das telas da gestora:
 
@@ -727,7 +713,20 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 ## ✅ Concluído
 
-> Nenhum item neste status.
+| ID | Tipo | Resumo | Serve | D# | Marco |
+| --- | --- | --- | --- | --- | --- |
+| **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | — |
+
+<a id="f316"></a>
+**F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
+
+- **Comprar com preferência para o gestor:** o atalho de Suas ações leva à aba Cotas, mas o formulário de compra da emissão aparece só para quem não é o gestor (`viewer = fund.my_role !== "manager"` em `quotas-tab.tsx`, condição em `fund-issuance-card.tsx`). O backend aceita a compra do gestor; o formulário passa a aparecer para todo cotista com direito, gestor incluído.
+- **Meses do Relatório:** com muitos meses, o seletor de mês (ToggleGroup em `report-tab.tsx`) passa da largura da tela. Segue o molde do mapa das eleições (`map-timeline-years.tsx`): os meses mais recentes à vista e um botão "Anteriores · N" que abre a grade com todos. Com dois consumidores, o seletor sobe para `shared/components`.
+- **Emissão que não capta:** o cartão da emissão explica quem compra e quando: cotistas na fase de preferência (10 pregões); na sobra (5 pregões), qualquer um, e os bots só no último pregão, se o preço da emissão couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI). Encerrada sem venda, o cartão diz por quê.
+- **Gestora paga com a liquidez diária:** parcela, taxa a pagar e as outras saídas da gestora resgatam primeiro a renda fixa de liquidez diária dela, como a conta pessoal já faz (`cover_before_debit` em `simulation_engine.py`, que hoje pula a gestora).
+- **Rendimentos na renda variável:** o cartão de rendimentos da cota no detalhe da renda variável (`fund-distributions-card.tsx`) lista todos os meses. Ganha a paginação da aba Rendimentos da gestora (`HistoryCard` em `income-tab.tsx`), que sobe para `shared` com os dois consumidores.
+- **Comprar a própria cota na emissão:** teste que reproduz o gestor comprando na preferência e na sobra pública e confere que a participação dele depois fica acima da que teria sem comprar. O cartão mostra quantas cotas mantêm a participação de hoje.
+- **Gestora comprando cota de outra gestora:** o backend recusa ("A gestora não compra cota de gestora.", em `create_order`), mas a boleta não diz nada antes. Com uma gestora ativa no topo, a boleta de uma cota fica desabilitada com o motivo.
 
 ---
 
