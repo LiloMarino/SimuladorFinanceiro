@@ -1,5 +1,6 @@
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import type { SimulationSettings } from "@/types";
+import { usesTeamPicker } from "../lib/teams-check";
 
 /** As regras que valem para a sala: as da partida salva selecionada ou, sem seleção, as da nova partida. */
 export function useLobbyRules(settings: SimulationSettings) {
@@ -10,6 +11,7 @@ export function useLobbyRules(settings: SimulationSettings) {
   const professions = rules.game_type === "FINANCIAL_INDEPENDENCE" && rules.salary_mode === "PROFESSIONS";
   return {
     grouping: rules.player_grouping,
+    teamPicker: usesTeamPicker(rules.player_grouping, rules.game_type),
     naming: rules.team_naming,
     professions,
     // As regras que decidem quais profissões a sala oferece

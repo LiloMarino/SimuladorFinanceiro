@@ -51,7 +51,8 @@ def compute_result(simulation_id: int) -> SimulationResultDTO:
     if overview.game_type is GameType.POLITICAL:
         return _political_result(overview)
     if overview.teams:
-        leader = team_name(overview.teams[0].team, overview.team_naming)
+        first = overview.teams[0]
+        leader = first.name or team_name(first.team, overview.team_naming)
         team_position = {t.team: t.position for t in overview.teams}
         positions = {
             p.player_nickname: team_position[p.team]

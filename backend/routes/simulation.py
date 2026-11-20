@@ -159,7 +159,6 @@ class SimulationRulesRequest(BaseModel):
     def validate_fund_rules(self):
         validate_funds(
             game_type=self.game_type,
-            player_grouping=self.player_grouping,
             funds_enabled=self.funds_enabled,
         )
         return self

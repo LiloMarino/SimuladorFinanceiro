@@ -161,6 +161,8 @@ export function blockReason(option: AssemblyOption | undefined, panel: Panel): s
       return option.next_allowed_on === null
         ? "Há uma fusão em votação: a troca de gestor espera o resultado dela."
         : `Há uma fusão em votação até ${displayNumericDayMonth(option.next_allowed_on)}: a troca de gestor espera o resultado dela.`;
+    case "team":
+      return "Em equipes a assembleia serve para tomar a gestora de outra equipe.";
     case "unlisted":
       return "A assembleia só existe depois da oferta pública.";
     case "grace":

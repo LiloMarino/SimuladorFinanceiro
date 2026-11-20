@@ -28,7 +28,7 @@ import {
   toSettingsBody,
   type SimulationFormValues,
 } from "../../lib/simulation-form";
-import { checkTeams } from "../../lib/teams-check";
+import { checkTeams, usesTeamPicker } from "../../lib/teams-check";
 import { CoverageAlerts } from "../coverage-alerts";
 import { RoomPreparationSummary } from "../preparation/room-preparation";
 import { RulesSheet } from "../rules-sheet";
@@ -126,7 +126,10 @@ export function LobbyMatch({
   const backtestRunning = !!backtest?.progress;
   const busy = creating || continuing;
   // Em equipes todo mundo precisa estar numa e a partida, ter pelo menos duas
-  const inTeams = (selectedSimulation?.player_grouping ?? values.playerGrouping) === "TEAMS";
+  const inTeams = usesTeamPicker(
+    selectedSimulation?.player_grouping ?? values.playerGrouping,
+    selectedSimulation?.game_type ?? values.gameType,
+  );
   const teams = checkTeams(roomPlayers ?? [], savedPlayers, selectedSimulation?.team_naming ?? values.teamNaming);
   const teamsBlock = inTeams && !teams.ready;
   // Iniciar a partida encerra o desafio da vela que estiver rolando; o host é avisado antes

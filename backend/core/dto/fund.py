@@ -493,7 +493,8 @@ type FundAssemblyStance = Literal["favor", "against", "abstain"]
 # "manager_only" é a pauta que só o gestor principal propõe; "no_partner" é a fusão sem outra
 # gestora que o mesmo gestor gere, e "busy" a que tem emissão, recompra ou oferta em aberto;
 # "frozen" é a gestora congelada pela presidência do gestor, "swap_open" a fusão que espera uma
-# troca de gestor em andamento e "merge_open" a troca que espera uma fusão em votação
+# troca de gestor em andamento, "merge_open" a troca que espera uma fusão em votação e "team"
+# a troca pedida por quem é da equipe de quem gere a gestora, na aquisição hostil em equipes
 type FundAssemblyBlock = Literal[
     "share",
     "interval",
@@ -507,6 +508,7 @@ type FundAssemblyBlock = Literal[
     "frozen",
     "swap_open",
     "merge_open",
+    "team",
 ]
 
 

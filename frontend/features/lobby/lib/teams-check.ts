@@ -1,5 +1,10 @@
 import { teamName } from "@/shared/lib/teams";
-import type { RoomPlayer, TeamNaming } from "@/types";
+import type { GameType, PlayerGrouping, RoomPlayer, TeamNaming } from "@/types";
+
+/** Cada jogador escolhe a própria equipe, menos na aquisição hostil, em que a equipe é a gestora e vem do lobby de gestoras. */
+export function usesTeamPicker(grouping: PlayerGrouping, gameType: GameType): boolean {
+  return grouping === "TEAMS" && gameType !== "FUND_TAKEOVER";
+}
 
 export type TeamsCheck = {
   /** Quem ainda não escolheu equipe */

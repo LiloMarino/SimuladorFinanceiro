@@ -137,6 +137,7 @@ export function PlayerCell({
   simulationIds,
   isYou,
   teamNaming,
+  teamName,
   delinquent = false,
   eliminated = false,
   onOpenBotLog,
@@ -147,6 +148,8 @@ export function PlayerCell({
   isYou: boolean;
   /** Informado, o selo curto da equipe aparece ao lado do nome (partida em equipes) */
   teamNaming?: TeamNaming;
+  /** Nome da gestora da equipe do jogador, quando a equipe leva o nome dela */
+  teamName?: string | null;
   /** Parcela de crédito em atraso: o selo "Negativado" aparece ao lado do nome */
   delinquent?: boolean;
   /** Perdeu a assembleia da própria gestora no modo aquisição hostil: o selo "Eliminado" aparece ao lado do nome */
@@ -173,7 +176,7 @@ export function PlayerCell({
           você
         </Badge>
       )}
-      {teamNaming && player.team && <TeamBadge team={player.team} naming={teamNaming} size="sm" />}
+      {teamNaming && player.team && <TeamBadge team={player.team} naming={teamNaming} name={teamName} size="sm" />}
       {delinquent && (
         <Badge variant="destructive" size="tag">
           Negativado
@@ -259,7 +262,7 @@ interface TeamGroups<G> {
   note?: (team: G) => string;
 }
 
-interface MetricsTableProps<T extends PlayerRef, G extends { team: number } = never> {
+interface MetricsTableProps<T extends PlayerRef, G extends { team: number; name: string | null } = never> {
   title: string;
   description?: string | undefined;
   rows: T[];
@@ -273,7 +276,7 @@ interface MetricsTableProps<T extends PlayerRef, G extends { team: number } = ne
 }
 
 /** Uma linha por jogador e uma coluna por métrica, cada uma com a sua dica; o melhor da sala em verde. */
-export function MetricsTable<T extends PlayerRef, G extends { team: number } = never>({
+export function MetricsTable<T extends PlayerRef, G extends { team: number; name: string | null } = never>({
   title,
   description,
   rows,
@@ -290,7 +293,7 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
   };
   const sorting = useTableSort(rows, playerColumns);
   const teamColumns: SortColumns<G> = {
-    player: (t) => (groups ? teamName(t.team, groups.naming) : String(t.team)),
+    player: (t) => (groups ? teamName(t.team, groups.naming, t.name) : String(t.team)),
     ...Object.fromEntries(columns.map((c) => [c.metric.label, (t: G) => sortNumber(c.teamValue?.(t))])),
   };
   const teams = sortTableRows(groups?.teams ?? [], teamColumns, sorting.sort);
@@ -358,7 +361,7 @@ export function MetricsTable<T extends PlayerRef, G extends { team: number } = n
         <TableRow variant="team" style={{ "--team": teamColor(team.team) } as CSSProperties}>
           <TableCell>
             <span className="flex items-center gap-2.5">
-              <TeamBadge team={team.team} naming={naming} form="full" />
+              <TeamBadge team={team.team} naming={naming} name={team.name} form="full" />
               <span className="flex -space-x-1.5">
                 {members.map((m) => (
                   <PlayerAvatar

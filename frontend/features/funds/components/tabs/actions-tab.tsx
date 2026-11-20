@@ -27,6 +27,7 @@ import {
 import type { FundDetails } from "@/types";
 import { FundAutomaticLog } from "../fund-automatic-log";
 import { useAnswerComanagerInvite } from "../../hooks/mutations/useAnswerComanagerInvite";
+import { useFixedTeams } from "../../hooks/useFixedTeams";
 import { useAnswerDirectedIssuance } from "../../hooks/mutations/useAnswerDirectedIssuance";
 import { useCloseFundOffer } from "../../hooks/mutations/useCloseFundOffer";
 import { blockReason, currentOf, currentTitle, optionOf } from "../../lib/fund-assembly";
@@ -87,6 +88,7 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
   const navigate = useNavigate();
   const { fund: activeFund, switchAccount } = useActiveAccount();
   const closeOffer = useCloseFundOffer(fund.id);
+  const fixedTeams = useFixedTeams();
 
   const stage = fundStage(fund);
   const isManager = fund.my_role === "manager";
@@ -311,9 +313,11 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
                 actionLabel="Convidar"
                 onAction={() => actions.open("invite")}
                 blockedReason={
-                  fund.comanagers.length >= MAX_COMANAGERS
-                    ? `A gestora já tem ${MAX_COMANAGERS} co-gestores`
-                    : undefined
+                  fixedTeams
+                    ? "Em equipes os co-gestores são os do lobby até o fim da partida"
+                    : fund.comanagers.length >= MAX_COMANAGERS
+                      ? `A gestora já tem ${MAX_COMANAGERS} co-gestores`
+                      : undefined
                 }
               />
             </>

@@ -295,7 +295,11 @@ class UserManager:
         sim = SimulationManager.get_active_simulation()
         simulation_id = SimulationManager.get_active_simulation_id()
 
-        in_teams = sim.settings.player_grouping is PlayerGrouping.TEAMS
+        # Na aquisição hostil em equipes os times são os da largada: quem chega depois joga sem equipe
+        in_teams = (
+            sim.settings.player_grouping is PlayerGrouping.TEAMS
+            and not sim.settings.is_takeover_teams
+        )
         if in_teams and (team is None or not is_valid_team(team)):
             raise UnprocessableEntityError("Escolha uma equipe para entrar.")
 
@@ -635,6 +639,13 @@ class UserManager:
         return SettingsManager.effective_grouping()
 
     @classmethod
+    def takeover_teams(cls) -> bool:
+        """A sala joga a aquisição hostil em equipes: a equipe é a gestora e ninguém a escolhe."""
+        if SimulationManager.has_active_simulation():
+            return SimulationManager.get_active_simulation().settings.is_takeover_teams
+        return SettingsManager.effective_takeover_teams()
+
+    @classmethod
     def get_team(cls, user_id: int) -> int | None:
         """Equipe na sala; na partida em andamento vale a gravada nela. `None` fora do modo em equipes."""
         if cls.grouping() is not PlayerGrouping.TEAMS:
@@ -647,8 +658,8 @@ class UserManager:
 
     @classmethod
     def room_teams(cls) -> dict[int, int]:
-        """Equipe de cada player presente na sala, por user_id; vazio fora do modo em equipes."""
-        if cls.grouping() is not PlayerGrouping.TEAMS:
+        """Equipe de cada player presente na sala, por user_id; vazio fora do modo em equipes e na aquisição hostil, onde a equipe é a gestora."""
+        if cls.grouping() is not PlayerGrouping.TEAMS or cls.takeover_teams():
             return {}
         return cls.chosen_teams()
 
@@ -902,6 +913,10 @@ class UserManager:
     def _ensure_teams_editable(cls) -> None:
         if cls.grouping() is not PlayerGrouping.TEAMS:
             raise ConflictError("A sala joga todos contra todos: não há equipes.")
+        if cls.takeover_teams():
+            raise ConflictError(
+                "Na aquisição hostil a equipe é a gestora: ela se forma pelos co-gestores."
+            )
         if SimulationManager.has_active_simulation():
             raise ConflictError("A partida já começou: as equipes ficam travadas.")
 
@@ -1231,7 +1246,8 @@ class UserManager:
 
     @classmethod
     def _bot_team(cls, team: int | None) -> int | None:
-        if cls.grouping() is not PlayerGrouping.TEAMS:
+        # Na aquisição hostil em equipes o bot joga sem equipe
+        if cls.grouping() is not PlayerGrouping.TEAMS or cls.takeover_teams():
             return None
         if team is not None and not is_valid_team(team):
             raise UnprocessableEntityError("Essa equipe não existe.")

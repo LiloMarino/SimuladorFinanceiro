@@ -21,6 +21,8 @@ export type RunnerStanding = GoalRunner & {
 
 export type TeamStanding = {
   team: number;
+  /** Nome da gestora da equipe; nulo quando a equipe não leva o nome de uma */
+  name: string | null;
   /** Média do patrimônio dos membros */
   networth: number;
   fraction: number;
@@ -64,7 +66,13 @@ export function teamStandings(progress: GoalProgress): TeamStanding[] {
   }
   return Array.from(byTeam, ([team, members]) => {
     const networth = members.reduce((sum, m) => sum + Number(m.networth), 0) / members.length;
-    return { team, networth, fraction: goalFraction(networth, progress.goal), members };
+    return {
+      team,
+      name: members[0]?.team_name ?? null,
+      networth,
+      fraction: goalFraction(networth, progress.goal),
+      members,
+    };
   }).sort((a, b) => b.fraction - a.fraction);
 }
 

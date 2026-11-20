@@ -9,6 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-grou
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Progress } from "@/shared/components/ui/progress";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
+import { teamNameLookup } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber, displaySignedMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import type { OverviewReport, Player, PlayerRef } from "@/types";
@@ -378,6 +379,7 @@ function Ranking({
 }) {
   const [onlyPeople, setOnlyPeople] = useState(false);
   const hasBots = report.players.some((p) => p.is_bot);
+  const nameOf = teamNameLookup(report.teams);
   const measure = rankingMeasure(report);
   const rankingDescription =
     description ??
@@ -524,6 +526,7 @@ function Ranking({
                     simulationIds={simulationIds}
                     isYou={isYou}
                     teamNaming={report.team_naming}
+                    teamName={nameOf(p.team)}
                     delinquent={p.delinquent}
                     eliminated={p.eliminated}
                     onOpenBotLog={onOpenBotLog}

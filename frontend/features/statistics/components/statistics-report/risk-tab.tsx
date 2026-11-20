@@ -204,10 +204,11 @@ function RiskReturn({
     .filter((t) => t.annual_volatility !== null && t.annual_return !== null)
     .map((t) => ({
       team: t.team,
+      name: t.name,
       x: Number(t.annual_volatility),
       y: Number(t.annual_return),
       sharpe: t.sharpe_ratio,
-      label: teamShortName(t.team, naming),
+      label: teamShortName(t.team, naming, t.name),
     }));
   const maxX = Math.max(...points.map((p) => p.x), ...teamPoints.map((t) => t.x), 0.01) * 1.15;
   const ys = [...points.map((p) => p.y), ...teamPoints.map((t) => t.y), cdi ?? 0];
@@ -429,14 +430,15 @@ function RiskReturn({
                 <span className="font-semibold">Leitura rápida</span>
                 {dominant && (
                   <span className="text-muted-foreground">
-                    A <b className="text-foreground">{teamName(dominant.winner.team, naming)}</b> rendeu mais oscilando
-                    menos: o losango dela fica acima e à esquerda do da {teamShortName(dominant.other.team, naming)}.
+                    A <b className="text-foreground">{teamName(dominant.winner.team, naming, dominant.winner.name)}</b>{" "}
+                    rendeu mais oscilando menos: o losango dela fica acima e à esquerda do da{" "}
+                    {teamShortName(dominant.other.team, naming, dominant.other.name)}.
                   </span>
                 )}
                 {holders.map(({ team, holder, dragger }) => (
                   <span key={team} className="text-muted-foreground">
-                    Na {teamShortName(team, naming)}, <b className="text-foreground">{holder.player_nickname}</b> segura
-                    a média
+                    Na {teamShortName(team, naming, teamPoints.find((t) => t.team === team)?.name)},{" "}
+                    <b className="text-foreground">{holder.player_nickname}</b> segura a média
                     {dragger && (
                       <>
                         ; <b className="text-foreground">{dragger.player_nickname}</b> puxa para baixo e para a direita
@@ -447,8 +449,8 @@ function RiskReturn({
                 ))}
                 {bestTeam && teamPoints.length > 1 && !dominant && (
                   <span className="text-muted-foreground">
-                    A <b className="text-foreground">{teamName(bestTeam.team, naming)}</b> rendeu mais por unidade de
-                    oscilação: Sharpe médio{" "}
+                    A <b className="text-foreground">{teamName(bestTeam.team, naming, bestTeam.name)}</b> rendeu mais
+                    por unidade de oscilação: Sharpe médio{" "}
                     <b className="font-mono text-foreground">{displayNumber(bestTeam.sharpe ?? 0)}</b>, o melhor entre
                     as equipes.
                   </span>

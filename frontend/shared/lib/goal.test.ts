@@ -16,10 +16,10 @@ import {
 const progress: GoalProgress = {
   goal: "200000",
   players: [
-    { nickname: "Ana", color: "blue", team: 1, networth: "120000" },
-    { nickname: "Bia", color: "red", team: 1, networth: "80000" },
-    { nickname: "Caio", color: "green", team: 2, networth: "150000" },
-    { nickname: "Duda", color: "pink", team: null, networth: "200000" },
+    { nickname: "Ana", color: "blue", team: 1, team_name: null, networth: "120000" },
+    { nickname: "Bia", color: "red", team: 1, team_name: null, networth: "80000" },
+    { nickname: "Caio", color: "green", team: 2, team_name: "Brisa", networth: "150000" },
+    { nickname: "Duda", color: "pink", team: null, team_name: null, networth: "200000" },
   ],
 };
 
@@ -70,11 +70,13 @@ describe("classificação de jogadores e equipes", () => {
       [1, 100000, 0.5],
     ]);
     expect(teams[1]?.members.map((m) => m.nickname)).toEqual(["Ana", "Bia"]);
+    // A equipe leva o nome da gestora que os membros trazem
+    expect(teams.map((t) => t.name)).toEqual(["Brisa", null]);
   });
 
   it("acha a posição do próprio jogador ou da equipe dele", () => {
     expect(ownStanding(progress, "INDIVIDUAL", "Caio")).toMatchObject({ nickname: "Caio", fraction: 0.75 });
-    expect(ownStanding(progress, "TEAMS", "Bia")).toMatchObject({ team: 1, networth: 100000 });
+    expect(ownStanding(progress, "TEAMS", "Bia")).toMatchObject({ team: 1, name: null, networth: 100000 });
     expect(ownStanding(progress, "TEAMS", "Duda")).toBeUndefined();
     expect(ownStanding(progress, "INDIVIDUAL", "Zeca")).toBeUndefined();
   });

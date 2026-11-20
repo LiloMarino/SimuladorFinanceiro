@@ -60,7 +60,6 @@ def validate_government(
 def validate_funds(
     *,
     game_type: GameType,
-    player_grouping: PlayerGrouping,
     funds_enabled: bool,
 ) -> None:
     """As regras da expansão Gestoras; valem igual para o DTO e para a requisição."""
@@ -68,8 +67,6 @@ def validate_funds(
         return
     if not funds_enabled:
         raise ValueError("A vitória por aquisição hostil exige a expansão Gestoras.")
-    if player_grouping is PlayerGrouping.TEAMS:
-        raise ValueError("A vitória por aquisição hostil exige o modo individual.")
 
 
 def validate_goal(
@@ -183,6 +180,11 @@ class SimulationSettingsDTO(BaseDTO):
         return self.game_type is GameType.FUND_TAKEOVER
 
     @property
+    def is_takeover_teams(self) -> bool:
+        """Aquisição hostil em equipes: a equipe é a gestora, com o fundador e os co-gestores do lobby."""
+        return self.is_fund_takeover and self.player_grouping is PlayerGrouping.TEAMS
+
+    @property
     def uses_professions(self) -> bool:
         """Cada jogador escolhe a profissão: só no viver de renda com o modo de profissões."""
         return (
@@ -214,7 +216,6 @@ class SimulationSettingsDTO(BaseDTO):
         )
         validate_funds(
             game_type=self.game_type,
-            player_grouping=self.player_grouping,
             funds_enabled=self.funds_enabled,
         )
         validate_goal(

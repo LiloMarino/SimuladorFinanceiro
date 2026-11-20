@@ -67,7 +67,7 @@ export function LobbyPage() {
 
 function LobbyContent({ settings }: { settings: SimulationSettings }) {
   const [savedOpen, setSavedOpen] = useState(false);
-  const { grouping, naming, professions, professionRules } = useLobbyRules(settings);
+  const { grouping, teamPicker, naming, professions, professionRules } = useLobbyRules(settings);
 
   return (
     <div className="mx-auto flex max-w-280 flex-col gap-5 px-7 py-10">
@@ -91,6 +91,7 @@ function LobbyContent({ settings }: { settings: SimulationSettings }) {
           savedPlayers={settings.selected_players}
           selectedSimulationId={settings.selected_simulation_id}
           grouping={grouping}
+          teamPicker={teamPicker}
           naming={naming}
           professions={professions}
           professionRules={professionRules}

@@ -64,7 +64,8 @@ function typeRows(rules: SimulationFormValues): SummaryRow[] {
   }
 
   if (rules.gameType === "FUND_TAKEOVER") {
-    return [{ label: "Vitória por", value: <Badge variant="info">Último jogador de pé</Badge> }];
+    const standing = rules.playerGrouping === "TEAMS" ? "Última equipe de pé" : "Último jogador de pé";
+    return [{ label: "Vitória por", value: <Badge variant="info">{standing}</Badge> }];
   }
 
   // A meta com o múltiplo do saldo inicial quando ele é redondo: "R$ 1.000.000,00 · 10× o saldo"

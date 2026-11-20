@@ -31,6 +31,7 @@ export function FundNoneTab({
   savedSimulation,
   lead,
   locked,
+  locks,
   onMode,
   onClose,
 }: FundModeProps) {
@@ -93,6 +94,7 @@ export function FundNoneTab({
                     variant="fund"
                     size="sm"
                     className="justify-self-start"
+                    disabled={locks.found !== null}
                     onClick={() => onMode("FOUND")}
                   >
                     Fundar nesta sala
@@ -112,6 +114,7 @@ export function FundNoneTab({
                     variant="outline"
                     size="sm"
                     className="justify-self-start"
+                    disabled={locks.found !== null}
                     onClick={() => onMode("FOUND")}
                   >
                     Montar em Fundar a minha gestora

@@ -47,7 +47,7 @@ export function TopbarGoal({ grouping, teamNaming, currentDate }: TopbarGoalProp
   const leaderName = inTeams
     ? teams[0]?.team === you?.team
       ? "Sua equipe"
-      : teamName(teams[0]?.team ?? 0, teamNaming)
+      : teamName(teams[0]?.team ?? 0, teamNaming, teams[0]?.name)
     : players[0]?.nickname === nickname
       ? "Você"
       : players[0]?.nickname;
@@ -61,7 +61,7 @@ export function TopbarGoal({ grouping, teamNaming, currentDate }: TopbarGoalProp
           color={teamColor(team.team)}
           foreground="var(--primary-foreground)"
           highlighted={team.team === you?.team}
-          title={teamName(team.team, teamNaming)}
+          title={teamName(team.team, teamNaming, team.name)}
         >
           <Shield className="fill-current stroke-current" />
         </ProgressMarker>

@@ -500,6 +500,9 @@ class Simulation:
                 else None,
                 self._strategies.is_active,
                 self._stop_fund_strategy,
+                (lambda: repository.simulation_player.teams(settings.id))
+                if settings.is_takeover_teams
+                else None,
             )
             if settings.funds_enabled and backtest is None
             else None
@@ -1525,6 +1528,16 @@ class Simulation:
         EventManager.flush()
         self._notify_funds_update()
         return FundContributionResponse(quotas=quotas)
+
+    @synchronized
+    def pool_cash_into_fund(self, fund_id: int, user: UserDTO) -> None:
+        """O caixa de um co-gestor da equipe entra na gestora no 1º dia e vira cotas dele."""
+        book = self._ensure_funds()
+        cash = self.get_cash(user.client_id)
+        if cash > 0:
+            book.contribute(book.by_id(fund_id).ticker, user.client_id, cash, {})
+        EventManager.flush()
+        self._notify_funds_update()
 
     @synchronized
     def open_fund_offer(
@@ -2638,7 +2651,7 @@ class Simulation:
             )
 
     def _advance_eliminations(self, users: list[UserDTO]) -> None:
-        """Quem acabou de ser eliminado perde o automático; com um humano ativo só, a partida acaba."""
+        """Quem acabou de ser eliminado perde o automático; com um humano ativo só (em equipes, uma equipe só), a partida acaba."""
         funds = self._funds
         if funds is None or not funds.eliminated:
             return
@@ -2651,10 +2664,21 @@ class Simulation:
                     None,
                     {},
                     self._current_date,
-                    reason="Você perdeu a assembleia da sua gestora: agora só assiste",
+                    reason=(
+                        "Sua equipe perdeu a assembleia da gestora: agora só assiste"
+                        if self.settings.is_takeover_teams
+                        else "Você perdeu a assembleia da sua gestora: agora só assiste"
+                    ),
                 )
         active = [u for u in users if not u.is_bot and u.id not in eliminated]
-        self._last_standing = len(active) <= 1
+        if self.settings.is_takeover_teams:
+            # Quem joga sem equipe (chegou depois da largada) não sustenta a disputa
+            teams = repository.simulation_player.teams(self.settings.id)
+            self._last_standing = (
+                len({teams[u.id] for u in active if u.id in teams}) <= 1
+            )
+        else:
+            self._last_standing = len(active) <= 1
 
     def _account_owners(self, client_id: UUID) -> frozenset[int] | None:
         """Os user_ids donos da conta `client_id`: quem opera a gestora para a conta de uma gestora, o próprio jogador para a pessoal."""
@@ -2801,6 +2825,11 @@ class Simulation:
         """Avisa onde cada um está na meta e marca o fim da partida quando alguém chega."""
         colors = repository.simulation_player.colors(self.settings.id)
         teams = repository.simulation_player.teams(self.settings.id)
+        team_names = (
+            repository.fund.team_names(self.settings.id)
+            if self.settings.is_takeover_teams
+            else {}
+        )
         goal = goal_on(self.settings, self._current_date)
         # A tela refaz a busca do relatório quando a meta sobe: a meta em degraus é dele
         if self._goal_progress is not None and goal != self._goal_progress.goal:
@@ -2812,6 +2841,7 @@ class Simulation:
                     nickname=entry.player_nickname,
                     color=colors[user.id],
                     team=teams.get(user.id),
+                    team_name=team_names.get(teams.get(user.id, 0)),
                     networth=entry.snapshot.total_networth,
                 )
                 for user, entry in zip(users, snapshots, strict=True)

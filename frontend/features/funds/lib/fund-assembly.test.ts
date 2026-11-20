@@ -284,8 +284,9 @@ describe("blockReason", () => {
         "frozen",
         "swap_open",
         "merge_open",
+        "team",
       ] as const
     ).map((block) => blockReason(option({ block }), panel()));
-    expect(new Set(reasons).size).toBe(9);
+    expect(new Set(reasons).size).toBe(10);
   });
 });

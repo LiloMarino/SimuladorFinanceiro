@@ -37,7 +37,7 @@ export function GoalHero({ gameType, progress, life, projection, grouping, teamN
   const ranking = inTeams
     ? teamStandings(progress).map((t) => ({
         key: String(t.team),
-        name: teamName(t.team, teamNaming),
+        name: teamName(t.team, teamNaming, t.name),
         networth: t.networth,
       }))
     : playerStandings(progress).map((p) => ({ key: p.nickname, name: p.nickname, networth: Number(p.networth) }));

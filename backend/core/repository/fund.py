@@ -43,6 +43,7 @@ from backend.core.models.models import (
     FundOfferSales,
     Funds,
     Portfolios,
+    SimulationPlayers,
     Stock,
     StockPriceHistory,
     Users,
@@ -210,6 +211,25 @@ class FundRepository:
             .order_by(Funds.id)
         ).all()
         return [_to_dto(fund, ticker) for fund, ticker in rows]
+
+    @transactional
+    def team_names(self, session: Session, simulation_id: int) -> dict[int, str]:
+        """O nome de cada equipe na aquisição hostil em equipes: o da gestora que o fundador dela fundou."""
+        rows = session.execute(
+            select(SimulationPlayers.team, Funds.name)
+            .join(
+                Funds,
+                (Funds.simulation_id == SimulationPlayers.simulation_id)
+                & (Funds.founder_user_id == SimulationPlayers.user_id),
+            )
+            .where(
+                SimulationPlayers.simulation_id == simulation_id,
+                SimulationPlayers.team.is_not(None),
+            )
+            .order_by(Funds.id.desc())
+        ).all()
+        # Com várias gestoras do mesmo fundador, vale a primeira que ele fundou
+        return {team: name for team, name in rows if team is not None}
 
     @transactional
     def save(self, session: Session, fund: FundDTO) -> None:
@@ -580,11 +600,14 @@ class FundRepository:
         ).scalar_one_or_none()
 
     @transactional
-    def founder_removals(
+    def eliminations(
         self, session: Session, simulation_ids: list[int]
     ) -> list[tuple[int, int, str, date]]:
-        """Os fundadores afastados da própria gestora por assembleia: simulação, id, apelido e
-        o dia do primeiro afastamento."""
+        """Os eliminados da aquisição hostil: simulação, id, apelido e o dia do primeiro afastamento.
+
+        Eliminado é o fundador afastado da própria gestora por assembleia e, em equipes, a
+        equipe dele inteira, no mesmo dia.
+        """
         rows = session.execute(
             select(
                 Funds.simulation_id,
@@ -602,8 +625,40 @@ class FundRepository:
             )
             .group_by(Funds.simulation_id, Users.id, Users.nickname)
         ).all()
-        return [
+        founders = [
             (sim, user, name, day) for sim, user, name, day in rows if day is not None
+        ]
+        if not founders:
+            return []
+        members = session.execute(
+            select(
+                SimulationPlayers.simulation_id,
+                SimulationPlayers.user_id,
+                SimulationPlayers.team,
+                Users.nickname,
+            )
+            .join(Users, Users.id == SimulationPlayers.user_id)
+            .where(
+                SimulationPlayers.simulation_id.in_(simulation_ids),
+                SimulationPlayers.team.is_not(None),
+            )
+        ).all()
+        team_of = {(sim, user): team for sim, user, team, _ in members}
+        eliminated: dict[tuple[int, int], tuple[str, date]] = {
+            (sim, user): (name, day) for sim, user, name, day in founders
+        }
+        for sim, user, _, day in founders:
+            team = team_of.get((sim, user))
+            if team is None:
+                continue
+            for member_sim, member, member_team, nickname in members:
+                if member_sim != sim or member_team != team:
+                    continue
+                previous = eliminated.get((sim, member))
+                if previous is None or day < previous[1]:
+                    eliminated[(sim, member)] = (nickname, day)
+        return [
+            (sim, user, name, day) for (sim, user), (name, day) in eliminated.items()
         ]
 
     @transactional

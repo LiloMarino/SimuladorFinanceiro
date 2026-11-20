@@ -81,6 +81,7 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         goal_steps=_goal_steps(simulation_ids, players),
         in_teams=in_teams,
         team_naming=team_naming,
+        team_names=_team_names(simulation_ids),
         delinquent=frozenset(key for key, s in standings.items() if s.delinquent),
         eliminated=frozenset(eliminated),
         unexpected=_unexpected_counts(simulation_ids),
@@ -99,9 +100,7 @@ def _eliminations(simulation_ids: list[int]) -> dict[tuple[int, str], date]:
         return {}
     return {
         (simulation_id, nickname): day
-        for simulation_id, _, nickname, day in repository.fund.founder_removals(
-            takeover
-        )
+        for simulation_id, _, nickname, day in repository.fund.eliminations(takeover)
     }
 
 
@@ -221,6 +220,16 @@ def _team_context(simulation_ids: list[int]) -> tuple[TeamNaming, bool]:
     return simulation.team_naming, simulation.player_grouping is PlayerGrouping.TEAMS
 
 
+def _team_names(simulation_ids: list[int]) -> dict[int, str]:
+    """Na aquisição hostil em equipes a equipe leva o nome da gestora dela; nas outras, vazio."""
+    if len(simulation_ids) != 1:
+        return {}
+    simulation = repository.simulation.get_simulation(simulation_ids[0])
+    if simulation is None or not simulation.is_takeover_teams:
+        return {}
+    return repository.fund.team_names(simulation_ids[0])
+
+
 def _grouping(in_teams: bool) -> PlayerGrouping:
     return PlayerGrouping.TEAMS if in_teams else PlayerGrouping.INDIVIDUAL
 
@@ -310,7 +319,7 @@ def build_returns_report(simulation_ids: list[int]) -> ReturnsReportDTO:
         player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
-        teams=team_returns(entries) if in_teams else [],
+        teams=team_returns(entries, _team_names(simulation_ids)) if in_teams else [],
         benchmarks=benchmarks,
     )
 
@@ -348,7 +357,7 @@ def build_risk_report(simulation_ids: list[int]) -> RiskReportDTO:
         player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
-        teams=team_risk(entries) if in_teams else [],
+        teams=team_risk(entries, _team_names(simulation_ids)) if in_teams else [],
         rolling_window=risk.ROLLING_WINDOW,
     )
 
@@ -366,7 +375,9 @@ def build_score_history_report(simulation_ids: list[int]) -> ScoreHistoryReportD
         player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
-        teams=team_score_history(entries) if in_teams else [],
+        teams=team_score_history(entries, _team_names(simulation_ids))
+        if in_teams
+        else [],
     )
 
 
@@ -404,7 +415,9 @@ def build_composition_report(simulation_ids: list[int]) -> CompositionReportDTO:
         player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
-        teams=team_composition(entries) if in_teams else [],
+        teams=team_composition(entries, _team_names(simulation_ids))
+        if in_teams
+        else [],
     )
 
 
@@ -442,7 +455,7 @@ def build_operations_report(simulation_ids: list[int]) -> OperationsReportDTO:
         player_grouping=_grouping(in_teams),
         team_naming=team_naming,
         players=entries,
-        teams=team_operations(entries) if in_teams else [],
+        teams=team_operations(entries, _team_names(simulation_ids)) if in_teams else [],
     )
 
 

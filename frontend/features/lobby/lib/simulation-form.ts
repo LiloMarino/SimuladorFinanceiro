@@ -186,7 +186,7 @@ export const simulationFormSchema = z
       path: ["playerGrouping"],
     });
   })
-  // A aquisição hostil exige as gestoras e o modo individual
+  // A aquisição hostil exige as gestoras
   .superRefine((data, ctx) => {
     if (data.gameType !== "FUND_TAKEOVER") return;
     if (!data.fundsEnabled) {
@@ -194,13 +194,6 @@ export const simulationFormSchema = z
         code: "custom",
         message: "A aquisição hostil exige a expansão Gestoras.",
         path: ["fundsEnabled"],
-      });
-    }
-    if (data.playerGrouping === "TEAMS") {
-      ctx.addIssue({
-        code: "custom",
-        message: "A aquisição hostil vale só no modo todos contra todos.",
-        path: ["playerGrouping"],
       });
     }
   })

@@ -34,7 +34,7 @@ export function TeamPodium({ report }: { report: OverviewReport }) {
               />
             ))}
           </span>
-          <TeamBadge team={team.team} naming={report.team_naming} form="full" solid />
+          <TeamBadge team={team.team} naming={report.team_naming} name={team.name} form="full" solid />
           {/* Equipe de uma pessoa: o nome dela, já que o selo só diz a equipe */}
           {team.members === 1 && (
             <span className="max-w-full truncate text-[13px] font-semibold text-white">

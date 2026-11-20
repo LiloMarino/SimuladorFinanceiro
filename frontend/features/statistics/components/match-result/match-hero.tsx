@@ -82,7 +82,7 @@ function soloHeadline(report: OverviewReport, player: Player) {
 
 /** A frase da equipe vencedora; empate na média vai para o patrimônio médio. */
 function teamHeadline(report: OverviewReport, first: TeamRanking, second: TeamRanking | undefined) {
-  const name = teamName(first.team, report.team_naming);
+  const name = teamName(first.team, report.team_naming, first.name);
   const value = first.criterion_value;
   if (value === null) return `${name} ficou em 1ª`;
   if (second && second.criterion_value !== null && Number(second.criterion_value) === Number(value)) {
@@ -157,7 +157,7 @@ function TeamSummary({
                 <b className="font-mono text-white">
                   {displayCriterionGap(criterion, second.leader_gap, goal_net_worth)}
                 </b>{" "}
-                à frente da {teamName(second.team, naming)}
+                à frente da {teamName(second.team, naming, second.name)}
               </>
             )}
             .
@@ -178,7 +178,7 @@ function TeamSummary({
             {mine.top_puller && mine.top_puller.player_nickname === currentPlayerName && (
               <>
                 {" "}
-                Você foi quem mais puxou a {teamShortName(mine.team, naming)} para cima:{" "}
+                Você foi quem mais puxou a {teamShortName(mine.team, naming, mine.name)} para cima:{" "}
                 <b className="font-mono text-white">
                   {displayCriterionContribution(criterion, mine.top_puller.contribution)}
                 </b>{" "}
@@ -190,7 +190,7 @@ function TeamSummary({
       {partial && (
         <>
           {" "}
-          Na {teamName(partial.team, naming)} a média usa quem tem valor ({partial.measured_members} de{" "}
+          Na {teamName(partial.team, naming, partial.name)} a média usa quem tem valor ({partial.measured_members} de{" "}
           {partial.members}).
         </>
       )}
@@ -315,7 +315,8 @@ function GoalSummary({
   const independence = report.game_type === "FINANCIAL_INDEPENDENCE";
   // A frase dos imprevistos fala de você; quem só assiste vê a do líder
   const unexpectedSubject = you ?? report.players[0];
-  const leaderName = "player_nickname" in leader ? leader.player_nickname : teamName(leader.team, report.team_naming);
+  const leaderName =
+    "player_nickname" in leader ? leader.player_nickname : teamName(leader.team, report.team_naming, leader.name);
 
   return (
     <>

@@ -125,6 +125,8 @@ class TeamRankingDTO(BaseDTO):
     """Equipe no ranking: o valor dela em cada critério é a média dos membros."""
 
     team: int
+    # O nome da gestora da equipe na aquisição hostil em equipes; nulo fora dela
+    name: str | None
     simulation_id: int
     position: int
     members: int
@@ -253,6 +255,8 @@ class TeamReturnsDTO(BaseDTO):
     """Curvas e contagens da equipe: a média dos membros em cada dia."""
 
     team: int
+    # O nome da gestora da equipe na aquisição hostil em equipes; nulo fora dela
+    name: str | None
     simulation_id: int
     members: int
     networth: list[SeriesPointDTO]
@@ -284,6 +288,8 @@ class TeamScoreHistoryDTO(BaseDTO):
     """A nota da equipe em cada mês: a média dos membros que já têm nota nele."""
 
     team: int
+    # O nome da gestora da equipe na aquisição hostil em equipes; nulo fora dela
+    name: str | None
     simulation_id: int
     points: list[SeriesPointDTO]
 
@@ -319,6 +325,8 @@ class TeamRiskDTO(BaseDTO):
     """Métricas de risco da equipe: média simples dos membros em cada uma."""
 
     team: int
+    # O nome da gestora da equipe na aquisição hostil em equipes; nulo fora dela
+    name: str | None
     simulation_id: int
     members: int
     max_drawdown: Decimal | None
@@ -359,6 +367,8 @@ class TeamCompositionDTO(BaseDTO):
     """Como a equipe dividiu o dinheiro no último dia: média das frações dos membros."""
 
     team: int
+    # O nome da gestora da equipe na aquisição hostil em equipes; nulo fora dela
+    name: str | None
     simulation_id: int
     members: int
     cash_share: Decimal | None
@@ -403,6 +413,8 @@ class TeamOperationsDTO(BaseDTO):
     """Operações da equipe: volume, IR e negócios são somas (totais, não desempenho)."""
 
     team: int
+    # O nome da gestora da equipe na aquisição hostil em equipes; nulo fora dela
+    name: str | None
     simulation_id: int
     members: int
     buy_trades: int

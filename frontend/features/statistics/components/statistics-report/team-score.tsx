@@ -54,7 +54,8 @@ export function TeamScore({ report, currentPlayerName }: { report: OverviewRepor
         currentPlayerName={currentPlayerName}
         title={
           <>
-            Membros da <TeamBadge team={selectedTeam.team} naming={naming} form="full" />, eixo a eixo
+            Membros da <TeamBadge team={selectedTeam.team} naming={naming} name={selectedTeam.name} form="full" />, eixo
+            a eixo
           </>
         }
       />
@@ -76,18 +77,18 @@ function SubjectPicker({
   const options: SelectOption<Subject>[] = [
     ...report.teams.map((team) => ({
       value: `t:${team.team}` as const,
-      label: teamName(team.team, naming),
+      label: teamName(team.team, naming, team.name),
       description: team.score ? `${displayNumber(team.score.total, 0)} pts` : "sem nota",
-      leading: <TeamBadge team={team.team} naming={naming} form="icon" size="sm" />,
+      leading: <TeamBadge team={team.team} naming={naming} name={team.name} form="icon" size="sm" />,
       group: "Equipes",
     })),
     ...report.teams.flatMap((team) =>
       membersOf(report, team.team).map((player) => ({
         value: `p:${player.player_nickname}` as const,
         label: player.player_nickname,
-        searchText: teamName(team.team, naming),
+        searchText: teamName(team.team, naming, team.name),
         leading: <PlayerAvatar nickname={player.player_nickname} color={player.color} bot={player.is_bot} size="sm" />,
-        group: `Jogadores · ${teamName(team.team, naming)}`,
+        group: `Jogadores · ${teamName(team.team, naming, team.name)}`,
       })),
     ),
   ];
@@ -133,8 +134,8 @@ function TeamAxes({ report, team, picker }: { report: OverviewReport; team: Team
       <CardHeader>
         <CardTitle>
           <span className="flex flex-wrap items-center gap-2">
-            Nota da <TeamBadge team={team.team} naming={naming} form="full" />: {displayNumber(team.score.total, 0)}{" "}
-            pontos
+            Nota da <TeamBadge team={team.team} naming={naming} name={team.name} form="full" />:{" "}
+            {displayNumber(team.score.total, 0)} pontos
           </span>
         </CardTitle>
         <CardDescription>
@@ -148,7 +149,12 @@ function TeamAxes({ report, team, picker }: { report: OverviewReport; team: Team
           {AXES.map((axis) => {
             const points = Number(axisPoints(team.score, axis) ?? 0);
             const ranked = report.teams
-              .map((t) => ({ team: t.team, points: Number(axisPoints(t.score, axis) ?? 0), measured: !!t.score }))
+              .map((t) => ({
+                team: t.team,
+                name: t.name,
+                points: Number(axisPoints(t.score, axis) ?? 0),
+                measured: !!t.score,
+              }))
               .filter((t) => t.measured)
               .sort((a, b) => b.points - a.points);
             return (
@@ -189,7 +195,7 @@ function TeamAxes({ report, team, picker }: { report: OverviewReport; team: Team
                       <span className="font-mono text-faint-foreground">{index + 1}º</span>
                       <span className="flex min-w-0 items-center gap-1.5">
                         <Shield className="size-3.5 shrink-0 fill-(--team) stroke-(--team)" />
-                        <span className="truncate">{teamShortName(entry.team, naming)}</span>
+                        <span className="truncate">{teamShortName(entry.team, naming, entry.name)}</span>
                       </span>
                       <span className="h-1.5 overflow-hidden rounded-full bg-muted">
                         <span

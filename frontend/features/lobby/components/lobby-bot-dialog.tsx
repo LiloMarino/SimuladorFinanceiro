@@ -6,7 +6,7 @@ import { useBotStrategies } from "@/shared/hooks/queries/useBotStrategies";
 import { useRoomPlayers } from "@/shared/hooks/queries/useRoomPlayers";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
 import { addValues, editValues } from "@/shared/lib/bot-form";
-import type { PlayerGrouping, Profession, RoomPlayer, TeamNaming } from "@/types";
+import type { Profession, RoomPlayer, TeamNaming } from "@/types";
 import { useAddBot } from "../hooks/mutations/useAddBot";
 import { useAddBots } from "../hooks/mutations/useAddBots";
 import { useUpdateBot } from "../hooks/mutations/useUpdateBot";
@@ -19,7 +19,8 @@ type LobbyBotDialogProps = {
   onOpenChange: (open: boolean) => void;
   /** O bot a configurar; sem ele, o diálogo adiciona um */
   bot?: RoomPlayer | undefined;
-  grouping: PlayerGrouping;
+  /** A sala escolhe equipe por jogador: o bot também leva uma */
+  teamPicker: boolean;
   naming: TeamNaming;
   /** Sala de profissões: as que o bot pode ter; nulo nas outras salas */
   professions: Profession[] | null;
@@ -32,7 +33,7 @@ export function LobbyBotDialog({
   open,
   onOpenChange,
   bot,
-  grouping,
+  teamPicker,
   naming,
   professions,
   freeSlots,
@@ -77,7 +78,7 @@ export function LobbyBotDialog({
       saving={add.isPending || addMany.isPending || update.isPending}
       maxQuantity={bot ? undefined : freeSlots}
       extraFields={(form) =>
-        grouping === "TEAMS" && (
+        teamPicker && (
           <Field>
             <FieldLabel>Equipe</FieldLabel>
             <TeamGrid
@@ -108,7 +109,7 @@ export function LobbyBotDialog({
           strategy_key: values.strategyKey,
           params: values.params,
           color: values.color,
-          team: grouping === "TEAMS" ? values.team : null,
+          team: teamPicker ? values.team : null,
           profession: values.profession,
         };
         const options = {

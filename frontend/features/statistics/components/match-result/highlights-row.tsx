@@ -28,7 +28,7 @@ interface HighlightProps {
   color: string | undefined;
   bot?: boolean | undefined;
   /** Equipe de quem lidera, quando a partida é em equipes: o escudo vai ao lado do nome */
-  team?: { index: number | null | undefined; naming: TeamNaming } | undefined;
+  team?: { index: number | null | undefined; naming: TeamNaming; name: string | null } | undefined;
 }
 
 function Highlight({ label, metric, value, detail, tone, player, color, bot, team }: HighlightProps) {
@@ -54,7 +54,9 @@ function Highlight({ label, metric, value, detail, tone, player, color, bot, tea
             <>
               <PlayerAvatar nickname={player} color={color} bot={bot} size="sm" />
               {player}
-              {team?.index ? <TeamBadge team={team.index} naming={team.naming} form="icon" size="sm" /> : null}
+              {team?.index ? (
+                <TeamBadge team={team.index} naming={team.naming} name={team.name} form="icon" size="sm" />
+              ) : null}
             </>
           ) : (
             <span className="text-muted-foreground">Ninguém nesta partida</span>
@@ -79,6 +81,8 @@ interface HighlightsRowProps {
   /** Equipe de cada jogador (por apelido) e como as equipes se chamam; vazio fora do modo em equipes */
   teamOf?: ((nickname: string | undefined) => number | null | undefined) | undefined;
   teamNaming?: TeamNaming | undefined;
+  /** Nome da gestora de cada equipe, quando a equipe leva o nome dela */
+  teamNameOf?: ((team: number | null | undefined) => string | null) | undefined;
 }
 
 /** Quem foi melhor em quê na partida, e o seu melhor mês. */
@@ -88,15 +92,21 @@ export function HighlightsRow({
   currentPlayerColor,
   teamOf,
   teamNaming = "COLOR",
+  teamNameOf = () => null,
 }: HighlightsRowProps) {
   const { data } = useStatisticsReport("highlights", [simulationId]);
   if (!data) return <HighlightsSkeleton />;
 
+  const teamRef = (nickname: string | undefined) => {
+    if (!teamOf) return undefined;
+    const index = teamOf(nickname);
+    return { index, naming: teamNaming, name: teamNameOf(index) };
+  };
   const item = (h: Highlights["biggest_return"]) => ({
     player: h?.player_nickname,
     color: h?.color,
     bot: h?.is_bot,
-    team: teamOf ? { index: teamOf(h?.player_nickname), naming: teamNaming } : undefined,
+    team: teamRef(h?.player_nickname),
   });
   const best = data.your_best_month;
   const dividends = data.most_dividends;
@@ -140,7 +150,7 @@ export function HighlightsRow({
         tone={toneOf(best?.value)}
         player={best ? currentPlayerName : undefined}
         color={currentPlayerColor}
-        team={teamOf ? { index: teamOf(currentPlayerName), naming: teamNaming } : undefined}
+        team={teamRef(currentPlayerName)}
       />
     </div>
   );

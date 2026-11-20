@@ -137,6 +137,19 @@ describe("regras da partida ↔ formulário do lobby", () => {
     expect(toSettingsBody(values).game_type).toBe("FUND_TAKEOVER");
   });
 
+  it("a aquisição hostil aceita o modo em equipes e a política não", () => {
+    const takeover = {
+      ...toFormValues(settings),
+      fundsEnabled: true,
+      gameType: "FUND_TAKEOVER" as const,
+      playerGrouping: "TEAMS" as const,
+    };
+    expect(simulationFormSchema.safeParse(takeover).success).toBe(true);
+    const political = { ...takeover, governmentEnabled: true, gameType: "POLITICAL" as const };
+    const issue = simulationFormSchema.safeParse(political).error?.issues.find((i) => i.path[0] === "playerGrouping");
+    expect(issue?.message).toBe("A vitória política vale só no modo todos contra todos.");
+  });
+
   it("o formulário mostra o dinheiro com a máscara e a taxa em percentual", () => {
     const values = toFormValues(settings);
     expect(values.startingCash).toBe("R$ 10.000,00");

@@ -30,11 +30,23 @@ def test_takeover_needs_the_funds_expansion():
     assert rules(game_type=GameType.FUND_TAKEOVER, funds_enabled=True).is_fund_takeover
 
 
-def test_takeover_needs_the_individual_mode():
+def test_takeover_accepts_the_teams_mode():
+    settings = rules(
+        game_type=GameType.FUND_TAKEOVER,
+        funds_enabled=True,
+        player_grouping=PlayerGrouping.TEAMS,
+    )
+    assert settings.is_takeover_teams
+    assert not rules(
+        game_type=GameType.FUND_TAKEOVER, funds_enabled=True
+    ).is_takeover_teams
+
+
+def test_politics_still_rejects_the_teams_mode():
     with pytest.raises(ValidationError, match="exige o modo individual"):
         rules(
-            game_type=GameType.FUND_TAKEOVER,
-            funds_enabled=True,
+            game_type=GameType.POLITICAL,
+            government_enabled=True,
             player_grouping=PlayerGrouping.TEAMS,
         )
 

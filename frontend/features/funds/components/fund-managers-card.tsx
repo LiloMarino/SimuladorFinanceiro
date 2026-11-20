@@ -1,4 +1,4 @@
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, Lock } from "lucide-react";
 import type { ReactNode } from "react";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
@@ -8,6 +8,7 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { displayIsoDate, displayMoney, displayPercent } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { useLeaveComanagement } from "../hooks/mutations/useLeaveComanagement";
+import { useFixedTeams } from "../hooks/useFixedTeams";
 import { MAX_COMANAGERS } from "@/shared/lib/fund-comanager-shares";
 import { hasScheduledChange, isInvited, splitMonthly, type Comanager } from "../lib/fund-comanagers";
 import { FundSection } from "@/shared/components/fund-section";
@@ -66,6 +67,7 @@ function ManagerRow({ nickname, color, caption, share, monthly, badge, children 
 /** Quem gere a gestora: o principal, os co-gestores que operam a carteira e os convites esperando resposta. */
 export function FundManagersCard({ fund, actions }: FundManagersCardProps) {
   const leave = useLeaveComanagement(fund.id);
+  const fixedTeams = useFixedTeams();
   const monthlyTotal = Number(fund.fees.management_monthly_estimate);
   const active = fund.comanagers.filter((comanager) => !isInvited(comanager));
   const invited = fund.comanagers.filter(isInvited);
@@ -79,7 +81,8 @@ export function FundManagersCard({ fund, actions }: FundManagersCardProps) {
     <FundSection
       title="Gestores"
       action={
-        actions && (
+        actions &&
+        !fixedTeams && (
           <Button size="xs" variant="outline" disabled={full} onClick={actions.onInvite}>
             Convidar co-gestor
           </Button>
@@ -118,9 +121,11 @@ export function FundManagersCard({ fund, actions }: FundManagersCardProps) {
                   <Button size="xs" variant="outline" onClick={() => actions.onChangeShare(comanager)}>
                     Mudar parte
                   </Button>
-                  <Button size="xs" variant="outline-destructive" onClick={() => actions.onRemove(comanager)}>
-                    Remover
-                  </Button>
+                  {!fixedTeams && (
+                    <Button size="xs" variant="outline-destructive" onClick={() => actions.onRemove(comanager)}>
+                      Remover
+                    </Button>
+                  )}
                 </div>
               )}
               {hasScheduledChange(comanager) && comanager.pending_share !== null && comanager.pending_from !== null && (
@@ -170,8 +175,19 @@ export function FundManagersCard({ fund, actions }: FundManagersCardProps) {
           </Alert>
         )}
 
+        {/* Times fixos da aquisição hostil em equipes */}
+        {fixedTeams && (
+          <Alert variant="info">
+            <Lock />
+            <AlertDescription>
+              Na aquisição hostil em equipes os co-gestores são os combinados no lobby: não há convite, saída nem
+              remoção durante a partida.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Saída do co-gestor */}
-        {iAmComanager && (
+        {iAmComanager && !fixedTeams && (
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs text-muted-foreground">
               Ao sair, o acesso à carteira da gestora acaba no mesmo pregão e a sua parte volta ao gestor principal.

@@ -208,6 +208,16 @@ class SettingsManager:
         return cls.get().player_grouping
 
     @classmethod
+    def effective_takeover_teams(cls) -> bool:
+        """A sala joga a aquisição hostil em equipes: a partida salva selecionada manda; sem ela, as regras da nova."""
+        selected_id = cls.get_selected_simulation_id()
+        if selected_id is not None:
+            summary = repository.simulation.get_simulation(selected_id)
+            if summary is not None:
+                return summary.is_takeover_teams
+        return cls.get().is_takeover_teams
+
+    @classmethod
     def effective_uses_professions(cls) -> bool:
         """A sala joga com profissões: a partida salva selecionada manda; sem ela, as regras da nova."""
         selected_id = cls.get_selected_simulation_id()

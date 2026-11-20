@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { FUND_NAME_MAX_LENGTH, FUND_NAME_MIN_LENGTH, TICKER_LETTERS, tickerOf } from "@/shared/lib/fund-ticker";
-import type { BotTicker, FundIdentity, Preparations } from "@/types";
+import type { BotTicker, FundIdentity, MyPreparation, Preparations, SimulationSettings } from "@/types";
 
 /** Uma gestora que um jogador da sala vai fundar no 1º dia. */
 export type PreparedFund = Preparations["funds"][number];
@@ -88,3 +88,35 @@ export function fundTabBadge(enabled: boolean, preparations: Preparations, nickn
 /** A escolha que a aba abre mostrando: a que o servidor guarda para o jogador. */
 export const fundChoice = (preparations: Preparations, nickname: string): "FOUND" | "NONE" =>
   preparations.funds.some((fund) => fund.nickname === nickname) ? "FOUND" : "NONE";
+
+type GroupRules = Pick<SimulationSettings["simulation"], "game_type" | "player_grouping">;
+
+/** Na aquisição hostil em equipes a equipe é a gestora: cada jogador fica em um grupo só. */
+export const hasExclusiveGroups = (rules: GroupRules) =>
+  rules.game_type === "FUND_TAKEOVER" && rules.player_grouping === "TEAMS";
+
+/** Por que a aba Gestora trava "Fundar" e "Aceitar" para quem já está num grupo; nulo onde a ação vale. */
+export type GroupLocks = { found: string | null; accept: string | null };
+
+/**
+ * Na aquisição hostil em equipes todo jogador está em exatamente um grupo: funda uma gestora ou é
+ * co-gestor aceito de uma. Os motivos repetem as mensagens do servidor.
+ */
+export function groupLocks(
+  rules: GroupRules,
+  preparations: Preparations,
+  mine: MyPreparation,
+  nickname: string,
+): GroupLocks {
+  if (!hasExclusiveGroups(rules)) return { found: null, accept: null };
+  const founds = fundChoice(preparations, nickname) === "FOUND";
+  const comanages = mine.fund_comanager_invites.some((invite) => invite.accepted);
+  return {
+    found: !founds && comanages ? "Você já é co-gestor de uma gestora: quem está num grupo não funda outra." : null,
+    accept: founds
+      ? "Você funda uma gestora: quem está num grupo não aceita outro convite."
+      : comanages
+        ? "Você já é co-gestor de uma gestora: quem está num grupo não aceita outro convite."
+        : null,
+  };
+}

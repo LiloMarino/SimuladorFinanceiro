@@ -131,7 +131,7 @@ export function RulesSheet({
   // O que foi digitado em cada tipo fica guardado; só o valor inutilizável de um campo escondido volta ao padrão
   const selectGameType = (value: GameType, onChange: (value: GameType) => void) => {
     onChange(value);
-    if (value === "POLITICAL" || value === "FUND_TAKEOVER") form.setValue("playerGrouping", "INDIVIDUAL");
+    if (value === "POLITICAL") form.setValue("playerGrouping", "INDIVIDUAL");
     if (value === "CLASSIC" && !(goalAmount > 0)) {
       form.setValue("goalNetWorth", formatMoney(String(Math.round(startingCashAmount * DEFAULT_GOAL_MULTIPLE * 100))), {
         shouldValidate: true,

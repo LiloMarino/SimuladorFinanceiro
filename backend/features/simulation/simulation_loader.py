@@ -83,7 +83,8 @@ class SimulationLoader:
         cls._ensure_no_backtest()
         ensure_indicator_coverage(settings.start_date)
         in_teams = settings.player_grouping is PlayerGrouping.TEAMS
-        if in_teams:
+        # Na aquisição hostil em equipes a equipe nasce das gestoras e o bot joga sem equipe
+        if in_teams and not settings.is_takeover_teams:
             UserManager.ensure_teams_ready({})
         humans = [p for p in UserManager.list_active_players() if not p.is_bot]
         RoomPreparation.ensure_ready(humans)
@@ -93,6 +94,7 @@ class SimulationLoader:
             humans,
             enabled=settings.funds_enabled,
             takeover=settings.is_fund_takeover,
+            teams=settings.is_takeover_teams,
         )
         # As regras de agora valem para cada bot antes de a partida ser gravada
         validate_room_bots(settings.start_date)
@@ -107,7 +109,13 @@ class SimulationLoader:
         repository.simulation_player.save(
             simulation_id,
             room_colors,
-            UserManager.chosen_teams() if in_teams else None,
+            (
+                RoomFundPreparation.teams(humans)
+                if settings.is_takeover_teams
+                else UserManager.chosen_teams()
+            )
+            if in_teams
+            else None,
             UserManager.chosen_professions() if settings.uses_professions else None,
             UserManager.chosen_parties() if settings.uses_professions else None,
         )
@@ -172,6 +180,10 @@ class SimulationLoader:
                         fund.id,
                         FundContributionRequest(cash=sim.get_cash(founder.client_id)),
                     )
+                # Em equipes o caixa de cada co-gestor também entra na gestora da equipe e vira cotas dele
+                if settings.is_takeover_teams:
+                    for guest, _ in comanagers.get(founder.id, []):
+                        sim.pool_cash_into_fund(fund.id, guest)
         # Cada bot joga a estratégia dele desde o primeiro pregão que o relógio roda
         for bot, config in bots:
             sim.set_my_strategy(bot, config.strategy_key, config.params)
@@ -219,7 +231,8 @@ class SimulationLoader:
 
         saved = repository.simulation_player.colors(summary.id)
         in_teams = summary.player_grouping is PlayerGrouping.TEAMS
-        if in_teams:
+        # Na aquisição hostil em equipes os times são os da largada; quem chega depois joga sem equipe
+        if in_teams and not summary.is_takeover_teams:
             UserManager.ensure_teams_ready(
                 repository.simulation_player.teams(summary.id)
             )
@@ -228,14 +241,22 @@ class SimulationLoader:
             for user_id, color in UserManager.room_colors().items()
             if user_id not in saved
         }
-        room_teams = UserManager.chosen_teams() if in_teams else {}
+        room_teams = (
+            UserManager.chosen_teams()
+            if in_teams and not summary.is_takeover_teams
+            else {}
+        )
         room_professions = (
             UserManager.chosen_professions() if summary.uses_professions else {}
         )
         repository.simulation_player.save(
             summary.id,
             newcomers,
-            {user_id: room_teams[user_id] for user_id in newcomers}
+            {
+                user_id: room_teams[user_id]
+                for user_id in newcomers
+                if user_id in room_teams
+            }
             if in_teams
             else None,
             {user_id: room_professions[user_id] for user_id in newcomers}

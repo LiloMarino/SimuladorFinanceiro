@@ -30,7 +30,7 @@ export function RaceStandings({ progress, grouping, teamNaming, currentNickname 
                 className="size-5 justify-self-center fill-(--team) stroke-(--team)"
                 style={{ "--team": teamColor(team.team) } as CSSProperties}
               />
-              <span className="truncate text-[13px] font-semibold">{teamName(team.team, teamNaming)}</span>
+              <span className="truncate text-[13px] font-semibold">{teamName(team.team, teamNaming, team.name)}</span>
               <Progress value={Math.min(team.fraction, 1) * 100} size="md" color={teamColor(team.team)} />
               <span className="text-right font-mono text-[13px] font-semibold">
                 {displayGoalPercent(team.fraction)}

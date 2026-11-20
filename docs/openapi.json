@@ -23741,7 +23741,8 @@
           "busy",
           "frozen",
           "swap_open",
-          "merge_open"
+          "merge_open",
+          "team"
         ]
       },
       "FundAssemblyConveneRequest": {
@@ -28587,6 +28588,17 @@
             ],
             "title": "Team"
           },
+          "team_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Team Name"
+          },
           "networth": {
             "type": "string",
             "title": "Networth"
@@ -28598,6 +28610,7 @@
           "nickname",
           "color",
           "team",
+          "team_name",
           "networth"
         ],
         "title": "GoalRunnerDTO"
@@ -45041,6 +45054,17 @@
             "type": "integer",
             "title": "Team"
           },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
           "simulation_id": {
             "type": "integer",
             "title": "Simulation Id"
@@ -45087,6 +45111,7 @@
         "type": "object",
         "required": [
           "team",
+          "name",
           "simulation_id",
           "members",
           "cash_share",
@@ -45110,6 +45135,17 @@
           "team": {
             "type": "integer",
             "title": "Team"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           },
           "simulation_id": {
             "type": "integer",
@@ -45169,6 +45205,7 @@
         "type": "object",
         "required": [
           "team",
+          "name",
           "simulation_id",
           "members",
           "buy_trades",
@@ -45235,6 +45272,17 @@
           "team": {
             "type": "integer",
             "title": "Team"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           },
           "simulation_id": {
             "type": "integer",
@@ -45332,6 +45380,7 @@
         "type": "object",
         "required": [
           "team",
+          "name",
           "simulation_id",
           "position",
           "members",
@@ -45354,6 +45403,17 @@
           "team": {
             "type": "integer",
             "title": "Team"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           },
           "simulation_id": {
             "type": "integer",
@@ -45409,6 +45469,7 @@
         "type": "object",
         "required": [
           "team",
+          "name",
           "simulation_id",
           "members",
           "networth",
@@ -45427,6 +45488,17 @@
           "team": {
             "type": "integer",
             "title": "Team"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
           },
           "simulation_id": {
             "type": "integer",
@@ -45518,6 +45590,7 @@
         "type": "object",
         "required": [
           "team",
+          "name",
           "simulation_id",
           "members",
           "max_drawdown",
@@ -45537,6 +45610,17 @@
             "type": "integer",
             "title": "Team"
           },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
           "simulation_id": {
             "type": "integer",
             "title": "Simulation Id"
@@ -45553,6 +45637,7 @@
         "type": "object",
         "required": [
           "team",
+          "name",
           "simulation_id",
           "points"
         ],

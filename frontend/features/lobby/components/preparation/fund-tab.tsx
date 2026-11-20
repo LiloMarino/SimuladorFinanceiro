@@ -12,7 +12,7 @@ import type {
   RoomPlayer,
   SimulationSettings,
 } from "@/types";
-import { fundChoice } from "../../lib/fund-preparation";
+import { fundChoice, groupLocks, hasExclusiveGroups, type GroupLocks } from "../../lib/fund-preparation";
 import { FundComanagerInvites } from "./fund-comanager-invites";
 import { FundFoundTab } from "./fund-found-tab";
 import { FundNoneTab } from "./fund-none-tab";
@@ -64,6 +64,7 @@ export function FundTab(props: FundTabProps) {
   }
 
   const locked = preparations.fund_locked_reason !== null;
+  const locks = groupLocks(rules, preparations, mine, nickname);
   const lead = (
     <>
       {/* Travas da sala */}
@@ -86,7 +87,21 @@ export function FundTab(props: FundTabProps) {
       )}
 
       {/* Convites de co-gestão */}
-      {!locked && <FundComanagerInvites invites={mine.fund_comanager_invites} />}
+      {!locked && (
+        <FundComanagerInvites
+          invites={mine.fund_comanager_invites}
+          acceptLock={locks.accept}
+          exclusiveGroups={hasExclusiveGroups(rules)}
+        />
+      )}
+
+      {/* Quem é co-gestor aceito já está num grupo */}
+      {!locked && locks.found && (
+        <Alert variant="muted">
+          <Lock />
+          <AlertDescription>{locks.found}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Escolha */}
       <ToggleGroup
@@ -97,7 +112,7 @@ export function FundTab(props: FundTabProps) {
         disabled={locked}
         className="w-full"
       >
-        <ToggleGroupItem value="FOUND" className="flex-1">
+        <ToggleGroupItem value="FOUND" className="flex-1" disabled={locks.found !== null}>
           Fundar a minha gestora
         </ToggleGroupItem>
         <ToggleGroupItem value="NONE" className="flex-1">
@@ -107,7 +122,7 @@ export function FundTab(props: FundTabProps) {
     </>
   );
 
-  const tab = { ...props, lead, locked, onMode: setMode };
+  const tab = { ...props, lead, locked, locks, onMode: setMode };
   return mode === "FOUND" ? <FundFoundTab {...tab} /> : <FundNoneTab {...tab} />;
 }
 
@@ -116,5 +131,7 @@ export type FundModeProps = FundTabProps & {
   /** Travas e a escolha, no topo do corpo */
   lead: React.ReactNode;
   locked: boolean;
+  /** O que o grupo do jogador trava na aba */
+  locks: GroupLocks;
   onMode: (mode: FundChoice) => void;
 };

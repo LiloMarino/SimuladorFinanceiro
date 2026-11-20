@@ -55,7 +55,7 @@ function TeamPullerCard({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="flex items-center gap-2.5">
           <span className="font-mono text-sm text-muted-foreground">{team.position}º</span>
-          <TeamBadge team={team.team} naming={naming} form="full" />
+          <TeamBadge team={team.team} naming={naming} name={team.name} form="full" />
           {winner && (
             <Badge variant="warning">
               <Trophy />
@@ -71,8 +71,8 @@ function TeamPullerCard({
 
       {members.length < 2 ? (
         <p className="rounded-lg bg-subtle p-3.5 text-[13px] text-muted-foreground">
-          A {teamName(team.team, naming)} é só {members[0]?.player_nickname}: equipe de um conta o valor da própria
-          pessoa.
+          A {teamName(team.team, naming, team.name)} é só {members[0]?.player_nickname}: equipe de um conta o valor da
+          própria pessoa.
         </p>
       ) : (
         <>
@@ -86,7 +86,7 @@ function TeamPullerCard({
               />
               <div className="grid gap-0.5">
                 <span className="text-xs font-medium text-(--team)">
-                  Quem mais puxou a {teamShortName(team.team, naming)}
+                  Quem mais puxou a {teamShortName(team.team, naming, team.name)}
                 </span>
                 <span className="font-mono font-semibold">
                   {pullerPlayer.player_nickname} · {displayCriterionValue(criterion, pullerPlayer.criterion_value)}

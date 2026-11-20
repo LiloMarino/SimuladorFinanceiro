@@ -13,6 +13,7 @@ import {
 import { ErrorState } from "@/shared/components/error-state";
 import { useAuth } from "@/shared/hooks/useAuth";
 import type ApiError from "@/shared/lib/models/ApiError";
+import { teamNameLookup } from "@/shared/lib/teams";
 import { useSimulationList } from "@/shared/hooks/queries/useSimulationList";
 import { BacktestResultView } from "../components/backtest-result/backtest-result-view";
 import { HighlightsRow, HighlightsSkeleton } from "../components/match-result/highlights-row";
@@ -154,6 +155,7 @@ function MatchResult({ simulationId }: { simulationId: number }) {
                 : undefined
             }
             teamNaming={overview.team_naming}
+            teamNameOf={teamNameLookup(overview.teams)}
           />
           <MatchAchievements simulationId={simulationId} />
         </>

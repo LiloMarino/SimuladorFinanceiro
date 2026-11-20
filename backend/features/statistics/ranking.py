@@ -31,6 +31,7 @@ def build_overview(
     goal_steps: list[SeriesPointDTO] | None = None,
     in_teams: bool = False,
     team_naming: TeamNaming = TeamNaming.COLOR,
+    team_names: dict[int, str] | None = None,
     delinquent: frozenset[tuple[int, str]] = frozenset(),
     eliminated: frozenset[tuple[int, str]] = frozenset(),
     unexpected: dict[tuple[int, str], int] | None = None,
@@ -53,7 +54,8 @@ def build_overview(
 
     Em equipes, o valor da equipe em cada critério é a média dos membros e a
     equipe com a melhor média vence; o patrimônio médio desempata. Na meta, a
-    média das frações é o patrimônio médio ÷ meta.
+    média das frações é o patrimônio médio ÷ meta. A equipe eliminada (todos os
+    membros em `eliminated`) fica abaixo das que seguem de pé.
     """
     measure = _measure(criterion, game_type)
     performances = sorted(
@@ -63,7 +65,11 @@ def build_overview(
     )
 
     by_score = game_type is GameType.CLASSIC and criterion is VictoryCriterion.SCORE
-    teams = _rank_teams(performances, measure, by_score) if in_teams else []
+    teams = (
+        _rank_teams(performances, measure, by_score, eliminated, team_names or {})
+        if in_teams
+        else []
+    )
     contributions = {
         (member.simulation_id, member.player_nickname): contribution
         for team in teams
@@ -159,7 +165,11 @@ class _RankedTeam:
 
 
 def _rank_teams(
-    performances: list[Performance], measure: Measure, by_score: bool
+    performances: list[Performance],
+    measure: Measure,
+    by_score: bool,
+    eliminated: frozenset[tuple[int, str]],
+    names: dict[int, str],
 ) -> list[_RankedTeam]:
     groups: dict[int, list[Performance]] = defaultdict(list)
     for performance in performances:
@@ -170,8 +180,15 @@ def _rank_teams(
         (team, members, _team_value(measure, members), _team_networth(members))
         for team, members in groups.items()
     ]
+    standing = {
+        team: not all(
+            (m[0].simulation_id, m[0].player_nickname) in eliminated for m in members
+        )
+        for team, members, _, _ in aggregates
+    }
     aggregates.sort(
-        key=lambda a: (a[2] is not None, a[2] or Decimal(0), a[3]), reverse=True
+        key=lambda a: (standing[a[0]], a[2] is not None, a[2] or Decimal(0), a[3]),
+        reverse=True,
     )
     leader_value = aggregates[0][2] if aggregates else None
 
@@ -185,6 +202,7 @@ def _rank_teams(
             _RankedTeam(
                 TeamRankingDTO(
                     team=team,
+                    name=names.get(team),
                     simulation_id=members[0][0].simulation_id,
                     position=position,
                     members=len(members),

@@ -39,6 +39,8 @@ type LobbyPlayersListProps = {
   selectedSimulationId: number | null;
   /** Como a sala joga e como as equipes se chamam */
   grouping: PlayerGrouping;
+  /** Cada jogador escolhe a própria equipe no cartão */
+  teamPicker: boolean;
   naming: TeamNaming;
   /** Viver de renda com profissões: cada cartão mostra a profissão; a escolha fica na Minha preparação */
   professions: boolean;
@@ -55,6 +57,7 @@ export function LobbyPlayersList({
   savedPlayers,
   selectedSimulationId,
   grouping,
+  teamPicker,
   naming,
   professions,
   professionRules,
@@ -69,7 +72,7 @@ export function LobbyPlayersList({
   const simulationName = savedSimulations?.find((s) => s.id === selectedSimulationId)?.name;
 
   // Em equipes, quem vê vem primeiro; depois o host e quem joga, em ordem alfabética
-  const inTeams = grouping === "TEAMS";
+  const inTeams = teamPicker;
   const rank = (nickname: string) =>
     Number(inTeams && nickname === user?.nickname) * 2 + Number(nickname === hostNickname);
   // Pessoas primeiro; os bots vêm depois, na ordem em que entraram
@@ -319,7 +322,7 @@ export function LobbyPlayersList({
         open={botDialog !== null}
         onOpenChange={(open) => !open && setBotDialog(null)}
         bot={botDialog?.bot}
-        grouping={grouping}
+        teamPicker={teamPicker}
         naming={naming}
         professions={professions ? availableBotProfessions(professionRules) : null}
         freeSlots={freeSlots}

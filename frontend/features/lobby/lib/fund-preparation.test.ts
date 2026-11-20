@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
-import type { Preparations } from "@/types";
+import type { MyPreparation, Preparations } from "@/types";
 import {
   fundChoice,
   fundFormSchema,
   fundFromForm,
   fundTabBadge,
   fundToForm,
+  groupLocks,
   hasFundConflict,
   nameOwners,
   rivalFunds,
@@ -135,5 +136,42 @@ describe("selo e escolha da aba", () => {
     expect(fundTabBadge(true, base([bia]), "Ana")).toBeNull();
     expect(fundChoice(base([bia]), "Ana")).toBe("NONE");
     expect(fundChoice(base([aurora]), "Ana")).toBe("FOUND");
+  });
+});
+
+describe("travas de grupo na aquisição hostil em equipes", () => {
+  const teams = { game_type: "FUND_TAKEOVER", player_grouping: "TEAMS" } as const;
+  const noInvites = { fund_comanager_invites: [] } as unknown as MyPreparation;
+  const accepted = {
+    fund_comanager_invites: [{ owner: "Ana", fund_name: "Aurora Gestão", share: "0.2", accepted: true }],
+  } as unknown as MyPreparation;
+  const pending = {
+    fund_comanager_invites: [{ owner: "Ana", fund_name: "Aurora Gestão", share: "0.2", accepted: false }],
+  } as unknown as MyPreparation;
+
+  it("quem é co-gestor aceito não funda nem aceita outro convite", () => {
+    const locks = groupLocks(teams, base([aurora]), accepted, "Bia");
+    expect(locks.found).toBe("Você já é co-gestor de uma gestora: quem está num grupo não funda outra.");
+    expect(locks.accept).toBe("Você já é co-gestor de uma gestora: quem está num grupo não aceita outro convite.");
+  });
+
+  it("quem funda não aceita convite, e fundar segue valendo para ele", () => {
+    const locks = groupLocks(teams, base([aurora, bia]), pending, "Bia");
+    expect(locks.found).toBeNull();
+    expect(locks.accept).toBe("Você funda uma gestora: quem está num grupo não aceita outro convite.");
+  });
+
+  it("quem está sem grupo, com ou sem convite pendente, fica livre", () => {
+    expect(groupLocks(teams, base([aurora]), pending, "Bia")).toEqual({ found: null, accept: null });
+    expect(groupLocks(teams, base([aurora]), noInvites, "Bia")).toEqual({ found: null, accept: null });
+  });
+
+  it("fora da aquisição hostil em equipes nada trava", () => {
+    const individual = { game_type: "FUND_TAKEOVER", player_grouping: "INDIVIDUAL" } as const;
+    expect(groupLocks(individual, base([aurora]), accepted, "Bia")).toEqual({ found: null, accept: null });
+    expect(groupLocks({ game_type: "CLASSIC", player_grouping: "TEAMS" }, base([aurora]), accepted, "Bia")).toEqual({
+      found: null,
+      accept: null,
+    });
   });
 });

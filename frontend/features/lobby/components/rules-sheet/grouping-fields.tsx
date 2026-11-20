@@ -60,7 +60,7 @@ export function GroupingFields({ form, readOnly, grouping, gameType }: GroupingF
                   <RadioGroupItem
                     value={option.value}
                     id={`grouping-${option.value}`}
-                    disabled={option.value === "TEAMS" && (gameType === "POLITICAL" || gameType === "FUND_TAKEOVER")}
+                    disabled={option.value === "TEAMS" && gameType === "POLITICAL"}
                   />
                   <FieldContent>
                     <FieldTitle>
@@ -78,16 +78,20 @@ export function GroupingFields({ form, readOnly, grouping, gameType }: GroupingF
       {gameType === "POLITICAL" && (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Lock className="size-3.5" />
-          Em equipes fica indisponível: na Política, os partidos já são os times.
+          Em equipes fica indisponível: na Política a equipe é o partido, e quem está no partido vencedor vence junto.
         </div>
       )}
-      {gameType === "FUND_TAKEOVER" && (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Lock className="size-3.5" />
-          Em equipes fica indisponível: na aquisição hostil vence um único jogador.
-        </div>
+      {grouping === "TEAMS" && gameType === "FUND_TAKEOVER" && (
+        <Alert variant="info">
+          <Info />
+          <AlertTitle>A equipe é a gestora</AlertTitle>
+          <AlertDescription>
+            Cada jogador funda uma gestora ou é co-gestor de uma, e a equipe leva o nome dela. Tomar a gestora de outra
+            equipe elimina a equipe inteira; vence a última de pé, ou a de maior patrimônio médio na data final.
+          </AlertDescription>
+        </Alert>
       )}
-      {grouping === "TEAMS" && (
+      {grouping === "TEAMS" && gameType !== "FUND_TAKEOVER" && (
         <>
           <Controller
             control={form.control}

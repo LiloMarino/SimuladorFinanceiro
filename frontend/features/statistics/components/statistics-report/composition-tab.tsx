@@ -59,7 +59,7 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
   const naming = data.team_naming;
   const groups = groupByTeam(
     data.players,
-    data.teams.map((t) => t.team),
+    data.teams.map((t) => ({ team: t.team, name: t.name })),
   );
   const teamOf = (team: number | null) => data.teams.find((t) => t.team === team);
 
@@ -99,7 +99,12 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
             {groups.map((group) => (
               <div key={group.team ?? "all"} className="grid gap-3">
                 {group.team !== null && (
-                  <TeamGroupHeader team={group.team} naming={naming} composition={teamOf(group.team)} />
+                  <TeamGroupHeader
+                    team={group.team}
+                    naming={naming}
+                    name={group.name}
+                    composition={teamOf(group.team)}
+                  />
                 )}
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {group.players.map((p) => {
@@ -146,10 +151,12 @@ type Groups = ReturnType<typeof groupByTeam<CompositionPlayer>>;
 function TeamGroupHeader({
   team,
   naming,
+  name,
   composition,
 }: {
   team: number;
   naming: TeamNaming;
+  name: string | null;
   composition: TeamComposition | undefined;
 }) {
   const share = (value: string | null | undefined) =>
@@ -159,7 +166,7 @@ function TeamGroupHeader({
       className="flex flex-wrap items-center gap-3 border-l-[3px] border-(--team) pl-3"
       style={{ "--team": teamColor(team) } as CSSProperties}
     >
-      <TeamBadge team={team} naming={naming} form="full" />
+      <TeamBadge team={team} naming={naming} name={name} form="full" />
       {composition && (
         <span className="text-xs text-muted-foreground">
           média: <span className="text-chart-3">{share(composition.cash_share)} caixa</span> ·{" "}
@@ -312,7 +319,7 @@ function SectorExposure({
                 {group.team !== null && (
                   <TableRow variant="team" style={{ "--team": teamColor(group.team) } as CSSProperties}>
                     <TableCell colSpan={sectors.length + 2}>
-                      <TeamBadge team={group.team} naming={naming} form="full" />
+                      <TeamBadge team={group.team} naming={naming} name={group.name} form="full" />
                     </TableCell>
                   </TableRow>
                 )}
@@ -412,7 +419,7 @@ function SectorProfit({
                   className="border-l-[3px] border-(--team) pl-3"
                   style={{ "--team": teamColor(group.team) } as CSSProperties}
                 >
-                  <TeamBadge team={group.team} naming={naming} form="full" />
+                  <TeamBadge team={group.team} naming={naming} name={group.name} form="full" />
                 </div>
               )}
               <div className="grid gap-4 md:grid-cols-2">

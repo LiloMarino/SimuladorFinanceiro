@@ -78,7 +78,7 @@ function JoinMatchContent({ match, players }: JoinMatchContentProps) {
   const { mutate: join, isPending, error, reset } = useJoinMatch();
   const [choice, setChoice] = useState<string | null>(null);
   // Em equipes a escolha é obrigatória e não tem padrão: quem entra decide em qual equipe joga
-  const inTeams = match.player_grouping === "TEAMS";
+  const inTeams = match.player_grouping === "TEAMS" && match.game_type !== "FUND_TAKEOVER";
   const [team, setTeam] = useState<number | null>(null);
   // Com profissões a escolha também é obrigatória: quem entra decide o que faz da vida
   const withProfessions = match.game_type === "FINANCIAL_INDEPENDENCE" && match.salary_mode === "PROFESSIONS";

@@ -17,7 +17,7 @@ from backend.core.dto.statistics_report import (
     ReturnSourcesDTO,
     SeriesPointDTO,
 )
-from backend.core.enum import PlayerGrouping, TeamNaming, VictoryCriterion
+from backend.core.enum import GameType, PlayerGrouping, TeamNaming, VictoryCriterion
 from backend.features.statistics.ranking import build_overview
 from backend.features.statistics.score import MIN_SCORE_DAYS, score_history
 from backend.features.statistics.teams import (
@@ -357,3 +357,80 @@ def test_report_says_it_is_in_teams_even_without_players():
     assert report.teams == []
     assert report.player_grouping is PlayerGrouping.TEAMS
     assert build_overview([]).player_grouping is PlayerGrouping.INDIVIDUAL
+
+
+def test_takeover_teams_rank_by_the_mean_net_worth_not_the_sum():
+    """Três de R$ 12.000 somam R$ 36.000, mas a média é R$ 12.000; a equipe de um só com R$ 15.000 vence."""
+    report = build_overview(
+        [
+            member("Ana", 1, "12000"),
+            member("Bia", 1, "12000"),
+            member("Caio", 1, "12000"),
+            member("Duda", 2, "15000"),
+        ],
+        game_type=GameType.FUND_TAKEOVER,
+        in_teams=True,
+    )
+
+    assert [t.team for t in report.teams] == [2, 1]
+
+
+def test_an_eliminated_takeover_team_ranks_below_the_ones_still_standing():
+    """A equipe 2 perdeu a gestora com patrimônio maior congelado e fica abaixo da equipe 1, que segue de pé."""
+    report = build_overview(
+        [
+            member("Ana", 1, "11000"),
+            member("Bia", 1, "11000"),
+            member("Caio", 2, "20000"),
+            member("Duda", 2, "20000"),
+        ],
+        game_type=GameType.FUND_TAKEOVER,
+        in_teams=True,
+        eliminated=frozenset({(1, "Caio"), (1, "Duda")}),
+    )
+
+    assert [t.team for t in report.teams] == [1, 2]
+
+
+def test_a_team_with_one_member_still_standing_is_not_eliminated():
+    """A média da equipe 1 (R$ 20.500) perde para a da 2 (R$ 25.000) só pelo valor, sem cair para o fim."""
+    report = build_overview(
+        [
+            member("Ana", 1, "11000"),
+            member("Bia", 1, "30000"),
+            member("Caio", 2, "25000"),
+        ],
+        game_type=GameType.FUND_TAKEOVER,
+        in_teams=True,
+        eliminated=frozenset({(1, "Bia")}),
+    )
+
+    assert [t.team for t in report.teams] == [2, 1]
+
+
+def test_the_team_carries_the_name_of_its_gestora():
+    """No ranking e nas séries a equipe sai com o nome da gestora; sem nome combinado vem nulo."""
+    players = [member("Ana", 1, "12000"), member("Bia", 2, "11000")]
+
+    named = build_overview(players, in_teams=True, team_names={1: "Aurora"})
+    unnamed = build_overview(players, in_teams=True)
+
+    assert {t.team: t.name for t in named.teams} == {1: "Aurora", 2: None}
+    assert [t.name for t in unnamed.teams] == [None, None]
+
+    ana = players[0]
+    [series] = team_score_history(
+        [
+            PlayerScoreHistoryDTO(
+                player_nickname=ana.player_nickname,
+                color=ana.color,
+                simulation_id=ana.simulation_id,
+                simulation_name=ana.simulation_name,
+                team=ana.team,
+                is_bot=ana.is_bot,
+                points=[],
+            )
+        ],
+        {1: "Aurora"},
+    )
+    assert series.name == "Aurora"

@@ -46,7 +46,7 @@ export function LineChartLegend({ series, visible, toggle }: Props) {
             />
             {label}
             {head.team?.index ? (
-              <TeamBadge team={head.team.index} naming={head.team.naming} form="icon" size="sm" />
+              <TeamBadge team={head.team.index} naming={head.team.naming} name={head.team.name} form="icon" size="sm" />
             ) : null}
           </Toggle>
         );

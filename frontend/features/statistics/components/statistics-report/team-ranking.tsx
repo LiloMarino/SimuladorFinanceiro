@@ -10,7 +10,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
-import { teamColor, teamName } from "@/shared/lib/teams";
+import { teamColor, teamName, teamNameLookup } from "@/shared/lib/teams";
 import { cn } from "@/shared/lib/utils";
 import { displayNumber, displaySignedMoney, displaySignedPercent } from "@/shared/lib/utils/display";
 import { GOAL_PERCENT, GOAL_REMAINING } from "@/shared/lib/goal-metrics";
@@ -45,6 +45,7 @@ export function TeamHeadline({
   finished: boolean;
 }) {
   const { players, teams, average_return, team_naming, goal_net_worth } = report;
+  const nameOf = teamNameLookup(teams);
   const measure = rankingMeasure(report);
   const you = players.find((p) => p.player_nickname === currentPlayerName);
   const mine = teams.find((t) => t.team === you?.team);
@@ -77,7 +78,7 @@ export function TeamHeadline({
             <div className="grid gap-1">
               <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                 {mine ? "Sua equipe" : "Equipe líder"}
-                <TeamBadge team={subject.team} naming={team_naming} size="sm" />· vitória por{" "}
+                <TeamBadge team={subject.team} naming={team_naming} name={subject.name} size="sm" />· vitória por{" "}
                 <b className="text-foreground">{criterionLabel(report)}</b> · média dos membros
               </span>
               <span className="text-lg font-semibold">
@@ -101,7 +102,7 @@ export function TeamHeadline({
                     <b className="font-mono text-foreground">
                       {displayCriterionGap(measure, next.leader_gap, goal_net_worth)}
                     </b>{" "}
-                    à frente da {teamName(next.team, team_naming)}.{" "}
+                    à frente da {teamName(next.team, team_naming, next.name)}.{" "}
                   </>
                 )}
                 {next && subject.position > 1 && (
@@ -110,7 +111,7 @@ export function TeamHeadline({
                     <b className="text-foreground">
                       {displayCriterionGap(measure, subject.leader_gap, goal_net_worth)}
                     </b>{" "}
-                    {finished ? "atrás da" : "pra passar a"} {teamName(next.team, team_naming)} (1ª).{" "}
+                    {finished ? "atrás da" : "pra passar a"} {teamName(next.team, team_naming, next.name)} (1ª).{" "}
                   </>
                 )}
                 {mine && you && you.team_contribution !== null && Number(you.team_contribution) !== 0 && (
@@ -139,7 +140,13 @@ export function TeamHeadline({
                 {k.player ? (
                   <>
                     {k.player.player_nickname}
-                    <TeamBadge team={k.player.team} naming={team_naming} form="icon" size="sm" />
+                    <TeamBadge
+                      team={k.player.team}
+                      naming={team_naming}
+                      name={nameOf(k.player.team)}
+                      form="icon"
+                      size="sm"
+                    />
                   </>
                 ) : (
                   `${players.length} jogadores`
@@ -189,7 +196,7 @@ export function TeamRanking({
   const topScore = Math.max(...report.teams.map((t) => Number(t.score?.total ?? 0)), 1);
   const sorting = useTableSort(report.teams, {
     position: (t) => t.position,
-    name: (t) => teamName(t.team, report.team_naming),
+    name: (t) => teamName(t.team, report.team_naming, t.name),
     score: (t) => sortNumber(goalRace ? t.criterion_value : t.score?.total),
     wealth: (t) => sortNumber(t.total_networth),
     return: (t) => sortNumber(t.return_percent),
@@ -317,7 +324,7 @@ function TeamRows({
         <TableCell>
           <span className="flex items-center gap-2.5">
             <ChevronDown className={cn("size-4 text-muted-foreground transition-transform", !open && "-rotate-90")} />
-            <TeamBadge team={team.team} naming={naming} form="full" />
+            <TeamBadge team={team.team} naming={naming} name={team.name} form="full" />
             <span className="flex -space-x-1.5">
               {members.map((m) => (
                 <PlayerAvatar

@@ -60,7 +60,7 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
     sortTableRows(
       data.teams,
       {
-        player: (t) => teamName(t.team, data.team_naming),
+        player: (t) => teamName(t.team, data.team_naming, t.name),
         trades: (t) => t.buy_trades + t.sell_trades,
         volume: (t) => sortNumber(t.traded_volume),
         turnover: (t) => sortNumber(t.turnover),
@@ -68,7 +68,7 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
         impact: (t) => sortNumber(t.impact_cost),
       },
       sorting.sort,
-    ).map((t) => t.team),
+    ).map((t) => ({ team: t.team, name: t.name })),
   );
   const teamOf = (team: number | null) => data.teams.find((t) => t.team === team);
 
@@ -136,7 +136,7 @@ export function OperationsTab({ simulationIds, currentPlayerName, onlyPlayer }: 
                     <TableRow variant="team" style={teamStyle}>
                       <TableCell>
                         <span className="flex items-center gap-2.5">
-                          <TeamBadge team={group.team} naming={naming} form="full" />
+                          <TeamBadge team={group.team} naming={naming} name={group.name} form="full" />
                           <span className="text-xs font-normal text-muted-foreground">total da equipe</span>
                         </span>
                       </TableCell>
@@ -255,7 +255,7 @@ function VolumeHeatmap({
   currentPlayerName,
 }: {
   players: OperationsPlayer[];
-  groups: { team: number | null; players: OperationsPlayer[] }[];
+  groups: { team: number | null; name: string | null; players: OperationsPlayer[] }[];
   naming: TeamNaming;
   teams: TeamOperations[];
   simulationIds: number[];
@@ -316,7 +316,7 @@ function VolumeHeatmap({
                       className="col-span-full mt-2 flex items-center gap-2.5 border-l-[3px] border-(--team) pl-3 text-xs text-muted-foreground"
                       style={{ "--team": teamColor(group.team) } as CSSProperties}
                     >
-                      <TeamBadge team={group.team} naming={naming} form="full" />
+                      <TeamBadge team={group.team} naming={naming} name={group.name} form="full" />
                       total da equipe{" "}
                       <b className="font-mono text-foreground">
                         {displayMoneyCompact(
@@ -361,7 +361,7 @@ function VolumeHeatmap({
                               </TooltipTrigger>
                               <TooltipContent>
                                 {label}
-                                {group.team !== null && ` · ${teamName(group.team, naming)}`} ·{" "}
+                                {group.team !== null && ` · ${teamName(group.team, naming, group.name)}`} ·{" "}
                                 {displayMonthSlashYear(month)}
                                 <br />
                                 {entry && volume

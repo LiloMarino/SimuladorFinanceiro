@@ -327,6 +327,7 @@ class FundBook:
         manager_cap: Decimal | None = None,
         automatic: Callable[[UUID], bool] | None = None,
         stop_automatic: Callable[[Fund, str], None] | None = None,
+        teams: Callable[[], dict[int, int]] | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
@@ -339,20 +340,21 @@ class FundBook:
         self._stop_automatic = stop_automatic or (lambda _fund, _reason: None)
         # Os jogadores e bots da partida, lidos a cada consulta
         self.participants = participants or (lambda: [])
+        # Na aquisição hostil em equipes, a equipe de cada jogador (por id de usuário), lida a
+        # cada consulta; nulo fora dela. Com ela, a equipe é a gestora e os times são fixos
+        self._teams = teams
         # No modo aquisição hostil, a fração das cotas que o gestor mantém depois da carência;
         # nulo sem o modo
         self._manager_cap = manager_cap
         # A ordem de venda das cotas do gestor acima do limite, por ticker
         self._takeover_orders: dict[str, LimitOrder] = {}
-        # No modo aquisição hostil, o dia em que cada fundador perdeu a assembleia da própria
-        # gestora e passou a só assistir, por id de usuário
+        # No modo aquisição hostil, o dia em que cada fundador (e, em equipes, a equipe dele)
+        # perdeu a assembleia da própria gestora e passou a só assistir, por id de usuário
         self._eliminated: dict[int, date] = {}
         if manager_cap is not None:
             self._eliminated = {
                 user_id: day
-                for _, user_id, _, day in repository.fund.founder_removals(
-                    [simulation_id]
-                )
+                for _, user_id, _, day in repository.fund.eliminations([simulation_id])
             }
         self._funds: dict[str, Fund] = {}
         # As gestoras incorporadas por fusão, por id: saíram do mercado e só guardam o nome
@@ -1273,6 +1275,7 @@ class FundBook:
         """Convoca a assembleia de troca de gestor; com o próprio convocador indicado a votação abre já."""
         fund = self._funds[ticker]
         today = self._engine.current_date
+        self._ensure_other_team(fund, convener, candidate_nickname)
         self._assemblies.convene(fund, convener, candidate_nickname, today)
         self._announce_voting_opened(fund, today)
 
@@ -1761,6 +1764,7 @@ class FundBook:
         )
         # A fusão depende da outra gestora: o bloqueio dela vem daqui
         block, next_allowed = self.merge_block(fund, viewer)
+        own_team = self._on_managers_team(fund, viewer)
         options = [
             FundAssemblyOptionDTO(
                 agenda=MERGE,
@@ -1769,6 +1773,8 @@ class FundBook:
                 next_allowed_on=next_allowed,
             )
             if option.agenda is MERGE
+            else option.model_copy(update={"can_convene": False, "block": "team"})
+            if option.agenda is SWAP and own_team
             else option
             for option in panel.options
         ]
@@ -1793,6 +1799,7 @@ class FundBook:
         self, ticker: str, nickname: str, share: Decimal
     ) -> FundComanagerDTO:
         """O principal convida um jogador a co-gestor, reservando a parte dele nas taxas."""
+        self._ensure_teams_open()
         return self._comanagers.invite(
             self._funds[ticker], nickname, share, self._engine.current_date
         )
@@ -1811,6 +1818,7 @@ class FundBook:
         Com a gestora congelada pela presidência do principal, o co-gestor que aceita assume
         na hora, com o presidente em licença, e a carteira descongela.
         """
+        self._ensure_teams_open()
         fund = self._funds[ticker]
         answered = self._comanagers.answer(
             fund, user, accept, self._engine.current_date
@@ -1834,6 +1842,7 @@ class FundBook:
 
     def remove_comanager(self, ticker: str, user_id: int) -> FundComanagerDTO:
         """O principal tira o co-gestor ou retira o convite; o acesso acaba no mesmo pregão."""
+        self._ensure_teams_open()
         fund = self._funds[ticker]
         removed = self._comanagers.remove(fund, user_id, self._engine.current_date)
         self._directed.cancel_of(fund, user_id)
@@ -1841,6 +1850,7 @@ class FundBook:
 
     def leave_comanagement(self, ticker: str, user: UserDTO) -> None:
         """O co-gestor deixa a gestão; o acesso acaba no mesmo pregão."""
+        self._ensure_teams_open()
         fund = self._funds[ticker]
         self._comanagers.leave(fund, user, self._engine.current_date)
         self._directed.cancel_of(fund, user.id)
@@ -1912,6 +1922,8 @@ class FundBook:
         names = self._nicknames()
         if assembly.status is FundAssemblyStatus.REPLACED:
             self._replace_manager(fund, candidate_id)
+            if self._teams is not None:
+                self._release_comanagers(fund, today)
             self._announce(
                 today,
                 headlines.assembly_replaced(
@@ -1968,12 +1980,14 @@ class FundBook:
             )
 
     def _eliminate(self, user_id: int, lost: Fund, today: date) -> None:
-        """Quem perde a assembleia da gestora que fundou sai da disputa: as ordens dele saem do
-        livro e as outras gestoras que ele gere passam ao maior cotista ativo de cada uma."""
-        self._eliminated.setdefault(user_id, today)
-        self._engine.matching_engine.cancel_all(self._client_of_user(user_id))
+        """Quem perde a assembleia da gestora que fundou sai da disputa, e em equipes a equipe
+        inteira com ele: as ordens saem do livro e as outras gestoras que gerem passam ao maior
+        cotista ativo de cada uma."""
+        for loser in self._team_of(user_id):
+            self._eliminated.setdefault(loser, today)
+            self._engine.matching_engine.cancel_all(self._client_of_user(loser))
         for fund in self._funds.values():
-            if fund is lost or fund.terms.manager_user_id != user_id:
+            if fund is lost or fund.terms.manager_user_id not in self._eliminated:
                 continue
             holders = {
                 holder: size
@@ -1982,6 +1996,21 @@ class FundBook:
             }
             if holders:
                 self._replace_manager(fund, max(holders, key=lambda h: holders[h]))
+
+    def _team_of(self, user_id: int) -> set[int]:
+        """O jogador e, em equipes, os colegas de equipe dele."""
+        if self._teams is None:
+            return {user_id}
+        teams = self._teams()
+        team = teams.get(user_id)
+        return {user_id} | {
+            u for u, t in teams.items() if team is not None and t == team
+        }
+
+    def _release_comanagers(self, fund: Fund, today: date) -> None:
+        """A gestora tomada perde os co-gestores da equipe que a perdeu: perdem o posto."""
+        for comanager in list(fund.comanagers):
+            self._comanagers.remove(fund, comanager.user_id, today)
 
     def _replace_manager(self, fund: Fund, manager_user_id: int) -> None:
         """O candidato assume: as ordens do gestor afastado saem do livro e a recompra dele cai.
@@ -2010,6 +2039,37 @@ class FundBook:
         )
         self._engine.matching_engine.cancel_all(fund.account.client_id)
         self._finish_buyback(fund, "canceled")
+
+    def _ensure_teams_open(self) -> None:
+        """Na aquisição hostil em equipes os co-gestores são os do lobby até o fim da partida."""
+        if self._teams is not None:
+            raise ConflictError(
+                "Na aquisição hostil em equipes os times são fixos: não há convite, saída nem remoção de co-gestor."
+            )
+
+    def _on_managers_team(self, fund: Fund, user: UserDTO) -> bool:
+        """Em equipes, `user` é da equipe de quem gere a gestora."""
+        if self._teams is None:
+            return False
+        teams = self._teams()
+        owner_team = teams.get(fund.terms.manager_user_id)
+        return owner_team is not None and teams.get(user.id) == owner_team
+
+    def _ensure_other_team(
+        self, fund: Fund, convener: UserDTO, candidate_nickname: str | None
+    ) -> None:
+        """Em equipes a assembleia serve para tomar a gestora de outra equipe: quem é da equipe de quem gere a gestora não convoca nela nem é o indicado."""
+        if self._teams is None:
+            return
+        candidate = next(
+            (u for u in self.participants() if u.nickname == candidate_nickname), None
+        )
+        for member in (convener, candidate):
+            if member is not None and self._on_managers_team(fund, member):
+                raise ConflictError(
+                    "Em equipes a assembleia serve para tomar a gestora de outra equipe: "
+                    "quem é da equipe da gestora não convoca nela nem é o indicado."
+                )
 
     def _nicknames(self) -> dict[int, str]:
         return {user.id: user.nickname for user in self.participants()}

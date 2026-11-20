@@ -7961,7 +7961,7 @@ export interface components {
          */
         FundAssemblyAgenda: "REPLACE_MANAGER" | "FEE_INCREASE" | "MERGE";
         /** @enum {string} */
-        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace" | "manager_only" | "no_partner" | "busy" | "frozen" | "swap_open" | "merge_open";
+        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace" | "manager_only" | "no_partner" | "busy" | "frozen" | "swap_open" | "merge_open" | "team";
         /** FundAssemblyConveneRequest */
         FundAssemblyConveneRequest: {
             /** Candidate Nickname */
@@ -9487,6 +9487,8 @@ export interface components {
             color: string;
             /** Team */
             team: number | null;
+            /** Team Name */
+            team_name: string | null;
             /** Networth */
             networth: string;
         };
@@ -15212,6 +15214,8 @@ export interface components {
         TeamCompositionDTO: {
             /** Team */
             team: number;
+            /** Name */
+            name: string | null;
             /** Simulation Id */
             simulation_id: number;
             /** Members */
@@ -15236,6 +15240,8 @@ export interface components {
         TeamOperationsDTO: {
             /** Team */
             team: number;
+            /** Name */
+            name: string | null;
             /** Simulation Id */
             simulation_id: number;
             /** Members */
@@ -15277,6 +15283,8 @@ export interface components {
         TeamRankingDTO: {
             /** Team */
             team: number;
+            /** Name */
+            name: string | null;
             /** Simulation Id */
             simulation_id: number;
             /** Position */
@@ -15308,6 +15316,8 @@ export interface components {
         TeamReturnsDTO: {
             /** Team */
             team: number;
+            /** Name */
+            name: string | null;
             /** Simulation Id */
             simulation_id: number;
             /** Members */
@@ -15334,6 +15344,8 @@ export interface components {
         TeamRiskDTO: {
             /** Team */
             team: number;
+            /** Name */
+            name: string | null;
             /** Simulation Id */
             simulation_id: number;
             /** Members */
@@ -15360,6 +15372,8 @@ export interface components {
         TeamScoreHistoryDTO: {
             /** Team */
             team: number;
+            /** Name */
+            name: string | null;
             /** Simulation Id */
             simulation_id: number;
             /** Points */

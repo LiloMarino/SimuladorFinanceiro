@@ -67,10 +67,13 @@ def mean_series(series: list[list[SeriesPointDTO]]) -> list[SeriesPointDTO]:
     ]
 
 
-def team_returns(players: list[PlayerReturnsDTO]) -> list[TeamReturnsDTO]:
+def team_returns(
+    players: list[PlayerReturnsDTO], names: dict[int, str] | None = None
+) -> list[TeamReturnsDTO]:
     return [
         TeamReturnsDTO(
             team=team,
+            name=(names or {}).get(team),
             simulation_id=members[0].simulation_id,
             members=len(members),
             networth=mean_series([m.networth for m in members]),
@@ -86,11 +89,12 @@ def team_returns(players: list[PlayerReturnsDTO]) -> list[TeamReturnsDTO]:
 
 
 def team_score_history(
-    players: list[PlayerScoreHistoryDTO],
+    players: list[PlayerScoreHistoryDTO], names: dict[int, str] | None = None
 ) -> list[TeamScoreHistoryDTO]:
     return [
         TeamScoreHistoryDTO(
             team=team,
+            name=(names or {}).get(team),
             simulation_id=members[0].simulation_id,
             points=mean_series([m.points for m in members]),
         )
@@ -98,10 +102,13 @@ def team_score_history(
     ]
 
 
-def team_risk(players: list[PlayerRiskDTO]) -> list[TeamRiskDTO]:
+def team_risk(
+    players: list[PlayerRiskDTO], names: dict[int, str] | None = None
+) -> list[TeamRiskDTO]:
     return [
         TeamRiskDTO(
             team=team,
+            name=(names or {}).get(team),
             simulation_id=members[0].simulation_id,
             members=len(members),
             max_drawdown=mean(m.max_drawdown for m in members),
@@ -130,13 +137,16 @@ def _shares(player: PlayerCompositionDTO) -> tuple[Decimal, Decimal, Decimal] | 
     )
 
 
-def team_composition(players: list[PlayerCompositionDTO]) -> list[TeamCompositionDTO]:
+def team_composition(
+    players: list[PlayerCompositionDTO], names: dict[int, str] | None = None
+) -> list[TeamCompositionDTO]:
     result = []
     for team, members in group_by_team(players).items():
         shares = [s for s in map(_shares, members) if s is not None]
         result.append(
             TeamCompositionDTO(
                 team=team,
+                name=(names or {}).get(team),
                 simulation_id=members[0].simulation_id,
                 members=len(members),
                 cash_share=mean(s[0] for s in shares),
@@ -170,10 +180,13 @@ def _impact_cost(members: list[PlayerOperationsDTO]) -> Decimal | None:
     return total(costs) if costs else None
 
 
-def team_operations(players: list[PlayerOperationsDTO]) -> list[TeamOperationsDTO]:
+def team_operations(
+    players: list[PlayerOperationsDTO], names: dict[int, str] | None = None
+) -> list[TeamOperationsDTO]:
     return [
         TeamOperationsDTO(
             team=team,
+            name=(names or {}).get(team),
             simulation_id=members[0].simulation_id,
             members=len(members),
             buy_trades=sum(m.buy_trades for m in members),

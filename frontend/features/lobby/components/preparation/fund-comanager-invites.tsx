@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CircleAlert, Info, Mail, UserCheck } from "lucide-react";
+import { CircleAlert, Info, Lock, Mail, UserCheck } from "lucide-react";
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import type { MyPreparation } from "@/types";
@@ -8,10 +8,14 @@ import { sharePercent } from "../../lib/fund-comanagers";
 
 type FundComanagerInvitesProps = {
   invites: MyPreparation["fund_comanager_invites"];
+  /** Por que aceitar está travado; nulo quando o jogador pode aceitar */
+  acceptLock: string | null;
+  /** Cada jogador fica em um grupo só: aceitar convite tira a gestora própria */
+  exclusiveGroups: boolean;
 };
 
 /** Os convites de co-gestão que o jogador recebeu: aceitar ou recusar, e a confirmação dos que aceitou. */
-export function FundComanagerInvites({ invites }: FundComanagerInvitesProps) {
+export function FundComanagerInvites({ invites, acceptLock, exclusiveGroups }: FundComanagerInvitesProps) {
   const answer = useAnswerFundComanager();
   const [refusal, setRefusal] = useState<string | null>(null);
   const pending = invites.filter((invite) => !invite.accepted);
@@ -41,7 +45,7 @@ export function FundComanagerInvites({ invites }: FundComanagerInvitesProps) {
                 type="button"
                 size="sm"
                 variant="fund"
-                disabled={answer.isPending}
+                disabled={answer.isPending || acceptLock !== null}
                 onClick={() => respond(invite.owner, true)}
               >
                 Aceitar
@@ -59,9 +63,17 @@ export function FundComanagerInvites({ invites }: FundComanagerInvitesProps) {
           </AlertAction>
         </Alert>
       ))}
-      {pending.length > 0 && (
+      {pending.length > 0 && acceptLock !== null && (
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Info className="size-3.5" /> Aceitar não impede fundar a sua própria gestora
+          <Lock className="size-3.5" /> {acceptLock}
+        </p>
+      )}
+      {pending.length > 0 && acceptLock === null && (
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Info className="size-3.5" />
+          {exclusiveGroups
+            ? "Aceitar te põe na equipe dessa gestora: quem está num grupo não funda outra."
+            : "Aceitar não impede fundar a sua própria gestora"}
         </p>
       )}
 

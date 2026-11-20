@@ -7,8 +7,13 @@ partida começa, e só com a expansão Gestoras ligada nas regras.
 Quem funda convida até três co-gestores entre os jogadores da sala, cada um com a parte das
 taxas; o convite é privado de quem convidou e de quem foi convidado. Os que aceitaram entram
 ativos na gestora no 1º dia; o convite sem resposta e o recusado não entram na partida.
+
+Na aquisição hostil em equipes a equipe é a gestora: cada humano está em exatamente um grupo,
+o do fundador ou o da gestora cujo convite aceitou, e a equipe leva o número do fundador na
+ordem de usuário.
 """
 
+from collections import Counter
 from decimal import Decimal
 from threading import Lock
 from typing import ClassVar
@@ -27,6 +32,7 @@ from backend.core.enum import FundPreparationComanagerStatus, FundPreparationKin
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.core.teams import TEAM_COUNT
 from backend.features.funds.fund_comanagers import MAX_COMANAGERS, ensure_shares_fit
 
 MIN_TAKEOVER_PLAYERS = 2
@@ -70,6 +76,14 @@ class RoomFundPreparation:
                 return
             if identity is None:
                 raise ConflictError("Salve a Minha gestora antes de fundá-la.")
+            if (
+                SettingsManager.get().is_takeover_teams
+                and me.id not in cls._entries
+                and cls._accepted_in(me.id) is not None
+            ):
+                raise ConflictError(
+                    "Você já é co-gestor de uma gestora: quem está num grupo não funda outra."
+                )
             cls._entries[me.id] = identity
 
     @classmethod
@@ -167,10 +181,44 @@ class RoomFundPreparation:
                 raise NotFoundError(
                     "Você não tem esse convite de co-gestão para responder."
                 )
+            if accept and SettingsManager.get().is_takeover_teams:
+                if me.id in cls._entries:
+                    raise ConflictError(
+                        "Você funda uma gestora: quem está num grupo não aceita outro convite."
+                    )
+                if cls._accepted_in(me.id) is not None:
+                    raise ConflictError(
+                        "Você já é co-gestor de uma gestora: quem está num grupo não aceita outro convite."
+                    )
             cls._comanagers[owner_user.id][me.id] = (
                 invite[0],
                 Status.ACCEPTED if accept else Status.DECLINED,
             )
+
+    @classmethod
+    def _accepted_in(cls, user_id: int) -> int | None:
+        """O fundador de cuja gestora `user_id` é co-gestor aceito; nulo sem grupo. Chamado com o lock tomado."""
+        return next(
+            (
+                founder_id
+                for founder_id, guests in cls._comanagers.items()
+                if founder_id in cls._entries
+                and (invite := guests.get(user_id)) is not None
+                and invite[1] is Status.ACCEPTED
+            ),
+            None,
+        )
+
+    @classmethod
+    def teams(cls, humans: list[UserDTO]) -> dict[int, int]:
+        """Na aquisição hostil em equipes, a equipe de cada humano: o fundador e os co-gestores aceitos dele dividem o número da gestora."""
+        comanagers = cls.accepted_comanagers(humans)
+        teams: dict[int, int] = {}
+        for index, (founder, _) in enumerate(cls.prepared(humans), start=1):
+            teams[founder.id] = index
+            for guest, _ in comanagers.get(founder.id, []):
+                teams.setdefault(guest.id, index)
+        return teams
 
     @classmethod
     def accepted_comanagers(
@@ -236,11 +284,19 @@ class RoomFundPreparation:
         ]
 
     @classmethod
-    def conflicts(cls, humans: list[UserDTO], *, takeover: bool = False) -> list[str]:
-        """Nome ou sigla repetidos entre quem funda, sigla cujas quatro letras já são de um ativo e, no modo aquisição hostil, quem ficou sem gestora."""
+    def conflicts(
+        cls, humans: list[UserDTO], *, takeover: bool = False, teams: bool = False
+    ) -> list[str]:
+        """Nome ou sigla repetidos entre quem funda, sigla cujas quatro letras já são de um ativo e, no modo aquisição hostil, quem ficou sem gestora (em equipes, quem ficou sem grupo ou em dois)."""
         founding = cls.prepared(humans)
         messages: list[str] = []
-        if takeover:
+        if takeover and teams:
+            messages.extend(
+                _takeover_team_conflicts(
+                    humans, founding, cls.accepted_comanagers(humans)
+                )
+            )
+        elif takeover:
             messages.extend(_takeover_conflicts(humans, founding))
         for index, (user, identity) in enumerate(founding):
             if repository.fund.letters_taken_by_asset(identity.ticker):
@@ -277,7 +333,9 @@ class RoomFundPreparation:
                     for user, identity in cls.prepared(humans)
                 ],
                 "fund_conflicts": cls.conflicts(
-                    humans, takeover=SettingsManager.get().is_fund_takeover
+                    humans,
+                    takeover=SettingsManager.get().is_fund_takeover,
+                    teams=SettingsManager.get().is_takeover_teams,
                 ),
                 "fund_locked_reason": reason,
             }
@@ -285,12 +343,17 @@ class RoomFundPreparation:
 
     @classmethod
     def ensure_ready(
-        cls, humans: list[UserDTO], *, enabled: bool, takeover: bool = False
+        cls,
+        humans: list[UserDTO],
+        *,
+        enabled: bool,
+        takeover: bool = False,
+        teams: bool = False,
     ) -> None:
-        """Conferido ao iniciar com a expansão ligada: nenhuma gestora preparada repete nome ou sigla, nem usa letras de um ativo; no modo aquisição hostil, todo jogador funda a dele."""
+        """Conferido ao iniciar com a expansão ligada: nenhuma gestora preparada repete nome ou sigla, nem usa letras de um ativo; no modo aquisição hostil, todo jogador funda a dele e, em equipes, cada um está num grupo só."""
         if not enabled:
             return
-        conflicts = cls.conflicts(humans, takeover=takeover)
+        conflicts = cls.conflicts(humans, takeover=takeover, teams=teams)
         if conflicts:
             raise ConflictError(
                 "Há gestoras em conflito na preparação: " + " ".join(conflicts)
@@ -310,6 +373,35 @@ def _takeover_conflicts(
         for user in sorted(humans, key=_by_id)
         if user.id not in founders
     )
+    return messages
+
+
+def _takeover_team_conflicts(
+    humans: list[UserDTO],
+    founding: list[tuple[UserDTO, FundIdentityDTO]],
+    comanagers: dict[int, list[tuple[UserDTO, Decimal]]],
+) -> list[str]:
+    """Em equipes a equipe é a gestora: ao menos duas, no teto das cores, e cada humano em exatamente um grupo."""
+    messages: list[str] = []
+    if len(founding) < MIN_TAKEOVER_PLAYERS:
+        messages.append("O modo aquisição hostil precisa de ao menos duas gestoras.")
+    if len(founding) > TEAM_COUNT:
+        messages.append(
+            f"Em equipes a partida comporta no máximo {TEAM_COUNT} gestoras."
+        )
+    groups: Counter[int] = Counter(user.id for user, _ in founding)
+    for guests in comanagers.values():
+        groups.update(guest.id for guest, _ in guests)
+    for user in sorted(humans, key=_by_id):
+        count = groups[user.id]
+        if count == 0:
+            messages.append(
+                f"{user.nickname}: em equipes todo jogador funda uma gestora ou é co-gestor de uma."
+            )
+        elif count > 1:
+            messages.append(
+                f"{user.nickname}: está em mais de um grupo e precisa ficar em um só."
+            )
     return messages
 
 

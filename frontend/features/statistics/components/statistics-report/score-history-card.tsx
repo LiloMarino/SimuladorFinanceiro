@@ -35,7 +35,7 @@ export function ScoreHistoryCard({ simulationIds, currentPlayerName = "", onlyPl
     data.player_grouping === "TEAMS"
       ? data.teams.map((t) => ({
           key: `team-${t.team}`,
-          label: teamName(t.team, data.team_naming),
+          label: teamName(t.team, data.team_naming, t.name),
           color: teamColor(t.team),
           points: t.points,
           emphasis: t.team === yourTeam,

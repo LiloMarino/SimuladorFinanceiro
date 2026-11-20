@@ -14,7 +14,7 @@ import {
 import { TeamBadge } from "@/shared/components/team-badge";
 import { OptionSelect, type SelectOption } from "@/shared/components/option-select";
 import { goalAt } from "@/shared/lib/goal";
-import { teamColor, teamName } from "@/shared/lib/teams";
+import { teamColor, teamName, teamNameLookup } from "@/shared/lib/teams";
 import type { ReturnsPlayer, ReturnsReport } from "@/types";
 import { useStatisticsReport } from "@/shared/hooks/queries/useStatisticsReport";
 import { playerLabel, simulationColor, simulationLetter, youLabel, labelColors } from "../../lib/player-label";
@@ -160,6 +160,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
 
   const comparing = simulationIds.length > 1;
   const inTeams = data.player_grouping === "TEAMS";
+  const nameOf = teamNameLookup(data.teams);
   const players = data.players.map((p) => ({ player: p, label: playerLabel(p, simulationIds, currentPlayerName) }));
   const colorOf = labelColors(data.players, simulationIds, currentPlayerName);
   const isYou = (p: ReturnsPlayer) => p.player_nickname === currentPlayerName;
@@ -178,7 +179,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
           ? simulationColor(simulationIds, player.simulation_id)
           : "var(--faint-foreground)",
       points: points(player),
-      team: inTeams ? { index: player.team, naming: data.team_naming } : undefined,
+      team: inTeams ? { index: player.team, naming: data.team_naming, name: nameOf(player.team) } : undefined,
       emphasis: isYou(player),
       muted: comparing && !isYou(player),
     }));
@@ -202,7 +203,7 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
   const playerPoints = view === "RETURN" ? (p: ReturnsPlayer) => p.cumulative_return : (p: ReturnsPlayer) => p.networth;
   const teamSeries = (t: TeamReturns, options: Partial<LineSeries> = {}): LineSeries => ({
     key: `team-${t.team}`,
-    label: `${teamName(t.team, naming)} · média`,
+    label: `${teamName(t.team, naming, t.name)} · média`,
     color: teamColor(t.team),
     points: view === "RETURN" ? t.cumulative_return : t.networth,
     emphasis: true,
@@ -312,8 +313,8 @@ export function ReturnsTab({ simulationIds, currentPlayerName, onlyPlayer }: Rep
                     onChange={(value) => setFocus(Number(value))}
                     options={data.teams.map((t): SelectOption => ({
                       value: String(t.team),
-                      label: teamName(t.team, naming),
-                      leading: <TeamBadge team={t.team} naming={naming} form="icon" size="sm" />,
+                      label: teamName(t.team, naming, t.name),
+                      leading: <TeamBadge team={t.team} naming={naming} name={t.name} form="icon" size="sm" />,
                     }))}
                     aria-label="Equipe"
                   />
