@@ -38,7 +38,7 @@
     "clean:build": "uv run python -c \"import shutil; [shutil.rmtree(d, ignore_errors=True) for d in ['backend/static', 'build', 'dist']]\""
   },
   "devDependencies": {
-    "concurrently": "^10.0.6",
+    "concurrently": "^10.0.7",
     "gifski": "^1.7.1"
   }
 }
