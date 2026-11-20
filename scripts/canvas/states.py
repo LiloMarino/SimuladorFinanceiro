@@ -2213,6 +2213,7 @@ def lobby_fund_tab(
     saved: dict | None = None,
     funds: bool = True,
     forge: Callable[[Page], None] | None = None,
+    rules: dict | None = None,
 ) -> None:
     """
     Lobby com o diálogo "Minha preparação" na aba Gestora. Com `saved`, a identidade vai ao
@@ -2221,7 +2222,7 @@ def lobby_fund_tab(
     "Fundar a minha gestora" muda. A aba abre sempre no mesmo ponto, qualquer que seja a
     rodada anterior.
     """
-    lobby_with_professions(page, rules={"funds_enabled": funds})
+    lobby_with_professions(page, rules={"funds_enabled": funds} | (rules or {}))
     if funds and saved is not None:
         api_send(page, "PUT", "/api/settings/fund", saved)
     if funds:
@@ -2317,6 +2318,7 @@ def lobby_fund_save_failed(page: Page) -> None:
 # A co-gestão combinada no lobby: dado forjado sobre a sala real, que só tem o host
 ROOM_PLAYERS_GLOB = "**/api/simulation/players"
 MY_PREPARATION_GLOB = "**/api/simulation/players/me/preparation"
+PREPARATIONS_GLOB = "**/api/simulation/preparations"
 COMANAGER_GUESTS = ("Duda", "Caio", "Eva")
 
 
@@ -2445,6 +2447,54 @@ def lobby_game_type_takeover(page: Page) -> None:
         },
     )
     page.locator("#rules-fundGraceMonths").wait_for()
+
+
+def lobby_takeover_teams(page: Page) -> None:
+    """Regras com a Aquisição hostil em equipes: o aviso de que a equipe é a gestora, sem escolha de nome."""
+    lobby_game_type(
+        page,
+        rules={
+            "game_type": "FUND_TAKEOVER",
+            "funds_enabled": True,
+            "government_enabled": False,
+            "player_grouping": "TEAMS",
+        },
+    )
+    page.get_by_text("A equipe é a gestora").first.wait_for()
+
+
+TAKEOVER_TEAMS_CONFLICTS = [
+    "Duda: em equipes todo jogador funda uma gestora ou é co-gestor de uma.",
+    "Caio: está em mais de um grupo e precisa ficar em um só.",
+]
+
+
+def lobby_takeover_teams_conflict(page: Page) -> None:
+    """Aba Gestora da Aquisição hostil em equipes com jogador sem grupo e outro em dois: o aviso trava o início."""
+
+    def forge(page: Page) -> None:
+        def preparations(route: Route) -> None:
+            body = route.fetch().json() | {"fund_conflicts": TAKEOVER_TEAMS_CONFLICTS}
+            route.fulfill(
+                status=200, content_type="application/json", body=json.dumps(body)
+            )
+
+        page.route(PREPARATIONS_GLOB, preparations)
+        # A lista de preparações já veio sem o conflito: o lobby pede de novo pela rota forjada
+        page.reload()
+        page.wait_for_load_state("networkidle")
+
+    lobby_fund_tab(
+        page,
+        saved={"name": FUND_NAME, "ticker": FUND_TICKER},
+        forge=forge,
+        rules={
+            "game_type": "FUND_TAKEOVER",
+            "government_enabled": False,
+            "player_grouping": "TEAMS",
+        },
+    )
+    page.get_by_role("dialog").get_by_text(TAKEOVER_TEAMS_CONFLICTS[0]).wait_for()
 
 
 def lobby_funds_locked_by_type(page: Page) -> None:
@@ -2976,6 +3026,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "regras/expansoes": lobby_expansions,
     "lobby/tipo-expansoes-desligadas": lobby_game_type_expansions_off,
     "lobby/tipo-aquisicao-hostil": lobby_game_type_takeover,
+    "lobby/equipes-aquisicao-hostil": lobby_takeover_teams,
+    "lobby/equipes-aquisicao-conflito": lobby_takeover_teams_conflict,
     "lobby/expansoes-gestoras-travada": lobby_funds_locked_by_type,
     "renda-variavel/cota-gestora": stock_fund_quota,
     "gestoras/sem-gestora-lista": funds_room_list,
