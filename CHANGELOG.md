@@ -4,6 +4,80 @@ Mudanças de cada versão do Simulador Financeiro, da mais nova para a mais anti
 O número segue o [SemVer](https://semver.org/lang/pt-BR/): a versão maior avisa quando algo
 deixa de funcionar para quem atualiza, a menor traz novidade e a de correção conserta bug.
 
+## 4.2.0 Expansão Gestoras (20/11/2026)
+
+Cada jogador pode fundar a própria gestora, abrir capital numa oferta pública e disputar as cotas na sala. A gestora tem tela própria em abas, carteira separada com o automático, co-gestores, emissão de novas cotas, recompra, rendimentos mensais e uma assembleia de cotistas que troca o gestor ou aumenta a taxa. Duas gestoras podem se fundir, e o tipo de partida novo, a aquisição hostil, começa com todos dentro da própria gestora e dá a vitória ao último de pé, também no modo Equipes. O governo entra no mercado: funda estatais, segura o preço e os dividendos, privatiza e investe pelo Fundo Soberano. A preparação ganha profissões novas, com as vantagens e desvantagens à vista e as rendas das mais desequilibradas ajustadas, e a meta da partida passa a ficar acima do capital inicial de todos na sala. O livro de ofertas do detalhe do ativo foi redesenhado, a topbar ganhou a velocidade em tracinhos e atalhos de teclado, e dá para pôr vários bots de uma vez.
+
+Suas partidas salvas e o `config.toml` continuam valendo.
+
+
+### Novidades
+
+- Voltado o desenho dos slots dos jogadores do lobby, em coluna única e sem o badge de bot
+- Adicionada a variante de etiqueta com borda ao badge e usado o badge de profissão em Minha preparação
+- Locador com aluguel de 1,1× o salário
+- Cards de profissão com vantagens e desvantagens
+- Removido o teto da contribuição mensal da campanha
+- Adicionado vários bots de uma vez
+- Separada a carteira do jogador em tabela própria
+- Adicionadas as profissões novas
+- Redesenhado o livro de ofertas do detalhe do ativo
+- Adicionados os models e a migração das gestoras
+- Adicionados o formador de mercado, o preço de ranking e as taxas das gestoras
+- Integradas as gestoras ao pregão da partida
+- Adicionadas as rotas das gestoras e a conta ativa nas rotas de mercado
+- Adicionados o fechamento da oferta em 5 pregões, o congelamento da gestora do presidente e as contas do jogador
+- Adicionadas a Minha gestora no perfil, a escolha na preparação e a fundação no 1º dia
+- Adicionadas a topbar com velocidade em tracinhos e atalhos de teclado e a troca de conta no caixa
+- Adicionados os dados da página da gestora e a oferta pública gravada
+- Adicionados a aba Gestora da preparação e o cartão das Gestoras nas expansões
+- Encolhida a trilha da meta para 150 px abaixo de 1536 px de largura
+- Adicionadas as telas da gestora, a troca de conta no mercado e o dono da ordem no livro
+- Travado o negócio entre contas do mesmo dono no livro de ofertas
+- Adicionadas emissão de novas cotas e recompra nas gestoras
+- Adicionada a troca de gestor pela assembleia
+- Adicionados os rendimentos mensais das gestoras
+- Adicionadas as profissões das expansões
+- Adicionados os co-gestores das gestoras
+- Adicionada a opção do modo aquisição hostil no lobby
+- Adicionados patrimônio na gestora no 1º dia e carência da assembleia no modo aquisição hostil
+- Adicionada a oferta automática do modo aquisição hostil no fim da carência
+- Adicionada a eliminação de quem perde a assembleia da própria gestora e o fim da partida pela última gestora
+- Adicionadas as estatais: fundar, comandar o preço e os dividendos e privatizar
+- Adicionado o Fundo Soberano: aporte, compra e venda pelo caixa da topbar e retorno ao Tesouro
+- Adicionada a cota de gestora à renda variável, com teto de preço e estratégia de cotas para os bots
+- Adicionadas as receitas de estado do canvas para a cota da gestora, a lista de gestoras e a estatal
+- Adicionada a taxa a pagar da gestora para o caixa não ficar negativo
+- Corrigido o salto de preço de cotas e estatais fundadas e adicionado o aviso de k alto no lobby
+- Adicionados o preço vivo e o lucro à vista das estatais
+- Adicionada a emissão dirigida e o empréstimo em nome da gestora
+- Adicionada a tela da gestora em abas
+- Adicionada a assembleia de cotistas com aba própria e aumento de taxa
+- Adicionado o automático na carteira da gestora
+- Adicionada a página de ofertas públicas
+- Adicionada a cor da expansão na conta que opera
+- Adicionada a co-gestão combinada no lobby
+- Adicionada a aquisição hostil como tipo de partida
+- Adicionada a fusão de gestoras
+- Adicionada a aquisição hostil no modo Equipes
+- Adicionada a meta mínima acima do capital inicial de todos na sala
+- Ajustados os números das profissões mais desequilibradas
+
+### Correções
+
+- Trocada a renovação a cada 10 s das páginas da gestora pelo tempo real
+- Ajustados a topbar e a faixa da gestora ao desenho aprovado
+- Corrigido o nome numerado dos bots em lote e adicionadas as abas Em lote e Individual ao diálogo de bots
+- Corrigida a profissão que não voltava ao lobby depois da partida e adicionados o capital do Herdeiro e os selos nos cards de profissão
+- Corrigido o resultado da partida que mostrava o ranking de meio de jogo até a busca do fechamento voltar
+- Movida a escolha do partido do Comissionado para dentro do cartão da profissão
+- Corrigidas as cotas no Levar da carteira, o botão e o total da oferta pública, o menu do Fundo Soberano e os filtros da renda variável, e adicionados o selo de estatal e o nome Mercado
+- Corrigida a ordem de data da linha do tempo do 2º turno e dos marcadores de aliança
+- Adicionado o valor prometido ao selo e ao diálogo de mudar imposto e gasto
+- Removido o selo fixo Novo da aba Estatais
+- Corrigida a pendência de caixa que quebrava com cheque especial sem parcela a vencer
+- Corrigida a gestora do gestor que vira presidente e liberada mais de uma gestora por jogador
+
 ## 4.1.0 Câmbio e Poder (13/11/2026)
 
 O dólar entra na partida: os ativos de fora passam a ser cotados em real e protegem a carteira quando o câmbio sobe, e o caixa em dólar rende o juro americano. A economia ganha o Focus, e a bolsa reage quando o Copom surpreende; o Banco Central autônomo decide em reunião, em passos de 0,25. O governo fecha a conta com impostos e cortes, lança programas com nome e perde aprovação quando governa mal, e a presidência e a base passam a valer a pena, com salário, legado, obras e emendas. A vitória política ganha medida própria, o capital político; qualquer jogador pode abrir um pedido de impeachment; a corrida eleitoral passa a ter três partidos do computador, e o mapa da eleição percorre o tempo. O viver de renda sente a economia e ganha a profissão de cada jogador e imprevistos mais variados. A Central de dados, o lobby, o Mapa, Governo e Eleição, a Renda fixa e os seletores foram redesenhados, e a paleta dos partidos chega a 20 cores, com salas de 12 jogadores.
