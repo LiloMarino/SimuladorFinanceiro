@@ -2276,6 +2276,47 @@ def lobby_expansions(page: Page) -> None:
     page.wait_for_load_state("networkidle")
 
 
+def lobby_game_type(page: Page, *, rules: dict) -> None:
+    """As regras da sala, aba Regras, com o tipo de partida e as expansões vindos de `rules`."""
+    lobby_with_professions(page, rules={"salary_mode": "EQUAL"} | rules)
+    page.get_by_role("button", name="Editar regras").click()
+    page.get_by_text("Tipo de partida").first.wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def lobby_game_type_expansions_off(page: Page) -> None:
+    """Regras da partida, tipo de partida, com Gestoras e Governo desligados."""
+    lobby_game_type(
+        page,
+        rules={
+            "game_type": "CLASSIC",
+            "funds_enabled": False,
+            "government_enabled": False,
+        },
+    )
+    page.get_by_text("Ligue a expansão Gestoras").wait_for()
+
+
+def lobby_game_type_takeover(page: Page) -> None:
+    """Gestoras ligada e Aquisição hostil escolhida, com carência e mínimo embaixo do tipo."""
+    lobby_game_type(
+        page,
+        rules={
+            "game_type": "FUND_TAKEOVER",
+            "funds_enabled": True,
+            "government_enabled": False,
+        },
+    )
+    page.locator("#rules-fundGraceMonths").wait_for()
+
+
+def lobby_funds_locked_by_type(page: Page) -> None:
+    """Aba Expansões com Aquisição hostil escolhida: o cartão Gestoras fica ligado e travado."""
+    lobby_game_type_takeover(page)
+    page.get_by_role("tab", name="Expansões").click()
+    page.get_by_text("ficam embaixo do tipo, na aba Regras").wait_for()
+
+
 # Os co-gestores: dado forjado sobre a gestora real do host, que nasce sem nenhum
 COMANAGER_ACTIVE = {
     "nickname": "Duda",
@@ -2794,6 +2835,9 @@ STATES: dict[str, Callable[[Page], None]] = {
     "lobby/cogestao-convidado": lobby_comanagers_guest,
     "lobby/cogestao-vazio": lobby_comanagers_alone,
     "regras/expansoes": lobby_expansions,
+    "lobby/tipo-expansoes-desligadas": lobby_game_type_expansions_off,
+    "lobby/tipo-aquisicao-hostil": lobby_game_type_takeover,
+    "lobby/expansoes-gestoras-travada": lobby_funds_locked_by_type,
     "renda-variavel/cota-gestora": stock_fund_quota,
     "gestoras/sem-gestora-lista": funds_room_list,
     "renda-variavel/estatal": stock_state_owned,
