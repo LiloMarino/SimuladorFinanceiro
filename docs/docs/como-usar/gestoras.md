@@ -81,7 +81,7 @@ O gestor principal, e os co-gestores ativos, podem pôr uma **estratégia** para
 
 Só funda quem **não tem gestora**: quem já tem uma não funda outra, e a gestora em licença pela presidência conta como dele. Gerir mais de uma é normal no jogo: o co-gestor que assume a gestora de um presidente, ou que ganha uma em assembleia, passa a gerir as duas. Quem perde a gestora pode fundar outra, respeitando o prazo de 6 meses depois de afastado por assembleia.
 
-**Operar pela gestora.** Ao escolher a gestora no caixa da barra de cima, a boleta de renda variável inteira troca para a cor da expansão Gestoras: a borda, o cabeçalho **Operando pela <gestora>** e o botão, que diz **Comprar** ou **Vender <ativo> pela gestora**. Comprar e vender usam a mesma cor; o lado da ordem se lê no seletor **Comprar | Vender** e no texto do botão. Quem é co-gestor vê o papel dele no cabeçalho. A faixa do alto e o seletor de conta seguem como estão, e a conta pessoal não muda.
+**Operar pela gestora.** Ao escolher a gestora no caixa da barra de cima, a boleta de renda variável inteira troca para a cor da expansão Gestoras: a borda, o cabeçalho **Operando pela** seguido do nome da gestora e o botão, que diz **Comprar** ou **Vender** *nome do ativo* **pela gestora**. Comprar e vender usam a mesma cor; o lado da ordem se lê no seletor **Comprar | Vender** e no texto do botão. Quem é co-gestor vê o papel dele no cabeçalho. A faixa do alto e o seletor de conta seguem como estão, e a conta pessoal não muda.
 
 ## Ofertas públicas
 
