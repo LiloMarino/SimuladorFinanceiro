@@ -83,10 +83,10 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
-| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | — | Médio | Bom | ⏳ |
-| [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | — | — | Baixo | Bom | ⏳ |
-| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | — | Médio | Bom | ⏳ |
-| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | — | Médio | Bom | ⏳ |
+| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | Baixo | Bom | ⏳ |
+| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -131,7 +131,7 @@
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
 | **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334) | — | — | ✅ |
-| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | — | — | — | ✅ |
+| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
 
 </details>
 
@@ -147,27 +147,32 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 0/17 concluídos
+> **Progresso:** 1/22 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | — | ⏳ Pendente |
-| 2 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ⏳ Pendente |
-| 3 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | [F315](#f315), [F321](#f321) | ⏳ Pendente |
-| 4 | [**F323**](#f323) | Feature | Consignado do Servidor | [F315](#f315) | ⏳ Pendente |
-| 5 | [**F324**](#f324) | Feature | CDB da casa do Bancário | [F315](#f315) | ⏳ Pendente |
-| 6 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | [F315](#f315) | ⏳ Pendente |
-| 7 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | [F315](#f315) | ⏳ Pendente |
-| 8 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | [F315](#f315) | ⏳ Pendente |
-| 9 | [**F328**](#f328) | Feature | Previdência do Aposentado | [F315](#f315) | ⏳ Pendente |
-| 10 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | [F315](#f315) | ⏳ Pendente |
-| 11 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | [F315](#f315) | ⏳ Pendente |
-| 12 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | [F315](#f315) | ⏳ Pendente |
-| 13 | [**F332**](#f332) | Feature | Imóveis do Locador | [F315](#f315), [F321](#f321) | ⏳ Pendente |
-| 14 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | [F315](#f315) | ⏳ Pendente |
-| 15 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
-| 16 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
-| 17 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
+| 1 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | ✅ Concluído |
+| 2 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | ⏳ Pendente |
+| 3 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | — | ⏳ Pendente |
+| 4 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ⏳ Pendente |
+| 5 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | ⏳ Pendente |
+| 6 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | — | ⏳ Pendente |
+| 7 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ⏳ Pendente |
+| 8 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | [F315](#f315), [F321](#f321) | ⏳ Pendente |
+| 9 | [**F323**](#f323) | Feature | Consignado do Servidor | [F315](#f315) | ⏳ Pendente |
+| 10 | [**F324**](#f324) | Feature | CDB da casa do Bancário | [F315](#f315) | ⏳ Pendente |
+| 11 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | [F315](#f315) | ⏳ Pendente |
+| 12 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | [F315](#f315) | ⏳ Pendente |
+| 13 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | [F315](#f315) | ⏳ Pendente |
+| 14 | [**F328**](#f328) | Feature | Previdência do Aposentado | [F315](#f315) | ⏳ Pendente |
+| 15 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | [F315](#f315) | ⏳ Pendente |
+| 16 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | [F315](#f315) | ⏳ Pendente |
+| 17 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | [F315](#f315) | ⏳ Pendente |
+| 18 | [**F332**](#f332) | Feature | Imóveis do Locador | [F315](#f315), [F321](#f321) | ⏳ Pendente |
+| 19 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | [F315](#f315) | ⏳ Pendente |
+| 20 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
+| 21 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
+| 22 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
 
 ### 4.4 — Mesa do trader (M24)
 
@@ -253,10 +258,6 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | N34 | — | 0 | ⏳ Pendente |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | 0 | 🔍 Em avaliação |
-| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | 0 | ⏳ Pendente |
-| [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | N23 | — | 0 | ⏳ Pendente |
-| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | 0 | ⏳ Pendente |
-| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | 0 | ⏳ Pendente |
 
 ---
 
@@ -266,10 +267,14 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 · 1º | 13 | Alto | Bom | ⏳ |
-| [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 2º | 3 | Médio | Bom | ⏳ |
-| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 15º | 0 | Baixo | Bom | ⏳ |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 16º | 0 | Médio | Bom | ⏳ |
+| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 · 2º | 0 | Médio | Bom | ⏳ |
+| [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | M29 · 4.3 · 3º | 0 | Baixo | Bom | ⏳ |
+| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 · 4º | 0 | Médio | Bom | ⏳ |
+| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 · 5º | 0 | Médio | Bom | ⏳ |
+| [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 · 6º | 13 | Alto | Bom | ⏳ |
+| [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 7º | 3 | Médio | Bom | ⏳ |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 20º | 0 | Baixo | Bom | ⏳ |
+| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 21º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.4 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.4 · 3º | 0 | Médio | Bom | ⏳ |
@@ -298,10 +303,6 @@
 | [**F139**](#f139) | Docs | Demonstração regravada com o jogo de hoje | M28 · 4.7 · 12º | 1 | Médio | Bom | ⏳ |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | 0 | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | 0 | — | — | 🔍 |
-| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | 0 | Médio | Bom | ⏳ |
-| [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | — | 0 | Baixo | Bom | ⏳ |
-| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | 0 | Médio | Bom | ⏳ |
-| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | 0 | Médio | Bom | ⏳ |
 
 ---
 
@@ -334,10 +335,10 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
-| **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | — | — | Médio | Baixo | Alto | Bom |
-| **F318** | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | N23 | — | — | — | Baixo | Baixo | Médio | Bom |
-| **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | — | — | Médio | Médio | Alto | Bom |
-| **F320** | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | — | — | Médio | Médio | Alto | Bom |
+| **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 | — | Médio | Baixo | Alto | Bom |
+| **F318** | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
+| **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
+| **F320** | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
 | **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Médio | Baixo | Alto | Bom |
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
@@ -715,7 +716,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
-| **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | — |
+| **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 |
 
 <a id="f316"></a>
 **F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
