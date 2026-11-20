@@ -36,6 +36,7 @@ from backend.core.dto.stock import StockDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
+    CashflowEventType,
     FundAssemblyAgenda,
     FundAssemblyStatus,
     FundComanagerStatus,
@@ -162,6 +163,15 @@ def nav_per_quota(
     if quotas <= 0:
         return None
     return (cash + equity + fixed - debt) / quotas
+
+
+def _fee_event(performance: bool) -> CashflowEventType:
+    """O tipo de lançamento da taxa, que o resgate automático usa para dizer o que cobriu."""
+    return (
+        CashflowEventType.FUND_PERFORMANCE_FEE
+        if performance
+        else CashflowEventType.FUND_MANAGEMENT_FEE
+    )
 
 
 def _payable_column(performance: bool) -> str:
@@ -1622,6 +1632,9 @@ class FundBook:
                 price,
             )
         if plan.cash.from_daughter > 0:
+            engine.cover_before_debit(
+                d_client, plan.cash.from_daughter, CashflowEventType.FUND_MERGE_EXIT
+            )
             engine.charge_fund_merge_exit(d_client, plan.cash.from_daughter)
         # O caixa que sobrou na incorporada passa à incorporadora, e ela completa a saída
         leftover = engine.get_cash(d_client)
@@ -1630,6 +1643,9 @@ class FundBook:
         elif leftover < 0:
             engine.merge_cash(m_client, d_client, -leftover)
         if plan.cash.from_mother > 0:
+            engine.cover_before_debit(
+                m_client, plan.cash.from_mother, CashflowEventType.FUND_MERGE_EXIT
+            )
             engine.charge_fund_merge_exit(m_client, plan.cash.from_mother)
 
         # As cotas cruzadas deixam de existir, uma em cada lado
@@ -2385,7 +2401,10 @@ class FundBook:
         """
         if fee <= 0:
             return
-        paid, owed = split_payable(fee, self._engine.get_cash(fund.account.client_id))
+        client_id = fund.account.client_id
+        # A renda fixa de liquidez diária cobre a taxa antes de o caixa decidir o que sobra a pagar
+        self._engine.cover_before_debit(client_id, fee, _fee_event(performance))
+        paid, owed = split_payable(fee, self._engine.get_cash(client_id))
         self._transfer_fee(fund, paid, performance=performance)
         update = {"month_fees": fund.terms.month_fees + fee}
         if owed > 0:
@@ -2399,9 +2418,9 @@ class FundBook:
         update: dict[str, Decimal] = {}
         for performance in (False, True):
             column = _payable_column(performance)
-            paid, rest = split_payable(
-                getattr(fund.terms, column), self._engine.get_cash(client_id)
-            )
+            payable = getattr(fund.terms, column)
+            self._engine.cover_before_debit(client_id, payable, _fee_event(performance))
+            paid, rest = split_payable(payable, self._engine.get_cash(client_id))
             if paid > 0:
                 self._transfer_fee(fund, paid, performance=performance)
                 update[column] = rest
@@ -2493,6 +2512,12 @@ class FundBook:
             return
         holders = self._holders(fund)
         outside = sum((quotas for _, quotas in holders), Decimal(0))
+        # O rendimento apurado inteiro é coberto pela renda fixa de liquidez diária antes de o caixa limitar o pagamento
+        self._engine.cover_before_debit(
+            fund.account.client_id,
+            pending.per_quota * outside,
+            CashflowEventType.FUND_DISTRIBUTION,
+        )
         cash = self._engine.get_cash(fund.account.client_id)
         paid_per_quota = payout_per_quota(pending.per_quota, outside, cash)
         payments = [

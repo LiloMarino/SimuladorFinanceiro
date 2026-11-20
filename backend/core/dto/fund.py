@@ -720,6 +720,19 @@ class FundComanagerViewDTO(FundComanagerDTO):
 type FundRole = Literal["manager", "comanager", "viewer"]
 
 
+class FundIssuanceRulesDTO(BaseDTO):
+    """As regras da emissão de cotas que o front explica: a janela de cada fase e como o bot valora a cota."""
+
+    # Pregões da preferência dos cotistas, contando o do anúncio
+    preference_sessions: int
+    # Pregões da sobra aberta a todos, depois da preferência
+    leftover_sessions: int
+    # Quanto o prêmio do desempenho sobre o CDI soma ou tira, no máximo, do PL por cota na valoração do bot (fração: 0,20 é 20%)
+    bot_premium_limit: float
+    # Quanto a opinião do dia de cada bot varia o valor da cota, para cima ou para baixo (fração: 0,05 é 5%)
+    bot_opinion_range: float
+
+
 class FundDetailsDTO(FundSummaryDTO):
     """A página da gestora: quem tem as cotas, a carteira, o desempenho, as taxas e a oferta."""
 
@@ -753,6 +766,8 @@ class FundDetailsDTO(FundSummaryDTO):
     offer_buyers_count: int | None = None
     # A emissão e a recompra em aberto; nulas quando a gestora não tem
     issuance: FundIssuanceStatusDTO | None
+    # As regras da emissão valem com ou sem emissão aberta: o diálogo de anunciar também as explica
+    issuance_rules: FundIssuanceRulesDTO
     buyback: FundBuybackDTO | None
     # A troca de gestor pela assembleia dos cotistas
     assembly: FundAssemblyPanelDTO

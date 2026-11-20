@@ -212,7 +212,10 @@ function IssuancesCard({ fund }: { fund: FundDetails }) {
               <TableCell numeric>{row.quotas === null ? "—" : displayQuantity(row.quotas)}</TableCell>
               <TableCell numeric>{row.price === null ? "—" : displayMoney(row.price)}</TableCell>
               <TableCell numeric>{row.amount === null ? "—" : displayMoney(row.amount)}</TableCell>
-              <TableCell wrap>{row.buyers}</TableCell>
+              <TableCell wrap>
+                {row.buyers}
+                {row.unsoldReason && <p className="text-xs text-muted-foreground">{row.unsoldReason}</p>}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -235,7 +238,7 @@ export function QuotasTab({ fund, userId, actions }: QuotasTabProps) {
       {directed && directed.buyer_user_id !== userId && (
         <DirectedIssuanceAlert fund={fund} offer={directed} isBuyer={false} />
       )}
-      <FundIssuanceCard fund={fund} viewer={viewer} />
+      <FundIssuanceCard fund={fund} />
       <FundBuybackCard fund={fund} viewer={viewer} />
 
       {/* Cotistas */}

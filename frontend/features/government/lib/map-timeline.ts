@@ -1,12 +1,8 @@
 import { displayDayMonth, displayMonthShort } from "@/shared/lib/utils/display";
-import type { MapParty, MapPlace, TimelineMilestone, TimelinePoint, TimelineYear } from "@/types";
+import type { MapParty, MapPlace, TimelineMilestone, TimelinePoint } from "@/types";
 
 /** A folga da régua em cada lado, para o ponto e o rótulo caberem. */
 export const RULER_MARGIN = 26;
-
-/** Quantas eleições o seletor mostra por inteiro; acima disso ficam as 3 mais recentes e o "Anteriores". */
-const YEARS_IN_ROW = 4;
-const RECENT_YEARS = 3;
 
 /** No máximo este tanto de marcos por intervalo; o resto vira "+N". */
 const MILESTONES_PER_SLOT = 2;
@@ -64,18 +60,6 @@ export function milestoneSlots(milestones: TimelineMilestone[], focusParty: numb
 /** O número que o selo do marco mostra: quantos itens ele junta; sem selo quando é um só. */
 export function milestoneCount(milestone: TimelineMilestone) {
   return milestone.items.length > 1 ? milestone.items.length : null;
-}
-
-export type VisibleYears = {
-  /** Os anos que ficam no seletor, do mais antigo ao mais recente. */
-  row: TimelineYear[];
-  /** Os que ficam atrás do "Anteriores"; vazio com até 4 eleições. */
-  older: TimelineYear[];
-};
-
-export function visibleYears(years: TimelineYear[]): VisibleYears {
-  if (years.length <= YEARS_IN_ROW) return { row: years, older: [] };
-  return { row: years.slice(-RECENT_YEARS), older: years.slice(0, -RECENT_YEARS) };
 }
 
 /** O rótulo embaixo de cada ponto: o mês nas mensais, o dia e o mês nas semanais e o nome dos turnos. */

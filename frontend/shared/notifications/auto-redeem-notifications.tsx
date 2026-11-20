@@ -19,7 +19,7 @@ export function AutoRedeemNotifications() {
 
     if (!isToastOn("AUTO_REDEEM")) return;
     toast.info(`Resgatado ${displayMoney(event.net_amount)} de ${event.asset_name}`, {
-      description: `Para cobrir ${event.reason}`,
+      description: `${event.account === null ? "Para cobrir" : "Na gestora, para cobrir"} ${event.reason}`,
     });
   });
 

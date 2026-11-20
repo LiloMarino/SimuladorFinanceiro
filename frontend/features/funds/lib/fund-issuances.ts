@@ -13,7 +13,12 @@ export type IssuanceRow = {
   buyers: string;
   /** A oferta ou a emissão ainda vende */
   inProgress: boolean;
+  /** O motivo de a emissão ter encerrado sem vender cota; nulo nas demais linhas */
+  unsoldReason: string | null;
 };
+
+/** O bot compra no último pregão da sobra, e só quando o preço da emissão cabe no valor que ele dá à cota. */
+const UNSOLD_REASON = "Encerrada sem venda: ninguém comprou e nenhum bot achou o preço dentro do valor que dá à cota.";
 
 const investors = (count: number) => `${count} ${count === 1 ? "investidor" : "investidores"}`;
 
@@ -33,6 +38,7 @@ function offerRow(fund: FundDetails): IssuanceRow | null {
     amount: fund.offer_raised,
     buyers: investors(count),
     inProgress: fund.offer_closed_on === null,
+    unsoldReason: null,
   };
 }
 
@@ -53,6 +59,7 @@ export function issuanceRows(fund: FundDetails): IssuanceRow[] {
       amount: open.raised,
       buyers: "Cotistas e mercado",
       inProgress: true,
+      unsoldReason: null,
     });
   }
 
@@ -67,6 +74,7 @@ export function issuanceRows(fund: FundDetails): IssuanceRow[] {
         amount: movement.amount,
         buyers: "Cotistas e mercado",
         inProgress: false,
+        unsoldReason: Number(movement.quotas ?? 0) === 0 ? UNSOLD_REASON : null,
       });
     } else if (movement.type === "directed_issuance") {
       rows.push({
@@ -78,6 +86,7 @@ export function issuanceRows(fund: FundDetails): IssuanceRow[] {
         amount: movement.amount,
         buyers: movement.nickname ?? "—",
         inProgress: false,
+        unsoldReason: null,
       });
     }
   });

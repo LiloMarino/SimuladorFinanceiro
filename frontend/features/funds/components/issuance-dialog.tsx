@@ -16,6 +16,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
+import type { FundDetails } from "@/types";
 import { useAnnounceFundIssuance } from "../hooks/mutations/useAnnounceFundIssuance";
 import { useFundIssuancePreview } from "../hooks/queries/useFundIssuancePreview";
 import { OFFER_COMMISSION, PREFERENCE_RIGHT } from "@/shared/lib/fund-metrics";
@@ -29,10 +30,11 @@ type IssuanceDialogProps = {
   /** Patrimônio por cota de hoje: o preço fixo da emissão */
   nav: number;
   totalQuotas: number;
+  rules: FundDetails["issuance_rules"];
 };
 
 /** Emissão de cotas novas: o gestor escolhe quantas, e o preço fica fixo no patrimônio por cota de hoje. */
-export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, totalQuotas }: IssuanceDialogProps) {
+export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, totalQuotas, rules }: IssuanceDialogProps) {
   const [quotasText, setQuotasText] = useState("");
   const quotas = Number(quotasText);
   const deferredQuotas = useDeferredValue(quotas);
@@ -55,8 +57,9 @@ export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, tota
         <DialogHeader variant="divided">
           <DialogTitle>Emitir cotas de {fundName}</DialogTitle>
           <DialogDescription>
-            Os cotistas têm 10 pregões para comprar primeiro, na proporção do que já têm. Depois, 5 pregões de sobra
-            abertos a todos. Só nascem as cotas vendidas, ao preço de hoje.
+            Os cotistas têm {rules.preference_sessions} pregões para comprar primeiro, na proporção do que já têm.
+            Depois, {rules.leftover_sessions} pregões de sobra abertos a todos. Só nascem as cotas vendidas, ao preço de
+            hoje.
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
@@ -86,7 +89,10 @@ export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, tota
           </Field>
           <div>
             <KeyValueRow label="Preço fixo por cota (patrimônio por cota)" value={displayMoney(nav)} />
-            <KeyValueRow label="Duração" value="10 pregões de preferência + 5 de sobra" />
+            <KeyValueRow
+              label="Duração"
+              value={`${rules.preference_sessions} pregões de preferência + ${rules.leftover_sessions} de sobra`}
+            />
             <KeyValueRow
               label="Se vender tudo, entra no caixa"
               value={valid && preview ? displayMoney(preview.raised) : "—"}

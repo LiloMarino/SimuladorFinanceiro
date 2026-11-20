@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { TimelineMilestone, TimelinePoint, TimelineYear } from "@/types";
+import type { TimelineMilestone, TimelinePoint } from "@/types";
 import {
   RULER_MARGIN,
   finalists,
@@ -11,7 +11,6 @@ import {
   pointAt,
   pointLabel,
   rulerLayout,
-  visibleYears,
 } from "./map-timeline";
 
 function point(date: string, kind: TimelinePoint["kind"], happened = true, poll: TimelinePoint["poll"] = null) {
@@ -39,10 +38,6 @@ function milestone(
       title: null,
     })),
   };
-}
-
-function year(value: number): TimelineYear {
-  return { year: value, cycle: value, status: "DONE", opens_on: `${value}-01-01`, winner: null };
 }
 
 function pollOf(date: string, rows: Record<string, Record<number, number>>): NonNullable<TimelinePoint["poll"]> {
@@ -111,20 +106,6 @@ describe("milestoneCount", () => {
     expect(milestoneCount(milestone("CAMPAIGN", 1, "2030-03-01", 1))).toBeNull();
     expect(milestoneCount(milestone("CAMPAIGN", 1, "2030-03-01", 3))).toBe(3);
     expect(milestoneCount(milestone("CAMPAIGN", 1, "2030-03-01", 11))).toBe(11);
-  });
-});
-
-describe("visibleYears", () => {
-  it("até 4 eleições todas ficam no seletor", () => {
-    const years = [2018, 2022, 2026, 2030].map(year);
-    expect(visibleYears(years)).toEqual({ row: years, older: [] });
-  });
-
-  it("com 5 ou mais ficam as 3 mais recentes e o resto vai para o Anteriores", () => {
-    const years = [2014, 2018, 2022, 2026, 2030].map(year);
-    const { row, older } = visibleYears(years);
-    expect(row.map((item) => item.year)).toEqual([2022, 2026, 2030]);
-    expect(older.map((item) => item.year)).toEqual([2014, 2018]);
   });
 });
 

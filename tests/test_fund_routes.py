@@ -18,6 +18,7 @@ from backend.core.dto.fund import (
     FundDetailsDTO,
     FundDistributionPlanDTO,
     FundFeesDTO,
+    FundIssuanceRulesDTO,
 )
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.user import UserDTO
@@ -383,6 +384,12 @@ def _page(fund_id: int) -> FundDetailsDTO:
         offer_session=None,
         offer_ends_on=None,
         issuance=None,
+        issuance_rules=FundIssuanceRulesDTO(
+            preference_sessions=10,
+            leftover_sessions=5,
+            bot_premium_limit=0.2,
+            bot_opinion_range=0.05,
+        ),
         buyback=None,
         assembly=FundAssemblyPanelDTO(
             current=[],

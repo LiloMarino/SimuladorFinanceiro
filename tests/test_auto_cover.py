@@ -32,6 +32,10 @@ from tests.conftest import SetIndicator
 from tests.fakes import FakeSimulationEngine, client, daily_series, monthly_series
 
 INVESTOR = client("investor")
+# Uma gestora e os dois gestores que a operam: o aviso do resgate chega aos dois
+FUND = client("gestora")
+OPERATORS = (client("gestor"), client("cogestor"))
+FUND_ID = 7
 START = date(2030, 9, 2)
 FIRST_MONTH = date(2030, 10, 1)
 TODAY = date(2031, 3, 3)
@@ -60,14 +64,20 @@ class CoverEngine(FakeSimulationEngine):
     ) -> None:
         self.cash[client_id] += delta
 
-    def hold(self, asset: FixedIncomeAssetDTO, applied: str, current: str) -> None:
+    def hold(
+        self,
+        asset: FixedIncomeAssetDTO,
+        applied: str,
+        current: str,
+        owner: uuid.UUID = INVESTOR,
+    ) -> None:
         position = FixedIncomePosition(
             asset=asset,
             total_applied=Decimal(applied),
             first_applied_date=FIRST_MONTH,
         )
         position.current_value = Decimal(current)
-        self.fixed_broker.get_fixed_positions(INVESTOR)[asset.asset_uuid] = position
+        self.fixed_broker.get_fixed_positions(owner)[asset.asset_uuid] = position
 
     def held_names(self) -> set[str]:
         return {
@@ -110,6 +120,11 @@ def sent(monkeypatch: pytest.MonkeyPatch) -> Sent:
         "backend.features.credit.credit_book.notify", lambda *_args, **_kwargs: None
     )
     return messages
+
+
+def _fund_route(client_id: uuid.UUID) -> tuple[tuple[uuid.UUID, ...], int] | None:
+    """A conta da gestora fala com os gestores dela; a pessoal fala por si."""
+    return (OPERATORS, FUND_ID) if client_id == FUND else None
 
 
 def title(rate_index: RateIndexType, nth: int = 0) -> FixedIncomeAssetDTO:
@@ -276,10 +291,16 @@ def test_automatic_debits_sell_before_debiting(pay, reason, sent: Sent):
     assert [payload["reason"] for _n, payload, _t in sent] == [reason]
 
 
+@pytest.mark.parametrize("on_fund", [False, True], ids=["personal", "fund"])
 def test_loan_installment_is_covered_before_it_becomes_late(
-    monkeypatch: pytest.MonkeyPatch, sent: Sent, captured_events: list[BaseEventDTO]
+    monkeypatch: pytest.MonkeyPatch,
+    sent: Sent,
+    captured_events: list[BaseEventDTO],
+    on_fund: bool,
 ):
+    owner = FUND if on_fund else INVESTOR
     engine = CoverEngine("10000", day=START)
+    engine.use_account_route(_fund_route)
     engine.fixed_income_market = FixedIncomeMarket(1, date(2035, 1, 1))
     engine.credit_book = CreditBook(
         engine,
@@ -292,27 +313,28 @@ def test_loan_installment_is_covered_before_it_becomes_late(
     engine.receive_loan = lambda client_id, amount: engine.add_cash(client_id, amount)
     engine.pay_loan = lambda client_id, amount: engine.add_cash(client_id, -amount)
     engine.assets_value = lambda client_id: engine.cash[client_id]
-    loan = engine.credit_book.contract(INVESTOR, Decimal(5000), 12)
+    engine.cash[owner] = Decimal(10000)
+    loan = engine.credit_book.contract(owner, Decimal(5000), 12)
     installment = loan.state.due_amount()
     due = loan.state.next_due
     # O caixa todo vai para um título de liquidez diária
-    engine.cash[INVESTOR] = Decimal(0)
-    engine.hold(cdb("CDB", "0.10"), "20000", "20000")
+    engine.cash[owner] = Decimal(0)
+    engine.hold(cdb("CDB", "0.10"), "20000", "20000", owner)
 
     day = START
     while day < due:
         day += timedelta(days=1)
         engine.current_date = day
-        engine.credit_book.process_due([INVESTOR], day, 1)
+        engine.credit_book.process_due([owner], day, 1)
 
     events = [e for e in captured_events if isinstance(e, CreditEventDTO)]
     assert events[-1].event_type is CreditEventType.INSTALLMENT_PAID
     assert CreditEventType.INSTALLMENT_LATE not in {e.event_type for e in events}
     assert loan.paid_installments == 1
-    assert engine.cash[INVESTOR] == 0
-    assert [payload["reason"] for _n, payload, _t in sent] == [
+    assert engine.cash[owner] == 0
+    assert {payload["reason"] for _n, payload, _t in sent} == {
         "a parcela do empréstimo"
-    ]
+    }
     assert Decimal(sent[0][1]["net_amount"]) == installment
 
 
@@ -337,3 +359,84 @@ def test_covers_a_debit_selling_dollars_of_the_dollar_account(sent: Sent):
     assert engine.cash[INVESTOR] >= Decimal(3000) - CENT
     [position] = engine.fixed_broker.get_fixed_positions(INVESTOR).values()
     assert Decimal(1300) < position.current_value < Decimal(1500)
+
+
+FUND_DEBITS = [
+    (CashflowEventType.FUND_MANAGEMENT_FEE, "a taxa de administração"),
+    (CashflowEventType.FUND_PERFORMANCE_FEE, "a taxa de performance"),
+    (CashflowEventType.FUND_DISTRIBUTION, "o rendimento mensal"),
+    (CashflowEventType.FUND_MERGE_EXIT, "a saída de quem votou contra a fusão"),
+    (CashflowEventType.LOAN_PAYMENT, "a parcela do empréstimo"),
+]
+
+
+@pytest.mark.parametrize(("kind", "reason"), FUND_DEBITS)
+def test_a_fund_debit_sells_the_daily_liquidity_title_of_the_fund(
+    kind: CashflowEventType, reason: str, sent: Sent
+):
+    engine = CoverEngine("0")
+    engine.use_account_route(_fund_route)
+    engine.hold(cdb("CDB da gestora", "0.10"), "10000", "10000", FUND)
+
+    engine.cover_before_debit(FUND, Decimal(900), kind)
+
+    assert engine.cash[FUND] == Decimal(900)
+    assert engine.fixed_broker.get_fixed_positions(FUND)
+    assert engine.cash[INVESTOR] == 0
+    assert {to for _n, _p, to in sent} == set(OPERATORS)
+    for _name, payload, _to in sent:
+        assert payload["reason"] == reason
+        assert payload["account"] == FUND_ID
+        assert payload["asset_name"] == "CDB da gestora"
+
+
+def test_the_fund_notice_reaches_each_operator_once_per_sold_title(sent: Sent):
+    engine = CoverEngine("0")
+    engine.use_account_route(_fund_route)
+    engine.hold(cdb("CDB baixo", "0.05"), "400", "400", FUND)
+    engine.hold(cdb("CDB alto", "0.12"), "10000", "10000", FUND)
+
+    engine.cover_before_debit(FUND, Decimal(900), CashflowEventType.FUND_DISTRIBUTION)
+
+    assert sorted((p["asset_name"], to) for _n, p, to in sent) == sorted(
+        (name, operator) for name in ("CDB baixo", "CDB alto") for operator in OPERATORS
+    )
+
+
+def test_the_fund_never_sells_the_marked_titles_even_when_the_personal_option_is_on(
+    sent: Sent,
+):
+    """A opção do perfil vale para a carteira pessoal; a gestora vende só os de liquidez diária."""
+    engine = CoverEngine("0")
+    engine.use_account_route(_fund_route)
+    engine.marked_allowed = True
+    engine.use_risk_premium(lambda _day: PREMIUM)
+    engine.hold(title(PREFIXED), "10000", "10500", FUND)
+
+    engine.cover_before_debit(FUND, Decimal(900), CashflowEventType.FUND_MANAGEMENT_FEE)
+
+    assert sent == []
+    assert engine.cash[FUND] == 0
+
+
+def test_the_fund_without_fixed_income_covers_nothing_and_keeps_its_cash(sent: Sent):
+    engine = CoverEngine("0")
+    engine.use_account_route(_fund_route)
+    engine.cash[FUND] = Decimal(100)
+
+    engine.cover_before_debit(FUND, Decimal(900), CashflowEventType.FUND_DISTRIBUTION)
+
+    assert sent == []
+    assert engine.cash[FUND] == 100
+
+
+def test_the_fund_covers_what_it_can_when_the_titles_are_not_enough(sent: Sent):
+    engine = CoverEngine("0")
+    engine.use_account_route(_fund_route)
+    engine.cash[FUND] = Decimal(100)
+    engine.hold(cdb("CDB pequeno", "0.10"), "300", "300", FUND)
+
+    engine.cover_before_debit(FUND, Decimal(900), CashflowEventType.FUND_DISTRIBUTION)
+
+    assert engine.fixed_broker.get_fixed_positions(FUND) == {}
+    assert engine.cash[FUND] == Decimal(400)

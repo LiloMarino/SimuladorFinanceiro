@@ -47,4 +47,17 @@ describe("issuanceRows", () => {
     expect(rows.map((row) => row.how)).toEqual(["Emissão dirigida", "Emissão pública", "Oferta pública"]);
     expect(rows[0]?.buyers).toBe("ana");
   });
+
+  it("só a emissão fechada sem cota vendida traz o motivo", () => {
+    const rows = issuanceRows(
+      fund({
+        movements: [
+          { day: "2004-06-01", type: "issuance_closed", quotas: "0", price: "110", amount: "0" },
+          { day: "2004-05-01", type: "issuance_closed", quotas: "100", price: "110", amount: "11000" },
+        ] as FundDetails["movements"],
+      }),
+    );
+
+    expect(rows.map((row) => row.unsoldReason !== null)).toEqual([true, false, false]);
+  });
 });

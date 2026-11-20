@@ -187,6 +187,7 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
             fundName={fund.name}
             nav={nav}
             totalQuotas={total}
+            rules={fund.issuance_rules}
           />
           <DirectedIssuanceDialog open={dialog === "directed"} onOpenChange={closeDialog} fund={fund} />
           <BuybackDialog open={dialog === "buyback"} onOpenChange={closeDialog} fund={fund} />

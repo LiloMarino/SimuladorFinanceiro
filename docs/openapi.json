@@ -16004,6 +16004,17 @@
           "reason": {
             "type": "string",
             "title": "Reason"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
           }
         },
         "additionalProperties": false,
@@ -16011,7 +16022,8 @@
         "required": [
           "asset_name",
           "net_amount",
-          "reason"
+          "reason",
+          "account"
         ],
         "title": "AutoRedeemEventDTO",
         "description": "Um título vendido pelo sistema para cobrir um débito automático."
@@ -25467,6 +25479,9 @@
               }
             ]
           },
+          "issuance_rules": {
+            "$ref": "#/components/schemas/FundIssuanceRulesDTO"
+          },
           "buyback": {
             "anyOf": [
               {
@@ -25604,6 +25619,7 @@
           "offer_buyers",
           "offer_buyers_count",
           "issuance",
+          "issuance_rules",
           "buyback",
           "assembly",
           "positions",
@@ -26520,6 +26536,36 @@
           "quotas"
         ],
         "title": "FundIssuanceRequest"
+      },
+      "FundIssuanceRulesDTO": {
+        "properties": {
+          "preference_sessions": {
+            "type": "integer",
+            "title": "Preference Sessions"
+          },
+          "leftover_sessions": {
+            "type": "integer",
+            "title": "Leftover Sessions"
+          },
+          "bot_premium_limit": {
+            "type": "number",
+            "title": "Bot Premium Limit"
+          },
+          "bot_opinion_range": {
+            "type": "number",
+            "title": "Bot Opinion Range"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "preference_sessions",
+          "leftover_sessions",
+          "bot_premium_limit",
+          "bot_opinion_range"
+        ],
+        "title": "FundIssuanceRulesDTO",
+        "description": "As regras da emissão de cotas que o front explica: a janela de cada fase e como o bot valora a cota."
       },
       "FundIssuanceStatusDTO": {
         "properties": {

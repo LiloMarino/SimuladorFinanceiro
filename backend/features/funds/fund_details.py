@@ -18,6 +18,7 @@ from backend.core.dto.fund import (
     FundHolderDTO,
     FundHolderKind,
     FundHoldingClass,
+    FundIssuanceRulesDTO,
     FundIssuanceStatusDTO,
     FundMonthlyReportDTO,
     FundMovementDTO,
@@ -41,6 +42,8 @@ from backend.features.funds import fund_ledger
 from backend.features.funds.distribution import drained_since, paid_since
 from backend.features.funds.fees import management_fee, performance_charge
 from backend.features.funds.fund_book import (
+    LEFTOVER_SESSIONS,
+    PREFERENCE_SESSIONS,
     Fund,
     FundBook,
     cdi_growth,
@@ -48,6 +51,8 @@ from backend.features.funds.fund_book import (
 from backend.features.funds.fund_comanagers import expires_on, manager_share
 from backend.features.funds.fund_directed import expires_on as directed_expires_on
 from backend.features.simulation.simulation_engine import SimulationEngine
+from backend.features.strategy.fair_value_trading import OPINION_RANGE
+from backend.features.strategy.fund_quotas import PREMIUM_LIMIT
 from backend.features.variable_income.broker import replay_positions
 
 # Pregões lidos da série de fechamentos: de sobra para os últimos 12 meses
@@ -212,6 +217,12 @@ class FundDetailsBuilder:
             offer_buyers=offer.buyers,
             offer_buyers_count=offer.buyers_count,
             issuance=self._issuance(fund, viewer, today),
+            issuance_rules=FundIssuanceRulesDTO(
+                preference_sessions=PREFERENCE_SESSIONS,
+                leftover_sessions=LEFTOVER_SESSIONS,
+                bot_premium_limit=PREMIUM_LIMIT,
+                bot_opinion_range=OPINION_RANGE,
+            ),
             buyback=book.buyback_of(fund),
             assembly=book.assembly_panel(
                 fund, viewer, {user.id: user.nickname for user in users}, self._colors()

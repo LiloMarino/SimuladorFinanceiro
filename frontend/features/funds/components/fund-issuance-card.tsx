@@ -81,10 +81,10 @@ function SubscribeForm({ fundId, issuance, rightsLeft }: SubscribeFormProps) {
   );
 }
 
-type FundIssuanceCardProps = { fund: FundDetails; viewer: boolean };
+type FundIssuanceCardProps = { fund: FundDetails };
 
 /** Cartão da emissão no topo da página: preferência dos cotistas, sobra aberta ou encerrada, com o que já nasceu. */
-export function FundIssuanceCard({ fund, viewer }: FundIssuanceCardProps) {
+export function FundIssuanceCard({ fund }: FundIssuanceCardProps) {
   const issuance = fund.issuance;
   if (issuance === null) return null;
 
@@ -94,6 +94,7 @@ export function FundIssuanceCard({ fund, viewer }: FundIssuanceCardProps) {
   const sold = Number(issuance.sold);
   const rights = issuance.my_rights === null ? null : Number(issuance.my_rights);
   const rightsLeft = rightsLeftOf(issuance);
+  const rules = fund.issuance_rules;
 
   return (
     <Card variant={closed ? "default" : "info"}>
@@ -127,26 +128,44 @@ export function FundIssuanceCard({ fund, viewer }: FundIssuanceCardProps) {
                 <>. A sobra vai até {displayIsoDate(issuance.ends_on)}.</>
               ))}
           </p>
-          {!closed && viewer && preference && rights !== null && rightsLeft > 0 && (
+          {!closed && preference && rights !== null && rightsLeft > 0 && (
             <>
               <p className="text-[13px]">
                 <MetricLabel metric={PREFERENCE_RIGHT} />:{" "}
                 <b className="font-mono font-semibold">{displayQuantity(String(rightsLeft))}</b> cotas
               </p>
+              <p className="text-[13px] text-muted-foreground">
+                Comprar as {displayQuantity(String(rights))} cotas do seu direito garante que a sua participação não cai
+                com a emissão.
+              </p>
               <SubscribeForm fundId={fund.id} issuance={issuance} rightsLeft={rightsLeft} />
             </>
           )}
-          {!closed && viewer && preference && (rights === null || rightsLeft === 0) && (
+          {!closed && preference && (rights === null || rightsLeft === 0) && (
             <p className="text-[13px] text-muted-foreground">
               {rights === null
                 ? `Só quem tinha cotas no anúncio compra agora. Para você, a emissão abre em ${displayIsoDate(issuance.preference_ends_on)}.`
                 : "Você já usou todo o seu direito de preferência. A sobra abre a todos depois da preferência."}
             </p>
           )}
-          {!closed && viewer && !preference && (
+          {!closed && !preference && (
             <p className="text-[13px] text-muted-foreground">
               A sobra está aberta: compre pelo livro de ofertas, ao preço fixo de {displayMoney(issuance.price)}.
             </p>
+          )}
+          {!closed && (
+            <div className="grid gap-1 border-t pt-3 text-[13px] text-muted-foreground">
+              <b className="font-semibold text-foreground">Quem compra e quando</b>
+              <p>
+                Preferência ({rules.preference_sessions} pregões): só os cotistas do anúncio, cada um até o seu direito.
+              </p>
+              <p>Sobra ({rules.leftover_sessions} pregões): qualquer jogador, pelo livro de ofertas, ao preço fixo.</p>
+              <p>
+                Bots: só no último pregão da sobra, e só se o preço da emissão couber no valor que dão à cota, que é o
+                patrimônio por cota mais um prêmio de até ±{displayPercent(rules.bot_premium_limit, 0)} pelo desempenho
+                acima do CDI. Cada bot ainda varia a opinião em até ±{displayPercent(rules.bot_opinion_range, 0)}.
+              </p>
+            </div>
           )}
         </div>
       </CardContent>

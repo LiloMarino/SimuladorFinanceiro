@@ -1,12 +1,13 @@
 import { CalendarClock, TriangleAlert } from "lucide-react";
-import { useState } from "react";
 import { FundSection } from "@/shared/components/fund-section";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { MetricLabel } from "@/shared/components/metric-hint";
+import { PageControls } from "@/shared/components/page-controls";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { usePagedRows } from "@/shared/hooks/usePagedRows";
 import { DIVIDEND_YIELD, DISTRIBUTION_RATE, REALIZED_PROFIT, YIELD_PER_QUOTA } from "@/shared/lib/fund-metrics";
 import { isLosingMonth } from "@/shared/lib/fund-view";
 import {
@@ -143,32 +144,11 @@ function HistoryRow({ row }: { row: Distribution }) {
 
 /** O histórico de rendimentos, do mais novo ao mais antigo, de 6 em 6 meses. */
 function HistoryCard({ fund }: { fund: FundDetails }) {
-  const [page, setPage] = useState(0);
   const rows = [...fund.distributions].sort((a, b) => b.data_com.localeCompare(a.data_com));
-  const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-  const current = Math.min(page, pages - 1);
-  const from = current * PAGE_SIZE;
-  const shown = rows.slice(from, from + PAGE_SIZE);
+  const paging = usePagedRows(rows, PAGE_SIZE);
 
   return (
-    <FundSection
-      title="Histórico"
-      action={
-        rows.length > PAGE_SIZE && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">
-              {from + 1}–{from + shown.length} de {rows.length} meses
-            </span>
-            <Button size="xs" variant="outline" disabled={current === 0} onClick={() => setPage(current - 1)}>
-              Anterior
-            </Button>
-            <Button size="xs" variant="outline" disabled={current >= pages - 1} onClick={() => setPage(current + 1)}>
-              Próxima
-            </Button>
-          </div>
-        )
-      }
-    >
+    <FundSection title="Histórico" action={<PageControls paging={paging} unit="meses" />}>
       {rows.length === 0 ? (
         <p className="text-[13px] text-muted-foreground">
           Nenhum rendimento apurado ainda: o primeiro sai no último pregão do mês.
@@ -187,7 +167,7 @@ function HistoryCard({ fund }: { fund: FundDetails }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {shown.map((row) => (
+            {paging.shown.map((row) => (
               <HistoryRow key={row.data_com} row={row} />
             ))}
           </TableBody>

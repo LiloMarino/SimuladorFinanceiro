@@ -204,6 +204,8 @@ class AutoRedeemEventDTO(BaseDTO):
     net_amount: Decimal
     # A despesa coberta, já em texto: "a despesa do mês", "a parcela do empréstimo"
     reason: str
+    # A gestora dona do título vendido; nulo é a carteira pessoal
+    account: int | None
 
 
 class DividendLineDTO(BaseDTO):

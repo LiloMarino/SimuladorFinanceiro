@@ -1,9 +1,11 @@
 import { CalendarClock, TriangleAlert } from "lucide-react";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { MetricLabel } from "@/shared/components/metric-hint";
+import { PageControls } from "@/shared/components/page-controls";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { usePagedRows } from "@/shared/hooks/usePagedRows";
 import { displayIsoDate, displayMoney, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { isLosingMonth } from "@/shared/lib/fund-view";
@@ -11,6 +13,8 @@ import { DISTRIBUTION_RATE, REALIZED_PROFIT, YIELD_PER_QUOTA } from "@/shared/li
 import { FundSection } from "@/shared/components/fund-section";
 
 type Distribution = FundDetails["distributions"][number];
+
+const PAGE_SIZE = 6;
 
 /** A linha do histórico: o lucro do mês, o que foi pago, por cota e quando; mês de prejuízo não paga. */
 function DistributionRow({ row }: { row: Distribution }) {
@@ -35,6 +39,7 @@ function DistributionRow({ row }: { row: Distribution }) {
 /** Os rendimentos da gestora: a parte distribuída, o mês em curso e o histórico do que foi pago. */
 export function FundDistributionsCard({ fund, onChange }: { fund: FundDetails; onChange?: () => void }) {
   const plan = fund.distribution;
+  const paging = usePagedRows(fund.distributions, PAGE_SIZE);
 
   return (
     <FundSection
@@ -96,12 +101,15 @@ export function FundDistributionsCard({ fund, onChange }: { fund: FundDetails; o
               </TableRow>
             </TableHeader>
             <TableBody>
-              {fund.distributions.map((row) => (
+              {paging.shown.map((row) => (
                 <DistributionRow key={row.data_com} row={row} />
               ))}
             </TableBody>
           </Table>
         )}
+        <div className="flex justify-end">
+          <PageControls paging={paging} unit="meses" />
+        </div>
       </div>
     </FundSection>
   );

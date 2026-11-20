@@ -86,6 +86,10 @@ COVER_REASONS: dict[CashflowEventType, str] = {
     CashflowEventType.TAX: "o imposto de renda",
     CashflowEventType.LOAN_PAYMENT: "a parcela do empréstimo",
     CashflowEventType.CAMPAIGN_CONTRIBUTION: "a contribuição ao partido",
+    CashflowEventType.FUND_MANAGEMENT_FEE: "a taxa de administração",
+    CashflowEventType.FUND_PERFORMANCE_FEE: "a taxa de performance",
+    CashflowEventType.FUND_DISTRIBUTION: "o rendimento mensal",
+    CashflowEventType.FUND_MERGE_EXIT: "a saída de quem votou contra a fusão",
 }
 
 
@@ -260,22 +264,21 @@ class SimulationEngine:
         shortfall = needed - self.get_cash(client_id)
         if needed <= 0 or shortfall <= 0:
             return
-        # Só a conta pessoal tem renda fixa a vender: o caixa da gestora é só caixa
-        if self.audience(client_id)[1] is not None:
-            return
+        # O título marcado como reserva só entra na conta pessoal que o jogador liberou no perfil
         source = self._cover_marked_source
-        include_marked = source is not None and source(client_id)
+        audience, account = self.audience(client_id)
+        include_marked = account is None and source is not None and source(client_id)
         sales = self.fixed_broker.sell_for_cash(client_id, shortfall, include_marked)
+        # O aviso vai a quem opera a conta: o dono da pessoal ou os gestores da gestora
         for sale in sales:
-            notify(
-                "auto_redeem",
-                AutoRedeemEventDTO(
-                    asset_name=sale.asset.name,
-                    net_amount=sale.net,
-                    reason=COVER_REASONS[kind],
-                ).to_json(),
-                to=client_id,
-            )
+            payload = AutoRedeemEventDTO(
+                asset_name=sale.asset.name,
+                net_amount=sale.net,
+                reason=COVER_REASONS[kind],
+                account=account,
+            ).to_json()
+            for recipient in audience:
+                notify("auto_redeem", payload, to=recipient)
 
     def _move_cash(
         self,

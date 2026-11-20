@@ -18,11 +18,13 @@ from backend.features.notifications.news import Headline
 from backend.features.variable_income.entities.order import (
     FUND_ISSUER_CLIENT_ID,
     LimitOrder,
+    MarketOrder,
 )
 from tests.fakes import USER_ID, client
 from tests.test_fund_book import (
     BUYER,
     MANAGER,
+    MANAGER_USER,
     TICKER,
     TODAY,
     MemoryFunds,
@@ -36,6 +38,7 @@ ANA = UserDTO(id=USER_ID, client_id=BUYER, nickname="Ana")
 CARLA = UserDTO(id=2, client_id=client("carla"), nickname="Carla")
 LATE = UserDTO(id=3, client_id=client("tardio"), nickname="Tardio")
 ROBOT = UserDTO(id=4, client_id=client("robo"), nickname="Robô", is_bot=True)
+GESTOR = UserDTO(id=MANAGER_USER, client_id=MANAGER, nickname="Gestor")
 
 # Cotas em circulação depois da oferta de 200: 1000 + 120 do formador
 QUOTAS = Decimal(1120)
@@ -50,13 +53,18 @@ def _give(setup: Setup, user: UserDTO, quotas: int) -> None:
     setup.engine.broker.buy_from_fund(user.client_id, TICKER, Decimal(quotas), NAV)
 
 
-def _issuable(memory: MemoryFunds, published: list[Headline] | None = None) -> Setup:
-    """Gestora com a oferta encerrada, Ana com 10% das cotas e Carla com 5%."""
+def _issuable(
+    memory: MemoryFunds,
+    published: list[Headline] | None = None,
+    *,
+    others: tuple[UserDTO, ...] = (),
+) -> Setup:
+    """Gestora com a oferta encerrada, Ana com 10% das cotas e Carla com 5%; `others` também entram na sala."""
     log = published if published is not None else []
     setup = _setup(
         memory,
         publish=lambda day, headline: log.append(headline),
-        participants=lambda: [ANA, CARLA, LATE, ROBOT],
+        participants=lambda: [ANA, CARLA, LATE, ROBOT, *others],
     )
     setup.book.open_offer(TICKER, Decimal(200))
     setup.book.close_offer(TICKER)
@@ -441,3 +449,57 @@ def test_the_day_after_the_announcement_still_counts_as_preference(
         "preference"
     )
     setup.book.subscribe_issuance(TICKER, ANA, Decimal(1))
+
+
+def test_the_manager_buys_in_the_preference_and_in_the_leftover_and_ends_above_the_share_of_who_did_not_buy(
+    memory: MemoryFunds,
+):
+    """O gestor tem direito como qualquer cotista; comprando a preferência e a sobra, a fatia dele sobe."""
+    setup = _issuable(memory, others=(GESTOR,))
+    _give(setup, GESTOR, 100)
+    setup.engine.cash[MANAGER] += Decimal(100000)
+    fund = setup.book.get(TICKER)
+    before = setup.book.quotas_of(fund, GESTOR) / fund.account.quotas
+
+    setup.book.announce_issuance(TICKER, Decimal(200))
+    rights = fund.issuance_rights[GESTOR.id].rights
+    assert rights == 17  # floor(200 x 100 / 1120)
+    setup.book.subscribe_issuance(TICKER, GESTOR, rights)
+    setup.tick(LEFTOVER_START)
+    setup.engine.matching_engine.submit(
+        MarketOrder(
+            client_id=MANAGER,
+            ticker=TICKER,
+            size=Decimal(10),
+            action=OrderAction.BUY,
+            placed_on=setup.engine.current_date,
+        )
+    )
+
+    bought = rights + 10
+    assert setup.book.quotas_of(fund, GESTOR) == 100 + bought
+    assert fund.issuance is not None and fund.issuance.sold == bought
+    after = setup.book.quotas_of(fund, GESTOR) / fund.account.quotas
+    # Sem comprar, as mesmas cotas novas nasceriam para outros e a fatia ficaria menor
+    without_buying = Decimal(100) / fund.account.quotas
+    assert after > before > without_buying
+
+
+def test_buying_the_whole_right_keeps_the_share_when_the_whole_issuance_sells(
+    memory: MemoryFunds,
+):
+    """O direito é a parte proporcional da emissão: com ela toda vendida, a fatia de quem o comprou fica igual."""
+    setup = _issuable(memory, others=(GESTOR,))
+    _give(setup, GESTOR, 112)
+    setup.engine.cash[MANAGER] += Decimal(100000)
+    fund = setup.book.get(TICKER)
+    before = setup.book.quotas_of(fund, GESTOR) / fund.account.quotas
+
+    setup.book.announce_issuance(TICKER, Decimal(200))
+    rights = fund.issuance_rights[GESTOR.id].rights
+    setup.book.subscribe_issuance(TICKER, GESTOR, rights)
+    setup.tick(LEFTOVER_START)
+    setup.buy(int(200 - rights))
+
+    assert fund.account.quotas == QUOTAS + 200
+    assert setup.book.quotas_of(fund, GESTOR) / fund.account.quotas == before

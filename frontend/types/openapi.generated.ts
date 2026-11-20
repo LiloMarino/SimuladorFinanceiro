@@ -5312,6 +5312,8 @@ export interface components {
             net_amount: string;
             /** Reason */
             reason: string;
+            /** Account */
+            account: number | null;
         };
         /** AverageSeriesDTO */
         AverageSeriesDTO: {
@@ -8507,6 +8509,7 @@ export interface components {
             /** Offer Buyers Count */
             offer_buyers_count: number | null;
             issuance: components["schemas"]["FundIssuanceStatusDTO"] | null;
+            issuance_rules: components["schemas"]["FundIssuanceRulesDTO"];
             buyback: components["schemas"]["FundBuybackDTO"] | null;
             assembly: components["schemas"]["FundAssemblyPanelDTO"];
             /** Positions */
@@ -8840,6 +8843,20 @@ export interface components {
         FundIssuanceRequest: {
             /** Quotas */
             quotas: number;
+        };
+        /**
+         * FundIssuanceRulesDTO
+         * @description As regras da emissão de cotas que o front explica: a janela de cada fase e como o bot valora a cota.
+         */
+        FundIssuanceRulesDTO: {
+            /** Preference Sessions */
+            preference_sessions: number;
+            /** Leftover Sessions */
+            leftover_sessions: number;
+            /** Bot Premium Limit */
+            bot_premium_limit: number;
+            /** Bot Opinion Range */
+            bot_opinion_range: number;
         };
         /**
          * FundIssuanceStatusDTO

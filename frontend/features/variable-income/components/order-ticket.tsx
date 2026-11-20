@@ -10,7 +10,7 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
 import { PersonalAccountNotice } from "@/shared/components/personal-account-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
-import { accountTone, isSovereignAccount } from "@/shared/lib/active-account";
+import { accountTone, isManagedFundAccount, isSovereignAccount } from "@/shared/lib/active-account";
 import { useTradeLock } from "@/shared/hooks/useTradeLock";
 import { TradeLockNotice } from "@/shared/components/trade-lock-notice";
 import { ErrorState } from "@/shared/components/error-state";
@@ -58,6 +58,11 @@ type OrderTicketProps = {
   /** A gestora dona da cota; só existe quando o ativo é cota de gestora */
   fund?: FundDetails | undefined;
 };
+
+const PERSONAL_QUOTA_NOTICE = "As cotas entram e saem da sua carteira pessoal. Volte para ela para comprar ou vender.";
+
+/** O texto com que o servidor recusa a compra de cota por conta de gestora. */
+const MANAGED_FUND_QUOTA_REFUSAL = "A gestora não compra cota de gestora.";
 
 /** Boleta: escolhe a ordem e mostra, antes de enviar, o que ela faz com o caixa e o IR. */
 export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quotaFund }: OrderTicketProps) {
@@ -111,6 +116,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   const cashLabel = sovereign ? "Caixa do fundo" : fund ? "Caixa da gestora" : "Caixa";
   // A cota entra e sai da carteira pessoal: com qualquer conta de fundo ativa a ordem fica bloqueada
   const quotaOnFundAccount = quotaFund !== undefined && fund !== null;
+  const managedFundBuysQuota = quotaOnFundAccount && isManagedFundAccount(fund);
 
   const selling = action === "sell";
   // A fatia e o teto do fundo só existem na compra pela conta dele
@@ -165,27 +171,29 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
     : `${displayMoney(amountNumber)} não paga ${minimumUnit} ${ticker} (${displayMoney(preview?.price ?? 0)}).`;
 
   // O motivo do botão apagado: o primeiro que impede a ordem
-  const blockedReason = quotaOnFundAccount
-    ? "Volte para a carteira pessoal para negociar a cota."
-    : error
-      ? "Atualize a prévia antes de enviar."
-      : !requestMatches || !preview
-        ? "Conferindo a ordem…"
-        : !hasSize
-          ? byAmount
-            ? "Digite o valor da ordem."
-            : "Digite a quantidade."
-          : kind === "limit" && !limitPrice
-            ? "Digite o preço limite."
-            : invalidSize
-              ? byAmount
-                ? amountError
-                : quantityError
-              : sovereignRefusal !== null
-                ? sovereignRefusal
-                : !preview.price
-                  ? "Não há preço de mercado agora."
-                  : null;
+  const blockedReason = managedFundBuysQuota
+    ? MANAGED_FUND_QUOTA_REFUSAL
+    : quotaOnFundAccount
+      ? "Volte para a carteira pessoal para negociar a cota."
+      : error
+        ? "Atualize a prévia antes de enviar."
+        : !requestMatches || !preview
+          ? "Conferindo a ordem…"
+          : !hasSize
+            ? byAmount
+              ? "Digite o valor da ordem."
+              : "Digite a quantidade."
+            : kind === "limit" && !limitPrice
+              ? "Digite o preço limite."
+              : invalidSize
+                ? byAmount
+                  ? amountError
+                  : quantityError
+                : sovereignRefusal !== null
+                  ? sovereignRefusal
+                  : !preview.price
+                    ? "Não há preço de mercado agora."
+                    : null;
 
   // Tudo gasta o caixa inteiro, em reais; as frações valem na unidade do modo ativo
   const fillShortcut = (share: number) => {
@@ -232,7 +240,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
         <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
           {!locked && quotaOnFundAccount && (
             <PersonalAccountNotice>
-              As cotas entram e saem da sua carteira pessoal. Volte para ela para comprar ou vender.
+              {managedFundBuysQuota ? `${MANAGED_FUND_QUOTA_REFUSAL} ${PERSONAL_QUOTA_NOTICE}` : PERSONAL_QUOTA_NOTICE}
             </PersonalAccountNotice>
           )}
           <ToggleGroup

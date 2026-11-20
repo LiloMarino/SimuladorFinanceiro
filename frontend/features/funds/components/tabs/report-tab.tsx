@@ -3,8 +3,8 @@ import { useState } from "react";
 import { CardState } from "@/shared/components/card-state";
 import { FundSection } from "@/shared/components/fund-section";
 import { KeyValueRow } from "@/shared/components/key-value-row";
+import { RecentPicker } from "@/shared/components/recent-picker";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -165,20 +165,19 @@ export function ReportTab({ fund }: { fund: FundDetails }) {
           Relatório de {displayMonthName(`${month}-01`)} de {month.slice(0, 4)}
         </h2>
         {report && (
-          <ToggleGroup
-            variant="segmented"
+          <RecentPicker
             aria-label="Mês do relatório"
-            value={[month]}
-            onValueChange={(values) => {
-              if (values[0]) setPicked(values[0]);
-            }}
-          >
-            {report.months.map((item) => (
-              <ToggleGroupItem key={item} value={monthKey(item)}>
-                {displayMonthSlashYear(item)}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
+            items={report.months.map((item) => ({
+              value: monthKey(item),
+              label: displayMonthSlashYear(item),
+              cell: <span className="text-sm font-semibold">{displayMonthSlashYear(item)}</span>,
+            }))}
+            value={month}
+            onChange={setPicked}
+            title={`Relatórios da gestora · ${report.months.length}`}
+            noun="meses"
+            description="Cada mês abre o relatório do último pregão dele."
+          />
         )}
       </div>
       {!report && (
