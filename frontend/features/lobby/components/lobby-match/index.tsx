@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,9 +21,11 @@ import { useCreateSimulation } from "../../hooks/mutations/useCreateSimulation";
 import { useDistributeTeams } from "../../hooks/mutations/useDistributeTeams";
 import { usePreparations } from "../../hooks/queries/usePreparations";
 import { useRealtimeSyncSimulationForm } from "../../hooks/useRealtimeSyncSimulationForm";
+import { useRoomHeir } from "../../hooks/useRoomHeir";
 import { checkCoverage } from "../../lib/coverage";
+import { blockingHeirFloor, minimumGoal } from "../../lib/minimum-goal";
 import {
-  simulationFormSchema,
+  createSimulationFormSchema,
   toFormValues,
   toSettingsBody,
   type SimulationFormValues,
@@ -37,6 +39,8 @@ import { ContinueActions, NewGameActions, WaitingForHost } from "./start-actions
 import { summaryRows } from "./summary-rows";
 import { TeamsBlock } from "./teams-block";
 
+// As regras gravadas numa partida salva já foram aceitas: o piso do Herdeiro só vale para a partida nova
+const SAVED_RULES_SCHEMA = createSimulationFormSchema(null);
 const NO_COVERAGE_ISSUES = { missingAtStart: [], endingBeforeEnd: [] };
 const IDLE_SAVE_STATUS = {
   savedAt: null,
@@ -72,11 +76,18 @@ export function LobbyMatch({
 }: LobbyMatchProps) {
   const [rulesOpen, setRulesOpen] = useState(false);
 
+  // O schema nasce com o Herdeiro da sala: a meta passa do capital inicial dele
+  const heir = useRoomHeir();
+  const schema = useMemo(() => createSimulationFormSchema(heir), [heir]);
   const form = useForm<SimulationFormValues>({
-    resolver: zodResolver(simulationFormSchema),
+    resolver: zodResolver(schema),
     mode: "onChange",
     defaultValues: toFormValues(simulationData),
   });
+  // Um Herdeiro novo ou um capital novo muda o schema; o formulário revalida com ele
+  useEffect(() => {
+    void form.trigger();
+  }, [schema, form]);
 
   const saveStatus = useRealtimeSyncSimulationForm({
     form,
@@ -138,6 +149,8 @@ export function LobbyMatch({
   const { data: preparations } = usePreparations();
   const preparationBlock = (preparations?.conflicts.length ?? 0) + (preparations?.fund_conflicts.length ?? 0) > 0;
   const pendingInvites = preparations?.pending_invites ?? 0;
+  // A meta abaixo do capital do Herdeiro trava o início e diz o piso
+  const heirFloor = blockingHeirFloor(heir, values);
   const canStart =
     isHost &&
     !busy &&
@@ -151,7 +164,7 @@ export function LobbyMatch({
   const rules = selectedSimulation ? toFormValues(selectedSimulation) : values;
   // Painel "Ver regras" da salva: o formulário acompanha as regras gravadas nela, sem edição
   const savedRulesForm = useForm<SimulationFormValues>({
-    resolver: zodResolver(simulationFormSchema),
+    resolver: zodResolver(SAVED_RULES_SCHEMA),
     defaultValues: values,
     ...(selectedSimulation ? { values: rules } : {}),
   });
@@ -265,6 +278,7 @@ export function LobbyMatch({
                   creating={creating}
                   busy={busy}
                   canStart={canStart}
+                  goalFloor={heirFloor === null ? null : minimumGoal(heirFloor)}
                   pendingInvites={rules.governmentEnabled ? pendingInvites : 0}
                   hasSavedSimulations={!!savedSimulations && savedSimulations.length > 0}
                   onCreate={() => createSimulation(createSimulationBody)}

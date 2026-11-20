@@ -23,6 +23,17 @@ export const INDEPENDENCE_GOAL: MetricInfo = {
   format: (value) => displayMoney(value),
 };
 
+export const MINIMUM_GOAL: MetricInfo = {
+  label: "Meta mínima",
+  description: "O piso da meta quando a sala tem um Herdeiro",
+  definition:
+    "A meta precisa passar do maior capital inicial da sala, bots incluídos. Capital inicial é o caixa mais o que a profissão ainda vai receber de salário, a valor de hoje.",
+  example:
+    "Ex.: o Herdeiro começa com caixa e salários a valor de hoje que somam R$ 1.580.000. Uma meta de R$ 1.200.000 ele já cumpre no primeiro dia.",
+  reading: "Sem Herdeiro na sala, a meta só precisa passar do saldo inicial.",
+  format: (value) => displayMoney(value),
+};
+
 export const RESERVE_MONTHS: MetricInfo = {
   label: "Reserva de emergência",
   description: "Quantos meses de despesa o caixa e a liquidez diária pagam sem você vender nada",

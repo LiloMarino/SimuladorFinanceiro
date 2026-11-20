@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_CEILING, Decimal
 from types import SimpleNamespace
 
 import pytest
@@ -22,6 +22,7 @@ from backend.core.enum import (
     StrategyLogKind,
 )
 from backend.core.exceptions.http_exceptions import ForbiddenError
+from backend.core.life_budget import LifeBudget
 from backend.core.player_colors import PLAYER_COLORS
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
@@ -796,3 +797,81 @@ def test_the_players_start_with_the_capital_of_their_profession(room, monkeypatc
     # Quem começa sem capital só tem o que o primeiro pregão paga e cobra
     assert sim.get_portfolio(bia.client_id).cash < Decimal(1000)
     assert sim.get_portfolio(caio.client_id).cash > Decimal(9000)
+
+
+def heir_capital(settings) -> Decimal:
+    return (
+        LifeBudget.of(settings)
+        .for_profession(Profession.HEIR)
+        .starting_capital(
+            settings.starting_cash, settings.start_date, settings.end_date
+        )
+    )
+
+
+def test_the_goal_must_pass_the_capital_of_a_heir_bot(room, monkeypatch):
+    # Despesa de 200 a 4% dá meta de 60.000, abaixo do que o Herdeiro leva consigo
+    settings = professions_rules(
+        monthly_expense=Decimal(200), withdrawal_rate=Decimal("0.04")
+    )
+    monkeypatch.setattr(SettingsManager, "_settings", settings)
+    ana = person("Ana")
+    UserManager.set_profession(ana.client_id, Profession.CLT)
+    UserManager.add_bot(
+        "Herdeiro", resolve_bot("cdi_100", {}, profession=Profession.HEIR)
+    )
+    capital = heir_capital(settings)
+    assert capital > LifeBudget.of(settings).goal_on(settings.start_date)
+
+    message = refusal(lambda: SimulationLoader.create(settings), status=422)
+
+    minimum = f"{capital.to_integral_value(rounding=ROUND_CEILING):,.0f}".replace(
+        ",", "."
+    )
+    assert message == f"Meta mínima de R$ {minimum} por causa de Herdeiro."
+    assert not SimulationManager.has_active_simulation()
+
+
+def test_the_goal_must_pass_the_capital_of_a_heir_player(room, monkeypatch):
+    settings = professions_rules(
+        monthly_expense=Decimal(200), withdrawal_rate=Decimal("0.04")
+    )
+    monkeypatch.setattr(SettingsManager, "_settings", settings)
+    ana = person("Ana")
+    UserManager.set_profession(ana.client_id, Profession.HEIR)
+
+    message = refusal(lambda: SimulationLoader.create(settings), status=422)
+
+    assert message.startswith("Meta mínima de R$ ")
+    assert message.endswith(" por causa de Ana.")
+
+
+def test_a_goal_above_the_heir_capital_is_accepted(room, monkeypatch):
+    settings = professions_rules(
+        monthly_expense=Decimal(200), withdrawal_rate=Decimal("0.04")
+    )
+    capital = heir_capital(settings)
+    # A despesa que faz a meta passar do capital do Herdeiro
+    settings = settings.model_copy(
+        update={"monthly_expense": capital * Decimal("0.04") / 12 + 1}
+    )
+    monkeypatch.setattr(SettingsManager, "_settings", settings)
+    ana = person("Ana")
+    UserManager.set_profession(ana.client_id, Profession.HEIR)
+
+    SimulationLoader.create(settings)
+
+    assert SimulationManager.has_active_simulation()
+
+
+def test_without_a_heir_the_floor_is_the_room_cash(room, monkeypatch):
+    settings = professions_rules(
+        monthly_expense=Decimal(200), withdrawal_rate=Decimal("0.04")
+    )
+    monkeypatch.setattr(SettingsManager, "_settings", settings)
+    ana = person("Ana")
+    UserManager.set_profession(ana.client_id, Profession.CLT)
+
+    SimulationLoader.create(settings)
+
+    assert SimulationManager.has_active_simulation()

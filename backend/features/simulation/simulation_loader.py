@@ -1,6 +1,6 @@
 from dataclasses import replace
 from datetime import date
-from decimal import Decimal
+from decimal import ROUND_CEILING, Decimal
 
 from backend.core import repository
 from backend.core.dto.fund import FundContributionRequest, FundFoundRequest
@@ -21,6 +21,7 @@ from backend.core.life_budget import LifeBudget
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
+from backend.core.utils import format_money
 from backend.features.candle_challenge.game import candle_game
 from backend.features.government import preparation
 from backend.features.government.room_preparation import RoomPreparation
@@ -61,6 +62,28 @@ class SimulationLoader:
             for user_id in user_ids
         }
 
+    @classmethod
+    def _ensure_goal_above_room_capital(cls, settings: SimulationSettingsDTO) -> None:
+        """A meta passa do maior capital inicial da sala, humanos e bots; abaixo disso alguém vence no primeiro dia."""
+        if not settings.uses_professions:
+            return
+        players = UserManager.list_active_players()
+        capitals = cls._starting_cash_by_user(
+            settings,
+            UserManager.chosen_professions(),
+            [p.id for p in players],
+            settings.start_date,
+        )
+        richest = max(players, key=lambda p: capitals[p.id], default=None)
+        if richest is None:
+            return
+        capital = capitals[richest.id]
+        if LifeBudget.of(settings).goal_on(settings.start_date) <= capital:
+            minimum = format_money(capital.to_integral_value(rounding=ROUND_CEILING))
+            raise UnprocessableEntityError(
+                f"Meta mínima de {minimum.removesuffix(',00')} por causa de {richest.nickname}."
+            )
+
     @staticmethod
     def _ensure_commissioned_parties(humans: list[UserDTO]) -> None:
         """Conferido ao iniciar: todo Comissionado da sala leva o partido de uma sigla que a partida terá."""
@@ -98,6 +121,7 @@ class SimulationLoader:
         )
         # As regras de agora valem para cada bot antes de a partida ser gravada
         validate_room_bots(settings.start_date)
+        cls._ensure_goal_above_room_capital(settings)
         bots = UserManager.room_bots()
         simulation_id = repository.simulation.create_simulation(settings)
         # As estatais da base viram as estatais da partida, só quando há governo

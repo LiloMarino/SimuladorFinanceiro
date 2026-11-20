@@ -1,6 +1,7 @@
-import { Clock, History, Play, RefreshCw, Zap } from "lucide-react";
+import { Clock, History, Lock, Play, RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { displayMoneyWhole } from "@/shared/lib/utils/display";
 import { ChallengeStartWarning } from "@/features/lobby/candle-challenge/components/challenge-start-warning";
 import { PendingInvitesStart } from "../preparation/room-preparation";
 
@@ -54,6 +55,8 @@ type NewGameActionsProps = {
   creating: boolean;
   busy: boolean;
   canStart: boolean;
+  /** O valor que a meta precisa passar por causa do Herdeiro; nulo quando a meta já passa */
+  goalFloor: number | null;
   /** Convites de partido sem resposta; zero quando a expansão do governo está desligada */
   pendingInvites: number;
   hasSavedSimulations: boolean;
@@ -67,6 +70,7 @@ export function NewGameActions({
   creating,
   busy,
   canStart,
+  goalFloor,
   pendingInvites,
   hasSavedSimulations,
   onCreate,
@@ -74,6 +78,12 @@ export function NewGameActions({
 }: NewGameActionsProps) {
   return (
     <>
+      {/* O motivo do início travado pela meta */}
+      {goalFloor !== null && (
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <Lock className="size-4" />A meta precisa passar de {displayMoneyWhole(goalFloor)}
+        </div>
+      )}
       {challengeQuestion !== null ? (
         <ChallengeStartWarning
           question={challengeQuestion}

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { SimulationSettingsData } from "@/types";
 import { NAME_MAX_LENGTH } from "@/shared/lib/name-limit";
-import { simulationFormSchema, toFormValues, toSettingsBody } from "./simulation-form";
+import { createSimulationFormSchema, toFormValues, toSettingsBody } from "./simulation-form";
+
+const simulationFormSchema = createSimulationFormSchema(null);
 
 // Regras como a API devolve: dinheiro com duas casas e a taxa com quatro
 const settings: SimulationSettingsData = {
@@ -178,5 +180,30 @@ describe("nome da partida", () => {
   it("aceita até o limite e recusa um caractere a mais", () => {
     expect(nameIssue("a".repeat(NAME_MAX_LENGTH))).toBeUndefined();
     expect(nameIssue("a".repeat(NAME_MAX_LENGTH + 1))?.message).toBe(`Use até ${NAME_MAX_LENGTH} caracteres.`);
+  });
+});
+
+describe("meta mínima com Herdeiro na sala", () => {
+  // Despesa de R$ 5.000 a 4% ao ano dá a meta de 12 × 5.000 ÷ 0,04 = R$ 1.500.000
+  const heir = { nickname: "Herdeiro", isBot: true, capital: 1_580_000 };
+  const professions = { ...toFormValues(settings), salaryMode: "PROFESSIONS" as const };
+  const goalIssue = (schema: ReturnType<typeof createSimulationFormSchema>, values: typeof professions) =>
+    schema.safeParse(values).error?.issues.find((issue) => issue.path[0] === "goalNetWorth");
+
+  it("recusa a meta abaixo do capital do Herdeiro", () => {
+    expect(goalIssue(createSimulationFormSchema(heir), professions)?.message).toMatch(
+      /^Meta mínima de R\$\s1\.580\.000 por causa do Herdeiro\.$/,
+    );
+  });
+
+  it("aceita a meta acima do capital do Herdeiro", () => {
+    // Despesa de R$ 6.600 a 4%: 12 × 6.600 ÷ 0,04 = R$ 1.980.000
+    const values = { ...professions, monthlyExpense: "6.600" };
+    expect(createSimulationFormSchema(heir).safeParse(values).success).toBe(true);
+  });
+
+  it("sem Herdeiro ou sem o modo de profissões o piso é o saldo inicial", () => {
+    expect(createSimulationFormSchema(null).safeParse(professions).success).toBe(true);
+    expect(createSimulationFormSchema(heir).safeParse({ ...professions, salaryMode: "EQUAL" }).success).toBe(true);
   });
 });

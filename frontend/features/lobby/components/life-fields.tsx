@@ -27,8 +27,11 @@ import { OVERDRAFT, WITHDRAWAL_RATE } from "@/shared/lib/life-metrics";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { displayMoney, displayMoneyCompact, displayMoneyWhole } from "@/shared/lib/utils/display";
 import { formatMoney } from "@/shared/lib/utils/format";
+import { useRoomHeir } from "../hooks/useRoomHeir";
 import { calculatedGoal, isPositiveMoney, withdrawalRateFraction } from "../lib/life-rules";
+import { blockingHeirFloor } from "../lib/minimum-goal";
 import type { SimulationFormValues } from "../lib/simulation-form";
+import { GoalFloorNotice } from "./goal-floor-notice";
 import { LifeEventsEditor } from "./life-events-editor";
 import { SalaryModeFields } from "./salary-mode-fields";
 
@@ -48,6 +51,10 @@ export function LifeFields({ form, readOnly }: LifeFieldsProps) {
     control: form.control,
     name: ["monthlySalary", "monthlyExpense", "withdrawalRate"],
   });
+  // O aviso da meta mínima é de quem edita as regras
+  const heir = useRoomHeir();
+  const values = useWatch({ control: form.control }) as SimulationFormValues;
+  const heirFloor = readOnly ? null : blockingHeirFloor(heir, values);
   const expenseAmount = Number(normalizeNumberString(expense));
   const rateFraction = withdrawalRateFraction(rate);
   const goal = calculatedGoal(expense, rate);
@@ -236,6 +243,9 @@ export function LifeFields({ form, readOnly }: LifeFieldsProps) {
         </span>
         <span className="font-mono text-xl font-semibold text-white">{goal === null ? "—" : displayMoney(goal)}</span>
       </div>
+
+      {/* Meta abaixo do capital do Herdeiro */}
+      {heir && heirFloor !== null && <GoalFloorNotice heir={heir} expense={expense} rate={rate} />}
     </FieldSet>
   );
 }

@@ -34,13 +34,13 @@ import {
 } from "./fund-rules";
 import { governmentRuleError } from "./government-rules";
 import {
-  calculatedGoal,
   isPositiveMoney,
   isWithdrawalRate,
   WITHDRAWAL_RATE_MESSAGE,
   withdrawalRateFraction,
   withdrawalRateToBody,
 } from "./life-rules";
+import { blockingHeirFloor, heirFloorMessage, ruleGoal, type RoomHeir } from "./minimum-goal";
 
 // O campo guarda ISO quando a data está completa e real; o texto em digitação é recusado aqui
 const dateField = (emptyMessage: string) =>
@@ -93,133 +93,145 @@ const lifeEventSchema = z
     });
   });
 
-export const simulationFormSchema = z
-  .object({
-    name: z.string().min(1, "Dê um nome para a partida").max(NAME_MAX_LENGTH, NAME_TOO_LONG),
-    startDate: dateField("Escolha a data de início"),
-    endDate: dateField("Escolha a data de fim"),
-    startingCash: z
-      .string()
-      .min(1, "O saldo inicial tem que ser maior que zero")
-      .refine((val) => Number(normalizeNumberString(val)) > 0, "O saldo inicial tem que ser maior que zero"),
-    monthlyContribution: z
-      .string()
-      .refine((val) => Number(normalizeNumberString(val)) >= 0, "O aporte mensal não pode ser negativo"),
-    priceImpactEnabled: z.boolean(),
-    priceImpactK: z
-      .string()
-      .min(1, "Informe a intensidade")
-      .refine((val) => Number(normalizeNumberString(val)) >= 0, "A intensidade não pode ser negativa"),
-    priceImpactDecayDays: z
-      .string()
-      .refine((val) => Number.isInteger(Number(val)) && Number(val) >= 1, "Informe ao menos 1 pregão"),
-    victoryCriterion: z.custom<VictoryCriterion>((value) => typeof value === "string" && value in VICTORY_CRITERIA),
-    gameType: z.custom<GameType>((value) => typeof value === "string" && value in GAME_TYPES),
-    goalNetWorth: z
-      .string()
-      .min(1, "Informe a meta")
-      .refine((val) => Number(normalizeNumberString(val)) > 0, "A meta tem que ser maior que zero"),
-    monthlySalary: z
-      .string()
-      .min(1, "Informe o salário")
-      .refine(isPositiveMoney, "O salário tem que ser maior que zero"),
-    monthlyExpense: z
-      .string()
-      .min(1, "Informe a despesa")
-      .refine(isPositiveMoney, "A despesa tem que ser maior que zero"),
-    unexpectedPerYear: z.number().refine((value) => UNEXPECTED_OPTIONS.some((o) => o.perYear === value)),
-    lifeEvents: z.array(lifeEventSchema),
-    lifeFrequencies: z.object({
-      expenses: lifeFrequencySchema,
-      income: lifeFrequencySchema,
-      good: lifeFrequencySchema,
-    }),
-    // Percentual ao ano como o jogador digita: "4" é 4%
-    withdrawalRate: z
-      .string()
-      .min(1, "Informe a taxa")
-      .refine((val) => isWithdrawalRate(withdrawalRateFraction(val)), WITHDRAWAL_RATE_MESSAGE),
-    inflationAdjusted: z.boolean(),
-    salaryMode: z.custom<SalaryMode>((value) => value === "EQUAL" || value === "PROFESSIONS"),
-    playerGrouping: z.custom<PlayerGrouping>((value) => value === "INDIVIDUAL" || value === "TEAMS"),
-    teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
-    showEquivalentRate: z.boolean(),
-    showMaturityProjection: z.boolean(),
-    showChartHints: z.boolean(),
-    governmentEnabled: z.boolean(),
-    fundsEnabled: z.boolean(),
-    // Tetos de taxa das gestoras: o formulário só os carrega, o back valida
-    // Teto de cada taxa em percentual, como o host digita ("2" é 2% ao ano)
-    fundMaxManagementFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
-    fundMaxPerformanceFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
-    // Carência em meses inteiros e mínimo de cotas no mercado em percentual
-    fundGraceMonths: z.string().refine(isGraceMonths, FUND_GRACE_MONTHS_MESSAGE),
-    fundMinMarketShare: z.string().refine(isMarketShare, FUND_MARKET_SHARE_MESSAGE),
-    // ISO quando a data está completa; vazio com a expansão desligada
-    firstElection: z.string().superRefine((value, ctx) => {
-      const message = dateFieldError(value);
-      if (message) ctx.addIssue({ code: "custom", message });
-    }),
-    computerDifficulty: z.custom<ComputerDifficulty>(
-      (value) => value === "EASY" || value === "NORMAL" || value === "HARD",
-    ),
-    pollMargin: z.boolean(),
-    initialAccount: z.custom<InitialAccount>((value) => value === "PLAYABLE" || value === "REALISTIC"),
-    selicControl: z.custom<SelicControl>((value) => value === "AUTONOMOUS" || value === "GOVERNMENT"),
-  })
-  .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
-    message: "O fim precisa ser depois do início.",
-    path: ["endDate"],
-  })
-  // A expansão pede 5 anos de partida e a primeira eleição dentro dela
-  .superRefine((data, ctx) => {
-    if (!data.governmentEnabled) return;
-    const error = governmentRuleError({ start: data.startDate, end: data.endDate, firstElection: data.firstElection });
-    if (error) ctx.addIssue({ code: "custom", message: error.message, path: [error.path] });
-  })
-  // A vitória política só existe no modo individual
-  .superRefine((data, ctx) => {
-    if (data.gameType !== "POLITICAL" || data.playerGrouping !== "TEAMS") return;
-    ctx.addIssue({
-      code: "custom",
-      message: "A vitória política vale só no modo todos contra todos.",
-      path: ["playerGrouping"],
-    });
-  })
-  // A aquisição hostil exige as gestoras
-  .superRefine((data, ctx) => {
-    if (data.gameType !== "FUND_TAKEOVER") return;
-    if (!data.fundsEnabled) {
+/**
+ * O schema do formulário do lobby. A meta passa do maior capital inicial da sala: o caixa
+ * ou, com um Herdeiro na sala, o capital dele.
+ */
+export const createSimulationFormSchema = (heir: RoomHeir | null) =>
+  z
+    .object({
+      name: z.string().min(1, "Dê um nome para a partida").max(NAME_MAX_LENGTH, NAME_TOO_LONG),
+      startDate: dateField("Escolha a data de início"),
+      endDate: dateField("Escolha a data de fim"),
+      startingCash: z
+        .string()
+        .min(1, "O saldo inicial tem que ser maior que zero")
+        .refine((val) => Number(normalizeNumberString(val)) > 0, "O saldo inicial tem que ser maior que zero"),
+      monthlyContribution: z
+        .string()
+        .refine((val) => Number(normalizeNumberString(val)) >= 0, "O aporte mensal não pode ser negativo"),
+      priceImpactEnabled: z.boolean(),
+      priceImpactK: z
+        .string()
+        .min(1, "Informe a intensidade")
+        .refine((val) => Number(normalizeNumberString(val)) >= 0, "A intensidade não pode ser negativa"),
+      priceImpactDecayDays: z
+        .string()
+        .refine((val) => Number.isInteger(Number(val)) && Number(val) >= 1, "Informe ao menos 1 pregão"),
+      victoryCriterion: z.custom<VictoryCriterion>((value) => typeof value === "string" && value in VICTORY_CRITERIA),
+      gameType: z.custom<GameType>((value) => typeof value === "string" && value in GAME_TYPES),
+      goalNetWorth: z
+        .string()
+        .min(1, "Informe a meta")
+        .refine((val) => Number(normalizeNumberString(val)) > 0, "A meta tem que ser maior que zero"),
+      monthlySalary: z
+        .string()
+        .min(1, "Informe o salário")
+        .refine(isPositiveMoney, "O salário tem que ser maior que zero"),
+      monthlyExpense: z
+        .string()
+        .min(1, "Informe a despesa")
+        .refine(isPositiveMoney, "A despesa tem que ser maior que zero"),
+      unexpectedPerYear: z.number().refine((value) => UNEXPECTED_OPTIONS.some((o) => o.perYear === value)),
+      lifeEvents: z.array(lifeEventSchema),
+      lifeFrequencies: z.object({
+        expenses: lifeFrequencySchema,
+        income: lifeFrequencySchema,
+        good: lifeFrequencySchema,
+      }),
+      // Percentual ao ano como o jogador digita: "4" é 4%
+      withdrawalRate: z
+        .string()
+        .min(1, "Informe a taxa")
+        .refine((val) => isWithdrawalRate(withdrawalRateFraction(val)), WITHDRAWAL_RATE_MESSAGE),
+      inflationAdjusted: z.boolean(),
+      salaryMode: z.custom<SalaryMode>((value) => value === "EQUAL" || value === "PROFESSIONS"),
+      playerGrouping: z.custom<PlayerGrouping>((value) => value === "INDIVIDUAL" || value === "TEAMS"),
+      teamNaming: z.custom<TeamNaming>((value) => value === "COLOR" || value === "NUMBER"),
+      showEquivalentRate: z.boolean(),
+      showMaturityProjection: z.boolean(),
+      showChartHints: z.boolean(),
+      governmentEnabled: z.boolean(),
+      fundsEnabled: z.boolean(),
+      // Tetos de taxa das gestoras: o formulário só os carrega, o back valida
+      // Teto de cada taxa em percentual, como o host digita ("2" é 2% ao ano)
+      fundMaxManagementFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
+      fundMaxPerformanceFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
+      // Carência em meses inteiros e mínimo de cotas no mercado em percentual
+      fundGraceMonths: z.string().refine(isGraceMonths, FUND_GRACE_MONTHS_MESSAGE),
+      fundMinMarketShare: z.string().refine(isMarketShare, FUND_MARKET_SHARE_MESSAGE),
+      // ISO quando a data está completa; vazio com a expansão desligada
+      firstElection: z.string().superRefine((value, ctx) => {
+        const message = dateFieldError(value);
+        if (message) ctx.addIssue({ code: "custom", message });
+      }),
+      computerDifficulty: z.custom<ComputerDifficulty>(
+        (value) => value === "EASY" || value === "NORMAL" || value === "HARD",
+      ),
+      pollMargin: z.boolean(),
+      initialAccount: z.custom<InitialAccount>((value) => value === "PLAYABLE" || value === "REALISTIC"),
+      selicControl: z.custom<SelicControl>((value) => value === "AUTONOMOUS" || value === "GOVERNMENT"),
+    })
+    .refine((data) => !isIsoDate(data.startDate) || !isIsoDate(data.endDate) || data.endDate > data.startDate, {
+      message: "O fim precisa ser depois do início.",
+      path: ["endDate"],
+    })
+    // A expansão pede 5 anos de partida e a primeira eleição dentro dela
+    .superRefine((data, ctx) => {
+      if (!data.governmentEnabled) return;
+      const error = governmentRuleError({
+        start: data.startDate,
+        end: data.endDate,
+        firstElection: data.firstElection,
+      });
+      if (error) ctx.addIssue({ code: "custom", message: error.message, path: [error.path] });
+    })
+    // A vitória política só existe no modo individual
+    .superRefine((data, ctx) => {
+      if (data.gameType !== "POLITICAL" || data.playerGrouping !== "TEAMS") return;
       ctx.addIssue({
         code: "custom",
-        message: "A aquisição hostil exige a expansão Gestoras.",
-        path: ["fundsEnabled"],
+        message: "A vitória política vale só no modo todos contra todos.",
+        path: ["playerGrouping"],
       });
-    }
-  })
-  // Na corrida a meta fica acima do que o jogador já tem no primeiro dia
-  .superRefine((data, ctx) => {
-    if (data.gameType !== "GOAL_RACE") return;
-    if (Number(normalizeNumberString(data.goalNetWorth)) > Number(normalizeNumberString(data.startingCash))) return;
-    ctx.addIssue({
-      code: "custom",
-      message: `A meta precisa passar do saldo inicial (${data.startingCash}).`,
-      path: ["goalNetWorth"],
+    })
+    // A aquisição hostil exige as gestoras
+    .superRefine((data, ctx) => {
+      if (data.gameType !== "FUND_TAKEOVER") return;
+      if (!data.fundsEnabled) {
+        ctx.addIssue({
+          code: "custom",
+          message: "A aquisição hostil exige a expansão Gestoras.",
+          path: ["fundsEnabled"],
+        });
+      }
+    })
+    // A meta fica acima do que o jogador mais rico da sala já tem no primeiro dia
+    .superRefine((data, ctx) => {
+      const heirFloor = blockingHeirFloor(heir, data);
+      if (heirFloor !== null) {
+        // Na tela o aviso da meta mínima mostra esta mensagem; o viver de renda não tem campo de meta
+        ctx.addIssue({ code: "custom", message: heirFloorMessage(heirFloor), path: ["goalNetWorth"] });
+        return;
+      }
+      const goal = ruleGoal(data);
+      if (goal === null || goal > Number(normalizeNumberString(data.startingCash))) return;
+      if (data.gameType === "GOAL_RACE") {
+        ctx.addIssue({
+          code: "custom",
+          message: `A meta precisa passar do saldo inicial (${data.startingCash}).`,
+          path: ["goalNetWorth"],
+        });
+        return;
+      }
+      ctx.addIssue({
+        code: "custom",
+        message: `A meta calculada (${displayMoneyWhole(goal)}) precisa passar do saldo inicial (${data.startingCash}).`,
+        path: ["monthlyExpense"],
+      });
     });
-  })
-  // No viver de renda a meta calculada fica acima do que o jogador já tem no primeiro dia
-  .superRefine((data, ctx) => {
-    if (data.gameType !== "FINANCIAL_INDEPENDENCE") return;
-    const goal = calculatedGoal(data.monthlyExpense, data.withdrawalRate);
-    if (goal === null || goal > Number(normalizeNumberString(data.startingCash))) return;
-    ctx.addIssue({
-      code: "custom",
-      message: `A meta calculada (${displayMoneyWhole(goal)}) precisa passar do saldo inicial (${data.startingCash}).`,
-      path: ["monthlyExpense"],
-    });
-  });
 
-export type SimulationFormValues = z.infer<typeof simulationFormSchema>;
+export type SimulationFormValues = z.infer<ReturnType<typeof createSimulationFormSchema>>;
 
 /** As regras da partida como o formulário do lobby as mostra. */
 export function toFormValues(settings: SimulationSettingsData): SimulationFormValues {
