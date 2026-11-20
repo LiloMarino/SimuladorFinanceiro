@@ -6,12 +6,7 @@ type Blockable = { disabled?: boolean | undefined; reason?: string | undefined }
 
 type SearchableOption = { label: string; description?: string | undefined; searchText?: string | undefined };
 
-const normalize = (text: string) =>
-  text
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .trim();
+const normalize = (text: string) => text.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
 export const shouldShowSearch = (optionCount: number, forced?: boolean) => forced ?? optionCount >= SEARCH_THRESHOLD;
 
