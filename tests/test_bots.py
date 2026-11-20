@@ -539,7 +539,11 @@ def _overview(first_is_bot: bool, in_teams: bool = False):
     ]
     teams = [SimpleNamespace(team=1)] if in_teams else []
     return SimpleNamespace(
-        players=players, teams=teams, parties=[], game_type=GameType.CLASSIC
+        players=players,
+        teams=teams,
+        parties=[],
+        game_type=GameType.CLASSIC,
+        survivor_nickname=None,
     )
 
 
@@ -577,8 +581,20 @@ def test_in_teams_the_people_of_the_winning_team_win_with_the_bot(monkeypatch):
         teams=[SimpleNamespace(team=1)],
         parties=[],
         game_type=GameType.CLASSIC,
+        survivor_nickname=None,
     )
     monkeypatch.setattr(evaluator, "build_overview_report", lambda _ids: both)
+
+    assert evaluator.match_result(1, [ana, robot], False).winners == {1}
+
+
+def test_the_last_standing_player_wins_even_with_a_bot_in_first_place(monkeypatch):
+    ana = UserDTO(id=1, client_id=uuid.uuid4(), nickname="Ana")
+    robot = UserDTO(id=2, client_id=uuid.uuid4(), nickname="Robô", is_bot=True)
+    overview = _overview(first_is_bot=True)
+    overview.survivor_nickname = "Ana"
+    overview.game_type = GameType.FUND_TAKEOVER
+    monkeypatch.setattr(evaluator, "build_overview_report", lambda _ids: overview)
 
     assert evaluator.match_result(1, [ana, robot], False).winners == {1}
 
@@ -589,6 +605,7 @@ def _political_overview(parties: list[SimpleNamespace]):
         teams=[],
         parties=parties,
         game_type=GameType.POLITICAL,
+        survivor_nickname=None,
     )
 
 

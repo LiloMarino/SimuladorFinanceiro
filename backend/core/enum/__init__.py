@@ -268,6 +268,8 @@ class GameType(Enum):
     FINANCIAL_INDEPENDENCE = "FINANCIAL_INDEPENDENCE"
     # Da expansão Governo & Política: vence o partido com mais capital político
     POLITICAL = "POLITICAL"
+    # Da expansão Gestoras: vence o último jogador de pé; perder a assembleia da própria gestora elimina
+    FUND_TAKEOVER = "FUND_TAKEOVER"
 
     @property
     def has_goal(self) -> bool:

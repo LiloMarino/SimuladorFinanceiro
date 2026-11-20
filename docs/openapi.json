@@ -19964,11 +19964,6 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
-          "fund_takeover_enabled": {
-            "type": "boolean",
-            "title": "Fund Takeover Enabled",
-            "default": false
-          },
           "fund_grace_months": {
             "type": "integer",
             "maximum": 120.0,
@@ -28080,7 +28075,8 @@
           "CLASSIC",
           "GOAL_RACE",
           "FINANCIAL_INDEPENDENCE",
-          "POLITICAL"
+          "POLITICAL",
+          "FUND_TAKEOVER"
         ],
         "title": "GameType",
         "description": "O que decide a partida: o critério de vitória (Clássica) ou chegar a uma meta de patrimônio."
@@ -39442,11 +39438,6 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
-          "fund_takeover_enabled": {
-            "type": "boolean",
-            "title": "Fund Takeover Enabled",
-            "default": false
-          },
           "fund_grace_months": {
             "type": "integer",
             "maximum": 120.0,
@@ -39597,7 +39588,6 @@
           "funds_enabled",
           "fund_max_management_fee",
           "fund_max_performance_fee",
-          "fund_takeover_enabled",
           "fund_grace_months",
           "fund_min_market_share",
           "first_election",
@@ -40654,11 +40644,6 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
-          "fund_takeover_enabled": {
-            "type": "boolean",
-            "title": "Fund Takeover Enabled",
-            "default": false
-          },
           "fund_grace_months": {
             "type": "integer",
             "maximum": 120.0,
@@ -40736,7 +40721,6 @@
           "funds_enabled",
           "fund_max_management_fee",
           "fund_max_performance_fee",
-          "fund_takeover_enabled",
           "fund_grace_months",
           "fund_min_market_share",
           "first_election",
@@ -40991,11 +40975,6 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
-          "fund_takeover_enabled": {
-            "type": "boolean",
-            "title": "Fund Takeover Enabled",
-            "default": false
-          },
           "fund_grace_months": {
             "type": "integer",
             "maximum": 120.0,
@@ -41207,11 +41186,6 @@
             "title": "Fund Max Performance Fee",
             "default": "0.20"
           },
-          "fund_takeover_enabled": {
-            "type": "boolean",
-            "title": "Fund Takeover Enabled",
-            "default": false
-          },
           "fund_grace_months": {
             "type": "integer",
             "maximum": 120.0,
@@ -41285,7 +41259,6 @@
           "funds_enabled",
           "fund_max_management_fee",
           "fund_max_performance_fee",
-          "fund_takeover_enabled",
           "fund_grace_months",
           "fund_min_market_share",
           "first_election",
@@ -46764,11 +46737,6 @@
             ],
             "title": "Fund Max Performance Fee",
             "default": "0.20"
-          },
-          "fund_takeover_enabled": {
-            "type": "boolean",
-            "title": "Fund Takeover Enabled",
-            "default": false
           },
           "fund_grace_months": {
             "type": "integer",

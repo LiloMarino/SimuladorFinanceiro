@@ -277,7 +277,7 @@ class RoomFundPreparation:
                     for user, identity in cls.prepared(humans)
                 ],
                 "fund_conflicts": cls.conflicts(
-                    humans, takeover=SettingsManager.get().fund_takeover_enabled
+                    humans, takeover=SettingsManager.get().is_fund_takeover
                 ),
                 "fund_locked_reason": reason,
             }

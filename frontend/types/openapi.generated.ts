@@ -6675,11 +6675,6 @@ export interface components {
              */
             fund_max_performance_fee: number | string;
             /**
-             * Fund Takeover Enabled
-             * @default false
-             */
-            fund_takeover_enabled: boolean;
-            /**
              * Fund Grace Months
              * @default 12
              */
@@ -9327,7 +9322,7 @@ export interface components {
          * @description O que decide a partida: o critério de vitória (Clássica) ou chegar a uma meta de patrimônio.
          * @enum {string}
          */
-        GameType: "CLASSIC" | "GOAL_RACE" | "FINANCIAL_INDEPENDENCE" | "POLITICAL";
+        GameType: "CLASSIC" | "GOAL_RACE" | "FINANCIAL_INDEPENDENCE" | "POLITICAL" | "FUND_TAKEOVER";
         /** GeneratedFutureDTO */
         GeneratedFutureDTO: {
             /**
@@ -13250,11 +13245,6 @@ export interface components {
              */
             fund_max_performance_fee: string;
             /**
-             * Fund Takeover Enabled
-             * @default false
-             */
-            fund_takeover_enabled: boolean;
-            /**
              * Fund Grace Months
              * @default 12
              */
@@ -13724,11 +13714,6 @@ export interface components {
              */
             fund_max_performance_fee: string;
             /**
-             * Fund Takeover Enabled
-             * @default false
-             */
-            fund_takeover_enabled: boolean;
-            /**
              * Fund Grace Months
              * @default 12
              */
@@ -13875,11 +13860,6 @@ export interface components {
              */
             fund_max_performance_fee: number | string;
             /**
-             * Fund Takeover Enabled
-             * @default false
-             */
-            fund_takeover_enabled: boolean;
-            /**
              * Fund Grace Months
              * @default 12
              */
@@ -13990,11 +13970,6 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: string;
-            /**
-             * Fund Takeover Enabled
-             * @default false
-             */
-            fund_takeover_enabled: boolean;
             /**
              * Fund Grace Months
              * @default 12
@@ -15840,11 +15815,6 @@ export interface components {
              * @default 0.20
              */
             fund_max_performance_fee: number | string;
-            /**
-             * Fund Takeover Enabled
-             * @default false
-             */
-            fund_takeover_enabled: boolean;
             /**
              * Fund Grace Months
              * @default 12

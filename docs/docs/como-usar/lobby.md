@@ -303,12 +303,21 @@ A lista e as frequências valem para a partida salva e entram no preset, no grup
 
 Tipo da expansão [Governo & Política](./governo.md), disponível só com ela ligada na aba **Expansões**. Os jogadores se organizam em partidos e disputam eleições; vence o partido com mais [capital político](./governo.md#o-capital-político) (pontos de cadeiras, presidência e promessas cumpridas), então o critério de vitória não se aplica e o modo de jogo fica individual.
 
+#### Aquisição hostil
+
+Tipo da expansão [Gestoras](./gestoras.md), disponível só com ela ligada na aba **Expansões**: ao escolher o tipo, a chave da expansão fica ligada e travada até você escolher outro. Todos começam com a carteira dentro da própria gestora, e quem perde para a [assembleia](./gestoras.md#troca-de-gestor-pela-assembleia) a gestora que fundou sai da partida e passa a assistir. Vence o **último jogador de pé**; se a data final chegar com mais de um de pé, vence o maior patrimônio. O critério de vitória não se aplica e o modo de jogo é individual (em equipes o tipo fica desabilitado). Se um bot estiver na frente na data final, ninguém vence; se só um humano ficou de pé, ele vence.
+
+Embaixo do tipo aparecem duas regras:
+
+- **Carência:** quantos meses a partida espera antes de aceitar uma assembleia de troca de gestor. Ex.: com início em 01/01 e carência de 12 meses, a primeira assembleia abre em 01/01 do ano seguinte.
+- **Mínimo de cotas no mercado:** a fatia que os gestores, somados, não podem passar. Ex.: com 50%, o gestor de 1.000 cotas fica com até 500; se tinha 800, as 300 a mais vão à venda.
+
 ---
 
 ### Critério de vitória
 
 **O que é:**
-O que decide quem vence a partida [Clássica](#clássica). Ordena o ranking durante a partida e o pódio do fechamento. Na Corrida à meta e no Viver de renda o campo some: quem vence é quem chega à meta.
+O que decide quem vence a partida [Clássica](#clássica). Ordena o ranking durante a partida e o pódio do fechamento. Na Corrida à meta e no Viver de renda o campo some: quem vence é quem chega à meta. Na Política e na Aquisição hostil ele também some.
 
 **Opções:**
 

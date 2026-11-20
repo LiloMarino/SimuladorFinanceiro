@@ -60,7 +60,7 @@ export function GroupingFields({ form, readOnly, grouping, gameType }: GroupingF
                   <RadioGroupItem
                     value={option.value}
                     id={`grouping-${option.value}`}
-                    disabled={option.value === "TEAMS" && gameType === "POLITICAL"}
+                    disabled={option.value === "TEAMS" && (gameType === "POLITICAL" || gameType === "FUND_TAKEOVER")}
                   />
                   <FieldContent>
                     <FieldTitle>
@@ -79,6 +79,12 @@ export function GroupingFields({ form, readOnly, grouping, gameType }: GroupingF
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Lock className="size-3.5" />
           Em equipes fica indisponível: na Política, os partidos já são os times.
+        </div>
+      )}
+      {gameType === "FUND_TAKEOVER" && (
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Lock className="size-3.5" />
+          Em equipes fica indisponível: na aquisição hostil vence um único jogador.
         </div>
       )}
       {grouping === "TEAMS" && (

@@ -152,7 +152,6 @@ export const simulationFormSchema = z
     // Teto de cada taxa em percentual, como o host digita ("2" é 2% ao ano)
     fundMaxManagementFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
     fundMaxPerformanceFee: z.string().refine(isFeeCap, FUND_FEE_CAP_MESSAGE),
-    fundTakeoverEnabled: z.boolean(),
     // Carência em meses inteiros e mínimo de cotas no mercado em percentual
     fundGraceMonths: z.string().refine(isGraceMonths, FUND_GRACE_MONTHS_MESSAGE),
     fundMinMarketShare: z.string().refine(isMarketShare, FUND_MARKET_SHARE_MESSAGE),
@@ -186,6 +185,24 @@ export const simulationFormSchema = z
       message: "A vitória política vale só no modo todos contra todos.",
       path: ["playerGrouping"],
     });
+  })
+  // A aquisição hostil exige as gestoras e o modo individual
+  .superRefine((data, ctx) => {
+    if (data.gameType !== "FUND_TAKEOVER") return;
+    if (!data.fundsEnabled) {
+      ctx.addIssue({
+        code: "custom",
+        message: "A aquisição hostil exige a expansão Gestoras.",
+        path: ["fundsEnabled"],
+      });
+    }
+    if (data.playerGrouping === "TEAMS") {
+      ctx.addIssue({
+        code: "custom",
+        message: "A aquisição hostil vale só no modo todos contra todos.",
+        path: ["playerGrouping"],
+      });
+    }
   })
   // Na corrida a meta fica acima do que o jogador já tem no primeiro dia
   .superRefine((data, ctx) => {
@@ -250,7 +267,6 @@ export function toFormValues(settings: SimulationSettingsData): SimulationFormVa
     fundsEnabled: settings.funds_enabled,
     fundMaxManagementFee: feeCapToField(settings.fund_max_management_fee),
     fundMaxPerformanceFee: feeCapToField(settings.fund_max_performance_fee),
-    fundTakeoverEnabled: settings.fund_takeover_enabled,
     fundGraceMonths: String(settings.fund_grace_months),
     fundMinMarketShare: feeCapToField(settings.fund_min_market_share),
     firstElection: settings.first_election ?? "",
@@ -304,8 +320,6 @@ export function toSettingsBody(values: SimulationFormValues): CreateSimulationRe
     funds_enabled: values.fundsEnabled,
     fund_max_management_fee: feeCapToBody(values.fundMaxManagementFee),
     fund_max_performance_fee: feeCapToBody(values.fundMaxPerformanceFee),
-    // O modo depende da expansão; desligada, a partida volta ao modo desligado
-    fund_takeover_enabled: values.fundsEnabled && values.fundTakeoverEnabled,
     fund_grace_months: Number(values.fundGraceMonths),
     fund_min_market_share: feeCapToBody(values.fundMinMarketShare),
     first_election: values.governmentEnabled && values.firstElection ? values.firstElection : null,

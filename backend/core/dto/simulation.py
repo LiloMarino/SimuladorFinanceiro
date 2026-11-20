@@ -57,10 +57,19 @@ def validate_government(
         raise ValueError("A primeira eleição precisa cair dentro da partida.")
 
 
-def validate_funds(*, funds_enabled: bool, fund_takeover_enabled: bool) -> None:
+def validate_funds(
+    *,
+    game_type: GameType,
+    player_grouping: PlayerGrouping,
+    funds_enabled: bool,
+) -> None:
     """As regras da expansão Gestoras; valem igual para o DTO e para a requisição."""
-    if fund_takeover_enabled and not funds_enabled:
-        raise ValueError("O modo aquisição hostil exige a expansão Gestoras.")
+    if game_type is not GameType.FUND_TAKEOVER:
+        return
+    if not funds_enabled:
+        raise ValueError("A vitória por aquisição hostil exige a expansão Gestoras.")
+    if player_grouping is PlayerGrouping.TEAMS:
+        raise ValueError("A vitória por aquisição hostil exige o modo individual.")
 
 
 def validate_goal(
@@ -148,9 +157,8 @@ class SimulationSettingsDTO(BaseDTO):
     fund_max_performance_fee: Decimal = Field(
         default=Decimal("0.20"), ge=0, le=1, decimal_places=4
     )
-    # Modo aquisição hostil: perder a assembleia de troca de gestor tira o dono da partida
-    fund_takeover_enabled: bool = False
-    # Meses em que a assembleia não abre, a contar do início da partida
+    # Vitória por aquisição hostil: meses em que a assembleia de troca de gestor não abre,
+    # a contar do início da partida
     fund_grace_months: int = Field(default=12, ge=1, le=120)
     # Fração mínima das cotas de cada gestora que fica com o mercado ao fim da carência
     fund_min_market_share: Decimal = Field(
@@ -168,6 +176,11 @@ class SimulationSettingsDTO(BaseDTO):
     initial_account: InitialAccount = InitialAccount.PLAYABLE
     # Quem decide a SELIC: o Banco Central autônomo ou o presidente, nas reuniões do Copom
     selic_control: SelicControl = SelicControl.AUTONOMOUS
+
+    @property
+    def is_fund_takeover(self) -> bool:
+        """Aquisição hostil: toda a carteira entra na gestora e perder a assembleia elimina o dono."""
+        return self.game_type is GameType.FUND_TAKEOVER
 
     @property
     def uses_professions(self) -> bool:
@@ -200,8 +213,9 @@ class SimulationSettingsDTO(BaseDTO):
             selic_control=self.selic_control,
         )
         validate_funds(
+            game_type=self.game_type,
+            player_grouping=self.player_grouping,
             funds_enabled=self.funds_enabled,
-            fund_takeover_enabled=self.fund_takeover_enabled,
         )
         validate_goal(
             game_type=self.game_type,
@@ -240,7 +254,7 @@ class SimulationResultDTO(BaseDTO):
     leader_name: str | None
     # Colocação de cada jogador por apelido (a da equipe dele, em equipes)
     positions: dict[str, int]
-    # Modo aquisição hostil: restou um único jogador ativo, que vence, e a simulação terminou
+    # Aquisição hostil: restou um único jogador ativo, que vence, e a simulação terminou
     last_standing: bool = False
 
 

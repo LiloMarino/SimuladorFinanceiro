@@ -63,6 +63,10 @@ function typeRows(rules: SimulationFormValues): SummaryRow[] {
     return [{ label: "Vitória por", value: <Badge variant="info">Partido com mais capital político</Badge> }];
   }
 
+  if (rules.gameType === "FUND_TAKEOVER") {
+    return [{ label: "Vitória por", value: <Badge variant="info">Último jogador de pé</Badge> }];
+  }
+
   // A meta com o múltiplo do saldo inicial quando ele é redondo: "R$ 1.000.000,00 · 10× o saldo"
   const startingCash = Number(normalizeNumberString(rules.startingCash));
   const multiple = startingCash > 0 ? Number(normalizeNumberString(rules.goalNetWorth)) / startingCash : NaN;
@@ -147,7 +151,7 @@ export function summaryRows(rules: SimulationFormValues, preset: SimulationSetti
           },
         ]
       : []),
-    ...(rules.fundsEnabled && rules.fundTakeoverEnabled
+    ...(rules.gameType === "FUND_TAKEOVER"
       ? [
           {
             label: "Aquisição hostil",

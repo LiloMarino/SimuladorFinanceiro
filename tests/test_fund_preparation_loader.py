@@ -8,6 +8,7 @@ import pytest
 
 from backend.core import repository
 from backend.core.dto.preparation import FundIdentityDTO
+from backend.core.enum import GameType
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -133,7 +134,7 @@ def test_a_saved_match_does_not_found_again():
 
 
 def takeover_rules():
-    return rules(funds_enabled=True, fund_takeover_enabled=True)
+    return rules(funds_enabled=True, game_type=GameType.FUND_TAKEOVER)
 
 
 def test_in_takeover_mode_the_whole_wallet_goes_into_the_fund_on_day_one():

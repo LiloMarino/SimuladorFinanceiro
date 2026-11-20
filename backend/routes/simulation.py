@@ -129,7 +129,6 @@ class SimulationRulesRequest(BaseModel):
     fund_max_performance_fee: Decimal = Field(
         default=Decimal("0.20"), ge=0, le=1, decimal_places=4
     )
-    fund_takeover_enabled: bool = False
     fund_grace_months: int = Field(default=12, ge=1, le=120)
     fund_min_market_share: Decimal = Field(
         default=Decimal("0.50"),
@@ -159,8 +158,9 @@ class SimulationRulesRequest(BaseModel):
     @model_validator(mode="after")
     def validate_fund_rules(self):
         validate_funds(
+            game_type=self.game_type,
+            player_grouping=self.player_grouping,
             funds_enabled=self.funds_enabled,
-            fund_takeover_enabled=self.fund_takeover_enabled,
         )
         return self
 

@@ -41,6 +41,7 @@ O conteúdo do fechamento depende do [tipo de partida](./lobby#tipo-de-partida):
 
 - **Alguém chegou primeiro à meta** (Corrida à meta): a tela anuncia quem chegou primeiro.
 - **Ninguém chegou à meta** (Corrida à meta): a partida acaba na data final sem chegada, e vence quem ficou mais perto, ou seja, quem tem o maior **% da meta**. Como ler o % está na seção [Ranking](#ranking-na-corrida-à-meta-e-no-viver-de-renda).
+- **Último jogador de pé** (Aquisição hostil): vence quem sobrou depois das assembleias. Se a data final chegar com mais de um de pé, vence o maior patrimônio. Veja [Aquisição hostil](./lobby#aquisição-hostil).
 - **Independência financeira** (Viver de renda): a versão do fechamento que mostra quem alcançou a meta de independência. Veja [Viver de renda](./lobby#viver-de-renda).
 
 A mesma tela abre depois, para qualquer partida salva, pelo botão **Resultado** na lista de simulações salvas do lobby.

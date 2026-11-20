@@ -36,6 +36,7 @@ O host escolhe o tipo no lobby:
 - **Clássica**: joga até a data final, e o critério escolhido diz quem vence.
 - **Corrida à meta**: vence quem chegar primeiro a um patrimônio-alvo.
 - **Viver de renda**: com salário, despesa e imprevistos, vence quem chegar à independência financeira.
+- **Aquisição hostil** (com a expansão Gestoras): vence o último jogador de pé na disputa pelo controle das gestoras.
 
 ## Por onde começar
 

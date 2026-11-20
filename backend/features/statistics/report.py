@@ -93,7 +93,7 @@ def _eliminations(simulation_ids: list[int]) -> dict[tuple[int, str], date]:
     takeover = []
     for simulation_id in simulation_ids:
         summary = repository.simulation.get_simulation(simulation_id)
-        if summary is not None and summary.fund_takeover_enabled:
+        if summary is not None and summary.is_fund_takeover:
             takeover.append(simulation_id)
     if not takeover:
         return {}

@@ -3,6 +3,7 @@ import {
   feeCapFraction,
   feeCapToBody,
   feeCapToField,
+  graceOpening,
   isFeeCap,
   isGraceMonths,
   isMarketShare,
@@ -84,5 +85,13 @@ describe("exemplos dos tetos de taxa", () => {
     expect(example?.extraPoints).toBeCloseTo(5, 10);
     expect(example?.points).toBeCloseTo(1, 10);
     expect(performanceFeeExample("150")).toBeNull();
+  });
+});
+
+describe("abertura da assembleia", () => {
+  it("com início em 01/01 e 12 meses de carência, a assembleia abre em 01/01 do ano seguinte", () => {
+    expect(graceOpening("2010-01-01", "12")).toBe("2011-01-01");
+    expect(graceOpening("2010-01-01", "0")).toBeNull();
+    expect(graceOpening("", "12")).toBeNull();
   });
 });

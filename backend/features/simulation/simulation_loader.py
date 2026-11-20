@@ -92,7 +92,7 @@ class SimulationLoader:
         RoomFundPreparation.ensure_ready(
             humans,
             enabled=settings.funds_enabled,
-            takeover=settings.fund_takeover_enabled,
+            takeover=settings.is_fund_takeover,
         )
         # As regras de agora valem para cada bot antes de a partida ser gravada
         validate_room_bots(settings.start_date)
@@ -166,7 +166,7 @@ class SimulationLoader:
                 for guest, share in comanagers.get(founder.id, []):
                     sim.seat_fund_comanager(fund.id, guest.id, share)
                 # No modo aquisição hostil toda a carteira do jogador entra na gestora no 1º dia
-                if settings.fund_takeover_enabled:
+                if settings.is_fund_takeover:
                     sim.contribute_to_fund(
                         founder,
                         fund.id,

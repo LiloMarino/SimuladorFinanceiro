@@ -35,6 +35,7 @@ import { GoalFields } from "./goal-fields";
 import { GroupingFields } from "./grouping-fields";
 import { PriceImpactFields } from "./price-impact-fields";
 import { SaveStatus, type RulesSaveStatus } from "./save-status";
+import { TakeoverFields } from "./takeover-fields";
 import { VictoryFields } from "./victory-fields";
 
 // Os campos da vida real somem fora do viver de renda; um valor inutilizável neles volta ao padrão do servidor
@@ -130,7 +131,7 @@ export function RulesSheet({
   // O que foi digitado em cada tipo fica guardado; só o valor inutilizável de um campo escondido volta ao padrão
   const selectGameType = (value: GameType, onChange: (value: GameType) => void) => {
     onChange(value);
-    if (value === "POLITICAL") form.setValue("playerGrouping", "INDIVIDUAL");
+    if (value === "POLITICAL" || value === "FUND_TAKEOVER") form.setValue("playerGrouping", "INDIVIDUAL");
     if (value === "CLASSIC" && !(goalAmount > 0)) {
       form.setValue("goalNetWorth", formatMoney(String(Math.round(startingCashAmount * DEFAULT_GOAL_MULTIPLE * 100))), {
         shouldValidate: true,
@@ -179,11 +180,11 @@ export function RulesSheet({
               <TabsTrigger value="rules">Regras</TabsTrigger>
               <TabsTrigger value="expansions">
                 Expansões
-                {enabledExpansions > 0 && (
-                  <Badge variant="info" size="tag">
-                    {enabledExpansions} {enabledExpansions === 1 ? "ligada" : "ligadas"}
-                  </Badge>
-                )}
+                <Badge variant={enabledExpansions > 0 ? "info" : "secondary"} size="tag">
+                  {enabledExpansions === 0
+                    ? "nenhuma ligada"
+                    : `${enabledExpansions} ${enabledExpansions === 1 ? "ligada" : "ligadas"}`}
+                </Badge>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -207,7 +208,7 @@ export function RulesSheet({
             <GameTypeFields
               form={form}
               readOnly={readOnly}
-              governmentEnabled={governmentEnabled}
+              expansions={{ government: governmentEnabled, funds: fundsEnabled }}
               grouping={grouping}
               onSelect={selectGameType}
             />
@@ -221,6 +222,9 @@ export function RulesSheet({
                 goalAmount={goalAmount}
               />
             )}
+
+            {/* Aquisição hostil */}
+            {gameType === "FUND_TAKEOVER" && <TakeoverFields form={form} readOnly={readOnly} />}
 
             {/* Vida real */}
             {gameType === "FINANCIAL_INDEPENDENCE" && <LifeFields form={form} readOnly={readOnly} />}

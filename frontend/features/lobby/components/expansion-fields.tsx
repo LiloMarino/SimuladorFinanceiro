@@ -30,6 +30,7 @@ import {
 import { useInitialAccount } from "../hooks/queries/useInitialAccount";
 import type { SimulationFormValues } from "../lib/simulation-form";
 import { ExpansionIntro } from "./expansion-intro";
+import { ExpansionLockNote } from "./expansion-lock-note";
 import { FundsCard } from "./funds-card";
 
 const GOVERNMENT = EXPANSIONS.government;
@@ -56,17 +57,17 @@ export function ExpansionFields({ form, readOnly, locked }: ExpansionFieldsProps
       "fundsEnabled",
     ],
   });
+  const lockedByType = gameType === "POLITICAL";
   const longEnough = spansYears(startDate, endDate, GOVERNMENT_MIN_YEARS);
   const initialAccount = useInitialAccount(startDate, { enabled: enabled && isIsoDate(startDate) });
   const opening = campaignOpening(startDate, firstElection);
 
-  // Ligar sugere a data da primeira eleição; desligar tira a vitória política, que depende da expansão
+  // Ligar sugere a data da primeira eleição
   const toggle = (checked: boolean, onChange: (checked: boolean) => void) => {
     onChange(checked);
     if (checked && !form.getValues("firstElection")) {
       form.setValue("firstElection", defaultFirstElection(startDate, endDate), { shouldValidate: true });
     }
-    if (!checked && gameType === "POLITICAL") form.setValue("gameType", "CLASSIC", { shouldValidate: true });
     void form.trigger();
   };
 
@@ -112,12 +113,15 @@ export function ExpansionFields({ form, readOnly, locked }: ExpansionFieldsProps
               <Switch
                 aria-label={`Ligar ${GOVERNMENT.label}`}
                 checked={field.value}
-                disabled={readOnly || (!longEnough && !field.value)}
+                disabled={readOnly || lockedByType || (!longEnough && !field.value)}
                 onCheckedChange={(checked) => toggle(checked, field.onChange)}
               />
             )}
           />
         </ExpansionIntro>
+
+        {/* Tipo de partida que depende da expansão */}
+        {lockedByType && <ExpansionLockNote expansion="government" gameType={gameType} />}
 
         {/* Partida curta demais */}
         {!longEnough && (

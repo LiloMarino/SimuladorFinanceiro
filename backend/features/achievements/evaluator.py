@@ -148,12 +148,15 @@ def match_result(
     simulation_id: int, participants: list[UserDTO], ended_by_goal: bool
 ) -> MatchResult:
     """
-    Quem venceu a partida, pelo mesmo ranking do fechamento; em equipes, a equipe toda, e na
-    vitória política os filiados do partido com mais capital político.
+    Quem venceu a partida, pelo mesmo ranking do fechamento; em equipes, a equipe toda, na
+    vitória política os filiados do partido com mais capital político e, quando só um humano
+    segue de pé após as eliminações, esse sobrevivente.
     Bot disputa, mas não vence: com um bot em 1º ninguém leva a vitória.
     """
     overview = build_overview_report([simulation_id])
-    if overview.game_type is GameType.POLITICAL:
+    if overview.survivor_nickname is not None:
+        names = {overview.survivor_nickname}
+    elif overview.game_type is GameType.POLITICAL:
         names = set(overview.parties[0].members) if overview.parties else set()
     elif overview.teams:
         winning_team = overview.teams[0].team

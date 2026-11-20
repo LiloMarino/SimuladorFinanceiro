@@ -1,14 +1,30 @@
-import { Crown, Flag, Sun, Trophy, type LucideIcon } from "lucide-react";
+import { Building, Crown, Flag, Sun, Trophy, type LucideIcon } from "lucide-react";
 import type { GameType, VictoryCriterion } from "@/types";
+import type { ExpansionKey } from "./expansions";
 import { VICTORY_CRITERIA } from "./victory-criteria";
 
-type GameTypeInfo = { label: string; description: string; icon: LucideIcon };
+type GameTypeInfo = {
+  label: string;
+  description: string;
+  icon: LucideIcon;
+  /** A expansão que o tipo exige ligada; ausente nos tipos de qualquer partida */
+  expansion?: ExpansionKey;
+};
 
-/** O tipo que a expansão Governo & Política acrescenta; a tela o mostra à parte dos tipos base. */
+/** O tipo que a expansão Governo & Política acrescenta. */
 export const POLITICAL_GAME_TYPE: GameTypeInfo = {
   label: "Política",
   description: "Vence o partido com mais capital político: pontos de cadeiras, presidência e promessas cumpridas.",
   icon: Crown,
+  expansion: "government",
+};
+
+/** O tipo que a expansão Gestoras acrescenta. */
+export const FUND_TAKEOVER_GAME_TYPE: GameTypeInfo = {
+  label: "Aquisição hostil",
+  description: "Todos começam com a carteira dentro da própria gestora. Vence o último jogador de pé.",
+  icon: Building,
+  expansion: "funds",
 };
 
 /**
@@ -32,12 +48,23 @@ export const GAME_TYPES: Partial<Record<GameType, GameTypeInfo>> = {
     icon: Sun,
   },
   POLITICAL: POLITICAL_GAME_TYPE,
+  FUND_TAKEOVER: FUND_TAKEOVER_GAME_TYPE,
 };
+
+/** Tipo que exige uma expansão ligada: `expansion` sempre presente. */
+type ExpansionGameTypeInfo = GameTypeInfo & { expansion: ExpansionKey };
 
 const GAME_TYPE_OPTIONS = Object.entries(GAME_TYPES) as [GameType, GameTypeInfo][];
 
-/** Os tipos de qualquer partida; os de expansão aparecem à parte, quando a expansão está ligada. */
-export const BASE_GAME_TYPE_OPTIONS = GAME_TYPE_OPTIONS.filter(([value]) => value !== "POLITICAL");
+function isExpansionOption(option: [GameType, GameTypeInfo]): option is [GameType, ExpansionGameTypeInfo] {
+  return option[1].expansion !== undefined;
+}
+
+/** Os tipos de qualquer partida. */
+export const BASE_GAME_TYPE_OPTIONS = GAME_TYPE_OPTIONS.filter(([, type]) => !type.expansion);
+
+/** Os tipos de expansão: aparecem sempre, e só se escolhem com a expansão ligada. */
+export const EXPANSION_GAME_TYPE_OPTIONS = GAME_TYPE_OPTIONS.filter(isExpansionOption);
 
 /** O que decide a partida em uma palavra: o critério na Clássica, o tipo fora dela. */
 export function winRuleLabel(gameType: GameType, criterion: VictoryCriterion) {

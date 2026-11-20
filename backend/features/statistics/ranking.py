@@ -293,6 +293,9 @@ def _measure(criterion: VictoryCriterion, game_type: GameType) -> Measure:
     if game_type is GameType.POLITICAL:
         # O ranking individual é informação: o que decide é o patrimônio dos partidos
         return lambda performance: performance[2]
+    if game_type is GameType.FUND_TAKEOVER:
+        # Sem meta: na data final vence o maior patrimônio
+        return lambda performance: performance[2]
     return lambda performance: performance[2] / performance[0].goal_net_worth
 
 

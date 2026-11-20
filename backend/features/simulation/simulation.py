@@ -487,13 +487,13 @@ class Simulation:
                 lambda day, headline: news.publish(settings.id, day, headline),
                 self._manager_frozen_until,
                 lambda: repository.simulation_player.participants(settings.id),
-                # No modo aquisição hostil a assembleia espera o fim da carência, e nela o
+                # Na aquisição hostil a assembleia espera o fim da carência, e nela o
                 # gestor passa a ter no máximo a fração do mercado que sobra do mínimo
                 add_months(settings.start_date, settings.fund_grace_months)
-                if settings.fund_takeover_enabled
+                if settings.is_fund_takeover
                 else None,
                 1 - settings.fund_min_market_share
-                if settings.fund_takeover_enabled
+                if settings.is_fund_takeover
                 else None,
                 self._strategies.is_active,
                 self._stop_fund_strategy,

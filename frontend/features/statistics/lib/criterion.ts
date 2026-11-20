@@ -12,14 +12,16 @@ export type RankingMeasure = VictoryCriterion | "GOAL";
 
 export function rankingMeasure(report: Pick<OverviewReport, "game_type" | "criterion">): RankingMeasure {
   if (report.game_type === "CLASSIC") return report.criterion;
-  // Na Política o ranking de jogadores é informativo, em patrimônio; quem decide é o dos partidos
-  return report.game_type === "POLITICAL" ? "NETWORTH" : "GOAL";
+  // Na Política o ranking de jogadores é informativo, em patrimônio; quem decide é o dos partidos.
+  // Na aquisição hostil não há meta: o desempate da data final é o patrimônio
+  return report.game_type === "POLITICAL" || report.game_type === "FUND_TAKEOVER" ? "NETWORTH" : "GOAL";
 }
 
 /** O nome do que decide a partida: o critério, ou "Primeiro a chegar à meta (R$ 1,5 mi)". */
 export function criterionLabel(report: Pick<OverviewReport, "game_type" | "criterion" | "goal_net_worth">) {
   if (report.game_type === "CLASSIC") return VICTORY_CRITERIA[report.criterion].label;
   if (report.game_type === "POLITICAL") return POLITICAL_CAPITAL.label;
+  if (report.game_type === "FUND_TAKEOVER") return "Último jogador de pé";
   const target = report.game_type === "FINANCIAL_INDEPENDENCE" ? "independência financeira" : "meta";
   return `Primeiro a chegar à ${target}${report.goal_net_worth ? ` (${displayMoneyCompact(report.goal_net_worth)})` : ""}`;
 }

@@ -1,5 +1,7 @@
+import { addMonths, format } from "date-fns";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { displayDecimal } from "@/shared/lib/utils/display";
+import { isIsoDate } from "@/shared/lib/utils/date-field";
+import { displayDecimal, parseLocalDate } from "@/shared/lib/utils/display";
 
 export const FUND_FEE_CAP_MESSAGE = "O teto fica entre 0% e 100%";
 
@@ -50,4 +52,10 @@ export function performanceFeeExample(field: string) {
   if (!isFeeCap(field)) return null;
   const extraPoints = (EXAMPLE_YIELD - EXAMPLE_CDI) * 100;
   return { extraPoints, share: feeCapFraction(field), points: extraPoints * feeCapFraction(field) };
+}
+
+/** O dia em que a assembleia passa a abrir: o início da partida mais a carência; nulo com data ou carência inválidas. */
+export function graceOpening(start: string, graceField: string) {
+  if (!isIsoDate(start) || !isGraceMonths(graceField)) return null;
+  return format(addMonths(parseLocalDate(start), Number(graceField)), "yyyy-MM-dd");
 }
