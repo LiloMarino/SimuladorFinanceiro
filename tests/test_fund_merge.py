@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 from decimal import Decimal
+from typing import Any, cast
 from uuid import UUID
 
 import pytest
@@ -56,6 +57,7 @@ from tests.test_fund_book import (
     isolated,
     memory,
 )
+from tests.test_fund_cover import FundFixedIncome
 
 MERGE = FundAssemblyAgenda.MERGE
 SWAP = FundAssemblyAgenda.REPLACE_MANAGER
@@ -625,6 +627,36 @@ def test_the_merge_is_rejected_when_the_two_cash_do_not_cover_the_exit(
         assert memory.assemblies_saved[fund.terms.id][-1].merge_shortfall == 3000
     history = setup.book.assembly_panel(daughter, GESTOR, {}, {}).history
     assert history[0].merge_shortfall == 3000
+
+
+def test_the_daily_liquidity_fixed_income_covers_the_exit_the_cash_does_not(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    """Ana leva R$ 15.000; os caixas somam R$ 12.000 e os R$ 3.000 de renda fixa da Boreal completam a saída."""
+    monkeypatch.setattr(
+        "backend.features.simulation.simulation_engine.notify", lambda *_a, **_k: None
+    )
+    setup = _two_funds(memory)
+    _illiquid(setup, DAUGHTER, 10000)
+    _illiquid(setup, MOTHER, 2000)
+    fixed = FundFixedIncome(setup.engine, "3000")
+    setup.engine.fixed_broker = cast(Any, fixed)
+    _, daughter = _propose(setup)
+    _vote(setup, DAUGHTER, ANA, False)
+    _vote(setup, DAUGHTER, BETO, True)
+    _vote(setup, DAUGHTER, CAIO, True)
+    cash = setup.engine.cash[ANA.client_id]
+
+    # O placar já conta a renda fixa resgatável: nada falta
+    merge = setup.book.assembly_panel(daughter, GESTOR, {}, {}).current[0].merge
+    assert merge is not None
+    assert merge.shortfall == 0
+
+    _close_all_sessions(setup)
+
+    assert setup.book.is_merged(DAUGHTER)
+    assert setup.engine.cash[ANA.client_id] == cash + 300 * 50
+    assert fixed.sold == 3000
 
 
 def _stay_value(setup: Setup, user: UserDTO, nav_of: dict[str, Decimal]) -> Decimal:

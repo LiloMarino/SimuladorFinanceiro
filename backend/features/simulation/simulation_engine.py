@@ -253,6 +253,21 @@ class SimulationEngine:
         with self._lock:
             return self._cash[client_id]
 
+    def _covers_marked(self, client_id: UUID) -> bool:
+        """O título marcado como reserva só entra na conta pessoal que o jogador liberou no perfil."""
+        source = self._cover_marked_source
+        return (
+            self.audience(client_id)[1] is None
+            and source is not None
+            and source(client_id)
+        )
+
+    def coverable_cash(self, client_id: UUID) -> Decimal:
+        """O caixa que um débito automático alcança: o de agora mais a renda fixa que a cobertura venderia."""
+        return self.get_cash(client_id) + self.fixed_broker.cover_capacity(
+            client_id, self._covers_marked(client_id)
+        )
+
     def cover_before_debit(
         self, client_id: UUID, needed: Decimal, kind: CashflowEventType
     ) -> None:
@@ -264,11 +279,10 @@ class SimulationEngine:
         shortfall = needed - self.get_cash(client_id)
         if needed <= 0 or shortfall <= 0:
             return
-        # O título marcado como reserva só entra na conta pessoal que o jogador liberou no perfil
-        source = self._cover_marked_source
         audience, account = self.audience(client_id)
-        include_marked = account is None and source is not None and source(client_id)
-        sales = self.fixed_broker.sell_for_cash(client_id, shortfall, include_marked)
+        sales = self.fixed_broker.sell_for_cash(
+            client_id, shortfall, self._covers_marked(client_id)
+        )
         # O aviso vai a quem opera a conta: o dono da pessoal ou os gestores da gestora
         for sale in sales:
             payload = AutoRedeemEventDTO(

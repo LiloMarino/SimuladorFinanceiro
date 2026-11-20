@@ -358,7 +358,7 @@ def propose_fund_fee_increase(
     "/{fund_id}/assembly/merge",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Levar a fusão de duas gestoras às assembleias",
-    description="O gestor principal das duas propõe que a gestora do caminho incorpore a outra. A votação abre já nas duas assembleias, por 5 pregões, entre os cotistas jogadores (o gestor e os co-gestores votam; bots e formador de mercado não). Cada assembleia aprova por mais cotas a favor que contra. Aprovada nas duas, a incorporada passa tudo à incorporadora e os cotistas dela trocam as cotas pela relação dos patrimônios por cota; quem votou contra na incorporada sai pelo patrimônio por cota. Se os dois caixas somados não cobrem a saída, a fusão não passa.",
+    description="O gestor principal das duas propõe que a gestora do caminho incorpore a outra. A votação abre já nas duas assembleias, por 5 pregões, entre os cotistas jogadores (o gestor e os co-gestores votam; bots e formador de mercado não). Cada assembleia aprova por mais cotas a favor que contra. Aprovada nas duas, a incorporada passa tudo à incorporadora e os cotistas dela trocam as cotas pela relação dos patrimônios por cota; quem votou contra na incorporada sai pelo patrimônio por cota. Se o caixa e a renda fixa de liquidez diária das duas somados não cobrem a saída, a fusão não passa.",
 )
 def propose_fund_merge(
     simulation: ActiveSimulation,

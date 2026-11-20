@@ -65,7 +65,7 @@ export function AssemblyMergeDetails({ merge }: AssemblyMergeDetailsProps) {
       </div>
       {shortfall !== null && (
         <Alert variant="destructive">
-          <AlertTitle>A fusão trava com os caixas de hoje</AlertTitle>
+          <AlertTitle>A fusão trava com o caixa e a renda fixa de hoje</AlertTitle>
           <AlertDescription>{shortfall}</AlertDescription>
         </Alert>
       )}

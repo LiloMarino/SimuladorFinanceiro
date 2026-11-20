@@ -28,7 +28,7 @@ export function ratioFormula(daughter: MergeSide, mother: MergeSide, ratio: stri
 
 /** Quem paga a saída de quem vota contra na incorporada, como o diálogo da proposta conta. */
 export const exitPaymentNote = (daughter: MergeSide, mother: MergeSide) =>
-  `Pago pelo caixa da ${daughter.name} (hoje ${displayMoney(daughter.cash)}); o que faltar, a ${mother.name} paga do próprio caixa logo após a incorporação`;
+  `Pago pelo caixa da ${daughter.name} (hoje ${displayMoney(daughter.cash)}) e pela renda fixa de liquidez diária dela; o que faltar, a ${mother.name} paga do próprio caixa e da própria renda fixa logo após a incorporação`;
 
 /** Quem paga a saída de quem vota contra, como a votação conta. */
 export const exitVoteNote = (daughter: Pick<MergeSide, "name">) => `Pago pela ${daughter.name} antes da incorporação`;
@@ -54,10 +54,10 @@ export function mergeChoices(merge: AssemblyMerge): Record<"favor" | "against", 
   };
 }
 
-/** O aviso de que a fusão não fecha com os caixas de hoje; nulo quando cobrem a saída. */
+/** O aviso de que a fusão não fecha com o caixa e a renda fixa de liquidez diária de hoje; nulo quando cobrem a saída. */
 export function shortfallText(shortfall: string): string | null {
   return Number(shortfall) > 0
-    ? `Os dois caixas somados não cobrem a saída de quem votou contra: faltam ${displayMoney(shortfall)}. Se ainda faltar no fechamento, a fusão é rejeitada.`
+    ? `O caixa e a renda fixa de liquidez diária das duas gestoras não cobrem a saída de quem votou contra: faltam ${displayMoney(shortfall)}. Se ainda faltar no fechamento, a fusão é rejeitada.`
     : null;
 }
 
@@ -65,7 +65,7 @@ export function shortfallText(shortfall: string): string | null {
 export function rejectionNote(result: Pick<AssemblyResult, "merge_shortfall">): string | null {
   return result.merge_shortfall === null
     ? null
-    : `Rejeitada: os dois caixas somados não cobriam a saída de quem votou contra (faltavam ${displayMoney(result.merge_shortfall)}).`;
+    : `Rejeitada: o caixa e a renda fixa de liquidez diária das duas gestoras não cobriam a saída de quem votou contra (faltavam ${displayMoney(result.merge_shortfall)}).`;
 }
 
 /** O que a linha "Propor fusão" diz de quem não pode propor; a fusão em votação é das duas gestoras. */

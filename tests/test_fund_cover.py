@@ -60,6 +60,10 @@ class FundFixedIncome:
         self.engine.cash[client_id] += net
         return [CoverSale(self.asset, net)]
 
+    def cover_capacity(self, client_id: uuid.UUID, include_marked: bool) -> Decimal:
+        assert not include_marked
+        return self.balance
+
     def transfer_all(self, source: uuid.UUID, target: uuid.UUID) -> None:
         """Sem posições a passar."""
 

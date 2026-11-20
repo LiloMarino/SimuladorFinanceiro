@@ -179,8 +179,8 @@ function MergeDialogBody({
           )}
 
           <p className="text-xs text-muted-foreground">
-            Só cotista da {daughter.name} pode sair. Se os dois caixas somados não cobrirem, a fusão trava e o placar
-            mostra quanto falta.
+            Só cotista da {daughter.name} pode sair. Se o caixa e a renda fixa de liquidez diária das duas não cobrirem,
+            a fusão trava e o placar mostra quanto falta.
           </p>
         </DialogBody>
         <DialogFooter variant="divided">

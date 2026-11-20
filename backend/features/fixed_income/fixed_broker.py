@@ -344,6 +344,26 @@ class FixedBroker:
         logger.debug("Vendido %.2f de %s (a mercado)", breakdown.net, asset.name)
         return breakdown.net
 
+    def cover_capacity(self, client_id: UUID, include_marked: bool) -> Decimal:
+        """O líquido que a cobertura automática alcança hoje: os títulos de `cover_order`, vendidos inteiros."""
+        today = self._simulation_engine.current_date
+        quotes = self._simulation_engine.fixed_quotes()
+        policy = self._simulation_engine.tax_policy_on(today)
+        with self._lock:
+            order = cover_order(
+                self._assets[client_id].values(), today, include_marked, quotes
+            )
+        return sum(
+            (
+                net
+                for position in order
+                if (net := redeemable_today(position, today, policy, quotes))
+                is not None
+                and net > 0
+            ),
+            Decimal(0),
+        )
+
     def sell_for_cash(
         self, client_id: UUID, shortfall: Decimal, include_marked: bool
     ) -> list[CoverSale]:

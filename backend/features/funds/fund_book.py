@@ -1515,8 +1515,8 @@ class FundBook:
             exits=exits,
             cash=settle_exits(
                 sum((e.amount for e in exits), Decimal(0)),
-                self._engine.get_cash(daughter.account.client_id),
-                self._engine.get_cash(mother.account.client_id),
+                self._engine.coverable_cash(daughter.account.client_id),
+                self._engine.coverable_cash(mother.account.client_id),
             ),
             cancelled_daughter_quotas=valuation.cancelled_daughter_quotas,
             cancelled_mother_quotas=valuation.cancelled_mother_quotas,
@@ -1577,7 +1577,7 @@ class FundBook:
             self._close_merge(mother, daughter, today)
 
     def _close_merge(self, mother: Fund, daughter: Fund, today: date) -> None:
-        """A fusão passa quando as duas assembleias aprovam e os dois caixas cobrem a saída de quem votou contra; senão as gestoras seguem separadas."""
+        """A fusão passa quando as duas assembleias aprovam e o caixa das duas, com a renda fixa que a cobertura vende, paga a saída de quem votou contra; senão as gestoras seguem separadas."""
         # A taxa a pagar sai do caixa antes de a saída ser calculada sobre ele
         self.settle_payable(mother)
         self.settle_payable(daughter)

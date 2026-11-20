@@ -70,7 +70,7 @@ describe("ratioFormula", () => {
 describe("exitPaymentNote", () => {
   it("o caixa da incorporada paga primeiro e a incorporadora completa", () => {
     expect(plain(exitPaymentNote(side({ name: "Boreal Renda" }), side()))).toBe(
-      "Pago pelo caixa da Boreal Renda (hoje R$ 42.000,00); o que faltar, a Aurora Gestão paga do próprio caixa logo após a incorporação",
+      "Pago pelo caixa da Boreal Renda (hoje R$ 42.000,00) e pela renda fixa de liquidez diária dela; o que faltar, a Aurora Gestão paga do próprio caixa e da própria renda fixa logo após a incorporação",
     );
   });
 });
@@ -124,7 +124,7 @@ describe("shortfallText", () => {
 describe("rejectionNote", () => {
   it("a fusão rejeitada por falta de caixa diz quanto faltou", () => {
     expect(plain(rejectionNote({ merge_shortfall: "1250.5" }))).toBe(
-      "Rejeitada: os dois caixas somados não cobriam a saída de quem votou contra (faltavam R$ 1.250,50).",
+      "Rejeitada: o caixa e a renda fixa de liquidez diária das duas gestoras não cobriam a saída de quem votou contra (faltavam R$ 1.250,50).",
     );
   });
 

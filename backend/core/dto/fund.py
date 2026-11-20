@@ -570,8 +570,8 @@ class FundAssemblyMergeDTO(BaseDTO):
     # Fração das cotas da outra gestora que já votaram (0,52 é 52%) e a favor entre os votos
     partner_voted_share: Decimal
     partner_in_favor_share: Decimal | None
-    # A saída de quem vota contra na incorporada: cotas, o que elas valem pelo PL por cota, e o caixa
-    # das duas gestoras que paga; `shortfall` é o que falta se os dois caixas somados não cobrirem
+    # A saída de quem vota contra na incorporada: cotas e o que elas valem pelo PL por cota; `shortfall`
+    # é o que o caixa e a renda fixa de liquidez diária das duas gestoras somados não cobrem
     exit_quotas: Decimal
     exit_amount: Decimal
     shortfall: Decimal

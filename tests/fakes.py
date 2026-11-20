@@ -83,6 +83,9 @@ class NoFixedIncome:
     ) -> list[CoverSale]:
         return []
 
+    def cover_capacity(self, client_id: uuid.UUID, include_marked: bool) -> Decimal:
+        return Decimal(0)
+
     def transfer_all(self, source: uuid.UUID, target: uuid.UUID) -> None:
         """Sem posições de renda fixa a passar à incorporadora."""
 

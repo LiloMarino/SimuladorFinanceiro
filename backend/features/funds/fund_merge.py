@@ -80,14 +80,14 @@ class MergeCash:
     # O que o caixa da incorporada paga, e o que a incorporadora completa logo depois
     from_daughter: Decimal
     from_mother: Decimal
-    # O que os dois caixas somados não cobrem; positivo trava a fusão
+    # O que os dois lados somados não cobrem; positivo trava a fusão
     shortfall: Decimal
 
 
 def settle_exits(
     total: Decimal, daughter_cash: Decimal, mother_cash: Decimal
 ) -> MergeCash:
-    """O caixa da incorporada paga primeiro; a incorporadora completa o que faltar do próprio."""
+    """O caixa da incorporada paga primeiro; a incorporadora completa o que faltar do próprio. Cada caixa já vem com a renda fixa que a cobertura venderia."""
     from_daughter = min(total, max(Decimal(0), daughter_cash))
     from_mother = total - from_daughter
     shortfall = max(Decimal(0), from_mother - max(Decimal(0), mother_cash))
