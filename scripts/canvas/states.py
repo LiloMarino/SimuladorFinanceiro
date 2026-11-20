@@ -1558,6 +1558,10 @@ ASSEMBLY_HISTORY = [
         },
         "fee": None,
         "effective_on": None,
+        "partner_ticker": None,
+        "partner_name": None,
+        "absorbed": False,
+        "merge_shortfall": None,
     },
     {
         "id": 90,
@@ -1582,8 +1586,40 @@ ASSEMBLY_HISTORY = [
             "performance_to": "0.200000",
         },
         "effective_on": "2026-07-01",
+        "partner_ticker": None,
+        "partner_name": None,
+        "absorbed": False,
+        "merge_shortfall": None,
     },
 ]
+
+
+MERGE_PARTNER = {
+    "fund_id": 9001,
+    "ticker": "BORE11",
+    "name": "Boreal Renda",
+    "nav": "55.22",
+    "cash": "42000.00",
+}
+
+MERGE_DETAILS = {
+    "mother": {
+        "fund_id": 1,
+        "ticker": "AURO11",
+        "name": "Aurora Gestão",
+        "nav": "110.44",
+        "cash": "180000.00",
+    },
+    "daughter": MERGE_PARTNER,
+    "is_mother": True,
+    "ratio": "0.500000",
+    "partner_tally": assembly_tally(40, 20, 8),
+    "partner_voted_share": "0.52",
+    "partner_in_favor_share": "0.71",
+    "exit_quotas": "0",
+    "exit_amount": "0.00",
+    "shortfall": "0.00",
+}
 
 
 def assembly_current(agenda: str, **over) -> dict:
@@ -1617,6 +1653,7 @@ def assembly_current(agenda: str, **over) -> dict:
         "non_voting": "5",
         "my_vote": None,
         "can_vote": True,
+        "merge": None,
     } | over
 
 
@@ -1644,12 +1681,19 @@ def assembly_panel(**over) -> dict:
                 "next_allowed_on": None,
             },
             {
+                "agenda": "MERGE",
+                "can_convene": False,
+                "block": "manager_only",
+                "next_allowed_on": None,
+            },
+            {
                 "agenda": "FEE_INCREASE",
                 "can_convene": False,
                 "block": "manager_only",
                 "next_allowed_on": None,
             },
         ],
+        "merge_partners": [],
         "convene_quotas": "2",
         "my_quotas": "5",
         "blocked_founding_until": None,
@@ -1686,6 +1730,12 @@ def tab_assembly_fee(page: Page) -> None:
                     "next_allowed_on": None,
                 },
                 {
+                    "agenda": "MERGE",
+                    "can_convene": False,
+                    "block": "no_partner",
+                    "next_allowed_on": None,
+                },
+                {
                     "agenda": "FEE_INCREASE",
                     "can_convene": False,
                     "block": "pending",
@@ -1693,6 +1743,85 @@ def tab_assembly_fee(page: Page) -> None:
                 },
             ],
         ),
+    )
+    open_funds_page(page)
+    open_fund_tab(page, "Assembleia", "Como a assembleia decide")
+
+
+def tab_actions_merge(page: Page) -> None:
+    """Dado forjado: Suas ações do gestor que gere também a Boreal Renda, com uma fusão já em votação."""
+    fund_match(page, stage="offer-closed")
+    forge_assembly(
+        page,
+        assembly_panel(
+            options=[
+                {
+                    "agenda": "REPLACE_MANAGER",
+                    "can_convene": False,
+                    "block": "manager",
+                    "next_allowed_on": None,
+                },
+                {
+                    "agenda": "MERGE",
+                    "can_convene": False,
+                    "block": "pending",
+                    "next_allowed_on": "2026-11-24",
+                },
+                {
+                    "agenda": "FEE_INCREASE",
+                    "can_convene": True,
+                    "block": None,
+                    "next_allowed_on": None,
+                },
+            ],
+            merge_partners=[MERGE_PARTNER],
+        ),
+    )
+    open_funds_page(page)
+    page.get_by_text("Como gestor").first.wait_for()
+    page.wait_for_load_state("networkidle")
+
+
+def tab_assembly_merge(page: Page) -> None:
+    """Dado forjado: uma fusão em votação vista por um cotista da incorporadora que ainda não votou."""
+    fund_match(page, stage="offer-closed")
+    forge_assembly(
+        page,
+        assembly_panel(
+            current=[
+                assembly_current(
+                    "MERGE",
+                    id=3,
+                    convener_nickname="Duda",
+                    convener_user_id=OTHER_MANAGER_ID,
+                    merge=MERGE_DETAILS,
+                )
+            ],
+            options=[
+                {
+                    "agenda": "REPLACE_MANAGER",
+                    "can_convene": True,
+                    "block": None,
+                    "next_allowed_on": None,
+                },
+                {
+                    "agenda": "MERGE",
+                    "can_convene": False,
+                    "block": "pending",
+                    "next_allowed_on": "2026-11-24",
+                },
+                {
+                    "agenda": "FEE_INCREASE",
+                    "can_convene": False,
+                    "block": "manager_only",
+                    "next_allowed_on": None,
+                },
+            ],
+        ),
+        manager_user_id=OTHER_MANAGER_ID,
+        manager_nickname="Duda",
+        my_role="viewer",
+        my_quotas="5",
     )
     open_funds_page(page)
     open_fund_tab(page, "Assembleia", "Como a assembleia decide")
@@ -1709,6 +1838,12 @@ def tab_assembly_empty(page: Page) -> None:
                     "agenda": "REPLACE_MANAGER",
                     "can_convene": False,
                     "block": "manager",
+                    "next_allowed_on": None,
+                },
+                {
+                    "agenda": "MERGE",
+                    "can_convene": False,
+                    "block": "no_partner",
                     "next_allowed_on": None,
                 },
                 {
@@ -1849,8 +1984,10 @@ def room_fund(base: dict, fund_id: int, **fields: object) -> dict:
 
 
 def open_room(page: Page) -> None:
-    """A lista da sala aberta pelo menu Gestoras."""
-    open_funds_page(page)
+    """A lista da sala, aberta pelo endereço dela (quem gere uma gestora também cai nela)."""
+    page.goto("/funds")
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
     page.get_by_role("heading", name="Gestoras da sala").wait_for()
     page.wait_for_load_state("networkidle")
 
@@ -2816,6 +2953,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/aba-assembleia": tab_assembly,
     "gestoras/aba-assembleia-taxa": tab_assembly_fee,
     "gestoras/aba-assembleia-vazia": tab_assembly_empty,
+    "gestoras/aba-assembleia-fusao": tab_assembly_merge,
+    "gestoras/aba-acoes-fusao": tab_actions_merge,
     "gestoras/co-gestores": comanagers_card,
     "gestoras/co-gestores-cheio": comanagers_full,
     "gestoras/dialogo-convidar-co-gestor": comanager_invite_dialog,
