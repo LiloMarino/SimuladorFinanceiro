@@ -81,11 +81,10 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (60 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (61 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -144,6 +143,7 @@
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | — | — | ✅ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
+| [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | — | — | ✅ |
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | ✅ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | — | — | ✅ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | — | — | ✅ |
@@ -164,7 +164,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 38/39 concluídos
+> **Progresso:** 39/39 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -201,7 +201,7 @@
 | 31 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | — | ✅ Concluído |
 | 32 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | — | ✅ Concluído |
 | 33 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ✅ Concluído |
-| 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ⏳ Pendente |
+| 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ✅ Concluído |
 | 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | ✅ Concluído |
 | 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ✅ Concluído |
 | 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | — | ✅ Concluído |
@@ -313,7 +313,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 · 1º | 0 | Alto | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 2º | 0 | Baixo | Bom | ⏳ |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -374,7 +373,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F315** | Feature | Profissões com ações próprias ligadas à macroeconomia | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
 
 <a id="f6"></a>
@@ -577,9 +575,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f309"></a>
-**F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
-
 <a id="f315"></a>
 **F315 — Profissões com ações próprias ligadas à macroeconomia.** Serve N39. Do playtest de 17/11 e da conversa de 20/11. Hoje a profissão é só um multiplicador de salário com um risco macro, e as que começam atrás não têm como recuperar: o Aposentado e o Recém-formado não têm saída (sem caixa no começo, os juros compostos do CLT nunca são alcançados, e 1,5× em 10 anos chega tarde). **A direção:** cada profissão vira uma classe de RPG, como os personagens de Risk of Rain 2: nenhuma é ruim, cada uma tem uma ação ou um bônus próprio que, bem explorado, a põe na frente. A ação tem de fazer sentido na vida real e conversar com a macroeconomia da partida. **Ideias levantadas (a fechar em sessão de design):** Locador compra imóveis e recebe aluguel, com a vacância subindo quando o PIB cai e o desemprego sobe; Servidor toma o consignado a juros baixos; Aposentado tem a previdência acumulada para sacar ou aplicar; Recém-formado mora com os pais (despesa baixa no começo) e pode pagar uma especialização que adianta a carreira; Autônomo define a tabela de preços (mais caro, menos clientes na crise); Empreendedor reinveste o lucro no negócio; Exportador trava o câmbio; Bancário tem o CDB da casa com taxa melhor; Corretor tem corretagem zero e ganha com o volume da sala; Auxílio ganha Pé-de-Meia e tarifa social; Herdeiro recalibra a herança com e sem correção. Comissionado e Banqueiro das ofertas já têm mecânica. **A decidir:** onde a ação da profissão mora na tela; quais séries de dados novas cada ação pede (aluguel, vacância, consignado); como os bots usam as ações; e a calibragem, com cada profissão entre 0,8× e 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, nas salas com e sem correção pelo IPCA. O card se divide em vários quando a sessão de design fechar o desenho.
 
@@ -698,6 +693,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 |
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
+| **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 |
 | **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 |
 | **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 |
 | **F312** | Melhoria | Cor da expansão na conta que opera | N15, N23 | — | M18 · 4.2 |
@@ -932,6 +928,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f308"></a>
 **F308 — Spike: impacto do jogador no preço, teto do k e oscilação no pregão.** Serve N3 e N10; condicionado por D22. Do playtest de 17/11: a partida das estatais rodou com k 3,0, contra 0,05 das outras, houve preço de 1.837 a 237.871 e o gráfico da estatal saltou e voltou ao pausar. Mediu a faixa realista do k sobre 8 séries reais de preço e volume (81 ativo-anos, 21.315 pregões) com o script `measure_k.py` em `.claude/trabalho/impacto-k/`. **Resultado:** a volatilidade diária mediana é de 2,06% (quartis de 1,70% e 2,61%), o que dá k de 0,01 a 0,04, centrado em 0,02; o teste com preço e volume reais ajusta Y em 0,77 (k ≈ 0,016, um teto). O preset Realista (0,02) está no centro da faixa e o Forte (0,05) logo acima. **Feito:** o campo do k segue sem teto e o lobby avisa acima de 0,10 (compra de 4 vezes o volume médio: k 0,10 sobe 20%, k 1 sobe 200%, com a faixa realista no texto). **A causa do gráfico que saltava ao pausar** era a vela de fechamento da cota de gestora e da estatal fundada, que ia crua pelo tempo real enquanto a leitura de detalhes a multiplicava pelo fator das ordens; esses ativos têm o preço formado pelo livro e passaram a ficar fora do fator (`price_impact.py` e o fluxo de ordens do repositório), com testes. **Impacto dentro do pregão como opção da sala:** viável sem tocar no backtest, com um flag da sala separado de `price_impact_enabled`, mas fica de fora por mudar o fator por dia, os caches, a publicação de preço a cada ordem e a liquidez do livro; a D22 registra quando reabrir. **Limitações:** não há dado real de ordens, só preço e volume, e a amostra tem poucos ativos: a faixa vale como ordem de grandeza. O relatório completo está em `.claude/trabalho/impacto-k/resultado.md`.
+
+<a id="f309"></a>
+**F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão e o capital inicial dele foi de 1,58 milhão, porque a validação comparava a meta com o caixa da sala, e não com o capital do Herdeiro. **Decidido em 18/11: meta acima do capital de todos.** A criação da partida recusa a meta abaixo do maior capital inicial da sala, bots incluídos, e o lobby mostra "Meta mínima de R$ X" com a despesa ou a taxa de saque que destrava. **Decidido em 20/11: ajuste mínimo de números para a 4.2, mecânica própria na 4.3.** A calibração mediu cada profissão contra o CLT em 5, 10 e 26 anos, nas salas com e sem correção pelo IPCA, e só as mais fora da curva mudaram de número: Servidor e Aposentado passam a ganhar 0,95× o salário, o Auxílio sobe para 0,45×, o Empreendedor cai para 1,1× e o Recém-formado começa em 0,85× e chega a 1,3× em 10 anos. O Herdeiro, o Autônomo e o Bancário ficam como estavam: o Autônomo cai com o tempo porque a renda dele não acompanha a inflação, e isso pede mecânica, não número. As ações próprias de cada profissão ligadas à macroeconomia seguem em F315.
 
 <a id="f310"></a>
 **F310 — Página Ofertas públicas.** Serve N23. Da rodada de canvas da tela da gestora em abas, em 17/11. A compra na oferta pública e na sobra da emissão já sai pelo livro do detalhe da cota na renda variável, que mostra a venda em aberto (preço fixo, quanto sobra e até quando); a tela da gestora leva até lá. Falta quem não tem gestora achar as ofertas da sala: como no app das corretoras, uma página própria no menu lateral, "Ofertas públicas", com as ofertas e emissões abertas da sala, cada uma com o preço fixo, os pregões que faltam e a preferência do cotista na emissão (o gestor a tem só como cotista, na proporção das cotas, sem vantagem de gestor), o atalho para o detalhe da cota e o histórico das encerradas. A emissão segue no card da gestora. A abertura da oferta pública passa a chegar em janela (o nível WINDOW do jornal, no centro da tela, sem pausar), com o botão que leva à compra; a emissão segue no cartão do canto. Desenho na rodada de canvas da linha da gestora.
