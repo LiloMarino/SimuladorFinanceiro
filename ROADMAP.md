@@ -10,7 +10,7 @@
 >
 > **Arquivo morto:** [DECISIONS_ARCHIVE.md](DECISIONS_ARCHIVE.md) — itens encerrados saem dos dois documentos pra lá, inteiros. Consulta por ID.
 >
-> **Última mudança (2026-11-18):** Decididas as regras pendentes dos cards da 4.2 e criados os cards da assembleia de cotistas e da cor da conta que opera
+> **Última mudança (2026-11-20):** Triado o playtest de 20/11: consertos das gestoras e do lobby, voto dos bots na taxa, Estratégias na conta ativa e ações sem espera em velocidade alta, no começo da 4.3
 
 ## Glossário
 
@@ -21,7 +21,7 @@
 | **N1** | — | Baixar o executável e jogar, sem instalar nem configurar nada ⭐ | — | — | — | — | — |
 | **N2** | — | Jogar com amigos pela internet sem que cada um instale uma VPN | — | [F5](#f5), [F6](#f6) | — | — | — |
 | **N3** | — | Confiar que os números do simulador são exatos e reprodutíveis | — | — | — | — | — |
-| **N4** | — | Testar uma estratégia de investimento automática e ver como ela se sai | — | [F110](#f110), [F111](#f111), [F197](#f197), [F279](#f279) | — | — | — |
+| **N4** | — | Testar uma estratégia de investimento automática e ver como ela se sai | — | [F110](#f110), [F111](#f111), [F197](#f197), [F279](#f279), [F319](#f319) | — | — | — |
 | **N7** | — | Que o simulador cobre os custos de operar do mercado real | — | — | — | — | — |
 | **N8** | — | Jogar contra oponentes controlados pelo computador | — | [F279](#f279) | — | — | — |
 | **N9** | — | Saber num número só quem jogou melhor, pesando retorno e risco — e entender de onde vem esse número | — | — | — | — | — |
@@ -30,20 +30,20 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F316](#f316), [F317](#f317) | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
 | **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
 | **N22** | — | Ter objetivos para buscar além de vencer a partida | — | [F90](#f90), [F123](#f123), [F159](#f159) | — | — | — |
-| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | — | — | — | — |
+| **N23** | — | Jogar com os amigos de outras formas além de cada um por si | — | [F316](#f316), [F317](#f317), [F318](#f318), [F319](#f319) | — | — | — |
 | **N24** | — | Saber onde está a lentidão durante uma partida | — | — | — | — | — |
 | **N25** | — | Entender o que é o simulador e como se joga, sem ler um manual | — | [F132](#f132), [F133](#f133), [F139](#f139), [F140](#f140), [F141](#f141), [F158](#f158), [F193](#f193), [F225](#f225) | — | — | — |
 | **N26** | — | Achar a causa de um erro sem vasculhar o log inteiro | — | — | — | — | — |
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
-| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F284](#f284) | — | — | — |
+| **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F284](#f284), [F317](#f317) | — | — | — |
 | **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F315](#f315) | — | — | — |
-| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221) | — | — | — |
+| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221), [F320](#f320) | — | — | — |
 | **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227) | — | — | — |
 | **N42** | — | Chegar a um estado da partida sem jogar até ele | — | [F286](#f286) | — | — | — |
 | [**F5**](#f5) | Spike | Spike: provider de túnel pela internet | M27 · 4.6 | — | — | — | 🔍 |
@@ -82,6 +82,11 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 | — | Alto | Bom | ⏳ |
+| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | Baixo | Bom | ⏳ |
+| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (22 itens — clique pra expandir)</strong></summary>
@@ -121,17 +126,22 @@
 
 ### 4.3 — Profissões (M29)
 
-> **Objetivo:** Cada profissão ganha uma ação própria ligada à macroeconomia, como uma classe de RPG: nenhuma é ruim e cada uma tem como sair na frente se bem jogada; os bots usam as ações, tomam crédito, e o modo debug ganha comandos para testar e calibrar.
+> **Objetivo:** Primeiro, as pontas do playtest das Gestoras: os consertos, o voto dos bots na taxa, a página Estratégias na conta ativa e as ações sem espera em velocidade alta. Depois, cada profissão ganha uma ação própria ligada à macroeconomia, como uma classe de RPG: nenhuma é ruim e cada uma tem como sair na frente se bem jogada; os bots usam as ações, tomam crédito, e o modo debug ganha comandos para testar e calibrar.
 >
-> **Serve:** N39
+> **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 0/3 concluídos
+> **Progresso:** 0/8 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | — | ⏳ Pendente |
-| 2 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
-| 3 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
+| 1 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | ⏳ Pendente |
+| 2 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | ⏳ Pendente |
+| 3 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | — | ⏳ Pendente |
+| 4 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ⏳ Pendente |
+| 5 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | ⏳ Pendente |
+| 6 | [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | — | ⏳ Pendente |
+| 7 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
+| 8 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
 
 ### 4.4 — Mesa do trader (M24)
 
@@ -224,9 +234,14 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 · 1º | 0 | Alto | Bom | ⏳ |
-| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 2º | 0 | Baixo | Bom | ⏳ |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
+| [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
+| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 · 2º | 0 | Médio | Bom | ⏳ |
+| [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | M29 · 4.3 · 3º | 0 | Baixo | Bom | ⏳ |
+| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 · 4º | 0 | Médio | Bom | ⏳ |
+| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 · 5º | 0 | Médio | Bom | ⏳ |
+| [**F315**](#f315) | Feature | Profissões com ações próprias ligadas à macroeconomia | M29 · 4.3 · 6º | 0 | Alto | Bom | ⏳ |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 7º | 0 | Baixo | Bom | ⏳ |
+| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 8º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.4 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.4 · 3º | 0 | Médio | Bom | ⏳ |
@@ -285,6 +300,11 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Profissões com ações próprias ligadas à macroeconomia | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
+| **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 | — | Médio | Baixo | Alto | Bom |
+| **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 | — | Médio | Baixo | Alto | Bom |
+| **F318** | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
+| **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
+| **F320** | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -488,6 +508,36 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 <a id="f315"></a>
 **F315 — Profissões com ações próprias ligadas à macroeconomia.** Serve N39. Do playtest de 17/11 e da conversa de 20/11. Hoje a profissão é só um multiplicador de salário com um risco macro. **A direção:** cada profissão vira uma classe de RPG, como os personagens de Risk of Rain 2: nenhuma é ruim, cada uma tem uma ação ou um bônus próprio que, bem explorado, a põe na frente. A ação tem de fazer sentido na vida real e conversar com a macroeconomia da partida. **Ideias levantadas (a fechar em sessão de design):** Locador compra imóveis e recebe aluguel, com a vacância subindo quando o PIB cai e o desemprego sobe; Servidor toma o consignado a juros baixos; Aposentado tem a previdência acumulada para sacar ou aplicar; Recém-formado mora com os pais (despesa baixa no começo) e pode pagar uma especialização que adianta a carreira; Autônomo define a tabela de preços (mais caro, menos clientes na crise); Empreendedor reinveste o lucro no negócio; Exportador trava o câmbio; Bancário tem o CDB da casa com taxa melhor; Corretor tem corretagem zero e ganha com o volume da sala; Auxílio ganha Pé-de-Meia e tarifa social; Herdeiro recalibra a herança com e sem correção. Comissionado e Banqueiro das ofertas já têm mecânica. **Onde a 4.2 parou (medido em 20/11):** a razão é o patrimônio final da profissão dividido pelo do CLT, na mediana de 22 cenários em 5 anos, 17 em 10, 7 em 20 e 1 em 26 (o de 26 anos pesa pouco). Depois do ajuste de números da 4.2 (Servidor e Aposentado 0,95×, Auxílio 0,45×, Empreendedor 1,1×, Recém-formado de 0,85× a 1,3× em 10 anos), a sala com IPCA fica com Servidor, Aposentado e Auxílio em 0,83 / 0,77 / 0,65 / 0,63 (5, 10, 20 e 26 anos): começam perto do CLT e escorregam com o tempo. O Autônomo vai de 1,54 em 5 anos a 0,38 em 26, porque a renda dele não acompanha o IPCA e a despesa sobe; indexá-la com 1,1× o põe na faixa, mas apaga a identidade dele, e por isso ficou para cá. O Herdeiro troca o começo pelo fim: na sala sem IPCA, a herança calculada a 10% dá 0,92 / 0,94 em 5 e 10 anos e 1,91 em 26; a 12%, 0,80 / 0,74 e 1,43. O Empreendedor fica em 1,32 sem IPCA, o Bancário em 1,63 no cenário de 26 anos sem IPCA, e o Recém-formado em 0,83 / 1,11 / 1,35 com IPCA. O Aposentado tem a saúde em dobro, que a calibração não modela. **A decidir:** onde a ação da profissão mora na tela; quais séries de dados novas cada ação pede (aluguel, vacância, consignado); como os bots usam as ações; e a calibragem, com cada profissão entre 0,8× e 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, nas salas com e sem correção pelo IPCA, medida com a ação usada por um jogador razoável. O card se divide em vários quando a sessão de design fechar o desenho.
+
+<a id="f316"></a>
+**F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
+
+- **Comprar com preferência para o gestor:** o atalho de Suas ações leva à aba Cotas, mas o formulário de compra da emissão aparece só para quem não é o gestor (`viewer = fund.my_role !== "manager"` em `quotas-tab.tsx`, condição em `fund-issuance-card.tsx`). O backend aceita a compra do gestor; o formulário passa a aparecer para todo cotista com direito, gestor incluído.
+- **Meses do Relatório:** com muitos meses, o seletor de mês (ToggleGroup em `report-tab.tsx`) passa da largura da tela. Segue o molde do mapa das eleições (`map-timeline-years.tsx`): os meses mais recentes à vista e um botão "Anteriores · N" que abre a grade com todos. Com dois consumidores, o seletor sobe para `shared/components`.
+- **Emissão que não capta:** o cartão da emissão explica quem compra e quando: cotistas na fase de preferência (10 pregões); na sobra (5 pregões), qualquer um, e os bots só no último pregão, se o preço da emissão couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI). Encerrada sem venda, o cartão diz por quê.
+- **Gestora paga com a liquidez diária:** parcela, taxa a pagar e as outras saídas da gestora resgatam primeiro a renda fixa de liquidez diária dela, como a conta pessoal já faz (`cover_before_debit` em `simulation_engine.py`, que hoje pula a gestora).
+- **Rendimentos na renda variável:** o cartão de rendimentos da cota no detalhe da renda variável (`fund-distributions-card.tsx`) lista todos os meses. Ganha a paginação da aba Rendimentos da gestora (`HistoryCard` em `income-tab.tsx`), que sobe para `shared` com os dois consumidores.
+- **Comprar a própria cota na emissão:** teste que reproduz o gestor comprando na preferência e na sobra pública e confere que a participação dele depois fica acima da que teria sem comprar. O cartão mostra quantas cotas mantêm a participação de hoje.
+- **Gestora comprando cota de outra gestora:** o backend recusa ("A gestora não compra cota de gestora.", em `create_order`), mas a boleta não diz nada antes. Com uma gestora ativa no topo, a boleta de uma cota fica desabilitada com o motivo.
+
+<a id="f317"></a>
+**F317 — Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos fora das telas da gestora:
+
+- **Aquisição hostil sem trava no lobby:** o tipo Aquisição hostil deixa de travar a expansão Gestoras. Sai o selo "expansão Gestoras ligada e travada" e a nota `ExpansionLockNote`. Desligar Gestoras com Aquisição hostil escolhida volta o tipo para o clássico. Com Gestoras desligada, o cartão do tipo fica só com a cara de desabilitado, mais escuro, sem o selo "Ligue a expansão Gestoras" (`game-type-fields.tsx`, `funds-card.tsx`).
+- **Fundar gestora mais enxuto na preparação:** comparada a criar partido, a aba tem blocos que não pedem decisão. Sai "Como a sala vai ver" (repete o nome três vezes); a linha do tempo "Como ela nasce" vira uma frase curta sob a identidade. Ficam Identidade, Co-gestores, Taxas e Nesta sala (`fund-found-tab.tsx`).
+- **Aporte no Fundo Soberano recusado:** o aporte de 100 bi volta "O campo value é inválido.". O `value` de `ProposeMeasureRequest` (`core/dto/government.py`) tem `max_digits=14, decimal_places=4`, então não passa de R$ 9.999.999.999,9999, e os quatro atalhos do diálogo (10, 25, 50 e 100 bi) passam desse teto. O campo passa a aceitar o maior valor que uma medida pode ter (conferir obras e estatal fundada), e o erro `decimal_max_digits` ganha frase própria em `validation_messages.py`. Sem aporte o caixa do Fundo é zero, e por isso ele não comprava nada: confirmar na salva que, com o aporte aprovado, a compra pela conta do Fundo sai. A boleta na conta do Fundo mostra o caixa e, sem caixa, o caminho do aporte.
+- **Dicas ⓘ que não abrem:** as dicas de "Faixa de hoje", "Preço de ranking" e de outras telas não abrem. O app não monta `TooltipProvider` desde a troca do Radix pelo Base UI (`App.tsx`), e o `InfoHint` só abre por hover. Toda ⓘ abre no hover e no clique, conferido no navegador. Dentro de boleta travada (`inert`), a dica continua acessível.
+- **Estatísticas da aquisição hostil:** o layout das estatísticas do fim de partida em aquisição hostil quebra. Sem print: reproduzir na salva da partida e consertar o que passar da borda ou desalinhar.
+- **Vencedor da aquisição hostil:** o título diz "Thales venceu: restou uma gestora", enquanto o pódio e o "Você venceu." põem em 1º quem tem mais patrimônio, eliminado ou não (`match-hero.tsx` usa `survivor_nickname`; o pódio usa a `position` de `ranking.py`, que ignora eliminação). Na aquisição hostil, quem restou fica em 1º e os eliminados vêm depois, de quem caiu por último para quem caiu primeiro; título, pódio e "Você venceu." usam a mesma ordem.
+
+<a id="f318"></a>
+**F318 — Bots cotistas votam o aumento de taxa pelo desempenho.** Do playtest de 20/11. Hoje as cotas do gestor e dos co-gestores não votam o aumento de taxa, e bots e o formador de mercado também não. Com os outros cotistas todos bots, ninguém vota, e empate ou zero votos mantém a taxa: o gestor nunca sobe a taxa, mesmo com 90% das cotas. Decidido: o bot cotista vota, com o peso das cotas dele, a favor quando a gestora bateu o CDI nos últimos 12 meses (o desempenho de `performance.py`, rendimentos incluídos) e contra quando não bateu; o formador de mercado segue fora. A aba Assembleia mostra o voto dos bots no placar e a regra numa dica.
+
+<a id="f319"></a>
+**F319 — Página Estratégias segue a conta ativa.** Do playtest de 20/11. O automático da gestora mora na aba Configurações e não tem o que a página Estratégias tem: gráfico de sinais, prévia antes de salvar, confirmação ao desligar ou trocar, registro completo, painel de resultado e parâmetros salvos no perfil. A página Estratégias opera só a conta pessoal (`useMyStrategy` busca `/api/strategies/me`) e não diz isso, e quem gere a gestora acha que ela mexe no automático da gestora. Decidido: a página Estratégias opera a conta escolhida no topo, como a boleta, e diz no cabeçalho qual conta é; a aba Configurações da gestora fica com um resumo do automático e o link para a página. O aviso de boleta travada (`trade-lock-notice.tsx`) desliga o automático de qualquer conta, não só da pessoal.
+
+<a id="f320"></a>
+**F320 — Ações do jogador sem espera em velocidade alta.** Do playtest de 20/11: em velocidade alta, diálogos e ações ficam carregando sem fim ou demoram muito. O loop (`simulation_loop.py`) segura o lock da partida durante o dia inteiro e só solta no intervalo entre dias (5 a 10 ms a 100x). O lock não é justo e volta direto para o loop, e as rotas de ordem, diálogo, pausa e velocidade esperam por ele sem prazo. A partida da triagem rodou sem o modo debug, então os logs não têm tempos. Medir pela CLI com o modo debug (tempo de espera das rotas e duração do dia a 100x) e fazer a rota esperar no máximo um dia: o loop cede a vez a quem está esperando antes de começar o dia seguinte.
 
 ---
 
