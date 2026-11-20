@@ -85,12 +85,12 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   PUBLIC_SERVANT: {
     name: "Servidor",
     icon: Landmark,
-    incomeMultiple: 0.9,
+    incomeMultiple: 0.95,
     gains: [
       { text: "Nunca é demitido" },
       { text: "Aumento acima da inflação quando o governo dá aos servidores", requires: GOVERNMENT_RAISE },
     ],
-    losses: [{ text: "Ganha 10% menos que o CLT" }],
+    losses: [{ text: "Ganha 5% menos que o CLT" }],
     tags: [
       { key: "servantRaise", requires: GOVERNMENT_RAISE },
       { key: "personalTax", requires: GOVERNMENT },
@@ -99,9 +99,9 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   ENTREPRENEUR: {
     name: "Empreendedor",
     icon: Store,
-    incomeMultiple: 1.2,
+    incomeMultiple: 1.1,
     gains: [
-      { text: "Ganha 20% mais que o CLT" },
+      { text: "Ganha 10% mais que o CLT" },
       { text: "Não é demitido" },
       { text: "A renda sobe quando o PIB passa de 2% ao ano" },
     ],
@@ -111,12 +111,12 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   RETIREE: {
     name: "Aposentado",
     icon: Armchair,
-    incomeMultiple: 0.85,
+    incomeMultiple: 0.95,
     gains: [
       { text: "Nunca é demitido" },
       { text: "Aumento acima da inflação quando o governo dá aos aposentados", requires: GOVERNMENT_RAISE },
     ],
-    losses: [{ text: "Ganha 15% menos que o CLT" }, { text: "Despesa de saúde custa o dobro" }],
+    losses: [{ text: "Ganha 5% menos que o CLT" }, { text: "Despesa de saúde custa o dobro" }],
     tags: [
       { key: "retireeRaise", requires: GOVERNMENT_RAISE },
       { key: "personalTax", requires: GOVERNMENT },
@@ -126,7 +126,7 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     name: "Auxílio",
     icon: HandCoins,
     incomeMultiple: 0.5,
-    benefitMultiple: 0.4,
+    benefitMultiple: 0.45,
     gains: [{ text: "O auxílio nunca some, nem no sorteio de demissão" }],
     losses: [{ text: "Mais da metade da renda é bico, e o sorteio de demissão tira o bico por um mês" }],
     tags: [
@@ -200,13 +200,13 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   NEW_GRADUATE: {
     name: "Recém-formado",
     icon: GraduationCap,
-    incomeMultiple: 0.6,
+    incomeMultiple: 0.85,
     gains: [
-      { text: "A renda sobe em linha reta até 1,5× o salário em 10 anos" },
+      { text: "A renda sobe em linha reta até 1,3× o salário em 10 anos" },
       { text: "Aumento acima da inflação quando o PIB cresce", requires: INFLATION },
     ],
     losses: [
-      { text: "Começa ganhando 40% menos que o CLT, sem capital" },
+      { text: "Começa ganhando 15% menos que o CLT, sem capital" },
       { text: "Chance de demissão dobrada no começo, caindo até a do CLT em 10 anos" },
     ],
     tags: [{ key: "unemployment" }, { key: "gdp" }, { key: "personalTax", requires: GOVERNMENT }],

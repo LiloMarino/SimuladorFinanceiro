@@ -67,12 +67,12 @@ def test_reference_rates_match_the_default_tax_policy():
     ("profession", "expected"),
     [
         (Profession.CLT, "5000"),
-        (Profession.PUBLIC_SERVANT, "4500"),
+        (Profession.PUBLIC_SERVANT, "4750"),
         # PIB de 2%: o fator do empreendedor é 1
-        (Profession.ENTREPRENEUR, "6000"),
-        (Profession.RETIREE, "4250"),
-        # Bico de 0,5x + auxílio de 0,4x no gasto de referência
-        (Profession.WELFARE, "4500"),
+        (Profession.ENTREPRENEUR, "5500"),
+        (Profession.RETIREE, "4750"),
+        # Bico de 0,5x + auxílio de 0,45x no gasto de referência
+        (Profession.WELFARE, "4750"),
         # Aluguel de 1,1x o salário
         (Profession.LANDLORD, "5500"),
         # Com dólar, Selic e Ibovespa nos valores neutros o fator é 1
@@ -82,8 +82,8 @@ def test_reference_rates_match_the_default_tax_policy():
         (Profession.BROKER, "5250"),
         # Vive do capital da herança: sem renda de trabalho
         (Profession.HEIR, "0"),
-        # Começa em 0,6x e sobe com a carreira
-        (Profession.NEW_GRADUATE, "3000"),
+        # Começa em 0,85x e sobe com a carreira
+        (Profession.NEW_GRADUATE, "4250"),
         # Salário fixo do Banqueiro de ofertas; a comissão entra pelo caixa
         (Profession.OFFERS_BANKER, "3500"),
     ],
@@ -103,7 +103,7 @@ def test_public_servant_raise_follows_the_servants_measure(indicators: SetIndica
     life = budget(Profession.PUBLIC_SERVANT, inflation_adjusted=True, levers=levers)
 
     assert life.salary_on(date(2021, 6, 1)) == (
-        SALARY * Decimal("0.9") * (1 + ipca + Decimal("0.03"))
+        SALARY * Decimal("0.95") * (1 + ipca + Decimal("0.03"))
     ).quantize(Decimal("0.01"))
 
 
@@ -111,7 +111,7 @@ def test_entrepreneur_income_follows_the_gdp_with_a_floor():
     # PIB de -3,5%: fator de 1 + 3 x (-3,5% - 2%) = 0,835
     assert budget(Profession.ENTREPRENEUR, growth="-0.035").net_salary_on(
         START
-    ) == Decimal("5010.00")
+    ) == Decimal("4592.50")
     assert driver_factor(DRIVER_CURVES[IncomeDriver.GDP], Decimal("-0.5")) == Decimal(
         "0.5"
     )
@@ -120,9 +120,9 @@ def test_entrepreneur_income_follows_the_gdp_with_a_floor():
 def test_welfare_income_doubles_when_the_government_doubles_the_spending():
     levers = LifeLevers(welfare_spending=Decimal("0.03"))
 
-    # Bico de 2.500 + auxílio de 2.000 x 2
+    # Bico de 2.500 + auxílio de 2.250 x 2
     assert budget(Profession.WELFARE, levers=levers).net_salary_on(START) == Decimal(
-        6500
+        7000
     )
 
 
@@ -130,11 +130,11 @@ def test_welfare_income_doubles_when_the_government_doubles_the_spending():
     ("profession", "expected"),
     [
         (Profession.CLT, "0"),
-        (Profession.PUBLIC_SERVANT, "4500"),
-        (Profession.ENTREPRENEUR, "6000"),
-        (Profession.RETIREE, "4250"),
+        (Profession.PUBLIC_SERVANT, "4750"),
+        (Profession.ENTREPRENEUR, "5500"),
+        (Profession.RETIREE, "4750"),
         # Só o auxílio sobra quando o bico se perde
-        (Profession.WELFARE, "2000"),
+        (Profession.WELFARE, "2250"),
         (Profession.LANDLORD, "0"),
         (Profession.EXPORTER, "5250"),
         (Profession.BANKER, "0"),
@@ -204,7 +204,7 @@ def test_tax_deviation_cuts_the_income_of_the_profession_tax_only():
     # 10 pontos acima da lei no IR das empresas: só o empreendedor perde 10%
     assert budget(Profession.ENTREPRENEUR, levers=levers).net_salary_on(
         START
-    ) == Decimal("5400.00")
+    ) == Decimal("4950.00")
     assert budget(Profession.CLT, levers=levers).net_salary_on(START) == SALARY
 
 
@@ -270,10 +270,10 @@ def test_the_new_graduate_career_rises_from_the_start_to_the_final_multiple():
     middle = START + timedelta(days=1826)
     end = START + timedelta(days=3653)
 
-    assert life.multiple_on(START) == Decimal("0.6")
-    assert abs(life.multiple_on(middle) - Decimal("1.05")) < Decimal("0.001")
-    assert life.multiple_on(end) == Decimal("1.5")
-    assert life.multiple_on(end + timedelta(days=3650)) == Decimal("1.5")
+    assert life.multiple_on(START) == Decimal("0.85")
+    assert abs(life.multiple_on(middle) - Decimal("1.075")) < Decimal("0.001")
+    assert life.multiple_on(end) == Decimal("1.3")
+    assert life.multiple_on(end + timedelta(days=3650)) == Decimal("1.3")
 
 
 def test_the_new_graduate_layoff_weight_falls_to_one_in_ten_years():

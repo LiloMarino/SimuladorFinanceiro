@@ -208,17 +208,17 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         real_raise=RealRaise.GDP_SHARE,
     ),
     Profession.PUBLIC_SERVANT: ProfessionRule(
-        income_multiple=Decimal("0.9"),
+        income_multiple=Decimal("0.95"),
         tax=TaxBase.PERSONAL,
         real_raise=RealRaise.SERVANTS,
     ),
     Profession.ENTREPRENEUR: ProfessionRule(
-        income_multiple=Decimal("1.2"),
+        income_multiple=Decimal("1.1"),
         tax=TaxBase.CORPORATE,
         driver=IncomeDriver.GDP,
     ),
     Profession.RETIREE: ProfessionRule(
-        income_multiple=Decimal("0.85"),
+        income_multiple=Decimal("0.95"),
         tax=TaxBase.PERSONAL,
         real_raise=RealRaise.RETIREES,
         health_multiple=Decimal(2),
@@ -227,7 +227,7 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         income_multiple=Decimal("0.5"),
         tax=TaxBase.CONSUMPTION,
         loss=IncomeLoss.GIG_LOSS,
-        benefit_multiple=Decimal("0.4"),
+        benefit_multiple=Decimal("0.45"),
     ),
     Profession.LANDLORD: ProfessionRule(
         income_multiple=Decimal("1.1"),
@@ -263,11 +263,11 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         starting_capital=StartingCapital.ROOM_PLUS_INHERITANCE,
     ),
     Profession.NEW_GRADUATE: ProfessionRule(
-        income_multiple=Decimal("0.6"),
+        income_multiple=Decimal("0.85"),
         tax=TaxBase.PERSONAL,
         loss=IncomeLoss.LAYOFF,
         real_raise=RealRaise.GDP_SHARE,
-        career=CareerCurve(Decimal("1.5"), years=10, layoff_weight=Decimal(2)),
+        career=CareerCurve(Decimal("1.3"), years=10, layoff_weight=Decimal(2)),
         starting_capital=StartingCapital.ZERO,
     ),
     # Rende 1,5x com o partido escolhido no governo (presidência ou base) e 0,5x fora dele

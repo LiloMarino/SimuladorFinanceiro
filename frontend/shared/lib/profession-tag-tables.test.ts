@@ -8,12 +8,12 @@ function rows(table: ReturnType<typeof tagTable>) {
 
 describe("tagTable", () => {
   it("PIB do empreendedor: fator 1 + 3 × (PIB − 2%), com piso de 0,5", () => {
-    // Renda de 6.000: PIB 4% → 6.000 × 1,06; PIB 0% → 6.000 × 0,94; PIB −15% → fator 0,49 vira 0,5
+    // Renda de 5.500: PIB 4% → 5.500 × 1,06; PIB 0% → 5.500 × 0,94; PIB −15% → fator 0,49 vira 0,5
     expect(rows(tagTable("gdp", "ENTREPRENEUR", 5000))).toEqual([
-      ["4%", "R$ 6.360 (+6%)"],
-      ["2%", "R$ 6.000"],
-      ["0%", "R$ 5.640 (−6%)"],
-      ["−15% ou menos", "R$ 3.000 (piso)"],
+      ["4%", "R$ 5.830 (+6%)"],
+      ["2%", "R$ 5.500"],
+      ["0%", "R$ 5.170 (−6%)"],
+      ["−15% ou menos", "R$ 2.750 (piso)"],
     ]);
   });
 
@@ -45,30 +45,30 @@ describe("tagTable", () => {
   });
 
   it("IR das empresas parte da lei de 34% e o imposto sobre consumo, da de 18%", () => {
-    expect(rows(tagTable("corporateTax", "ENTREPRENEUR", 5000))[0]).toEqual(["29%", "R$ 6.300 (+5%)"]);
-    // Auxílio: renda de 4.500 × (1 − (23% − 18%))
-    expect(rows(tagTable("consumptionTax", "WELFARE", 5000))[2]).toEqual(["23%", "R$ 4.275 (−5%)"]);
+    expect(rows(tagTable("corporateTax", "ENTREPRENEUR", 5000))[0]).toEqual(["29%", "R$ 5.775 (+5%)"]);
+    // Auxílio: renda de 4.750 × (1 − (23% − 18%))
+    expect(rows(tagTable("consumptionTax", "WELFARE", 5000))[2]).toEqual(["23%", "R$ 4.513 (−5%)"]);
   });
 
-  it("gasto com auxílio: 0,4 × salário × gasto ÷ 1,5%, e o bico de 0,5× não muda", () => {
+  it("gasto com auxílio: 0,45 × salário × gasto ÷ 1,5%, e o bico de 0,5× não muda", () => {
     const table = tagTable("welfareSpending", "WELFARE", 5000);
     expect(rows(table)).toEqual([
-      ["0,75% do PIB", "R$ 1.000"],
-      ["1,5% do PIB", "R$ 2.000"],
-      ["3% do PIB", "R$ 4.000"],
+      ["0,75% do PIB", "R$ 1.125"],
+      ["1,5% do PIB", "R$ 2.250"],
+      ["3% do PIB", "R$ 4.500"],
     ]);
     expect(table.footnote.replaceAll(" ", " ")).toBe("O bico, R$ 2.500, não muda.");
   });
 
   it("aumento dos servidores e dos aposentados: IPCA de 4% mais o aumento sobre a renda de partida", () => {
-    // Servidor 4.500 × 1,04 = 4.680; × 1,06 = 4.770; × 1,09 = 4.905
+    // Servidor 4.750 × 1,04 = 4.940; × 1,06 = 5.035; × 1,09 = 5.177,5
     expect(rows(tagTable("servantRaise", "PUBLIC_SERVANT", 5000))).toEqual([
-      ["0%", "R$ 4.680 (só o IPCA)"],
-      ["2%", "R$ 4.770"],
-      ["5%", "R$ 4.905"],
+      ["0%", "R$ 4.940 (só o IPCA)"],
+      ["2%", "R$ 5.035"],
+      ["5%", "R$ 5.178"],
     ]);
-    // Aposentado 4.250 × 1,04 = 4.420
-    expect(rows(tagTable("retireeRaise", "RETIREE", 5000))[0]).toEqual(["0%", "R$ 4.420 (só o IPCA)"]);
+    // Aposentado 4.750 × 1,04 = 4.940
+    expect(rows(tagTable("retireeRaise", "RETIREE", 5000))[0]).toEqual(["0%", "R$ 4.940 (só o IPCA)"]);
   });
 
   it("dólar do Exportador: fator 1 + variação, entre 0,5 e 2", () => {

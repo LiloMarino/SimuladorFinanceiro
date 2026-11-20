@@ -795,7 +795,7 @@ def test_the_players_start_with_the_capital_of_their_profession(room, monkeypatc
     sim = SimulationManager.get_active_simulation()
     assert sim.get_portfolio(ana.client_id).cash > Decimal(10000)
     # Quem começa sem capital só tem o que o primeiro pregão paga e cobra
-    assert sim.get_portfolio(bia.client_id).cash < Decimal(1000)
+    assert sim.get_portfolio(bia.client_id).cash < Decimal(5000)
     assert sim.get_portfolio(caio.client_id).cash > Decimal(9000)
 
 
