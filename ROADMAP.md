@@ -82,11 +82,10 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
-| [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (57 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (58 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -145,6 +144,7 @@
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
 | [**F310**](#f310) | Feature | Página Ofertas públicas | M18 · 4.2 | — | — | — | ✅ |
+| [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | — | — | ✅ |
 | [**F312**](#f312) | Melhoria | Cor da expansão na conta que opera | M18 · 4.2 | — | — | — | ✅ |
 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | M18 · 4.2 | — | — | — | ✅ |
 
@@ -162,7 +162,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 36/39 concluídos
+> **Progresso:** 37/39 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -203,7 +203,7 @@
 | 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | ✅ Concluído |
 | 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ✅ Concluído |
 | 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | — | ✅ Concluído |
-| 38 | [**F311**](#f311) | Feature | Fusão de gestoras | [F301](#f301), [F313](#f313) | ⏳ Pendente |
+| 38 | [**F311**](#f311) | Feature | Fusão de gestoras | — | ✅ Concluído |
 | 39 | [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | [F305](#f305) | 🔍 Em avaliação |
 
 ### 4.3 — Mesa do trader (M24)
@@ -300,7 +300,6 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
-| [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 · 38º | 0 | Alto | Médio | ⏳ |
 | [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | M18 · 4.2 · 39º | 0 | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
@@ -362,7 +361,6 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
-| **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 | [F301](#f301), [F313](#f313) | Alto | Alto | Médio | Médio |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -567,9 +565,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
 
-<a id="f311"></a>
-**F311 — Fusão de gestoras.** Serve N23. Da conversa sobre posse de gestoras, em 18/11. No modo aquisição hostil (F305) o jogador acaba gerindo várias gestoras (F301), e controlar dez ao mesmo tempo é inviável. A fusão junta duas: a gestora mãe incorpora a filha, o ticker que fica é o da mãe, e tudo o que a filha tem (caixa, ações, títulos e cotas de outros ativos) passa para a mãe; a filha deixa de existir e sai da renda variável. **Decidido em 18/11: as assembleias das duas aprovam.** Quem gere as duas propõe a fusão, e ela vira pauta na assembleia de cada uma, com 5 pregões de votação; sai se a maioria de quem votou aprovar nas duas. Cada cotista da filha recebe cotas da mãe pela relação entre os patrimônios por cota do dia da aprovação (filha a R$ 50 e mãe a R$ 100: duas cotas da filha viram uma da mãe), e quem votou contra pode sair recebendo o patrimônio por cota, pago pela filha antes da incorporação. O que o caixa da filha não cobre, a mãe paga com o próprio caixa logo depois da incorporação: pagar pelo patrimônio por cota não tira nada de quem fica. Se nem o caixa somado das duas cobre, a fusão trava e o placar mostra quanto falta. Só os cotistas da filha podem sair; os da mãe não, porque ela continua existindo. Depende da assembleia com aba própria (F313). Desenho na rodada de canvas da linha da gestora.
-
 ---
 
 ## 🔍 Em avaliação
@@ -699,6 +694,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
 | **F310** | Feature | Página Ofertas públicas | N23 | — | M18 · 4.2 |
+| **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 |
 | **F312** | Melhoria | Cor da expansão na conta que opera | N15, N23 | — | M18 · 4.2 |
 | **F313** | Feature | Assembleia de cotistas com aba própria e aumento de taxa | N23 | — | M18 · 4.2 |
 
@@ -933,6 +929,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f310"></a>
 **F310 — Página Ofertas públicas.** Serve N23. Da rodada de canvas da tela da gestora em abas, em 17/11. A compra na oferta pública e na sobra da emissão já sai pelo livro do detalhe da cota na renda variável, que mostra a venda em aberto (preço fixo, quanto sobra e até quando); a tela da gestora leva até lá. Falta quem não tem gestora achar as ofertas da sala: como no app das corretoras, uma página própria no menu lateral, "Ofertas públicas", com as ofertas e emissões abertas da sala, cada uma com o preço fixo, os pregões que faltam e a preferência do cotista na emissão (o gestor a tem só como cotista, na proporção das cotas, sem vantagem de gestor), o atalho para o detalhe da cota e o histórico das encerradas. A emissão segue no card da gestora. A abertura da oferta pública passa a chegar em janela (o nível WINDOW do jornal, no centro da tela, sem pausar), com o botão que leva à compra; a emissão segue no cartão do canto. Desenho na rodada de canvas da linha da gestora.
+
+<a id="f311"></a>
+**F311 — Fusão de gestoras.** Serve N23. Da conversa sobre posse de gestoras, em 18/11. No modo aquisição hostil (F305) o jogador acaba gerindo várias gestoras (F301), e controlar dez ao mesmo tempo é inviável. A fusão junta duas: a gestora mãe incorpora a filha, o ticker que fica é o da mãe, e tudo o que a filha tem (caixa, ações, títulos e cotas de outros ativos) passa para a mãe; a filha deixa de existir e sai da renda variável. **Decidido em 18/11: as assembleias das duas aprovam.** Quem gere as duas propõe a fusão, e ela vira pauta na assembleia de cada uma, com 5 pregões de votação; sai se a maioria de quem votou aprovar nas duas. Cada cotista da filha recebe cotas da mãe pela relação entre os patrimônios por cota do dia da aprovação (filha a R$ 50 e mãe a R$ 100: duas cotas da filha viram uma da mãe), e quem votou contra pode sair recebendo o patrimônio por cota, pago pela filha antes da incorporação. O que o caixa da filha não cobre, a mãe paga com o próprio caixa logo depois da incorporação: pagar pelo patrimônio por cota não tira nada de quem fica. Se nem o caixa somado das duas cobre, a fusão trava e o placar mostra quanto falta. Só os cotistas da filha podem sair; os da mãe não, porque ela continua existindo. Depende da assembleia com aba própria (F313). Desenho na rodada de canvas da linha da gestora.
 
 <a id="f312"></a>
 **F312 — Cor da expansão na conta que opera.** Serve N15 e N23. Do comentário no canvas da tela da gestora, em 18/11. Os desenhos perderam a cor da expansão, e no app nada lembra o jogador de que a ordem sai pela gestora. Quando a conta ativa no topo é uma gestora, a boleta e o botão de comprar e vender ficam na cor da expansão Gestoras (a variante `fund` do botão já existe); com a conta do Fundo Soberano, na cor da expansão do governo. **A boleta inteira muda de cor**, escolhida no canvas em 18/11: borda, cabeçalho "Operando pela <gestora>" e o botão "Comprar pela gestora"; a faixa do alto e o seletor de conta ficam como estão.
