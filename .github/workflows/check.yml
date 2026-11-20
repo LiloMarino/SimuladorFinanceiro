@@ -1,12 +1,20 @@
 name: Checagem do projeto
 
-# A mesma checagem roda nas PRs do Dependabot e antes de cada release: lint,
-# typecheck, pytest, deptry e oxlint, oxfmt, tsc e knip do frontend, com PostgreSQL para os testes de banco
+# A checagem completa roda antes de cada release e nas PRs do Dependabot que mexem
+# no Python, na raiz ou nas Actions: lint, typecheck, pytest, deptry e oxlint, oxfmt,
+# tsc, knip e vitest do frontend, com PostgreSQL para os testes de banco. As PRs que
+# só mexem no frontend ou na docs pedem a área delas e rodam só o que ela usa.
 on:
   workflow_call:
+    inputs:
+      area:
+        description: "all, frontend ou docs"
+        type: string
+        default: all
 
 jobs:
   check:
+    if: inputs.area == 'all'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -63,6 +71,80 @@ jobs:
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
-      # lint, typecheck, pytest, deptry e oxlint, oxfmt, tsc e knip do frontend
       - name: Rodar a checagem do projeto
         run: pnpm run check
+
+  frontend:
+    if: inputs.area == 'frontend'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Instalar dependências do frontend
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      # oxlint, oxfmt, tsc, knip e vitest
+      - name: Rodar a checagem do frontend
+        run: pnpm run check:front
+
+  docs:
+    if: inputs.area == 'docs'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.13"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: "pnpm"
+          cache-dependency-path: docs/pnpm-lock.yaml
+
+      # O diagrama do banco e a página de novidades saem de scripts Python
+      - name: Instalar dependências do Python
+        run: uv sync
+
+      - name: Instalar dependências da docs
+        working-directory: docs
+        run: pnpm install --frozen-lockfile
+
+      # O build gera o diagrama, as novidades e a API antes de montar o site
+      - name: Montar o site
+        working-directory: docs
+        run: pnpm run build
+
+      # O tsc lê o que o build acabou de gerar
+      - name: Checar os tipos da docs
+        working-directory: docs
+        run: pnpm exec tsc

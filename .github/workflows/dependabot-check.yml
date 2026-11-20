@@ -20,3 +20,9 @@ jobs:
     permissions:
       contents: read
     uses: ./.github/workflows/check.yml
+    # A área sai do branch que o Dependabot cria: dependabot/<ecossistema>/<pasta>/...
+    with:
+      area: >-
+        ${{ startsWith(github.head_ref, 'dependabot/npm_and_yarn/docs/') && 'docs'
+        || startsWith(github.head_ref, 'dependabot/npm_and_yarn/frontend/') && 'frontend'
+        || 'all' }}
