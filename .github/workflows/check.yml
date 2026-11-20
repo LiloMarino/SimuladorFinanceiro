@@ -48,10 +48,16 @@ jobs:
         with:
           node-version: "24"
           cache: "pnpm"
-          cache-dependency-path: frontend/pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            frontend/pnpm-lock.yaml
 
       - name: Instalar dependências do Python
         run: uv sync --dev
+
+      # O `pnpm run check` da raiz divide as trilhas com o concurrently da raiz
+      - name: Instalar dependências da raiz
+        run: pnpm install --frozen-lockfile
 
       - name: Instalar dependências do frontend
         working-directory: frontend
