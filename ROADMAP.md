@@ -81,13 +81,12 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
-| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 | — | Alto | Médio | ⏳ |
 | [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | M18 · 4.2 | — | — | — | 🔍 |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (56 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (57 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -141,6 +140,7 @@
 | [**F302**](#f302) | Correção | Caixa da gestora sem ficar negativo | M18 · 4.2 | — | — | — | ✅ |
 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | M18 · 4.2 | — | — | — | ✅ |
 | [**F304**](#f304) | Feature | Co-gestão combinada no lobby | M18 · 4.2 | — | — | — | ✅ |
+| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 | — | — | — | ✅ |
 | [**F306**](#f306) | Feature | Automático só na carteira da gestora | M18 · 4.2 | — | — | — | ✅ |
 | [**F307**](#f307) | Correção | Estatais com preço vivo e lucro à vista | M18 · 4.2 | — | — | — | ✅ |
 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | M18 · 4.2 | — | — | — | ✅ |
@@ -162,7 +162,7 @@
 >
 > **Serve:** N23, N34, N41
 >
-> **Progresso:** 35/39 concluídos
+> **Progresso:** 36/39 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -201,7 +201,7 @@
 | 33 | [**F308**](#f308) | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | — | ✅ Concluído |
 | 34 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | — | ⏳ Pendente |
 | 35 | [**F303**](#f303) | Feature | Dinheiro novo na gestora depois da oferta pública | — | ✅ Concluído |
-| 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ⏳ Pendente |
+| 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ✅ Concluído |
 | 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | — | ✅ Concluído |
 | 38 | [**F311**](#f311) | Feature | Fusão de gestoras | [F301](#f301), [F313](#f313) | ⏳ Pendente |
 | 39 | [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | [F305](#f305) | 🔍 Em avaliação |
@@ -300,8 +300,8 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
-| [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | M18 · 4.2 · 36º | 1 | Médio | Bom | ⏳ |
 | [**F311**](#f311) | Feature | Fusão de gestoras | M18 · 4.2 · 38º | 0 | Alto | Médio | ⏳ |
+| [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | M18 · 4.2 · 39º | 0 | — | — | 🔍 |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -361,7 +361,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.6 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
 | **F311** | Feature | Fusão de gestoras | N23 | — | M18 · 4.2 | [F301](#f301), [F313](#f313) | Alto | Alto | Médio | Médio |
 
@@ -565,9 +564,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f305"></a>
-**F305 — Aquisição hostil como modo de vitória.** Serve N23. Do playtest de 17/11. O modo aquisição hostil é um interruptor no card da expansão de gestoras (`funds-card.tsx:152-186`), e isso dá a entender que ele combina com qualquer tipo de partida, quando ele mesmo define como se vence. **Decidido em 18/11.** A aquisição hostil vira um tipo de partida (`GameType`, `game-types.ts`), ao lado de Clássica, Corrida pela meta, Independência financeira e Política, e sai do card da expansão. **Tipo exclusivo de expansão:** a Aquisição hostil (das Gestoras) e a Política (do Governo) aparecem sempre na lista de tipos; com a expansão desligada, o tipo fica desabilitado com o motivo ("ligue a expansão Gestoras"), e para escolher liga-se a expansão; com o tipo escolhido, o interruptor da expansão trava ligado, com o motivo. A Política deixa de sumir sem o Governo. Com o tipo escolhido, a carência e a participação mínima do mercado aparecem embaixo do tipo, como a meta nos tipos de meta. **Vitória: o último de pé,** como o código já conta: quem perde para a assembleia a gestora que fundou é eliminado e vira espectador, e a partida acaba quando sobra um jogador ativo (`simulation.py:2262`). Se a data final chega com mais de um de pé, vence o maior patrimônio do ranking. A dica do lobby diz "sobra um jogador", e não "sobra uma gestora". Quem conquista gestoras passa a gerir várias (F301) e as junta pela fusão (F311). O ícone da Aquisição hostil é o prédio comercial (`Building`), distinto do `Building2` do Locador. Desenho do tipo no lobby na rodada de canvas da linha da gestora.
-
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
 
@@ -698,6 +694,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F302** | Correção | Caixa da gestora sem ficar negativo | N23 | — | M18 · 4.2 |
 | **F303** | Feature | Dinheiro novo na gestora depois da oferta pública | N23 | — | M18 · 4.2 |
 | **F304** | Feature | Co-gestão combinada no lobby | N23 | — | M18 · 4.2 |
+| **F305** | Melhoria | Aquisição hostil como modo de vitória | N23 | — | M18 · 4.2 |
 | **F306** | Feature | Automático só na carteira da gestora | N23, N4 | — | M18 · 4.2 |
 | **F307** | Correção | Estatais com preço vivo e lucro à vista | N34 | — | M18 · 4.2 |
 | **F308** | Spike | Spike: impacto do jogador no preço, teto do k e oscilação no pregão | N3, N10 | — | M18 · 4.2 |
@@ -921,6 +918,9 @@ Os sete itens do playtest saíram: Levar da carteira sem cotas de gestora, botã
 
 <a id="f304"></a>
 **F304 — Co-gestão combinada no lobby.** Serve N23. Do playtest de 17/11. A co-gestão só se combina dentro da partida (convite com validade de 7 dias). No lobby, o jogador escolhe começar como co-gestor da gestora de outro jogador, no mesmo molde do convite de vice dos partidos: quem funda convida, o convidado aceita na própria preparação e a partida começa com a co-gestão de pé. Respeita o teto de 3 co-gestores. Desenho do convite no lobby na rodada de canvas da linha da gestora. Aceitar a co-gestão no lobby não impede fundar a própria gestora.
+
+<a id="f305"></a>
+**F305 — Aquisição hostil como modo de vitória.** Serve N23. Do playtest de 17/11. O modo aquisição hostil é um interruptor no card da expansão de gestoras (`funds-card.tsx:152-186`), e isso dá a entender que ele combina com qualquer tipo de partida, quando ele mesmo define como se vence. **Decidido em 18/11.** A aquisição hostil vira um tipo de partida (`GameType`, `game-types.ts`), ao lado de Clássica, Corrida pela meta, Independência financeira e Política, e sai do card da expansão. **Tipo exclusivo de expansão:** a Aquisição hostil (das Gestoras) e a Política (do Governo) aparecem sempre na lista de tipos; com a expansão desligada, o tipo fica desabilitado com o motivo ("ligue a expansão Gestoras"), e para escolher liga-se a expansão; com o tipo escolhido, o interruptor da expansão trava ligado, com o motivo. A Política deixa de sumir sem o Governo. Com o tipo escolhido, a carência e a participação mínima do mercado aparecem embaixo do tipo, como a meta nos tipos de meta. **Vitória: o último de pé,** como o código já conta: quem perde para a assembleia a gestora que fundou é eliminado e vira espectador, e a partida acaba quando sobra um jogador ativo (`simulation.py:2262`). Se a data final chega com mais de um de pé, vence o maior patrimônio do ranking. A dica do lobby diz "sobra um jogador", e não "sobra uma gestora". Quem conquista gestoras passa a gerir várias (F301) e as junta pela fusão (F311). O ícone da Aquisição hostil é o prédio comercial (`Building`), distinto do `Building2` do Locador. Desenho do tipo no lobby na rodada de canvas da linha da gestora.
 
 <a id="f306"></a>
 **F306 — Automático só na carteira da gestora.** Serve N23 e N4. Do playtest de 17/11. O automático (a estratégia que opera pelo jogador, `useMyStrategy`) vale só para a conta pessoal e trava as boletas dela. O gestor liga uma estratégia só na carteira da gestora, na aba Configurações da gestora, e segue operando à mão a conta pessoal; o lock das boletas (`useTradeLock.ts`) passa a olhar a conta ativa. **Na presidência:** o gestor que toma posse sem co-gestor deixa a gestora no automático em vez de congelada, e ela segue operando durante o mandato pela estratégia escolhida; no fim do mandato sem reeleição ele retoma o controle e desliga o automático (a regra da posse está na F301). **Lista do automático:** a aba Configurações usa a mesma lista de estratégias da página Estratégias e da aba Estratégias da Minha preparação, com as seções por grupo (Referências e Táticas, com a dica ⓘ), o ícone do grupo em cada linha e a marca da ativa. Hoje as duas telas têm cada uma a sua cópia da lista (`strategy-list.tsx` e `strategies-tab.tsx`), e só os títulos e o ícone moram em `shared`; com a gestora, a lista vira um componente de `shared/components` usado pelas três. **Posse sem estratégia escolhida:** a gestora congela até o presidente ligar uma estratégia ou convidar um co-gestor, e o co-gestor que aceita assume na hora e descongela a carteira. O automático da gestora não compra cotas de outras gestoras.
