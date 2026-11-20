@@ -55,6 +55,9 @@ class _Book:
     def held_by(self, user_id: int) -> list:
         return []
 
+    def is_merged(self, ticker: str) -> bool:
+        return False
+
     def founding_blocked_until(self, user_id: int) -> date | None:
         return None
 
@@ -385,6 +388,7 @@ def _page(fund_id: int) -> FundDetailsDTO:
             current=[],
             history=[],
             options=[],
+            merge_partners=[],
             convene_quotas=zero,
             my_quotas=zero,
             blocked_founding_until=None,

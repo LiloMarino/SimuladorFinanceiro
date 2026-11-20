@@ -96,6 +96,22 @@ def assembly_kept(ticker: str, manager: str) -> Headline:
     )
 
 
+def funds_merged(
+    mother: str, daughter: str, ratio: Decimal, leaving_quotas: Decimal
+) -> Headline:
+    leaving = (
+        f" {format_quantity(leaving_quotas)} cotas saíram pelo PL por cota."
+        if leaving_quotas > 0
+        else ""
+    )
+    return Headline(
+        NewsType.FUND_MERGED,
+        f"{mother} incorpora a {daughter}: a {daughter} deixa a bolsa",
+        f"Cada cota da {daughter} virou {format_quantity(ratio)} da {mother}.{leaving}",
+        (mother, daughter),
+    )
+
+
 def management_fee_changed(ticker: str, rate: Decimal) -> Headline:
     return Headline(
         NewsType.FUND_FEE_CHANGED,

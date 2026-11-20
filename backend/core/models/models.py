@@ -1331,6 +1331,13 @@ class Funds(Base):
             onupdate="CASCADE",
             name="funds_manager_user_id_fkey",
         ),
+        ForeignKeyConstraint(
+            ["merged_into_fund_id"],
+            ["funds.id"],
+            ondelete="SET NULL",
+            onupdate="CASCADE",
+            name="funds_merged_into_fund_id_fkey",
+        ),
         PrimaryKeyConstraint("id", name="funds_pkey"),
         UniqueConstraint("portfolio_id", name="funds_portfolio_id_key"),
         UniqueConstraint(
@@ -1436,6 +1443,9 @@ class Funds(Base):
     performance_fee_payable: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False, server_default=text("0")
     )
+    # A gestora que incorporou esta e o dia da fusão; nulos enquanto ela existe por si
+    merged_into_fund_id: Mapped[int | None] = mapped_column(BigInteger)
+    merged_on: Mapped[datetime.date | None] = mapped_column(Date)
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(True), nullable=False
     )
@@ -1710,6 +1720,13 @@ class FundAssemblies(Base):
             onupdate="CASCADE",
             name="fund_assemblies_previous_manager_user_id_fkey",
         ),
+        ForeignKeyConstraint(
+            ["partner_fund_id"],
+            ["funds.id"],
+            ondelete="SET NULL",
+            onupdate="CASCADE",
+            name="fund_assemblies_partner_fund_id_fkey",
+        ),
         PrimaryKeyConstraint("id", name="fund_assemblies_pkey"),
     )
 
@@ -1761,6 +1778,13 @@ class FundAssemblies(Base):
     proposed_performance_fee: Mapped[decimal.Decimal | None] = mapped_column(
         Numeric(8, 6)
     )
+    # Na pauta de fusão: a outra gestora e se esta é a incorporada; nulos nas outras pautas
+    partner_fund_id: Mapped[int | None] = mapped_column(BigInteger)
+    absorbed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    # O que faltou nos caixas para pagar a saída de quem votou contra, quando isso rejeitou a fusão no fechamento
+    merge_shortfall: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
 
 
 class FundAssemblyVotes(Base):

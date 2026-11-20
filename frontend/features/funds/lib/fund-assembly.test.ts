@@ -48,6 +48,7 @@ const current = (over: Partial<AssemblyCurrent> = {}): AssemblyCurrent => ({
   candidate_user_id: 3,
   candidate_nickname: "Bia",
   fee: null,
+  merge: null,
   called_on: "2026-11-18",
   started_on: "2026-11-18",
   ends_on: "2026-11-24",
@@ -73,6 +74,7 @@ const panel = (over: Partial<Panel> = {}): Panel => ({
   current: [],
   history: [],
   options: [],
+  merge_partners: [],
   convene_quotas: "100",
   my_quotas: "40",
   blocked_founding_until: null,
@@ -91,6 +93,10 @@ const result = (over: Partial<AssemblyResult> = {}): AssemblyResult => ({
   tally: tally({ in_favor: "182", against: "818" }),
   fee: null,
   effective_on: null,
+  partner_ticker: null,
+  partner_name: null,
+  absorbed: false,
+  merge_shortfall: null,
   ...over,
 });
 
@@ -119,6 +125,28 @@ describe("votações abertas", () => {
 });
 
 describe("títulos", () => {
+  it("a fusão se lê pelo lado de quem consulta", () => {
+    const side = (name: string) => ({ fund_id: 1, ticker: "X11", name, nav: "100", cash: "0" });
+    const merge = (is_mother: boolean) => ({
+      mother: side("Aurora Gestão"),
+      daughter: side("Boreal Renda"),
+      is_mother,
+      ratio: "0.5",
+      partner_tally: tally(),
+      partner_voted_share: "0.5",
+      partner_in_favor_share: null,
+      exit_quotas: "0",
+      exit_amount: "0",
+      shortfall: "0",
+    });
+    expect(currentTitle(current({ agenda: "MERGE", merge: merge(true) }))).toBe("Incorporar a Boreal Renda");
+    expect(currentTitle(current({ agenda: "MERGE", merge: merge(false) }))).toBe("Ser incorporada pela Aurora Gestão");
+    expect(resultTitle(result({ agenda: "MERGE", partner_name: "Boreal Renda" }))).toBe("Incorporar a Boreal Renda");
+    expect(resultTitle(result({ agenda: "MERGE", partner_name: "Aurora Gestão", absorbed: true }))).toBe(
+      "Ser incorporada pela Aurora Gestão",
+    );
+  });
+
   it("o aumento diz qual taxa sobe, de quanto para quanto", () => {
     expect(feeTitle(fee())).toBe("Aumento da taxa de administração (1,5% para 2%)");
     expect(feeTitle(fee({ management_to: "0.015000", performance_to: "0.250000" }))).toBe(
@@ -178,6 +206,11 @@ describe("missingText", () => {
     expect(missingText(tally(), "FEE_INCREASE")).toContain("mantém a taxa");
   });
 
+  it("na fusão, empate ou sem votos mantém as duas separadas", () => {
+    expect(missingText(tally(), "MERGE")).toContain("a fusão sair");
+    expect(missingText(tally(), "MERGE")).toContain("mantém as duas separadas");
+  });
+
   it("uma cota que falta fica no singular", () => {
     expect(missingText(tally({ missing_to_win: "1" }), "REPLACE_MANAGER")).toContain("Faltam 1 cota a favor");
   });
@@ -214,10 +247,45 @@ describe("blockReason", () => {
     );
   });
 
-  it("cada motivo tem frase própria", () => {
-    const reasons = (["pending", "manager", "unlisted", "manager_only"] as const).map((block) =>
-      blockReason(option({ block }), panel()),
+  it("a fusão em votação diz até quando", () => {
+    expect(blockReason(option({ agenda: "MERGE", block: "pending", next_allowed_on: "2026-11-24" }), panel())).toBe(
+      "Já há uma fusão em votação até 24/11.",
     );
-    expect(new Set(reasons).size).toBe(4);
+  });
+
+  it("a fusão tem frase própria para quem não é o gestor", () => {
+    expect(blockReason(option({ agenda: "MERGE", block: "manager_only" }), panel())).toBe(
+      "Só o gestor propõe a fusão.",
+    );
+  });
+
+  it("a gestora congelada diz até quando", () => {
+    expect(blockReason(option({ agenda: "MERGE", block: "frozen", next_allowed_on: "2027-03-01" }), panel())).toContain(
+      "congelada até 01/03/2027",
+    );
+  });
+
+  it("a troca de gestor e a fusão se seguram uma à outra", () => {
+    expect(blockReason(option({ agenda: "MERGE", block: "swap_open" }), panel())).toContain("troca de gestor");
+    expect(blockReason(option({ block: "merge_open", next_allowed_on: "2026-11-24" }), panel())).toBe(
+      "Há uma fusão em votação até 24/11: a troca de gestor espera o resultado dela.",
+    );
+  });
+
+  it("cada motivo tem frase própria", () => {
+    const reasons = (
+      [
+        "pending",
+        "manager",
+        "unlisted",
+        "manager_only",
+        "no_partner",
+        "busy",
+        "frozen",
+        "swap_open",
+        "merge_open",
+      ] as const
+    ).map((block) => blockReason(option({ block }), panel()));
+    expect(new Set(reasons).size).toBe(9);
   });
 });

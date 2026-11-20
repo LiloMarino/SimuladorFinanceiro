@@ -10048,6 +10048,134 @@
         }
       }
     },
+    "/api/funds/{fund_id}/assembly/merge": {
+      "post": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Levar a fusão de duas gestoras às assembleias",
+        "description": "O gestor principal das duas propõe que a gestora do caminho incorpore a outra. A votação abre já nas duas assembleias, por 5 pregões, entre os cotistas jogadores (o gestor e os co-gestores votam; bots e formador de mercado não). Cada assembleia aprova por mais cotas a favor que contra. Aprovada nas duas, a incorporada passa tudo à incorporadora e os cotistas dela trocam as cotas pela relação dos patrimônios por cota; quem votou contra na incorporada sai pelo patrimônio por cota. Se os dois caixas somados não cobrem a saída, a fusão não passa.",
+        "operationId": "propose_fund_merge_api_funds__fund_id__assembly_merge_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundMergeProposalRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/funds/{fund_id}/assembly/merge/preview": {
+      "get": {
+        "tags": [
+          "Funds"
+        ],
+        "summary": "Prévia da fusão de duas gestoras",
+        "description": "A relação de troca de cotas pelos patrimônios por cota de hoje, e a incorporadora depois da fusão. Só o gestor principal das duas consulta.",
+        "operationId": "preview_fund_merge_api_funds__fund_id__assembly_merge_preview_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fund_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fund Id"
+            }
+          },
+          {
+            "name": "daughter_fund_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Daughter Fund Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FundMergePreviewDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/funds/{fund_id}/assembly/acceptance": {
       "post": {
         "tags": [
@@ -23593,7 +23721,8 @@
         "type": "string",
         "enum": [
           "REPLACE_MANAGER",
-          "FEE_INCREASE"
+          "FEE_INCREASE",
+          "MERGE"
         ],
         "title": "FundAssemblyAgenda",
         "description": "A pauta de uma assembleia de cotistas; cada pauta tem a sua votação."
@@ -23607,7 +23736,12 @@
           "manager",
           "unlisted",
           "grace",
-          "manager_only"
+          "manager_only",
+          "no_partner",
+          "busy",
+          "frozen",
+          "swap_open",
+          "merge_open"
         ]
       },
       "FundAssemblyConveneRequest": {
@@ -23696,6 +23830,77 @@
         "title": "FundAssemblyFeeProposalRequest",
         "description": "As taxas que o gestor leva à votação dos cotistas."
       },
+      "FundAssemblyMergeDTO": {
+        "properties": {
+          "mother": {
+            "$ref": "#/components/schemas/FundMergeSideDTO"
+          },
+          "daughter": {
+            "$ref": "#/components/schemas/FundMergeSideDTO"
+          },
+          "is_mother": {
+            "type": "boolean",
+            "title": "Is Mother"
+          },
+          "ratio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio"
+          },
+          "partner_tally": {
+            "$ref": "#/components/schemas/FundAssemblyTallyDTO"
+          },
+          "partner_voted_share": {
+            "type": "string",
+            "title": "Partner Voted Share"
+          },
+          "partner_in_favor_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner In Favor Share"
+          },
+          "exit_quotas": {
+            "type": "string",
+            "title": "Exit Quotas"
+          },
+          "exit_amount": {
+            "type": "string",
+            "title": "Exit Amount"
+          },
+          "shortfall": {
+            "type": "string",
+            "title": "Shortfall"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mother",
+          "daughter",
+          "is_mother",
+          "ratio",
+          "partner_tally",
+          "partner_voted_share",
+          "partner_in_favor_share",
+          "exit_quotas",
+          "exit_amount",
+          "shortfall"
+        ],
+        "title": "FundAssemblyMergeDTO",
+        "description": "A fusão da votação, vista da gestora que consulta: as duas pontas, a troca de cotas e a saída de quem vota contra."
+      },
       "FundAssemblyOptionDTO": {
         "properties": {
           "agenda": {
@@ -23762,6 +23967,13 @@
             "type": "array",
             "title": "Options"
           },
+          "merge_partners": {
+            "items": {
+              "$ref": "#/components/schemas/FundMergeSideDTO"
+            },
+            "type": "array",
+            "title": "Merge Partners"
+          },
           "convene_quotas": {
             "type": "string",
             "title": "Convene Quotas"
@@ -23789,6 +24001,7 @@
           "current",
           "history",
           "options",
+          "merge_partners",
           "convene_quotas",
           "my_quotas",
           "blocked_founding_until"
@@ -23861,6 +24074,44 @@
               }
             ],
             "title": "Effective On"
+          },
+          "partner_ticker": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Ticker"
+          },
+          "partner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partner Name"
+          },
+          "absorbed": {
+            "type": "boolean",
+            "title": "Absorbed",
+            "default": false
+          },
+          "merge_shortfall": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Merge Shortfall"
           }
         },
         "additionalProperties": false,
@@ -23876,7 +24127,11 @@
           "closed_on",
           "tally",
           "fee",
-          "effective_on"
+          "effective_on",
+          "partner_ticker",
+          "partner_name",
+          "absorbed",
+          "merge_shortfall"
         ],
         "title": "FundAssemblyResultDTO",
         "description": "O resultado de uma votação concluída."
@@ -23951,6 +24206,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/FundAssemblyFeeDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "merge": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyMergeDTO"
               },
               {
                 "type": "null"
@@ -24035,6 +24300,7 @@
           "candidate_user_id",
           "candidate_nickname",
           "fee",
+          "merge",
           "called_on",
           "started_on",
           "ends_on",
@@ -26408,6 +26674,127 @@
         ],
         "title": "FundIssuanceSubscriptionRequest"
       },
+      "FundMergePreviewDTO": {
+        "properties": {
+          "mother": {
+            "$ref": "#/components/schemas/FundMergeSideDTO"
+          },
+          "daughter": {
+            "$ref": "#/components/schemas/FundMergeSideDTO"
+          },
+          "ratio": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio"
+          },
+          "mother_quotas": {
+            "type": "string",
+            "title": "Mother Quotas"
+          },
+          "daughter_quotas": {
+            "type": "string",
+            "title": "Daughter Quotas"
+          },
+          "quotas_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quotas After"
+          },
+          "equity_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Equity After"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mother",
+          "daughter",
+          "ratio",
+          "mother_quotas",
+          "daughter_quotas",
+          "quotas_after",
+          "equity_after"
+        ],
+        "title": "FundMergePreviewDTO",
+        "description": "O que a fusão faz hoje, antes de o gestor levá-la às duas assembleias."
+      },
+      "FundMergeProposalRequest": {
+        "properties": {
+          "daughter_fund_id": {
+            "type": "integer",
+            "title": "Daughter Fund Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "daughter_fund_id"
+        ],
+        "title": "FundMergeProposalRequest",
+        "description": "A gestora que a gestora do caminho incorpora."
+      },
+      "FundMergeSideDTO": {
+        "properties": {
+          "fund_id": {
+            "type": "integer",
+            "title": "Fund Id"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "nav": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nav"
+          },
+          "cash": {
+            "type": "string",
+            "title": "Cash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fund_id",
+          "ticker",
+          "name",
+          "nav",
+          "cash"
+        ],
+        "title": "FundMergeSideDTO",
+        "description": "Uma das duas gestoras de uma fusão: quem incorpora ou quem é incorporada."
+      },
       "FundMonthlyReportDTO": {
         "properties": {
           "month": {
@@ -26596,7 +26983,8 @@
           "comanager_left",
           "directed_issuance",
           "asset_buy",
-          "asset_sell"
+          "asset_sell",
+          "merger"
         ]
       },
       "FundOfferBuyerDTO": {
@@ -33381,6 +33769,7 @@
           "FUND_ASSEMBLY_CALLED",
           "FUND_ASSEMBLY_REPLACED",
           "FUND_ASSEMBLY_KEPT",
+          "FUND_MERGED",
           "STATE_COMPANY_FOUNDED",
           "STATE_PRIVATIZATION_OPENED",
           "STATE_PRIVATIZATION_CLOSED",

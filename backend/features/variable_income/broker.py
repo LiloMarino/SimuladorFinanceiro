@@ -66,12 +66,17 @@ def replay_positions(events: Iterable[EquityEventDTO]) -> dict[str, Position]:
     for event in events:
         position = positions.setdefault(event.ticker, Position(event.ticker))
         match event.event_type:
-            case EquityEventType.BUY | EquityEventType.TRANSFER_IN:
+            case (
+                EquityEventType.BUY
+                | EquityEventType.TRANSFER_IN
+                | EquityEventType.MERGE_IN
+            ):
                 position.update_buy(event.price, event.quantity)
             case (
                 EquityEventType.SELL
                 | EquityEventType.FRACTION_SELL
                 | EquityEventType.TRANSFER_OUT
+                | EquityEventType.MERGE_OUT
             ):
                 position.update_sell(event.quantity)
             case EquityEventType.SPLIT:
@@ -254,6 +259,37 @@ class Broker:
         self, source: UUID, target: UUID, ticker: str, quantity: Decimal
     ) -> None:
         """A integralização de ações: a posição muda de carteira com o preço médio, sem venda e sem DARF."""
+        self._move_position(
+            source,
+            target,
+            ticker,
+            quantity,
+            EquityEventType.TRANSFER_OUT,
+            EquityEventType.TRANSFER_IN,
+        )
+
+    def merge_position(
+        self, source: UUID, target: UUID, ticker: str, quantity: Decimal
+    ) -> None:
+        """A fusão leva a posição da incorporada para a incorporadora com o preço médio, sem venda e sem DARF."""
+        self._move_position(
+            source,
+            target,
+            ticker,
+            quantity,
+            EquityEventType.MERGE_OUT,
+            EquityEventType.MERGE_IN,
+        )
+
+    def _move_position(
+        self,
+        source: UUID,
+        target: UUID,
+        ticker: str,
+        quantity: Decimal,
+        out_type: EquityEventType,
+        in_type: EquityEventType,
+    ) -> None:
         avg_price = self.get_positions(source)[ticker].avg_price
         self._mutate_position(
             client_id=source,
@@ -265,15 +301,16 @@ class Broker:
             ticker=ticker,
             mutation=lambda p: p.update_buy(avg_price, quantity),
         )
-        self._push_equity_event(
-            source, EquityEventType.TRANSFER_OUT, ticker, quantity, avg_price
-        )
-        self._push_equity_event(
-            target, EquityEventType.TRANSFER_IN, ticker, quantity, avg_price
-        )
+        self._push_equity_event(source, out_type, ticker, quantity, avg_price)
+        self._push_equity_event(target, in_type, ticker, quantity, avg_price)
 
     def receive_position(
-        self, client_id: UUID, ticker: str, quantity: Decimal, unit_cost: Decimal
+        self,
+        client_id: UUID,
+        ticker: str,
+        quantity: Decimal,
+        unit_cost: Decimal,
+        event_type: EquityEventType = EquityEventType.TRANSFER_IN,
     ) -> None:
         """Posição que chega sem compra, ao custo dado: as cotas emitidas na integralização."""
         self._mutate_position(
@@ -281,9 +318,53 @@ class Broker:
             ticker=ticker,
             mutation=lambda p: p.update_buy(unit_cost, quantity),
         )
-        self._push_equity_event(
-            client_id, EquityEventType.TRANSFER_IN, ticker, quantity, unit_cost
+        self._push_equity_event(client_id, event_type, ticker, quantity, unit_cost)
+
+    def cancel_position(self, client_id: UUID, ticker: str) -> Decimal:
+        """A fusão cancela a posição inteira de `ticker` (cotas de uma gestora na carteira da outra); devolve as cotas canceladas."""
+        position = self.get_positions(client_id).get(ticker)
+        if position is None or position.size <= 0:
+            return Decimal(0)
+        size = position.size
+        avg_price = position.avg_price
+        self._mutate_position(
+            client_id=client_id,
+            ticker=ticker,
+            mutation=lambda p: p.update_sell(size),
         )
+        self._push_equity_event(
+            client_id, EquityEventType.MERGE_OUT, ticker, size, avg_price
+        )
+        return size
+
+    def convert_position(
+        self,
+        client_id: UUID,
+        old_ticker: str,
+        new_ticker: str,
+        new_quantity: Decimal,
+    ) -> None:
+        """A fusão troca a posição inteira de `old_ticker` por `new_quantity` de `new_ticker`, com o mesmo custo total e sem venda nem DARF."""
+        position = self.get_positions(client_id)[old_ticker]
+        size = position.size
+        avg_price = position.avg_price
+        total_cost = position.total_cost
+        self._mutate_position(
+            client_id=client_id,
+            ticker=old_ticker,
+            mutation=lambda p: p.update_sell(size),
+        )
+        self._push_equity_event(
+            client_id, EquityEventType.MERGE_OUT, old_ticker, size, avg_price
+        )
+        if new_quantity > 0:
+            self.receive_position(
+                client_id,
+                new_ticker,
+                new_quantity,
+                total_cost / new_quantity,
+                EquityEventType.MERGE_IN,
+            )
 
     def get_available_position(self, client_id: UUID, ticker: str) -> Decimal:
         with self._lock:

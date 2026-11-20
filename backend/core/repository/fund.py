@@ -80,6 +80,8 @@ _MUTABLE = (
     "month_fees",
     "management_fee_payable",
     "performance_fee_payable",
+    "merged_into_fund_id",
+    "merged_on",
 )
 
 
@@ -106,6 +108,9 @@ def _assembly_dto(row: FundAssemblies) -> FundAssemblyDTO:
         previous_performance_fee=row.previous_performance_fee,
         proposed_management_fee=row.proposed_management_fee,
         proposed_performance_fee=row.proposed_performance_fee,
+        partner_fund_id=row.partner_fund_id,
+        absorbed=row.absorbed,
+        merge_shortfall=row.merge_shortfall,
     )
 
 
@@ -516,6 +521,7 @@ class FundRepository:
                 in_favor_quotas=assembly.in_favor_quotas,
                 against_quotas=assembly.against_quotas,
                 abstention_quotas=assembly.abstention_quotas,
+                merge_shortfall=assembly.merge_shortfall,
             )
         )
 

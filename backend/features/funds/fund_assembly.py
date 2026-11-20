@@ -9,6 +9,7 @@ from backend.core.dto.fund import (
     FundAssemblyBlock,
     FundAssemblyDTO,
     FundAssemblyFeeDTO,
+    FundAssemblyMergeDTO,
     FundAssemblyOptionDTO,
     FundAssemblyPanelDTO,
     FundAssemblyResultDTO,
@@ -17,6 +18,7 @@ from backend.core.dto.fund import (
     FundAssemblyTallyDTO,
     FundAssemblyVoteDTO,
     FundAssemblyVoterDTO,
+    FundMergeSideDTO,
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import FundAssemblyAgenda, FundAssemblyStatus
@@ -49,11 +51,13 @@ FOUNDING_BAN_MONTHS = 6
 
 SWAP = FundAssemblyAgenda.REPLACE_MANAGER
 FEE = FundAssemblyAgenda.FEE_INCREASE
+MERGE = FundAssemblyAgenda.MERGE
 
 # O desfecho de cada pauta quando a votação fecha: (vence, não vence)
 OUTCOMES: dict[FundAssemblyAgenda, tuple[FundAssemblyStatus, FundAssemblyStatus]] = {
     SWAP: (FundAssemblyStatus.REPLACED, FundAssemblyStatus.KEPT),
     FEE: (FundAssemblyStatus.APPROVED, FundAssemblyStatus.REJECTED),
+    MERGE: (FundAssemblyStatus.APPROVED, FundAssemblyStatus.REJECTED),
 }
 
 # Os estados das votações concluídas pelo voto: o convite recusado, vencido ou cancelado não conta
@@ -154,9 +158,12 @@ def raises_fee(fund: "Fund", management_fee: Decimal, performance_fee: Decimal) 
 
 
 def stance_of(
-    user_id: int, manager_user_id: int, votes: Mapping[int, bool]
+    user_id: int, manager_user_id: int | None, votes: Mapping[int, bool]
 ) -> FundAssemblyStance:
-    """Para onde vão as cotas de um jogador: o gestor sempre contra, quem não votou abstém."""
+    """Para onde vão as cotas de um jogador: o gestor sempre contra, quem não votou abstém.
+
+    Sem `manager_user_id` (a pauta em que o gestor vota como qualquer cotista) vale só o voto.
+    """
     if user_id == manager_user_id:
         return "against"
     vote = votes.get(user_id)
@@ -175,8 +182,9 @@ def convene_block(
     last_end: date | None,
     today: date,
     grace_ends: date | None = None,
+    merge_ends: date | None = None,
 ) -> tuple[FundAssemblyBlock | None, date | None]:
-    """Por que alguém não pode convocar a troca de gestor agora, e quando o intervalo ou a carência libera; nulo quando pode."""
+    """Por que alguém não pode convocar a troca de gestor agora, e quando o intervalo, a carência ou a fusão em votação libera; nulo quando pode."""
     if grace_ends is not None and today < grace_ends:
         return "grace", grace_ends
     if not listed:
@@ -191,6 +199,8 @@ def convene_block(
         next_allowed = add_months(last_end, INTERVAL_MONTHS)
         if today < next_allowed:
             return "interval", next_allowed
+    if merge_ends is not None:
+        return "merge_open", merge_ends
     return None, None
 
 
@@ -208,6 +218,34 @@ def fee_block(
     if active:
         return "pending"
     return None
+
+
+def merge_block(
+    *,
+    is_manager: bool,
+    listed: bool,
+    active: bool,
+    today: date,
+    grace_ends: date | None = None,
+    merge_ends: date | None = None,
+    swap_ends: date | None = None,
+) -> tuple[FundAssemblyBlock | None, date | None]:
+    """Por que alguém não pode propor a fusão desta gestora agora, e até quando; nulo quando pode.
+
+    Só o gestor principal propõe, sem exigir cotas e sem intervalo entre propostas. A carência do
+    modo aquisição hostil vale como na troca de gestor, e a troca de gestor em votação ou com
+    convite pendente (`swap_ends`) segura a fusão até o resultado dela.
+    """
+    if grace_ends is not None and today < grace_ends:
+        return "grace", grace_ends
+    block = fee_block(is_manager=is_manager, listed=listed, active=active)
+    if block == "pending":
+        return block, merge_ends
+    if block is not None:
+        return block, None
+    if swap_ends is not None:
+        return "swap_open", swap_ends
+    return None, None
 
 
 class FundAssemblies:
@@ -294,6 +332,11 @@ class FundAssemblies:
                 votes=votes,
                 excluded=operators_of(fund),
             )
+        if agenda is MERGE:
+            # Na fusão o gestor e os co-gestores votam como qualquer cotista
+            return fee_tally(
+                total=fund.account.quotas, holdings=held, votes=votes, excluded=()
+            )
         return tally(
             total=fund.account.quotas,
             manager_user_id=fund.terms.manager_user_id,
@@ -308,9 +351,11 @@ class FundAssemblies:
         user: UserDTO,
         holdings: Mapping[int, Decimal],
     ) -> bool:
-        """Se `user` tem voto na pauta: cotista jogador que não opera a gestora (o gestor da troca vota contra por regra)."""
+        """Se `user` tem voto na pauta: cotista jogador; na troca de gestor e no aumento de taxa, quem opera a gestora não vota."""
         if user.is_bot or holdings.get(user.id, Decimal(0)) <= 0:
             return False
+        if agenda is MERGE:
+            return True
         if agenda is FEE:
             return user.id not in operators_of(fund)
         return user.id != fund.terms.manager_user_id
@@ -345,6 +390,18 @@ class FundAssemblies:
             return fee_block(
                 is_manager=is_manager, listed=fund.listed, active=active
             ), None
+        if agenda is MERGE:
+            open_merge = fund.assemblies.get(MERGE)
+            open_swap = fund.assemblies.get(SWAP)
+            return merge_block(
+                is_manager=is_manager,
+                listed=fund.listed,
+                active=active,
+                today=today,
+                grace_ends=self.grace_ends,
+                merge_ends=open_merge.ends_on if open_merge else None,
+                swap_ends=open_swap.ends_on if open_swap else None,
+            )
         held = self.holdings(fund) if holdings is None else holdings
         last = next(
             (a for a in reversed(fund.assembly_history) if a.agenda is SWAP), None
@@ -358,6 +415,11 @@ class FundAssemblies:
             last_end=last.closed_on if last else None,
             today=today,
             grace_ends=self.grace_ends,
+            merge_ends=(
+                open_merge.ends_on
+                if (open_merge := fund.assemblies.get(MERGE)) is not None
+                else None
+            ),
         )
 
     def convene(
@@ -371,7 +433,7 @@ class FundAssemblies:
         aliado, o convite espera a resposta dele."""
         block, next_allowed = self.block_for(fund, convener, today, SWAP)
         if block is not None:
-            raise ConflictError(_block_message(block, next_allowed))
+            raise ConflictError(block_message(block, next_allowed))
         nickname = (
             convener.nickname if candidate_nickname is None else candidate_nickname
         )
@@ -421,9 +483,9 @@ class FundAssemblies:
         """O gestor principal leva um aumento de taxa à votação, que abre hoje sem voto algum."""
         block, _ = self.block_for(fund, proposer, today, FEE)
         if block == "manager_only":
-            raise ForbiddenError(_block_message(block, None))
+            raise ForbiddenError(block_message(block, None))
         if block is not None:
-            raise ConflictError(_block_message(block, None))
+            raise ConflictError(block_message(block, None))
         if not raises_fee(fund, management_fee, performance_fee):
             raise UnprocessableEntityError(
                 "A proposta não sobe nenhuma taxa: baixar vale sem votação"
@@ -452,6 +514,81 @@ class FundAssemblies:
         fund.assemblies[FEE] = assembly
         fund.assembly_votes[FEE] = {}
         return assembly
+
+    def propose_merge(
+        self, mother: "Fund", daughter: "Fund", proposer: UserDTO, today: date
+    ) -> None:
+        """O gestor principal das duas leva a fusão às assembleias, que abrem hoje juntas e fecham no mesmo pregão.
+
+        Quem propõe vota a favor nas duas; as linhas guardam a gestora parceira e qual delas é a incorporada.
+        """
+        for fund in (mother, daughter):
+            block, next_allowed = self.block_for(fund, proposer, today, MERGE)
+            if block == "manager_only":
+                raise ForbiddenError("Só o gestor propõe a fusão.")
+            if block is not None:
+                raise ConflictError(block_message(block, next_allowed))
+        ends_on = window_end(today, ASSEMBLY_SESSIONS)
+        for fund, partner, absorbed in (
+            (mother, daughter, False),
+            (daughter, mother, True),
+        ):
+            assembly = FundAssemblyDTO(
+                id=0,
+                agenda=MERGE,
+                convener_user_id=proposer.id,
+                candidate_user_id=None,
+                previous_manager_user_id=fund.terms.manager_user_id,
+                status=FundAssemblyStatus.VOTING,
+                called_on=today,
+                started_on=today,
+                ends_on=ends_on,
+                closed_on=None,
+                in_favor_quotas=None,
+                against_quotas=None,
+                abstention_quotas=None,
+                partner_fund_id=partner.terms.id,
+                absorbed=absorbed,
+            )
+            created = repository.fund.create_assembly(fund.terms.id, assembly)
+            fund.assemblies[MERGE] = created
+            fund.assembly_votes[MERGE] = {}
+            self._record_vote(fund, created, proposer.id, True, today)
+
+    def merge_ready(self, fund: "Fund", today: date) -> bool:
+        """Se a votação da fusão da gestora chegou ao último pregão."""
+        assembly = fund.assemblies.get(MERGE)
+        return (
+            assembly is not None
+            and assembly.status is FundAssemblyStatus.VOTING
+            and today >= assembly.ends_on
+        )
+
+    def close_merge(
+        self,
+        fund: "Fund",
+        today: date,
+        approved: bool,
+        shortfall: Decimal = Decimal(0),
+    ) -> FundAssemblyDTO | None:
+        """Grava o fim da votação da fusão com o placar de agora; aprovada só quando as duas assembleias aprovam e o caixa cobre a saída.
+
+        `shortfall` é o que faltou nos caixas quando as duas votações ganharam e a fusão caiu por isso: a assembleia guarda o motivo.
+        """
+        assembly = fund.assemblies.get(MERGE)
+        if assembly is None:
+            return None
+        result = self.score(fund, MERGE)
+        counted = assembly.model_copy(
+            update={
+                "in_favor_quotas": result.in_favor,
+                "against_quotas": result.against,
+                "abstention_quotas": result.abstention,
+                "merge_shortfall": shortfall if shortfall > 0 else None,
+            }
+        )
+        wins, loses = OUTCOMES[MERGE]
+        return self._conclude(fund, counted, wins if approved else loses, today)
 
     def answer(self, fund: "Fund", user: UserDTO, accept: bool, today: date) -> None:
         """O aliado indicado responde ao convite: aceitar abre a votação, recusar encerra."""
@@ -544,7 +681,7 @@ class FundAssemblies:
         assembly = fund.assemblies.get(agenda)
         if assembly is None or assembly.status is not FundAssemblyStatus.VOTING:
             raise ConflictError("Não há votação aberta desta pauta nesta gestora")
-        if user.id in operators_of(fund):
+        if agenda is not MERGE and user.id in operators_of(fund):
             raise ForbiddenError(
                 "O gestor não vota: as cotas dele contam contra"
                 if agenda is SWAP
@@ -572,10 +709,14 @@ class FundAssemblies:
     def close_voting(
         self, fund: "Fund", agenda: FundAssemblyAgenda, today: date
     ) -> tuple[FundAssemblyDTO, Tally] | None:
-        """Fecha a votação da pauta que chegou ao último pregão, pelas cotas de agora; nulo antes disso."""
+        """Fecha a votação da pauta que chegou ao último pregão, pelas cotas de agora; nulo antes disso.
+
+        A fusão fecha pelas duas assembleias juntas (`close_merge`).
+        """
         assembly = fund.assemblies.get(agenda)
         if (
-            assembly is None
+            agenda is MERGE
+            or assembly is None
             or assembly.status is not FundAssemblyStatus.VOTING
             or today < assembly.ends_on
         ):
@@ -603,8 +744,15 @@ class FundAssemblies:
         today: date,
         nicknames: Mapping[int, str],
         colors: Mapping[int, str],
+        merge_view: Callable[["Fund", FundAssemblyDTO], FundAssemblyMergeDTO | None],
+        partners: Mapping[int, tuple[str, str]],
+        merge_partners: list[FundMergeSideDTO],
     ) -> FundAssemblyPanelDTO:
-        """A seção Assembleia como `viewer` a vê."""
+        """A seção Assembleia como `viewer` a vê.
+
+        `merge_view` monta a fusão de cada votação (ela mora nas duas gestoras) e `partners` dá o
+        ticker e o nome de cada gestora por id.
+        """
         holdings = self.holdings(fund)
         total = fund.account.quotas
         options = []
@@ -620,7 +768,16 @@ class FundAssemblies:
             )
         return FundAssemblyPanelDTO(
             current=[
-                self._status(fund, assembly, viewer, today, holdings, nicknames, colors)
+                self._status(
+                    fund,
+                    assembly,
+                    viewer,
+                    today,
+                    holdings,
+                    nicknames,
+                    colors,
+                    merge_view(fund, assembly),
+                )
                 for assembly in sorted(
                     fund.assemblies.values(), key=lambda a: a.called_on
                 )
@@ -628,9 +785,10 @@ class FundAssemblies:
             history=[
                 result
                 for assembly in reversed(fund.assembly_history)
-                if (result := _result(assembly, nicknames)) is not None
+                if (result := _result(assembly, nicknames, partners)) is not None
             ],
             options=options,
+            merge_partners=merge_partners,
             convene_quotas=total * CONVENE_SHARE,
             my_quotas=holdings.get(viewer.id, Decimal(0)),
             blocked_founding_until=self.founding_blocked_until(viewer.id, today),
@@ -645,6 +803,7 @@ class FundAssemblies:
         holdings: Mapping[int, Decimal],
         nicknames: Mapping[int, str],
         colors: Mapping[int, str],
+        merge: FundAssemblyMergeDTO | None,
     ) -> FundAssemblyStatusDTO:
         agenda = assembly.agenda
         voting = assembly.status is FundAssemblyStatus.VOTING
@@ -662,11 +821,13 @@ class FundAssemblies:
                         color=colors.get(user_id),
                         quotas=quotas,
                         share=ratio(quotas, total),
-                        stance=stance_of(user_id, manager_id, votes),
+                        stance=stance_of(
+                            user_id, None if agenda is MERGE else manager_id, votes
+                        ),
                         is_manager=user_id == manager_id,
                     )
                     for user_id, quotas in holdings.items()
-                    if agenda is SWAP or user_id not in operators
+                    if agenda in (SWAP, MERGE) or user_id not in operators
                 ),
                 key=lambda voter: voter.quotas,
                 reverse=True,
@@ -688,6 +849,7 @@ class FundAssemblies:
             candidate_user_id=assembly.candidate_user_id,
             candidate_nickname=_nickname(assembly.candidate_user_id, nicknames),
             fee=_fee_dto(assembly),
+            merge=merge,
             called_on=assembly.called_on,
             started_on=assembly.started_on,
             ends_on=assembly.ends_on,
@@ -735,7 +897,9 @@ def _tally_dto(result: Tally) -> FundAssemblyTallyDTO:
 
 
 def _result(
-    assembly: FundAssemblyDTO, nicknames: Mapping[int, str]
+    assembly: FundAssemblyDTO,
+    nicknames: Mapping[int, str],
+    partners: Mapping[int, tuple[str, str]],
 ) -> FundAssemblyResultDTO | None:
     """O resultado gravado de uma votação concluída."""
     if (
@@ -747,6 +911,11 @@ def _result(
     ):
         return None
     approved = assembly.status is FundAssemblyStatus.APPROVED
+    partner = (
+        partners.get(assembly.partner_fund_id)
+        if assembly.partner_fund_id is not None
+        else None
+    )
     return FundAssemblyResultDTO(
         id=assembly.id,
         agenda=assembly.agenda,
@@ -765,11 +934,17 @@ def _result(
             )
         ),
         fee=_fee_dto(assembly),
-        effective_on=next_month_turn(assembly.closed_on) if approved else None,
+        effective_on=next_month_turn(assembly.closed_on)
+        if approved and assembly.agenda is FEE
+        else None,
+        partner_ticker=partner[0] if partner else None,
+        partner_name=partner[1] if partner else None,
+        absorbed=assembly.absorbed,
+        merge_shortfall=assembly.merge_shortfall,
     )
 
 
-def _block_message(block: FundAssemblyBlock, next_allowed: date | None) -> str:
+def block_message(block: FundAssemblyBlock, next_allowed: date | None) -> str:
     match block:
         case "unlisted":
             return "A gestora ainda não abriu o capital."
@@ -777,8 +952,24 @@ def _block_message(block: FundAssemblyBlock, next_allowed: date | None) -> str:
             return "O gestor não convoca assembleia contra si mesmo."
         case "manager_only":
             return "Só o gestor propõe aumento de taxa."
+        case "pending" if next_allowed is not None:
+            return f"Já há uma fusão em votação até {next_allowed:%d/%m}."
         case "pending":
             return "A gestora já tem uma votação aberta desta pauta."
+        case "swap_open":
+            return "A gestora tem uma troca de gestor em andamento: a fusão espera o resultado dela."
+        case "merge_open" if next_allowed is not None:
+            return f"A gestora tem uma fusão em votação até {next_allowed:%d/%m}: a troca de gestor espera o resultado dela."
+        case "merge_open":
+            return "A gestora tem uma fusão em votação: a troca de gestor espera o resultado dela."
+        case "frozen" if next_allowed is not None:
+            return f"O gestor governa o país e a gestora fica congelada até {next_allowed:%d/%m/%Y}."
+        case "frozen":
+            return "O gestor governa o país e a gestora fica congelada."
+        case "no_partner":
+            return "A fusão exige outra gestora que o mesmo gestor gere."
+        case "busy":
+            return "A gestora tem emissão, recompra ou oferta em aberto."
         case "share":
             return f"Convocar exige {CONVENE_SHARE:.0%} das cotas da gestora."
         case "grace" if next_allowed is not None:

@@ -40,6 +40,8 @@ export type FundBuybackPreview = components["schemas"]["FundBuybackPreviewDTO"];
 export type FundMonthlyReport = components["schemas"]["FundMonthlyReportDTO"];
 export type FundDirectedIssuanceRequest = components["schemas"]["FundDirectedIssuanceRequest"];
 export type FundDirectedIssuancePreview = components["schemas"]["FundDirectedIssuancePreviewDTO"];
+export type FundMergeProposalRequest = components["schemas"]["FundMergeProposalRequest"];
+export type FundMergePreview = components["schemas"]["FundMergePreviewDTO"];
 
 // Portfolio
 export type Position = components["schemas"]["PositionDTO"];

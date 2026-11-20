@@ -8,10 +8,15 @@ from types import SimpleNamespace
 
 import pytest
 
+from backend.core import repository
+from backend.core.dto.fund import FundContributionRequest, FundMergeProposalRequest
 from backend.core.enum import PendingType
 from backend.core.exceptions.http_exceptions import ConflictError, ForbiddenError
+from backend.core.runtime.event_manager import EventManager
+from backend.core.runtime.user_manager import UserManager
+from backend.features.credit.credit_book import replay
 from tests.test_fund_comanagers import active_comanager
-from tests.test_fund_flow import book_of, fund_with_cash, player
+from tests.test_fund_flow import book_of, found_request, fund_with_cash, player
 from tests.test_fund_simulation import TICKER, empty_match
 from tests.test_simulation_loader import started  # noqa: F401
 
@@ -124,3 +129,51 @@ def test_the_overdue_installment_is_a_pending_that_names_the_fund(match):
     ]
     assert len(overdue) == 1
     assert overdue[0].detail.startswith(f"{TICKER} · Empréstimo 1")
+
+
+def test_the_loan_of_the_incorporated_fund_passes_to_the_mother(match):
+    sim, ana, bruno, mother_client = match
+    daughter = sim.found_fund(bruno, found_request("BORE11"))
+    sim.contribute_to_fund(
+        bruno, daughter.id, FundContributionRequest(cash=Decimal(5000))
+    )
+    sim.open_fund_offer(bruno, daughter.id, 20)
+    sim.close_fund_offer(bruno, daughter.id)
+    book = book_of(sim)
+    # A gestão passa à Ana, que passa a gerir as duas e tem cotas da segunda para votar
+    held = book.by_id(daughter.id)
+    held.terms = held.terms.model_copy(update={"manager_user_id": ana.id})
+    sim._engine.broker.receive_position(
+        ana.client_id, "BORE11", Decimal(10), Decimal(100)
+    )
+    daughter_client = held.account.client_id
+    sim.contract_loan(ana, daughter_client, Decimal(2000), 12)
+    # A incorporadora contrata depois da incorporada: o empréstimo dela é o segundo na ordem do banco
+    sim.contract_loan(ana, mother_client, Decimal(1000), 12)
+    debt = sim._engine.credit_book.loan_debt(daughter_client, sim._engine.current_date)
+
+    sim.propose_fund_merge(
+        ana,
+        book.get(TICKER).terms.id,
+        FundMergeProposalRequest(daughter_fund_id=daughter.id),
+    )
+    for _ in range(8):
+        if book.is_merged("BORE11"):
+            break
+        sim.next_tick()
+
+    assert book.is_merged("BORE11")
+    credit = sim._engine.credit_book
+    assert credit.loans(daughter_client) == []
+    assert sim.get_credit(ana, mother_client).loan_debt >= debt
+    # A dívida mudou de carteira também no banco
+    EventManager.flush()
+    portfolio = UserManager.get_portfolio_id(mother_client)
+    events = repository.credit.get_events(sim.settings.id, portfolio)
+    assert len(credit.loans(mother_client)) == 2
+    # A numeração da tela é a de quando a carteira é carregada de novo: a da incorporada vem primeiro
+    reloaded = replay(events)
+    assert {loan.loan_id: loan.number for loan in credit.loans(mother_client)} == {
+        loan.loan_id: loan.number for loan in reloaded.loans.values()
+    }
+    assert sorted(loan.number for loan in credit.loans(mother_client)) == [1, 2]

@@ -76,6 +76,7 @@ export function AssemblyTab({ fund, actions }: AssemblyTabProps) {
           fund={fund}
           onConveneSwap={() => setConveneOpen(true)}
           onProposeFee={() => actions.goTo("settings")}
+          onProposeMerge={() => actions.open("merge")}
         />
       </div>
 

@@ -17,6 +17,22 @@ describe("movementText", () => {
     expect(text).toContain("160.000,00");
   });
 
+  it("a transferência da fusão é uma fusão, não um aporte", () => {
+    const text = movementText({
+      day: "2024-03-04",
+      type: "merger",
+      quotas: "300",
+      price: null,
+      amount: "30000",
+      ticker: "PETR4",
+      nickname: null,
+      share: null,
+    });
+    expect(text).toContain("Fusão");
+    expect(text).toContain("300 de PETR4");
+    expect(text).not.toContain("Integralização");
+  });
+
   it("o rendimento diz o total pago aos cotistas", () => {
     const text = movementText({
       day: "2024-02-05",

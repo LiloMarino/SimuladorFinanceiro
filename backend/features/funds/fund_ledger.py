@@ -197,6 +197,14 @@ def movements(
                 amount=event.price * event.quantity,
                 ticker=event.ticker,
             )
+        elif event.event_type is EquityEventType.MERGE_IN:
+            add(
+                event.event_date,
+                "merger",
+                quotas=event.quantity,
+                amount=event.price * event.quantity,
+                ticker=event.ticker,
+            )
     for trade in asset_trades:
         if trade.event_type in (EquityEventType.BUY, EquityEventType.SELL):
             add(

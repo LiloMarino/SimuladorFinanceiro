@@ -83,6 +83,9 @@ class NoFixedIncome:
     ) -> list[CoverSale]:
         return []
 
+    def transfer_all(self, source: uuid.UUID, target: uuid.UUID) -> None:
+        """Sem posições de renda fixa a passar à incorporadora."""
+
 
 class FakeSimulationEngine(SimulationEngine):
     """
@@ -105,7 +108,9 @@ class FakeSimulationEngine(SimulationEngine):
         self.created_stocks = {}
         self.fund_fee_payable: dict[uuid.UUID, Decimal] = {}
         # Sem empréstimos: o livro de crédito em memória não deve dívida a ninguém
-        self.credit_book: Any = SimpleNamespace(loan_debt=lambda *_args: Decimal(0))
+        self.credit_book: Any = SimpleNamespace(
+            loan_debt=lambda *_args: Decimal(0), transfer_loans=lambda *_args: []
+        )
         self.broker = SimpleNamespace(maker_accounts={})
         self.fixed_broker = NoFixedIncome()
         self.dividends: list[tuple[uuid.UUID, str, Decimal]] = []
@@ -124,6 +129,13 @@ class FakeSimulationEngine(SimulationEngine):
     def transfer_cash(
         self, source: uuid.UUID, target: uuid.UUID, amount: Decimal
     ) -> None:
+        self.cash[source] -= amount
+        self.cash[target] += amount
+
+    def charge_fund_merge_exit(self, client_id: uuid.UUID, amount: Decimal) -> None:
+        self.cash[client_id] -= amount
+
+    def merge_cash(self, source: uuid.UUID, target: uuid.UUID, amount: Decimal) -> None:
         self.cash[source] -= amount
         self.cash[target] += amount
 

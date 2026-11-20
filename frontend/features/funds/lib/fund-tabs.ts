@@ -9,7 +9,8 @@ export type FundDialog =
   | "issuance"
   | "directed"
   | "buyback"
-  | "contribute";
+  | "contribute"
+  | "merge";
 
 const FUND_TABS = ["actions", "overview", "portfolio", "quotas", "income", "assembly", "report", "settings"] as const;
 export type FundTab = (typeof FUND_TABS)[number];

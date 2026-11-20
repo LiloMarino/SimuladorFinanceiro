@@ -61,6 +61,8 @@ from backend.core.dto.fund import (
     FundIssuanceRequest,
     FundIssuanceSubscriptionPreviewDTO,
     FundIssuanceSubscriptionRequest,
+    FundMergePreviewDTO,
+    FundMergeProposalRequest,
     FundMonthlyReportDTO,
     FundOffersDTO,
     FundRoomItemDTO,
@@ -343,6 +345,7 @@ def synchronized(
 _AGENDA_TITLES = {
     FundAssemblyAgenda.REPLACE_MANAGER: "Troca de gestor",
     FundAssemblyAgenda.FEE_INCREASE: "Aumento de taxa",
+    FundAssemblyAgenda.MERGE: "Fusão",
 }
 
 
@@ -590,6 +593,8 @@ class Simulation:
     @synchronized
     def create_order(self, order: Order) -> None:
         self._ensure_can_operate(order.client_id)
+        if self._funds is not None and self._funds.is_merged(order.ticker):
+            raise ConflictError("A gestora foi incorporada e a cota deixou o mercado.")
         if (
             order.action is OrderAction.BUY
             and self._funds is not None
@@ -1613,6 +1618,26 @@ class Simulation:
         self._notify_funds_update()
 
     @synchronized
+    def propose_fund_merge(
+        self, user: UserDTO, fund_id: int, request: FundMergeProposalRequest
+    ) -> None:
+        book = self._ensure_funds()
+        mother = self._managed_fund(user, fund_id)
+        daughter = self._managed_fund(user, request.daughter_fund_id)
+        book.propose_merge(mother.terms.id, daughter.terms.id, user)
+        EventManager.flush()
+        self._notify_funds_update()
+
+    @synchronized
+    def preview_fund_merge(
+        self, user: UserDTO, fund_id: int, daughter_fund_id: int
+    ) -> FundMergePreviewDTO:
+        book = self._ensure_funds()
+        mother = self._managed_fund(user, fund_id)
+        daughter = self._managed_fund(user, daughter_fund_id)
+        return book.merge_preview(mother.terms.id, daughter.terms.id)
+
+    @synchronized
     def cancel_fund_assembly(self, user: UserDTO, fund_id: int) -> None:
         book = self._ensure_funds()
         book.cancel_assembly(book.by_id(fund_id).ticker, user)
@@ -2070,7 +2095,11 @@ class Simulation:
                     PendingType.FUND_ASSEMBLY_VOTE,
                     f"{_agenda_title(assembly)} na {fund.ticker} · vote até {assembly.ends_on:%d/%m}",
                     ref=str(assembly.id),
-                    title=f"Votação na {fund.ticker}",
+                    title=(
+                        f"Votação na {fund.terms.name}: {self._funds.merge_title(assembly)}"
+                        if assembly.agenda is FundAssemblyAgenda.MERGE
+                        else f"Votação na {fund.ticker}"
+                    ),
                     fund_id=fund.terms.id,
                 )
                 for fund, assembly in self._funds.open_votes_for(user)
@@ -3184,8 +3213,10 @@ class Simulation:
     @synchronized
     def get_stock_details(self, ticker: str) -> StockDetailsDTO | None:
         fund = self._funds.find(ticker) if self._funds is not None else None
-        # A cota só existe para a partida depois que a gestora abre a oferta
+        # A cota só existe para a partida depois que a gestora abre a oferta, e some com a fusão
         if fund is not None and not fund.listed:
+            return None
+        if self._funds is not None and self._funds.is_merged(ticker):
             return None
         details = repository.stock.get_stock_details(ticker, self._current_date)
         if details is None:

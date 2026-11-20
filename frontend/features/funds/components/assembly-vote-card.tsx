@@ -4,6 +4,7 @@ import { useAuth } from "@/shared/hooks/useAuth";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
 import { currentTitle, type AssemblyCurrent } from "../lib/fund-assembly";
+import { AssemblyMergeDetails } from "./assembly-merge-details";
 import { AssemblyScoreboard } from "./assembly-scoreboard";
 import { AssemblyVoteForm } from "./assembly-vote-form";
 
@@ -43,6 +44,7 @@ export function AssemblyVoteCard({ fund, assembly }: AssemblyVoteCardProps) {
       <CardContent>
         <div className="grid gap-4">
           <AssemblyScoreboard assembly={assembly} tally={tally} />
+          {assembly.merge !== null && <AssemblyMergeDetails merge={assembly.merge} />}
           {assembly.can_vote && (
             <AssemblyVoteForm fundId={fund.id} assembly={assembly} myQuotas={fund.assembly.my_quotas} />
           )}

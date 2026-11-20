@@ -77,6 +77,9 @@ class FundDTO(FundTermsDTO):
     leave_heir_share: Decimal | None = None
     # O dia em que a oferta automática do modo aquisição hostil abriu; nulo sem ela
     takeover_offer_on: date | None = None
+    # A gestora que incorporou esta e o dia da fusão; nulos enquanto ela existe por si
+    merged_into_fund_id: int | None = None
+    merged_on: date | None = None
     # O lucro realizado desde a última data-com, por origem
     month_dividends: Decimal = Decimal(0)
     month_interest: Decimal = Decimal(0)
@@ -182,6 +185,11 @@ class FundAssemblyDTO(BaseDTO):
     previous_performance_fee: Decimal | None = None
     proposed_management_fee: Decimal | None = None
     proposed_performance_fee: Decimal | None = None
+    # Na pauta de fusão: a outra gestora e se esta é a incorporada; nulos nas outras pautas
+    partner_fund_id: int | None = None
+    absorbed: bool = False
+    # O que faltou nos caixas quando isso rejeitou a fusão no fechamento; nulo nas demais votações
+    merge_shortfall: Decimal | None = None
 
 
 class FundAssemblyVoteDTO(BaseDTO):
@@ -258,6 +266,7 @@ type FundMovementType = Literal[
     "directed_issuance",
     "asset_buy",
     "asset_sell",
+    "merger",
 ]
 
 
@@ -481,9 +490,23 @@ class FundOffersDTO(BaseDTO):
 
 
 type FundAssemblyStance = Literal["favor", "against", "abstain"]
-# "manager_only" é a pauta que só o gestor principal propõe
+# "manager_only" é a pauta que só o gestor principal propõe; "no_partner" é a fusão sem outra
+# gestora que o mesmo gestor gere, e "busy" a que tem emissão, recompra ou oferta em aberto;
+# "frozen" é a gestora congelada pela presidência do gestor, "swap_open" a fusão que espera uma
+# troca de gestor em andamento e "merge_open" a troca que espera uma fusão em votação
 type FundAssemblyBlock = Literal[
-    "share", "interval", "pending", "manager", "unlisted", "grace", "manager_only"
+    "share",
+    "interval",
+    "pending",
+    "manager",
+    "unlisted",
+    "grace",
+    "manager_only",
+    "no_partner",
+    "busy",
+    "frozen",
+    "swap_open",
+    "merge_open",
 ]
 
 
@@ -520,6 +543,38 @@ class FundAssemblyFeeDTO(BaseDTO):
     performance_to: Decimal
 
 
+class FundMergeSideDTO(BaseDTO):
+    """Uma das duas gestoras de uma fusão: quem incorpora ou quem é incorporada."""
+
+    fund_id: int
+    ticker: str
+    name: str
+    # O PL por cota de agora; nulo sem cota em circulação
+    nav: Decimal | None
+    cash: Decimal
+
+
+class FundAssemblyMergeDTO(BaseDTO):
+    """A fusão da votação, vista da gestora que consulta: as duas pontas, a troca de cotas e a saída de quem vota contra."""
+
+    mother: FundMergeSideDTO
+    daughter: FundMergeSideDTO
+    # Se a gestora que consulta é a que incorpora
+    is_mother: bool
+    # Cotas da incorporadora por cota da incorporada, pelo PL por cota de agora; nulo sem PL
+    ratio: Decimal | None
+    # O placar da assembleia da outra gestora
+    partner_tally: FundAssemblyTallyDTO
+    # Fração das cotas da outra gestora que já votaram (0,52 é 52%) e a favor entre os votos
+    partner_voted_share: Decimal
+    partner_in_favor_share: Decimal | None
+    # A saída de quem vota contra na incorporada: cotas, o que elas valem pelo PL por cota, e o caixa
+    # das duas gestoras que paga; `shortfall` é o que falta se os dois caixas somados não cobrirem
+    exit_quotas: Decimal
+    exit_amount: Decimal
+    shortfall: Decimal
+
+
 class FundAssemblyStatusDTO(BaseDTO):
     """A assembleia em andamento como quem consulta a vê."""
 
@@ -532,6 +587,8 @@ class FundAssemblyStatusDTO(BaseDTO):
     candidate_nickname: str | None
     # As taxas propostas; nulas fora da pauta de aumento
     fee: FundAssemblyFeeDTO | None
+    # A fusão; nula fora da pauta de fusão
+    merge: FundAssemblyMergeDTO | None = None
     called_on: date
     started_on: date | None
     ends_on: date
@@ -564,6 +621,12 @@ class FundAssemblyResultDTO(BaseDTO):
     # As taxas da pauta de aumento e o dia em que a aprovada passa a valer
     fee: FundAssemblyFeeDTO | None
     effective_on: date | None
+    # Na pauta de fusão, a outra gestora e se esta foi a incorporada
+    partner_ticker: str | None = None
+    partner_name: str | None = None
+    absorbed: bool = False
+    # O que faltou nos caixas quando isso rejeitou a fusão; nulo quando a votação decidiu
+    merge_shortfall: Decimal | None = None
 
 
 class FundAssemblyOptionDTO(BaseDTO):
@@ -584,6 +647,8 @@ class FundAssemblyPanelDTO(BaseDTO):
     # As votações concluídas pelo voto, da mais nova à mais antiga
     history: list[FundAssemblyResultDTO]
     options: list[FundAssemblyOptionDTO]
+    # As gestoras com que quem consulta pode propor a fusão desta; vazia sem nenhuma
+    merge_partners: list[FundMergeSideDTO]
     # Cotas mínimas para convocar (10% das em circulação) e as de quem consulta
     convene_quotas: Decimal
     my_quotas: Decimal
@@ -797,6 +862,26 @@ class FundAssemblyFeeProposalRequest(BaseDTO):
 
     management_fee: FeeRate
     performance_fee: FeeRate
+
+
+class FundMergeProposalRequest(BaseDTO):
+    """A gestora que a gestora do caminho incorpora."""
+
+    daughter_fund_id: int
+
+
+class FundMergePreviewDTO(BaseDTO):
+    """O que a fusão faz hoje, antes de o gestor levá-la às duas assembleias."""
+
+    mother: FundMergeSideDTO
+    daughter: FundMergeSideDTO
+    # Cotas da incorporadora por cota da incorporada, pelo PL por cota de hoje; nulo sem PL
+    ratio: Decimal | None
+    mother_quotas: Decimal
+    daughter_quotas: Decimal
+    # A incorporadora depois: cotas em circulação e o patrimônio delas ao PL por cota de hoje
+    quotas_after: Decimal | None
+    equity_after: Decimal | None
 
 
 class FundAssemblyVoteRequest(BaseDTO):

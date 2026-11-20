@@ -8,6 +8,7 @@ export const fundKeys = {
   issuancePreview: (fundId: number, quotas: number) => ["funds", "issuance-preview", fundId, quotas] as const,
   subscriptionPreview: (fundId: number, quotas: number) => ["funds", "subscription-preview", fundId, quotas] as const,
   directedPreview: (fundId: number, quotas: number) => ["funds", "directed-preview", fundId, quotas] as const,
+  mergePreview: (fundId: number, daughterFundId: number) => ["funds", "merge-preview", fundId, daughterFundId] as const,
   buybackPreview: (fundId: number, quantity: number, maxPrice: string) =>
     ["funds", "buyback-preview", fundId, quantity, maxPrice] as const,
   strategies: () => ["funds", "strategy"] as const,

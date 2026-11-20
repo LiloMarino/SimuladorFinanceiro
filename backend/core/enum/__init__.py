@@ -93,6 +93,11 @@ class CashflowEventType(Enum):
     FUND_MAKER_SUBSCRIPTION = "FUND_MAKER_SUBSCRIPTION"
     # Rendimento mensal da gestora: sai do caixa dela e chega aos cotistas como DIVIDEND
     FUND_DISTRIBUTION = "FUND_DISTRIBUTION"
+    # Saída do cotista que votou contra a fusão: a gestora paga o patrimônio por cota das cotas dele
+    FUND_MERGE_EXIT = "FUND_MERGE_EXIT"
+    # O caixa da gestora incorporada passa à incorporadora na fusão
+    FUND_MERGE_OUT = "FUND_MERGE_OUT"
+    FUND_MERGE_IN = "FUND_MERGE_IN"
 
     @property
     def sign(self) -> int:
@@ -132,6 +137,9 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.OFFER_COMMISSION: 1,
     CashflowEventType.FUND_MAKER_SUBSCRIPTION: 1,
     CashflowEventType.FUND_DISTRIBUTION: -1,
+    CashflowEventType.FUND_MERGE_EXIT: -1,
+    CashflowEventType.FUND_MERGE_OUT: -1,
+    CashflowEventType.FUND_MERGE_IN: 1,
 }
 
 # Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
@@ -190,6 +198,9 @@ class EquityEventType(Enum):
     # Integralização de ações na gestora: a posição muda de carteira, sem venda e sem DARF
     TRANSFER_IN = "TRANSFER_IN"
     TRANSFER_OUT = "TRANSFER_OUT"
+    # Fusão de gestoras: a posição muda de carteira ou vira cota da incorporadora, sem venda e sem DARF
+    MERGE_IN = "MERGE_IN"
+    MERGE_OUT = "MERGE_OUT"
 
     @property
     def quantity_sign(self) -> int:
@@ -210,6 +221,8 @@ QUANTITY_SIGN: dict[EquityEventType, int] = {
     EquityEventType.FRACTION_SELL: -1,
     EquityEventType.TRANSFER_IN: 1,
     EquityEventType.TRANSFER_OUT: -1,
+    EquityEventType.MERGE_IN: 1,
+    EquityEventType.MERGE_OUT: -1,
 }
 
 NON_TRADE_EQUITY_TYPES = frozenset(
@@ -217,6 +230,8 @@ NON_TRADE_EQUITY_TYPES = frozenset(
         EquityEventType.SPLIT,
         EquityEventType.TRANSFER_IN,
         EquityEventType.TRANSFER_OUT,
+        EquityEventType.MERGE_IN,
+        EquityEventType.MERGE_OUT,
     }
 )
 
@@ -1372,6 +1387,7 @@ class NewsType(Enum):
     FUND_ASSEMBLY_CALLED = "FUND_ASSEMBLY_CALLED"
     FUND_ASSEMBLY_REPLACED = "FUND_ASSEMBLY_REPLACED"
     FUND_ASSEMBLY_KEPT = "FUND_ASSEMBLY_KEPT"
+    FUND_MERGED = "FUND_MERGED"
     STATE_COMPANY_FOUNDED = "STATE_COMPANY_FOUNDED"
     STATE_PRIVATIZATION_OPENED = "STATE_PRIVATIZATION_OPENED"
     STATE_PRIVATIZATION_CLOSED = "STATE_PRIVATIZATION_CLOSED"
@@ -1458,6 +1474,7 @@ class FundAssemblyAgenda(Enum):
 
     REPLACE_MANAGER = "REPLACE_MANAGER"
     FEE_INCREASE = "FEE_INCREASE"
+    MERGE = "MERGE"
 
 
 class FundAssemblyStatus(Enum):

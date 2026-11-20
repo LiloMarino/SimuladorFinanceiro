@@ -335,6 +335,53 @@ class CreditBook:
     def forget(self, client_id: UUID) -> None:
         self._clients.pop(client_id, None)
 
+    def transfer_loans(self, source: UUID, target: UUID) -> list[Loan]:
+        """Os empréstimos em aberto de `source` passam a `target`, com o histórico de cada um.
+
+        Os eventos de cada empréstimo mudam de carteira no banco e saem do estado de `source`;
+        `target` relê os seus eventos na ordem do banco: a dívida segue como estava, sem evento
+        novo de contratação nem de quitação.
+        """
+        with self._lock:
+            from_client = self.client(source)
+            to_client = self.client(target)
+            moved_ids = list(from_client.loans)
+            if not moved_ids:
+                return []
+            # Os eventos ainda no buffer precisam estar gravados para mudar de carteira
+            EventManager.flush()
+            source_portfolio = UserManager.get_portfolio_id(source)
+            target_portfolio = UserManager.get_portfolio_id(target)
+            repository.credit.move_loans(
+                self._engine.simulation_id,
+                source_portfolio,
+                target_portfolio,
+                moved_ids,
+            )
+            moving = set(moved_ids)
+            from_client.events = [
+                e for e in from_client.events if e.loan_id not in moving
+            ]
+            for loan_id in moved_ids:
+                del from_client.loans[loan_id]
+            # O estado de `target` sai da releitura dos eventos na ordem do banco: o número de cada
+            # empréstimo é o mesmo que a carteira mostra depois de carregada de novo
+            reloaded = replay(
+                repository.credit.get_events(
+                    self._engine.simulation_id, target_portfolio
+                )
+            )
+            reloaded.rating = to_client.rating
+            reloaded.seen = to_client.seen
+            reloaded.previous = to_client.previous
+            reloaded.warned = to_client.warned
+            self._clients[target] = reloaded
+            return [
+                reloaded.loans[loan_id]
+                for loan_id in moved_ids
+                if loan_id in reloaded.loans
+            ]
+
     # ------------------------------------------------------------------ leitura
 
     def loan_debt(self, client_id: UUID, day: date) -> Decimal:

@@ -12,6 +12,8 @@ export function movementText(movement: Movement): string {
   switch (movement.type) {
     case "contribution":
       return `Integralização: ${amount} da carteira viraram ${quotas}`;
+    case "merger":
+      return `Fusão: ${movement.quotas === null ? "" : `${displayQuantity(movement.quotas)} de `}${asset} vieram da carteira da gestora incorporada, ao custo de ${amount}`;
     case "offer_opened":
       return `Oferta pública aberta: ${quotas} ao preço de ${movement.price === null ? "—" : displayMoney(movement.price)}`;
     case "offer_closed":

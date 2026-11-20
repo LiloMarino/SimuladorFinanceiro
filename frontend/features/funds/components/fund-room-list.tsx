@@ -1,4 +1,4 @@
-import { Landmark, Lock, Plus, TriangleAlert } from "lucide-react";
+import { CornerDownRight, Landmark, Lock, Plus, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -94,14 +94,25 @@ export function FundRoomList({ funds, userId }: FundRoomListProps) {
           userId={userId}
           pending={pending}
           footer={
-            returning && (
-              <Alert variant="muted">
-                <Lock />
-                <AlertDescription>
-                  Fundar outra exige não ter gestora: a {returning.name} volta à sua mão quando o mandato acabar.
-                </AlertDescription>
-              </Alert>
-            )
+            <>
+              {managed.length >= 2 && (
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <CornerDownRight className="size-3 shrink-0" aria-hidden />
+                  <span>
+                    {managed.length === 2 ? "Junte as duas" : "Junte duas delas"} pela fusão, em{" "}
+                    <b className="font-semibold text-foreground/70">Suas ações</b> de qualquer uma delas
+                  </span>
+                </p>
+              )}
+              {returning && (
+                <Alert variant="muted">
+                  <Lock />
+                  <AlertDescription>
+                    Fundar outra exige não ter gestora: a {returning.name} volta à sua mão quando o mandato acabar.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
           }
         />
       )}

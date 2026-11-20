@@ -65,6 +65,7 @@ function ReturnsCard({ fund }: { fund: FundDetails }) {
 
 const VOTING_NOTE: Record<FundAssemblyAgenda, string> = {
   REPLACE_MANAGER: "Os cotistas decidem quem gere a gestora",
+  MERGE: "Os cotistas decidem se as duas gestoras viram uma",
   FEE_INCREASE: "Os cotistas decidem se a taxa sobe",
 };
 

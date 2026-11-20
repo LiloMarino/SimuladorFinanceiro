@@ -31,7 +31,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
 )
 from backend.features.fixed_income.liquidity import cover_order, redeemable_today
 from backend.features.fixed_income.quotes import FixedIncomeQuotes
-from backend.features.tax_policy import TaxPolicy
+from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation_engine import SimulationEngine
@@ -71,7 +71,7 @@ def load_fixed_assets(
 
     Repete a ordem do jogo ao vivo: em cada dia útil, primeiro o rendimento do
     dia (o tick) e depois as compras e os resgates daquele dia, na ordem em que
-    aconteceram. O `amount` do resgate é o que saiu do título; um resgate em ou
+    aconteceram. O título que chega por transferência entra como uma compra do valor que veio. O `amount` do resgate é o que saiu do título; um resgate em ou
     depois do vencimento fecha a posição inteira, como o vencimento ao vivo. Na conta
     em dólar o `amount` da compra é em reais e o do resgate, em US$, cada um com o dólar
     do dia no `fx_rate`; o IOF do câmbio é o da política padrão, que nenhuma medida muda.
@@ -96,7 +96,10 @@ def load_fixed_assets(
             if position is not None:
                 position.accrue(day)
             for event_type, amount, fx_rate in trades_by_day.get(day, []):
-                if event_type is FixedIncomeEventType.BUY:
+                if event_type in (
+                    FixedIncomeEventType.BUY,
+                    FixedIncomeEventType.TRANSFER_IN,
+                ):
                     # A compra na conta em dólar guarda o dólar do dia em que entrou
                     quotes = FixedIncomeQuotes(dollar=fx_rate or Decimal(1))
                     if position is None:
@@ -405,6 +408,64 @@ class FixedBroker:
                 break
             gross += net - received
         return gross
+
+    def transfer_all(self, source: UUID, target: UUID) -> None:
+        """Todos os títulos de `source` mudam para a carteira de `target`, sem resgate nem imposto.
+
+        O título chega como uma aplicação do valor que ele tem hoje: o capital aplicado na
+        carteira que recebe é esse valor, e o título que ela já tinha do mesmo ativo soma a ele.
+        """
+        with self._lock:
+            today = self._simulation_engine.current_date
+            quotes = self._simulation_engine.fixed_quotes()
+            source_positions = self._assets[source]
+            target_positions = self._assets[target]
+            moved = list(source_positions.items())
+            source_positions.clear()
+            for asset_uuid, position in moved:
+                units = position.current_value
+                # Na conta em dólar o evento guarda reais; a aplicação desconta o IOF do câmbio, e o
+                # valor sobe na mesma proporção para o saldo em US$ chegar inteiro
+                reais = position.reais_value(quotes)
+                if position.marked_by_dollar:
+                    reais /= 1 - DEFAULT_TAX_POLICY.fx_iof_rate
+                reais = reais.quantize(CENT, ROUND_HALF_EVEN)
+                if asset_uuid in target_positions:
+                    target_positions[asset_uuid].invest(
+                        reais, quotes, DEFAULT_TAX_POLICY
+                    )
+                else:
+                    target_positions[asset_uuid] = FixedIncomePosition.open(
+                        position.asset, reais, today, quotes, DEFAULT_TAX_POLICY
+                    )
+                asset_id = repository.fixed_income.get_or_create_asset(
+                    self._simulation_engine.simulation_id, position.asset
+                )
+                for client_id, event_type, amount in (
+                    (
+                        source,
+                        FixedIncomeEventType.TRANSFER_OUT,
+                        _event_amount(position, units),
+                    ),
+                    (
+                        target,
+                        FixedIncomeEventType.TRANSFER_IN,
+                        reais,
+                    ),
+                ):
+                    EventManager.push_event(
+                        FixedIncomeEventDTO(
+                            simulation_id=self._simulation_engine.simulation_id,
+                            portfolio_id=UserManager.get_portfolio_id(client_id),
+                            event_type=event_type,
+                            asset_id=asset_id,
+                            amount=amount,
+                            fx_rate=quotes.dollar
+                            if position.marked_by_dollar
+                            else None,
+                            event_date=today,
+                        )
+                    )
 
     def apply_daily_interest(self, current_date: date):
         for client_id, assets_by_client in list(self._assets.items()):

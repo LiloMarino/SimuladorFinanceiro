@@ -6,6 +6,7 @@ import {
   Handshake,
   Landmark,
   Megaphone,
+  Merge,
   Percent,
   Undo2,
   UserPlus,
@@ -33,6 +34,7 @@ import { MAX_COMANAGERS } from "@/shared/lib/fund-comanager-shares";
 import type { Comanager } from "../../lib/fund-comanagers";
 import type { DirectedOffer } from "../../lib/fund-directed";
 import { FIRST_QUOTA_PRICE } from "../../lib/fund-math";
+import { mergeBlockReason, mergeDescription } from "../../lib/fund-merge";
 import { fundPending, fundPendingCount } from "../../lib/fund-pending";
 import type { FundTabActions } from "../../lib/fund-tabs";
 
@@ -97,7 +99,9 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
   const payable = Number(fund.fees.payable);
   const issuanceOpenNow = fund.issuance !== null && fund.issuance.closed_on === null;
   const buybackOpenNow = fund.buyback?.state === "open";
-  const assemblyOpenNow = currentOf(fund.assembly, "REPLACE_MANAGER") !== undefined;
+  const mergeOpenNow = currentOf(fund.assembly, "MERGE") !== undefined;
+  const assemblyOpenNow = currentOf(fund.assembly, "REPLACE_MANAGER") !== undefined || mergeOpenNow;
+  const mergeOption = optionOf(fund.assembly, "MERGE");
   const pending = fundPending(fund, userId);
   const pendingCount = fundPendingCount(pending);
   const issuance = fund.issuance;
@@ -281,9 +285,23 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
                       ? "Há uma emissão aberta"
                       : buybackOpenNow
                         ? "Há uma recompra em aberto"
-                        : undefined
+                        : mergeOpenNow
+                          ? "Há uma fusão em votação"
+                          : undefined
                 }
               />
+              {mergeOption !== undefined && mergeOption.block !== "no_partner" && (
+                <ActionRow
+                  tone="fund"
+                  icon={Merge}
+                  title="Propor fusão"
+                  description={mergeDescription(fund.assembly.merge_partners)}
+                  alsoIn="Assembleia"
+                  actionLabel="Propor fusão"
+                  onAction={() => actions.open("merge")}
+                  blockedReason={mergeBlockReason(mergeOption, fund.assembly) ?? undefined}
+                />
+              )}
               <ActionRow
                 tone="fund"
                 icon={UserPlus}

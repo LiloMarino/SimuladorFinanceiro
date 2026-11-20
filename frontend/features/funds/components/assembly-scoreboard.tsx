@@ -14,8 +14,10 @@ const STANCE_BADGE = {
 } as const;
 
 /** Quem tem cotas e para onde elas vão hoje: a linha de cada cotista jogador. */
-function VoterRow({ voter }: { voter: Voter }) {
-  const badge = voter.is_manager ? STANCE_BADGE.against : STANCE_BADGE[voter.stance];
+function VoterRow({ voter, managerVotes }: { voter: Voter; managerVotes: boolean }) {
+  // Na fusão o gestor vota como qualquer cotista; nas outras pautas a cota dele conta contra
+  const countsAgainst = voter.is_manager && !managerVotes;
+  const badge = countsAgainst ? STANCE_BADGE.against : STANCE_BADGE[voter.stance];
   return (
     <li className="flex items-center gap-2.5 border-t border-muted py-2 text-[13px] first:border-t-0">
       <PlayerAvatar nickname={voter.nickname} {...(voter.color ? { color: voter.color } : {})} size="sm" />
@@ -30,7 +32,7 @@ function VoterRow({ voter }: { voter: Voter }) {
       <span className="font-mono text-muted-foreground">{displayQuantity(voter.quotas)}</span>
       <span className="w-14 text-right font-mono text-muted-foreground">{displayPercent(voter.share, 1)}</span>
       <Badge variant={badge.variant} size="tag" className="w-20">
-        {voter.is_manager ? "conta contra" : badge.label}
+        {countsAgainst ? "conta contra" : badge.label}
       </Badge>
     </li>
   );
@@ -70,7 +72,7 @@ export function AssemblyScoreboard({ assembly, tally }: AssemblyScoreboardProps)
       {assembly.voters.length > 0 && (
         <ul className="grid">
           {assembly.voters.map((voter) => (
-            <VoterRow key={voter.user_id} voter={voter} />
+            <VoterRow key={voter.user_id} voter={voter} managerVotes={assembly.agenda === "MERGE"} />
           ))}
         </ul>
       )}

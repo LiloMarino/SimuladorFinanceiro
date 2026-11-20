@@ -150,6 +150,13 @@ NEWS: tuple[NewsSpec, ...] = (
         NewsLevel.JOURNAL,
     ),
     NewsSpec(
+        NewsType.FUND_MERGED,
+        NewsSection.COMPANIES,
+        "Fusão de gestoras",
+        "“MEUS11 incorpora a OUTR11: a OUTR11 deixa a bolsa”",
+        NewsLevel.JOURNAL,
+    ),
+    NewsSpec(
         NewsType.FUND_BUYBACK_OPENED,
         NewsSection.COMPANIES,
         "Recompra de cotas de uma gestora",

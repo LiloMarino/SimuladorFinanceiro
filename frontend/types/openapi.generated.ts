@@ -3268,6 +3268,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/funds/{fund_id}/assembly/merge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Levar a fusão de duas gestoras às assembleias
+         * @description O gestor principal das duas propõe que a gestora do caminho incorpore a outra. A votação abre já nas duas assembleias, por 5 pregões, entre os cotistas jogadores (o gestor e os co-gestores votam; bots e formador de mercado não). Cada assembleia aprova por mais cotas a favor que contra. Aprovada nas duas, a incorporada passa tudo à incorporadora e os cotistas dela trocam as cotas pela relação dos patrimônios por cota; quem votou contra na incorporada sai pelo patrimônio por cota. Se os dois caixas somados não cobrem a saída, a fusão não passa.
+         */
+        post: operations["propose_fund_merge_api_funds__fund_id__assembly_merge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/funds/{fund_id}/assembly/merge/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Prévia da fusão de duas gestoras
+         * @description A relação de troca de cotas pelos patrimônios por cota de hoje, e a incorporadora depois da fusão. Só o gestor principal das duas consulta.
+         */
+        get: operations["preview_fund_merge_api_funds__fund_id__assembly_merge_preview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/funds/{fund_id}/assembly/acceptance": {
         parameters: {
             query?: never;
@@ -7919,9 +7959,9 @@ export interface components {
          * @description A pauta de uma assembleia de cotistas; cada pauta tem a sua votação.
          * @enum {string}
          */
-        FundAssemblyAgenda: "REPLACE_MANAGER" | "FEE_INCREASE";
+        FundAssemblyAgenda: "REPLACE_MANAGER" | "FEE_INCREASE" | "MERGE";
         /** @enum {string} */
-        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace" | "manager_only";
+        FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace" | "manager_only" | "no_partner" | "busy" | "frozen" | "swap_open" | "merge_open";
         /** FundAssemblyConveneRequest */
         FundAssemblyConveneRequest: {
             /** Candidate Nickname */
@@ -7952,6 +7992,29 @@ export interface components {
             performance_fee: number | string;
         };
         /**
+         * FundAssemblyMergeDTO
+         * @description A fusão da votação, vista da gestora que consulta: as duas pontas, a troca de cotas e a saída de quem vota contra.
+         */
+        FundAssemblyMergeDTO: {
+            mother: components["schemas"]["FundMergeSideDTO"];
+            daughter: components["schemas"]["FundMergeSideDTO"];
+            /** Is Mother */
+            is_mother: boolean;
+            /** Ratio */
+            ratio: string | null;
+            partner_tally: components["schemas"]["FundAssemblyTallyDTO"];
+            /** Partner Voted Share */
+            partner_voted_share: string;
+            /** Partner In Favor Share */
+            partner_in_favor_share: string | null;
+            /** Exit Quotas */
+            exit_quotas: string;
+            /** Exit Amount */
+            exit_amount: string;
+            /** Shortfall */
+            shortfall: string;
+        };
+        /**
          * FundAssemblyOptionDTO
          * @description Uma pauta que a assembleia aceita e se quem consulta pode pô-la em votação agora.
          */
@@ -7974,6 +8037,8 @@ export interface components {
             history: components["schemas"]["FundAssemblyResultDTO"][];
             /** Options */
             options: components["schemas"]["FundAssemblyOptionDTO"][];
+            /** Merge Partners */
+            merge_partners: components["schemas"]["FundMergeSideDTO"][];
             /** Convene Quotas */
             convene_quotas: string;
             /** My Quotas */
@@ -8010,6 +8075,17 @@ export interface components {
             fee: components["schemas"]["FundAssemblyFeeDTO"] | null;
             /** Effective On */
             effective_on: string | null;
+            /** Partner Ticker */
+            partner_ticker: string | null;
+            /** Partner Name */
+            partner_name: string | null;
+            /**
+             * Absorbed
+             * @default false
+             */
+            absorbed: boolean;
+            /** Merge Shortfall */
+            merge_shortfall: string | null;
         };
         /** @enum {string} */
         FundAssemblyStance: "favor" | "against" | "abstain";
@@ -8037,6 +8113,7 @@ export interface components {
             /** Candidate Nickname */
             candidate_nickname: string | null;
             fee: components["schemas"]["FundAssemblyFeeDTO"] | null;
+            merge: components["schemas"]["FundAssemblyMergeDTO"] | null;
             /**
              * Called On
              * Format: date
@@ -8828,6 +8905,48 @@ export interface components {
             quotas: number;
         };
         /**
+         * FundMergePreviewDTO
+         * @description O que a fusão faz hoje, antes de o gestor levá-la às duas assembleias.
+         */
+        FundMergePreviewDTO: {
+            mother: components["schemas"]["FundMergeSideDTO"];
+            daughter: components["schemas"]["FundMergeSideDTO"];
+            /** Ratio */
+            ratio: string | null;
+            /** Mother Quotas */
+            mother_quotas: string;
+            /** Daughter Quotas */
+            daughter_quotas: string;
+            /** Quotas After */
+            quotas_after: string | null;
+            /** Equity After */
+            equity_after: string | null;
+        };
+        /**
+         * FundMergeProposalRequest
+         * @description A gestora que a gestora do caminho incorpora.
+         */
+        FundMergeProposalRequest: {
+            /** Daughter Fund Id */
+            daughter_fund_id: number;
+        };
+        /**
+         * FundMergeSideDTO
+         * @description Uma das duas gestoras de uma fusão: quem incorpora ou quem é incorporada.
+         */
+        FundMergeSideDTO: {
+            /** Fund Id */
+            fund_id: number;
+            /** Ticker */
+            ticker: string;
+            /** Name */
+            name: string;
+            /** Nav */
+            nav: string | null;
+            /** Cash */
+            cash: string;
+        };
+        /**
          * FundMonthlyReportDTO
          * @description O relatório de um mês fechado: as posições do último pregão e o mês em números.
          */
@@ -8878,7 +8997,7 @@ export interface components {
             share: string | null;
         };
         /** @enum {string} */
-        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution" | "comanager_joined" | "comanager_left" | "directed_issuance" | "asset_buy" | "asset_sell";
+        FundMovementType: "contribution" | "offer_opened" | "offer_closed" | "management_fee" | "performance_fee" | "report_published" | "manager_buy" | "manager_sell" | "issuance_opened" | "issuance_closed" | "buyback_opened" | "distribution" | "comanager_joined" | "comanager_left" | "directed_issuance" | "asset_buy" | "asset_sell" | "merger";
         /**
          * FundOfferBuyerDTO
          * @description Quem comprou na oferta em andamento; os bots entram somados numa linha só.
@@ -11187,7 +11306,7 @@ export interface components {
          * @description Um tipo de manchete do jornal; cada um tem seção, texto e nível padrão no registro.
          * @enum {string}
          */
-        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED" | "FUND_ASSEMBLY_CALLED" | "FUND_ASSEMBLY_REPLACED" | "FUND_ASSEMBLY_KEPT" | "STATE_COMPANY_FOUNDED" | "STATE_PRIVATIZATION_OPENED" | "STATE_PRIVATIZATION_CLOSED" | "STATE_CONTROL_IN_FORCE" | "STATE_CONTROL_RELEASED" | "STATE_DIVIDEND_POLICY_CHANGED" | "SOVEREIGN_FUND_FUNDED" | "SOVEREIGN_FUND_BOUGHT" | "SOVEREIGN_FUND_SOLD" | "SOVEREIGN_FUND_FAVORITISM";
+        NewsType: "ELECTION_CALENDAR" | "CAMPAIGN_OPENED" | "ELECTION_RESULT" | "CAMPAIGN_ACTION" | "NAMED_PROGRAM" | "PARTY_RUPTURE" | "TERM_STARTED" | "MEASURE_PROPOSED" | "MEASURE_VOTED" | "PARTY_LIFE" | "CAMPAIGN" | "COPOM_DECISION" | "MONTHLY_INFLATION" | "IBOVESPA_EXTREME" | "STRONG_MOVE" | "WEEK_HIGH" | "HISTORICAL_MILESTONE" | "FUND_FEE_CHANGED" | "FUND_OFFER_OPENED" | "FUND_ISSUANCE_OPENED" | "FUND_ISSUANCE_CLOSED" | "FUND_BUYBACK_OPENED" | "FUND_ASSEMBLY_CALLED" | "FUND_ASSEMBLY_REPLACED" | "FUND_ASSEMBLY_KEPT" | "FUND_MERGED" | "STATE_COMPANY_FOUNDED" | "STATE_PRIVATIZATION_OPENED" | "STATE_PRIVATIZATION_CLOSED" | "STATE_CONTROL_IN_FORCE" | "STATE_CONTROL_RELEASED" | "STATE_DIVIDEND_POLICY_CHANGED" | "SOVEREIGN_FUND_FUNDED" | "SOVEREIGN_FUND_BOUGHT" | "SOVEREIGN_FUND_SOLD" | "SOVEREIGN_FUND_FAVORITISM";
         /** NewsTypeInfo */
         NewsTypeInfo: {
             type: components["schemas"]["NewsType"];
@@ -23265,6 +23384,90 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    propose_fund_merge_api_funds__fund_id__assembly_merge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FundMergeProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    preview_fund_merge_api_funds__fund_id__assembly_merge_preview_get: {
+        parameters: {
+            query: {
+                daughter_fund_id: number;
+            };
+            header?: never;
+            path: {
+                fund_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FundMergePreviewDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

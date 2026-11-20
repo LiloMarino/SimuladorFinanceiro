@@ -414,6 +414,15 @@ class SimulationEngine:
         """O rendimento mensal sai do caixa da gestora; cada cotista o recebe como provento."""
         self._move_cash(client_id, -amount, CashflowEventType.FUND_DISTRIBUTION)
 
+    def charge_fund_merge_exit(self, client_id: UUID, amount: Decimal) -> None:
+        """O pagamento a quem votou contra a fusão sai do caixa da gestora; o cotista o recebe como venda das cotas."""
+        self._move_cash(client_id, -amount, CashflowEventType.FUND_MERGE_EXIT)
+
+    def merge_cash(self, source: UUID, target: UUID, amount: Decimal) -> None:
+        """O caixa da gestora incorporada passa inteiro à incorporadora."""
+        self._move_cash(source, -amount, CashflowEventType.FUND_MERGE_OUT)
+        self._move_cash(target, amount, CashflowEventType.FUND_MERGE_IN)
+
     def receive_fund_fee(
         self, client_id: UUID, amount: Decimal, performance: bool
     ) -> None:

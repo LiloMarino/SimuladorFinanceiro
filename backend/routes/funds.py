@@ -28,6 +28,8 @@ from backend.core.dto.fund import (
     FundIssuanceRequest,
     FundIssuanceSubscriptionPreviewDTO,
     FundIssuanceSubscriptionRequest,
+    FundMergePreviewDTO,
+    FundMergeProposalRequest,
     FundMonthlyReportDTO,
     FundOfferRequest,
     FundOffersDTO,
@@ -350,6 +352,36 @@ def propose_fund_fee_increase(
     payload: FundAssemblyFeeProposalRequest,
 ):
     simulation.propose_fund_fee_increase(user, fund_id, payload)
+
+
+@funds_router.post(
+    "/{fund_id}/assembly/merge",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Levar a fusão de duas gestoras às assembleias",
+    description="O gestor principal das duas propõe que a gestora do caminho incorpore a outra. A votação abre já nas duas assembleias, por 5 pregões, entre os cotistas jogadores (o gestor e os co-gestores votam; bots e formador de mercado não). Cada assembleia aprova por mais cotas a favor que contra. Aprovada nas duas, a incorporada passa tudo à incorporadora e os cotistas dela trocam as cotas pela relação dos patrimônios por cota; quem votou contra na incorporada sai pelo patrimônio por cota. Se os dois caixas somados não cobrem a saída, a fusão não passa.",
+)
+def propose_fund_merge(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    payload: FundMergeProposalRequest,
+):
+    simulation.propose_fund_merge(user, fund_id, payload)
+
+
+@funds_router.get(
+    "/{fund_id}/assembly/merge/preview",
+    response_model=FundMergePreviewDTO,
+    summary="Prévia da fusão de duas gestoras",
+    description="A relação de troca de cotas pelos patrimônios por cota de hoje, e a incorporadora depois da fusão. Só o gestor principal das duas consulta.",
+)
+def preview_fund_merge(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    fund_id: int,
+    daughter_fund_id: int,
+):
+    return simulation.preview_fund_merge(user, fund_id, daughter_fund_id)
 
 
 @funds_router.delete(

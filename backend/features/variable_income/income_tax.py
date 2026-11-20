@@ -155,15 +155,19 @@ def _sales_results(
     for event in settled:
         position = positions.setdefault(event.ticker, Position(event.ticker))
         match event.event_type:
-            case EquityEventType.BUY | EquityEventType.TRANSFER_IN:
+            case (
+                EquityEventType.BUY
+                | EquityEventType.TRANSFER_IN
+                | EquityEventType.MERGE_IN
+            ):
                 position.update_buy(event.price, event.quantity)
             case EquityEventType.SPLIT:
                 position.update_split(event.quantity)
             case EquityEventType.SELL | EquityEventType.FRACTION_SELL:
                 yield event, (event.price - position.avg_price) * event.quantity
                 position.update_sell(event.quantity)
-            case EquityEventType.TRANSFER_OUT:
-                # A integralização leva o custo junto: não gera resultado
+            case EquityEventType.TRANSFER_OUT | EquityEventType.MERGE_OUT:
+                # A integralização e a fusão levam o custo junto: não geram resultado
                 position.update_sell(event.quantity)
 
 

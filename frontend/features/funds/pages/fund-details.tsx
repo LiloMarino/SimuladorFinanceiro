@@ -27,6 +27,7 @@ import { FeesDialog } from "../components/fees-dialog";
 import { FundSkeleton } from "../components/fund-skeleton";
 import { FundTop } from "../components/fund-top";
 import { IssuanceDialog } from "../components/issuance-dialog";
+import { MergeDialog } from "../components/merge-dialog";
 import { OfferDialog } from "../components/offer-dialog";
 import type { Comanager } from "../lib/fund-comanagers";
 import { FIRST_QUOTA_PRICE } from "../lib/fund-math";
@@ -189,6 +190,7 @@ function FundDetailsContent({ fund, userId }: DetailsContentProps) {
           />
           <DirectedIssuanceDialog open={dialog === "directed"} onOpenChange={closeDialog} fund={fund} />
           <BuybackDialog open={dialog === "buyback"} onOpenChange={closeDialog} fund={fund} />
+          <MergeDialog open={dialog === "merge"} onOpenChange={closeDialog} fund={fund} />
           <ContributeDialog
             open={dialog === "contribute"}
             onOpenChange={closeDialog}

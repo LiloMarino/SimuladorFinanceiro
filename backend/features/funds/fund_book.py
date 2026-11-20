@@ -9,8 +9,12 @@ from uuid import UUID, uuid4
 from backend.core import repository
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.fund import (
+    FundAssemblyBlock,
     FundAssemblyDTO,
+    FundAssemblyMergeDTO,
+    FundAssemblyOptionDTO,
     FundAssemblyPanelDTO,
+    FundAssemblyTallyDTO,
     FundBuybackDTO,
     FundComanagerDTO,
     FundDayDTO,
@@ -21,6 +25,8 @@ from backend.core.dto.fund import (
     FundIssuanceDTO,
     FundIssuancePhase,
     FundIssuanceRightDTO,
+    FundMergePreviewDTO,
+    FundMergeSideDTO,
     FundOfferSaleDTO,
     FundReportDTO,
     FundSummaryDTO,
@@ -40,13 +46,19 @@ from backend.core.enum import (
 )
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
+    ForbiddenError,
     NotFoundError,
     UnprocessableEntityError,
 )
 from backend.core.fund_reference import FundReference
 from backend.core.indicators import index_daily_rate
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.core.utils import format_quantity, next_business_day, next_month_turn
+from backend.core.utils import (
+    format_quantity,
+    next_business_day,
+    next_month_turn,
+    ratio,
+)
 from backend.features.funds import headlines
 from backend.features.funds.distribution import (
     drained_since,
@@ -63,10 +75,12 @@ from backend.features.funds.fees import (
 from backend.features.funds.fund_account import FundAccount
 from backend.features.funds.fund_assembly import (
     FEE,
+    MERGE,
     SWAP,
     FundAssemblies,
     raises_fee,
 )
+from backend.features.funds.fund_assembly import block_message as assembly_block_message
 from backend.features.funds.fund_comanagers import (
     FundComanagers,
     expires_on,
@@ -81,6 +95,17 @@ from backend.features.funds.fund_directed import (
 )
 from backend.features.funds.fund_directed import expires_on as directed_expires_on
 from backend.features.funds.fund_ledger import PERFORMANCE_PERIOD_MONTHS
+from backend.features.funds.fund_merge import (
+    MergeExit,
+    MergePlan,
+    MergeValuation,
+    circular_navs,
+    conversion_remainder,
+    converted_quotas,
+    exchange_ratio,
+    exit_price,
+    settle_exits,
+)
 from backend.features.funds.fund_offer import FundOffer
 from backend.features.funds.performance import (
     PERFORMANCE_WINDOW,
@@ -330,6 +355,8 @@ class FundBook:
                 )
             }
         self._funds: dict[str, Fund] = {}
+        # As gestoras incorporadas por fusão, por id: saíram do mercado e só guardam o nome
+        self._merged: dict[int, FundDTO] = {}
         self._accounts: dict[str, FundAccount] = {}
         self._maker = MarketMaker(engine.matching_engine, engine.broker.maker_accounts)
         self._offer = FundOffer(engine.matching_engine, self._accounts)
@@ -342,6 +369,9 @@ class FundBook:
         engine.broker.on_fund_buyback = self._record_buyback
         engine.on_realized = self._record_realized
         for terms in repository.fund.of_simulation(simulation_id):
+            if terms.merged_into_fund_id is not None:
+                self._merged[terms.id] = terms
+                continue
             self._load(terms)
 
     @property
@@ -368,6 +398,10 @@ class FundBook:
     def find(self, ticker: str) -> Fund | None:
         """A gestora dona do ticker, ou nulo quando ele não é de cota."""
         return self._funds.get(ticker)
+
+    def is_merged(self, ticker: str) -> bool:
+        """Se o ticker é de uma gestora incorporada por fusão: a cota deixou o mercado."""
+        return any(terms.ticker == ticker for terms in self._merged.values())
 
     def by_id(self, fund_id: int) -> Fund:
         for fund in self._funds.values():
@@ -801,7 +835,7 @@ class FundBook:
             raise ConflictError("A gestora já tem uma oferta ou emissão em andamento")
         if fund.buyback is not None:
             raise ConflictError("Encerre a recompra antes de emitir cotas")
-        if SWAP in fund.assemblies:
+        if SWAP in fund.assemblies or MERGE in fund.assemblies:
             raise ConflictError(
                 "A gestora tem uma assembleia em andamento e não emite cotas até o resultado"
             )
@@ -874,7 +908,7 @@ class FundBook:
             raise ConflictError("A gestora já tem uma oferta ou emissão em andamento")
         if fund.buyback is not None:
             raise ConflictError("Encerre a recompra antes de emitir cotas")
-        if SWAP in fund.assemblies:
+        if SWAP in fund.assemblies or MERGE in fund.assemblies:
             raise ConflictError(
                 "A gestora tem uma assembleia em andamento e não emite cotas até o resultado"
             )
@@ -1129,6 +1163,10 @@ class FundBook:
             raise ConflictError("Encerre a oferta ou a emissão antes de recomprar")
         if fund.buyback is not None:
             raise ConflictError("A gestora já tem uma recompra em aberto")
+        if MERGE in fund.assemblies:
+            raise ConflictError(
+                "A gestora tem uma fusão em votação e não recompra cotas até o resultado"
+            )
         if quantity <= 0 or quantity != quantity.to_integral_value():
             raise UnprocessableEntityError("Informe uma quantidade inteira de cotas")
         if quantity >= account.quotas:
@@ -1262,6 +1300,424 @@ class FundBook:
             fund, proposer, management_fee, performance_fee, self._engine.current_date
         )
 
+    # =========================
+    # Fusão
+    # =========================
+
+    def merge_block(
+        self, fund: Fund, user: UserDTO
+    ) -> tuple[FundAssemblyBlock | None, date | None]:
+        """Por que `user` não propõe a fusão a partir desta gestora; nulo quando pode.
+
+        Vale a gestora e a existência de outra que o mesmo gestor gere e que também esteja livre.
+        """
+        block, next_allowed = self._merge_fund_block(fund, user)
+        if block is not None:
+            return block, next_allowed
+        if not self.merge_partners(fund, user):
+            return "no_partner", None
+        return None, None
+
+    def _merge_fund_block(
+        self, fund: Fund, user: UserDTO
+    ) -> tuple[FundAssemblyBlock | None, date | None]:
+        """Os impedimentos desta gestora para entrar numa fusão: os da assembleia, o congelamento do gestor e as ofertas em aberto."""
+        block, next_allowed = self._assemblies.block_for(
+            fund, user, self._engine.current_date, MERGE
+        )
+        if block is not None:
+            return block, next_allowed
+        frozen_until = self.frozen_until(fund)
+        if frozen_until is not None:
+            return "frozen", frozen_until
+        if self._merge_busy(fund):
+            return "busy", None
+        return None, None
+
+    def merge_partners(self, fund: Fund, user: UserDTO) -> list[Fund]:
+        """As outras gestoras que `user` gere e que podem se fundir com esta: as duas livres de impedimento para a fusão."""
+        if self._merge_fund_block(fund, user)[0] is not None:
+            return []
+        return [
+            other
+            for other in self.managed_by(user.id)
+            if other is not fund and self._merge_fund_block(other, user)[0] is None
+        ]
+
+    def _merge_busy(self, fund: Fund) -> bool:
+        """Se a gestora tem emissão, oferta, recompra ou oferta dirigida em aberto."""
+        return (
+            fund.issuance is not None
+            or fund.account.offer_remaining is not None
+            or fund.buyback is not None
+            or fund.directed is not None
+        )
+
+    def propose_merge(
+        self, mother_id: int, daughter_id: int, proposer: UserDTO
+    ) -> None:
+        """O gestor principal das duas leva a fusão às duas assembleias: a primeira incorpora a segunda."""
+        if mother_id == daughter_id:
+            raise UnprocessableEntityError("A fusão junta duas gestoras diferentes")
+        mother = self.by_id(mother_id)
+        daughter = self.by_id(daughter_id)
+        for fund in (mother, daughter):
+            block, next_allowed = self._merge_fund_block(fund, proposer)
+            if block == "manager_only":
+                raise ForbiddenError("Só o gestor propõe a fusão.")
+            if block is not None:
+                raise ConflictError(assembly_block_message(block, next_allowed))
+        self._assemblies.propose_merge(
+            mother, daughter, proposer, self._engine.current_date
+        )
+
+    def merge_preview(self, mother_id: int, daughter_id: int) -> FundMergePreviewDTO:
+        """A troca de cotas e a incorporadora depois da fusão, pelos números de hoje."""
+        mother = self.by_id(mother_id)
+        daughter = self.by_id(daughter_id)
+        valuation = self._merge_valuation(mother, daughter)
+        ratio = self._merge_ratio(valuation.mother_nav, valuation.daughter_nav)
+        quotas_after = (
+            mother.account.quotas
+            - valuation.cancelled_mother_quotas
+            + converted_quotas(
+                daughter.account.quotas - valuation.cancelled_daughter_quotas, ratio
+            )
+            if ratio is not None
+            else None
+        )
+        return FundMergePreviewDTO(
+            mother=self._merge_side(mother, valuation.mother_nav),
+            daughter=self._merge_side(daughter, valuation.daughter_nav),
+            ratio=ratio,
+            mother_quotas=mother.account.quotas,
+            daughter_quotas=daughter.account.quotas,
+            quotas_after=quotas_after,
+            equity_after=quotas_after * valuation.mother_nav
+            if quotas_after is not None and valuation.mother_nav is not None
+            else None,
+        )
+
+    @staticmethod
+    def _merge_ratio(
+        mother_nav: Decimal | None, daughter_nav: Decimal | None
+    ) -> Decimal | None:
+        if mother_nav is None or daughter_nav is None or mother_nav <= 0:
+            return None
+        return exchange_ratio(daughter_nav, mother_nav)
+
+    def _merge_valuation(self, mother: Fund, daughter: Fund) -> MergeValuation:
+        """O PL por cota das duas e as cotas cruzadas que a fusão cancela.
+
+        A cota de uma que está na carteira da outra vale o PL por cota da primeira, e não o
+        preço de mercado: o PL por cota de cada gestora sai das duas contas resolvidas juntas.
+        """
+        held_by_mother = self._held_quotas(mother, daughter)
+        held_by_daughter = self._held_quotas(daughter, mother)
+        navs = circular_navs(
+            self._assets_without(mother, daughter),
+            self._assets_without(daughter, mother),
+            mother.account.quotas,
+            daughter.account.quotas,
+            held_by_mother,
+            held_by_daughter,
+        )
+        mother_nav, daughter_nav = navs if navs is not None else (None, None)
+        return MergeValuation(
+            mother_nav=mother_nav,
+            daughter_nav=daughter_nav,
+            cancelled_daughter_quotas=held_by_mother,
+            cancelled_mother_quotas=held_by_daughter,
+        )
+
+    def _held_quotas(self, holder: Fund, other: Fund) -> Decimal:
+        """As cotas de `other` na carteira da gestora `holder`."""
+        position = self._engine.broker.get_positions(holder.account.client_id).get(
+            other.ticker
+        )
+        return position.size if position is not None else Decimal(0)
+
+    def _assets_without(self, fund: Fund, other: Fund) -> Decimal:
+        """O patrimônio líquido da carteira de `fund` sem as cotas de `other` que ela tenha."""
+        engine = self._engine
+        balance = engine.balance_sheet(fund.account.client_id)
+        net = (
+            balance.total_cash
+            + self._reserved_for_buyback(fund)
+            + balance.total_equity
+            + balance.total_fixed
+            - balance.total_debt
+        )
+        position = engine.broker.get_positions(fund.account.client_id).get(other.ticker)
+        if position is not None and position.size > 0:
+            net -= engine.get_current_price(position) * position.size
+        return net
+
+    def _merge_side(self, fund: Fund, nav: Decimal | None) -> FundMergeSideDTO:
+        return FundMergeSideDTO(
+            fund_id=fund.terms.id,
+            ticker=fund.ticker,
+            name=fund.terms.name,
+            nav=nav,
+            cash=self._engine.get_cash(fund.account.client_id),
+        )
+
+    def merge_title(self, assembly: FundAssemblyDTO) -> str:
+        """O que a fusão da votação faz com esta gestora, para o título da pendência: incorporar a outra ou ser incorporada por ela."""
+        partner_id = assembly.partner_fund_id or 0
+        partner = self._fund_by_id(partner_id)
+        merged = self._merged.get(partner_id)
+        name = (
+            partner.terms.name
+            if partner is not None
+            else merged.name
+            if merged is not None
+            else "outra gestora"
+        )
+        return (
+            f"ser incorporada pela {name}"
+            if assembly.absorbed
+            else f"incorporar a {name}"
+        )
+
+    def _fund_by_id(self, fund_id: int) -> Fund | None:
+        return next((f for f in self._funds.values() if f.terms.id == fund_id), None)
+
+    def _merge_plan(self, mother: Fund, daughter: Fund) -> MergePlan:
+        """A troca de cotas e a saída de quem votou contra na incorporada, pelos números e votos de agora."""
+        valuation = self._merge_valuation(mother, daughter)
+        exits: list[MergeExit] = []
+        if valuation.daughter_nav is not None:
+            votes = daughter.assembly_votes.get(MERGE, {})
+            price = exit_price(valuation.daughter_nav)
+            exits = [
+                MergeExit(user_id, quotas, price * quotas)
+                for user_id, quotas in self._assemblies.holdings(daughter).items()
+                if votes.get(user_id) is False
+            ]
+        return MergePlan(
+            mother_nav=valuation.mother_nav,
+            daughter_nav=valuation.daughter_nav,
+            ratio=self._merge_ratio(valuation.mother_nav, valuation.daughter_nav),
+            exits=exits,
+            cash=settle_exits(
+                sum((e.amount for e in exits), Decimal(0)),
+                self._engine.get_cash(daughter.account.client_id),
+                self._engine.get_cash(mother.account.client_id),
+            ),
+            cancelled_daughter_quotas=valuation.cancelled_daughter_quotas,
+            cancelled_mother_quotas=valuation.cancelled_mother_quotas,
+        )
+
+    def _merge_view(
+        self, fund: Fund, assembly: FundAssemblyDTO
+    ) -> FundAssemblyMergeDTO | None:
+        """A fusão da votação como a gestora `fund` a vê: as duas pontas, a troca e a saída de quem vota contra."""
+        if assembly.agenda is not MERGE or assembly.partner_fund_id is None:
+            return None
+        other = self._fund_by_id(assembly.partner_fund_id)
+        if other is None:
+            return None
+        mother, daughter = (other, fund) if assembly.absorbed else (fund, other)
+        plan = self._merge_plan(mother, daughter)
+        partner_score = self._assemblies.score(other, MERGE)
+        voted = partner_score.in_favor + partner_score.against
+        return FundAssemblyMergeDTO(
+            mother=self._merge_side(mother, plan.mother_nav),
+            daughter=self._merge_side(daughter, plan.daughter_nav),
+            is_mother=fund is mother,
+            ratio=plan.ratio,
+            partner_tally=FundAssemblyTallyDTO(
+                in_favor=partner_score.in_favor,
+                against=partner_score.against,
+                abstention=partner_score.abstention,
+                total=partner_score.total,
+                missing_to_win=partner_score.missing_to_win,
+            ),
+            partner_voted_share=ratio(voted, partner_score.total),
+            partner_in_favor_share=partner_score.in_favor / voted
+            if voted > 0
+            else None,
+            exit_quotas=plan.exit_quotas,
+            exit_amount=plan.cash.total,
+            shortfall=plan.cash.shortfall,
+        )
+
+    def _advance_merges(self, today: date) -> None:
+        """O fechamento das fusões que chegaram ao último pregão: as duas assembleias apuradas juntas."""
+        for mother in [
+            f
+            for f in self._funds.values()
+            if (a := f.assemblies.get(MERGE)) is not None
+            and not a.absorbed
+            and self._assemblies.merge_ready(f, today)
+        ]:
+            assembly = mother.assemblies[MERGE]
+            daughter = (
+                self._fund_by_id(assembly.partner_fund_id)
+                if assembly.partner_fund_id is not None
+                else None
+            )
+            if daughter is None or MERGE not in daughter.assemblies:
+                self._assemblies.close_merge(mother, today, approved=False)
+                continue
+            self._close_merge(mother, daughter, today)
+
+    def _close_merge(self, mother: Fund, daughter: Fund, today: date) -> None:
+        """A fusão passa quando as duas assembleias aprovam e os dois caixas cobrem a saída de quem votou contra; senão as gestoras seguem separadas."""
+        # A taxa a pagar sai do caixa antes de a saída ser calculada sobre ele
+        self.settle_payable(mother)
+        self.settle_payable(daughter)
+        won = (
+            self._assemblies.score(mother, MERGE).wins
+            and self._assemblies.score(daughter, MERGE).wins
+        )
+        # Com as duas assembleias a favor, o rendimento já apurado das duas é pago aos cotistas de
+        # hoje antes de o plano medir caixa e PL por cota: a saída e a razão de troca partem do
+        # patrimônio sem esse dinheiro, e as cotas convertidas nascem sem direito a ele
+        if won:
+            self._pay_distribution(daughter, today)
+            self._pay_distribution(mother, today)
+        plan = self._merge_plan(mother, daughter)
+        voted = won and plan.ratio is not None
+        approved = voted and plan.cash.shortfall == 0
+        # A fusão que ganhou no voto e caiu por falta de caixa guarda o quanto faltou
+        shortfall = plan.cash.shortfall if voted else Decimal(0)
+        self._assemblies.close_merge(mother, today, approved, shortfall)
+        self._assemblies.close_merge(daughter, today, approved, shortfall)
+        if approved:
+            self._merge(mother, daughter, plan, today)
+
+    def _merge(
+        self, mother: Fund, daughter: Fund, plan: MergePlan, today: date
+    ) -> None:
+        """A incorporadora fica com tudo da incorporada e os cotistas dela trocam as cotas; a incorporada deixa o mercado.
+
+        A ordem é a do dinheiro: quem votou contra sai pelo caixa da incorporada, o caixa que
+        sobra passa à incorporadora, que completa o que faltou do próprio, e só depois entram as
+        posições, a renda fixa e as dívidas. As cotas que uma gestora tinha da outra são
+        canceladas antes da troca: a incorporadora não recebe conversão por elas e o PL por cota
+        do plano já as contou pelo valor patrimonial, o que deixa quem fica sem ganho nem perda.
+        """
+        if plan.ratio is None or plan.daughter_nav is None or plan.mother_nav is None:
+            return
+        engine = self._engine
+        broker = engine.broker
+        d_client = daughter.account.client_id
+        m_client = mother.account.client_id
+        engine.matching_engine.cancel_ticker(daughter.ticker)
+        engine.matching_engine.cancel_all(d_client)
+        # A estratégia automática da incorporada acaba com ela
+        self._stop_automatic(daughter, "A gestora foi incorporada: o automático acabou")
+        # Saída de quem votou contra: venda das cotas ao PL por cota, paga pelo caixa da incorporada
+        price = exit_price(plan.daughter_nav)
+        for leaving in plan.exits:
+            broker.sell_to_fund(
+                self._client_of_user(leaving.user_id),
+                daughter.ticker,
+                leaving.quotas,
+                price,
+            )
+        if plan.cash.from_daughter > 0:
+            engine.charge_fund_merge_exit(d_client, plan.cash.from_daughter)
+        # O caixa que sobrou na incorporada passa à incorporadora, e ela completa a saída
+        leftover = engine.get_cash(d_client)
+        if leftover > 0:
+            engine.merge_cash(d_client, m_client, leftover)
+        elif leftover < 0:
+            engine.merge_cash(m_client, d_client, -leftover)
+        if plan.cash.from_mother > 0:
+            engine.charge_fund_merge_exit(m_client, plan.cash.from_mother)
+
+        # As cotas cruzadas deixam de existir, uma em cada lado
+        daughter.account.burn(broker.cancel_position(m_client, daughter.ticker))
+        mother.account.burn(broker.cancel_position(d_client, mother.ticker))
+
+        # A carteira: ações, renda fixa e empréstimos
+        for ticker, position in list(broker.get_positions(d_client).items()):
+            if position.size > 0:
+                broker.merge_position(d_client, m_client, ticker, position.size)
+        engine.fixed_broker.transfer_all(d_client, m_client)
+        engine.credit_book.transfer_loans(d_client, m_client)
+
+        # Os cotistas da incorporada trocam as cotas; o que não fecha uma cota inteira vem em dinheiro
+        issued = Decimal(0)
+        for holder, quotas in self._holders(daughter):
+            converted = converted_quotas(quotas, plan.ratio)
+            remainder = conversion_remainder(
+                quotas, plan.daughter_nav, converted, plan.mother_nav
+            )
+            broker.convert_position(holder, daughter.ticker, mother.ticker, converted)
+            if remainder > 0:
+                engine.merge_cash(m_client, holder, remainder)
+            issued += converted
+        maker_issued = converted_quotas(daughter.account.maker_quotas, plan.ratio)
+        mother.account.quotas += issued + maker_issued
+        mother.account.receive_maker(maker_issued)
+
+        # A taxa que a incorporada ainda devia passa a dever à incorporadora
+        mother.terms = mother.terms.model_copy(
+            update={
+                "management_fee_payable": mother.terms.management_fee_payable
+                + daughter.terms.management_fee_payable,
+                "performance_fee_payable": mother.terms.performance_fee_payable
+                + daughter.terms.performance_fee_payable,
+            }
+        )
+        daughter.terms = daughter.terms.model_copy(
+            update={
+                "management_fee_payable": Decimal(0),
+                "performance_fee_payable": Decimal(0),
+            }
+        )
+        self._publish_fee_payable(daughter)
+        self._publish_fee_payable(mother)
+
+        # Os convites de co-gestão sem resposta caem com a incorporada
+        for invited in [
+            c for c in daughter.comanagers if c.status is FundComanagerStatus.INVITED
+        ]:
+            self._comanagers.drop(daughter, invited.user_id)
+
+        # A incorporada deixa o mercado: a gestora sai dos mapas vivos e guarda só o registro
+        daughter.account.quotas = Decimal(0)
+        daughter.account.maker_quotas = Decimal(0)
+        daughter.terms = daughter.terms.model_copy(
+            update={"merged_into_fund_id": mother.terms.id, "merged_on": today}
+        )
+        self._save(daughter)
+        self._funds.pop(daughter.ticker, None)
+        self._accounts.pop(daughter.ticker, None)
+        engine.broker.maker_accounts.pop(daughter.ticker, None)
+        engine.fund_references.pop(daughter.ticker, None)
+        engine.ranking_prices.pop(daughter.ticker, None)
+        self._takeover_orders.pop(daughter.ticker, None)
+        self._merged[daughter.terms.id] = daughter.terms
+
+        mother.nav = self._nav(mother)
+        self._save(mother)
+        self._announce(
+            today,
+            headlines.funds_merged(
+                mother.ticker, daughter.ticker, plan.ratio, plan.exit_quotas
+            ),
+        )
+
+    def _cancel_merge(self, fund: Fund) -> None:
+        """A fusão é do gestor principal das duas: com a gestão mudando de mãos as duas votações encerram sem resultado."""
+        assembly = fund.assemblies.get(MERGE)
+        if assembly is None:
+            return
+        today = self._engine.current_date
+        partner = (
+            self._fund_by_id(assembly.partner_fund_id)
+            if assembly.partner_fund_id is not None
+            else None
+        )
+        self._assemblies.cancel_open(fund, MERGE, today)
+        if partner is not None:
+            self._assemblies.cancel_open(partner, MERGE, today)
+
     def cast_assembly_vote(
         self, ticker: str, agenda: FundAssemblyAgenda, user: UserDTO, in_favor: bool
     ) -> None:
@@ -1286,9 +1742,37 @@ class FundBook:
         colors: Mapping[int, str],
     ) -> FundAssemblyPanelDTO:
         """A seção Assembleia da gestora como `viewer` a vê."""
-        return self._assemblies.panel(
-            fund, viewer, self._engine.current_date, nicknames, colors
+        partners = {
+            other.terms.id: (other.ticker, other.terms.name)
+            for other in self._funds.values()
+        } | {terms.id: (terms.ticker, terms.name) for terms in self._merged.values()}
+        panel = self._assemblies.panel(
+            fund,
+            viewer,
+            self._engine.current_date,
+            nicknames,
+            colors,
+            self._merge_view,
+            partners,
+            [
+                self._merge_side(other, self._merge_valuation(fund, other).daughter_nav)
+                for other in self.merge_partners(fund, viewer)
+            ],
         )
+        # A fusão depende da outra gestora: o bloqueio dela vem daqui
+        block, next_allowed = self.merge_block(fund, viewer)
+        options = [
+            FundAssemblyOptionDTO(
+                agenda=MERGE,
+                can_convene=block is None,
+                block=block,
+                next_allowed_on=next_allowed,
+            )
+            if option.agenda is MERGE
+            else option
+            for option in panel.options
+        ]
+        return panel.model_copy(update={"options": options})
 
     def invites_for(self, user: UserDTO) -> list[tuple[Fund, FundAssemblyDTO, str]]:
         """Os convites de assembleia que esperam a resposta de `user`: a gestora, o convite e o apelido de quem convocou."""
@@ -1508,6 +1992,7 @@ class FundBook:
         # A estratégia da carteira é do principal que sai: a gestora volta ao manual
         self._stop_automatic(fund, "A gestão mudou de mãos: a gestora voltou ao manual")
         self._assemblies.cancel_open(fund, FEE, self._engine.current_date)
+        self._cancel_merge(fund)
         # A oferta de cotas é do principal que sai
         self._directed.cancel(fund)
         # O candidato que já era co-gestor passa a principal e deixa a lista deles
@@ -1746,6 +2231,7 @@ class FundBook:
             self._settle_distribution(fund, today)
             self._save(fund)
             candles.append(candle)
+        self._advance_merges(today)
         return candles
 
     def on_month(self, today: date) -> None:

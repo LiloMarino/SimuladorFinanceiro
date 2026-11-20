@@ -4,22 +4,31 @@ import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { displayQuantity } from "@/shared/lib/utils/display";
-import type { FundAssemblyAgenda } from "@/types";
 import { useCastAssemblyVote } from "../hooks/mutations/useCastAssemblyVote";
 import type { AssemblyCurrent } from "../lib/fund-assembly";
+import { mergeChoices } from "../lib/fund-merge";
 
 type Choice = "favor" | "against";
 
-const CHOICES: Record<FundAssemblyAgenda, Record<Choice, { title: string; hint: string }>> = {
-  REPLACE_MANAGER: {
+type ChoiceText = Record<Choice, { title: string; hint: string }>;
+
+/** O que cada lado do voto significa na pauta; a fusão diz o nome das gestoras. */
+function choicesOf(assembly: AssemblyCurrent): ChoiceText {
+  if (assembly.agenda === "MERGE" && assembly.merge !== null) {
+    const hints = mergeChoices(assembly.merge);
+    return { favor: { title: "A favor", hint: hints.favor }, against: { title: "Contra", hint: hints.against } };
+  }
+  if (assembly.agenda === "FEE_INCREASE") {
+    return {
+      favor: { title: "A favor", hint: "A taxa sobe" },
+      against: { title: "Contra", hint: "A taxa fica como está" },
+    };
+  }
+  return {
     favor: { title: "A favor", hint: "A gestão passa ao candidato" },
     against: { title: "Contra", hint: "O gestor atual fica" },
-  },
-  FEE_INCREASE: {
-    favor: { title: "A favor", hint: "A taxa sobe" },
-    against: { title: "Contra", hint: "A taxa fica como está" },
-  },
-};
+  };
+}
 
 const toChoice = (vote: boolean | null): Choice | null => (vote === null ? null : vote ? "favor" : "against");
 
@@ -31,7 +40,7 @@ export function AssemblyVoteForm({ fundId, assembly, myQuotas }: AssemblyVoteFor
   const [draft, setDraft] = useState<Choice | null>(null);
   const saved = toChoice(assembly.my_vote);
   const choice = draft ?? saved;
-  const options = CHOICES[assembly.agenda];
+  const options = choicesOf(assembly);
 
   const confirm = () => {
     if (choice === null) return;

@@ -155,6 +155,42 @@ def test_movements_come_newest_first_with_the_kind_of_each_event():
     assert (stock.type, stock.amount) == ("contribution", Decimal(300))
 
 
+def test_the_positions_of_a_merger_are_a_merger_not_a_contribution():
+    found = fund_ledger.movements(
+        cash_events=[],
+        contributed_stocks=[
+            equity(
+                EquityEventType.MERGE_IN,
+                D1,
+                "10",
+                "30",
+                portfolio=FUND_PORTFOLIO,
+                ticker="PETR4",
+            ),
+            equity(
+                EquityEventType.TRANSFER_IN,
+                D1,
+                "5",
+                "20",
+                portfolio=FUND_PORTFOLIO,
+                ticker="VALE3",
+            ),
+        ],
+        manager_trades=[],
+        offer=None,
+        today=D3,
+    )
+
+    merger = next(m for m in found if m.ticker == "PETR4")
+    contribution = next(m for m in found if m.ticker == "VALE3")
+    assert (merger.type, merger.quotas, merger.amount) == (
+        "merger",
+        Decimal(10),
+        Decimal(300),
+    )
+    assert (contribution.type, contribution.quotas) == ("contribution", None)
+
+
 def test_movements_of_an_offer_in_progress_have_no_closing():
     found = fund_ledger.movements(
         cash_events=[],

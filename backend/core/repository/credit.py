@@ -1,4 +1,6 @@
-from sqlalchemy import select
+import uuid
+
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -41,3 +43,23 @@ class CreditRepository:
             .order_by(EventCredit.id)
         ).all()
         return [credit_event_dto(row) for row in rows]
+
+    @transactional
+    def move_loans(
+        self,
+        session: Session,
+        simulation_id: int,
+        source_portfolio_id: int,
+        target_portfolio_id: int,
+        loan_ids: list[uuid.UUID],
+    ) -> None:
+        """Passa os eventos dos empréstimos à outra carteira: a dívida muda de dono com o histórico."""
+        session.execute(
+            update(EventCredit)
+            .where(
+                EventCredit.simulation_id == simulation_id,
+                EventCredit.portfolio_id == source_portfolio_id,
+                EventCredit.loan_id.in_(loan_ids),
+            )
+            .values(portfolio_id=target_portfolio_id)
+        )

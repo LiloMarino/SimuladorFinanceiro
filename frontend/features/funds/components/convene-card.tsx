@@ -15,17 +15,23 @@ type ConveneCardProps = {
   onConveneSwap: () => void;
   /** Leva o gestor às Configurações, onde o aumento de taxa é proposto */
   onProposeFee: () => void;
+  /** Abre o diálogo da fusão com outra gestora do mesmo gestor */
+  onProposeMerge: () => void;
 };
 
 /** Convocar uma votação: as pautas que a assembleia aceita, cada uma com o motivo de quem não pode pô-la em votação. */
-export function ConveneCard({ fund, onConveneSwap, onProposeFee }: ConveneCardProps) {
+export function ConveneCard({ fund, onConveneSwap, onProposeFee, onProposeMerge }: ConveneCardProps) {
   const panel = fund.assembly;
   const firstOpen = AGENDAS.find((agenda) => optionOf(panel, agenda)?.can_convene === true) ?? null;
   const [draft, setDraft] = useState<FundAssemblyAgenda | null>(null);
   const selected = draft ?? firstOpen;
 
   const share = Number(fund.quotas) > 0 ? Number(panel.my_quotas) / Number(fund.quotas) : 0;
-  const convene = () => (selected === "FEE_INCREASE" ? onProposeFee() : onConveneSwap());
+  const convene = () => {
+    if (selected === "FEE_INCREASE") onProposeFee();
+    else if (selected === "MERGE") onProposeMerge();
+    else onConveneSwap();
+  };
 
   return (
     <Card>
@@ -74,7 +80,9 @@ export function ConveneCard({ fund, onConveneSwap, onProposeFee }: ConveneCardPr
                 ? "Nenhuma pauta pode ser convocada agora."
                 : selected === "FEE_INCREASE"
                   ? "O gestor propõe o aumento nas Configurações."
-                  : `Você tem ${displayPercent(share, 1)} das cotas; precisa de 10%.`}
+                  : selected === "MERGE"
+                    ? "O gestor propõe a fusão às duas assembleias."
+                    : `Você tem ${displayPercent(share, 1)} das cotas; precisa de 10%.`}
             </span>
             <Button variant="fund" size="sm" disabled={selected === null} onClick={convene}>
               Convocar
