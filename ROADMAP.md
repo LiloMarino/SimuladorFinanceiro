@@ -82,7 +82,7 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | — | — | Médio | Bom | ⏳ |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 | — | Médio | Bom | ⏳ |
-| [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | M18 · 4.2 | — | — | — | 🔍 |
+| [**F314**](#f314) | Feature | Aquisição hostil no modo Equipes | M18 · 4.2 | — | Alto | Médio | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (58 itens — clique pra expandir)</strong></summary>
@@ -204,7 +204,7 @@
 | 36 | [**F305**](#f305) | Melhoria | Aquisição hostil como modo de vitória | — | ✅ Concluído |
 | 37 | [**F313**](#f313) | Feature | Assembleia de cotistas com aba própria e aumento de taxa | — | ✅ Concluído |
 | 38 | [**F311**](#f311) | Feature | Fusão de gestoras | — | ✅ Concluído |
-| 39 | [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | [F305](#f305) | 🔍 Em avaliação |
+| 39 | [**F314**](#f314) | Feature | Aquisição hostil no modo Equipes | [F305](#f305) | ⏳ Pendente |
 
 ### 4.3 — Mesa do trader (M24)
 
@@ -300,7 +300,7 @@
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [**F309**](#f309) | Melhoria | Balanceamento das profissões | M18 · 4.2 · 34º | 0 | Médio | Bom | ⏳ |
-| [**F314**](#f314) | Feature | Aquisição hostil e Política no modo Equipes | M18 · 4.2 · 39º | 0 | — | — | 🔍 |
+| [**F314**](#f314) | Feature | Aquisição hostil no modo Equipes | M18 · 4.2 · 39º | 0 | Alto | Médio | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.3 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.3 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.3 · 3º | 0 | Médio | Bom | ⏳ |
@@ -361,6 +361,7 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | — | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F309** | Melhoria | Balanceamento das profissões | N39 | — | M18 · 4.2 | — | Médio | Baixo | Médio | Bom |
+| **F314** | Feature | Aquisição hostil no modo Equipes | N23 | — | M18 · 4.2 | [F305](#f305) | Alto | Médio | Médio | Médio |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -565,6 +566,19 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f309"></a>
 **F309 — Balanceamento das profissões.** Serve N39. Do playtest de 17/11. Na partida de Independência financeira, o bot Herdeiro venceu no primeiro dia: a meta era 1,2 milhão (12 × 5.000 ÷ 5%) e o capital inicial dele foi de 1,58 milhão, porque a validação da meta (`dto/simulation.py:66-95`) compara com o caixa da sala, e não com o capital do Herdeiro (caixa mais o valor presente dos salários). **Decidido em 18/11: meta acima do capital de todos.** A meta precisa passar do maior capital inicial entre as profissões da sala, bots incluídos (Corrida pela meta: a meta; Independência financeira: 12 × despesa ÷ taxa de saque); com um Herdeiro na sala a meta mínima sobe e o lobby explica "meta mínima de R$ X por causa do Herdeiro", e a partida não começa com a meta abaixo dela. **Profissões fracas:** o script de calibração da sessão de 18/11 mediu o Freelancer em 0,38× o CLT em 26 anos com IPCA e o Recém-formado em 0,47× em 5 anos. O ajuste leva cada profissão para a faixa de 0,8× a 1,25× o patrimônio final do CLT nos horizontes de 5, 10 e 26 anos, por número ou por mecânica própria.
 
+<a id="f314"></a>
+**F314 — A equipe é a gestora.** Na Aquisição hostil com Equipes ligado, a equipe nasce da gestora: o fundador e os co-gestores aceitos no lobby (até 3, equipes de até 4 pessoas). O lobby não mostra o seletor de equipe; a equipe leva o nome da gestora. Decidido em 20/11.
+
+**Formação no lobby:** todo humano funda uma gestora ou aceita ser co-gestor de uma, e de uma só (ser de duas é estar em dois times). Quem está numa equipe não funda nem aceita outro convite; a partida só começa com cada humano em exatamente uma equipe e pelo menos 2 gestoras, e o conflito aparece no aviso do lobby como os da aquisição hostil. No 1º dia o caixa de cada membro, co-gestor incluído, entra na gestora da equipe e vira cotas dele.
+
+**Times fixos até o fim:** na partida não há convite de co-gestor, saída nem remoção; os co-gestores defendem a gestora junto com o líder, como os filiados de um partido. A assembleia de troca de gestor serve só para tomar a gestora de outra equipe: quem é da equipe não convoca na própria gestora nem é candidato nela.
+
+**Eliminação e vitória:** gestora tomada pela assembleia elimina a equipe inteira, e os co-gestores perdem o posto; quem toma passa a gerir as duas. Vence a última equipe de pé; na data final, a de maior patrimônio médio dos membros (média, não soma: a equipe A com R$ 30 mil e R$ 10 mil tem R$ 20 mil e perde para a B, de um jogador com R$ 25 mil). Equipe eliminada fica abaixo das que estão de pé.
+
+**Bots:** ficam sem equipe e fora do placar das equipes, e seguem no mercado; não bloqueiam o início por falta de equipe.
+
+**Política fica de fora:** a vitória dela já é do partido (o de mais capital político vence e os membros dele vencem juntos). O modo Equipes segue desligado nela, com o texto "Na Política a equipe é o partido: quem está no partido vencedor vence junto".
+
 ---
 
 ## 🔍 Em avaliação
@@ -581,7 +595,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 | **F202** | Performance | Backtest que corre mais rápido que a partida comum | N10 | D8 | M25 · 4.4 | — | Medir o dia do backtest por etapa e escolher quais custos saem do caminho dele (eventos em memória gravados em lote, leituras do que o motor acabou de gravar, trava por pregão, imposto por dia) |
 | **F279** | Feature | Estratégias automáticas novas e revisão das atuais | N4, N8 | — | M24 · 4.3 | — | Medir as estratégias atuais em várias bases com governo, dólar e crédito; calibrar os níveis de dificuldade; escolher as estratégias novas |
 | **F285** | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | N20 | — | — | — | Escolher o mecanismo (filtrar o seletor, recolorir na tela de quem liga ou reforçar além da cor) e medir o tamanho do conjunto distinguível sob as três simulações |
-| **F314** | Feature | Aquisição hostil e Política no modo Equipes | N23 | — | M18 · 4.2 | [F305](#f305) | Vitória da Política, jogador sem grupo, troca de grupo no meio da partida, gestora e partido na mesma sala, bots |
 
 <a id="f5"></a>
 **F5 — Spike: provider de túnel pela internet.** Origem: #77. Candidatos da issue: LocalTunnel, Playit, zrok (sugestão para entrar na comparação: Cloudflare Quick Tunnel, que não exige conta). Falta medir, para cada um: (1) **quanto o `.exe` cresce** — critério eliminatório da issue; (2) se exige conta ou cadastro (fere N1); (3) se baixa binário em runtime ou vai empacotado; (4) se passa o WebSocket do Socket.IO; se não passar, se ao menos o polling atravessa (o SSE saiu na D13, então o polling é o único fallback). O cliente oficial do LocalTunnel é Node, o que provavelmente o elimina. Sai daqui com um provider escolhido para a F6.
@@ -630,18 +643,6 @@ O backtest já pula os avisos por pregão e o governo e grava os snapshots em lo
 3. Reforço além da cor: sigla, listra ou forma junto da cor, no mapa e nos gráficos. Vale para qualquer tipo de daltonismo, mas cada gráfico precisa de desenho próprio.
 
 Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no servidor, e deixar o 3 para onde só a cor carrega a informação (o mapa). O tamanho do conjunto distinguível sai de medir o ΔE sob as três simulações.
-
-<a id="f314"></a>
-**F314 — A equipe é o grupo em que o jogador entrou.** Hoje a Aquisição hostil e a Política só existem no modo individual: com Equipes ligado, o tipo fica desabilitado. Nos dois tipos, o grupo já existe dentro da partida (a gestora, o partido), então a equipe pode nascer dele e o lobby não precisa do seletor de equipe.
-
-**Ideia:** quem entra numa gestora (como co-gestor) ou num partido entra na equipe dela. Todo jogador precisa entrar num grupo ou fundar o próprio. Na Aquisição hostil, a equipe vencedora é a gestora vencedora; na Política, é o partido vencedor.
-
-**Em aberto:**
-- Como a vitória da Política funciona hoje, e se "partido vencedor" se encaixa nela.
-- O que acontece com quem fica sem grupo no início da partida: o jogo bloqueia o início ou cria um grupo para ele?
-- O grupo muda no meio da partida (a assembleia troca o gestor, um co-gestor sai, alguém troca de partido): a equipe acompanha ou fica a do início?
-- Se a sala tiver os dois grupos ao mesmo tempo (gestora e partido), quem está na mesma equipe precisa estar no mesmo partido?
-- Bots: em que grupo entram e se contam para a vitória da equipe.
 
 ---
 
