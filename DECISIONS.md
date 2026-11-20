@@ -109,6 +109,9 @@ Na partida com governo, juro, inflação, desemprego, bolsa e dívida reagem pel
 **N42. Chegar a um estado da partida sem jogar até ele**
 Para conferir uma tela, desenhar o antes de um redesenho ou testar uma regra, é preciso um jogador com dinheiro, um cargo, uma data ou um imprevisto específico. Hoje isso só se alcança jogando até lá ou mexendo no banco à mão.
 
+**N43. Operar como numa corretora de verdade: proteger a posição e ganhar também na queda**
+A boleta só tem a ordem a mercado e a limitada: não dá para deixar uma venda automática que limita a perda nem lucrar com uma ação que cai. Na corretora real, o stop e a venda a descoberto com aluguel de ações existem para qualquer um, e quem tem ações pode emprestá-las e receber a taxa. O jogador quer essas ferramentas sem que a boleta do dia a dia fique confusa.
+
 ---
 
 ## Decisões
@@ -361,10 +364,13 @@ Os indicadores saem do caminho: a SELIC soma as variações dos trechos ao últi
 ### D23 — A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia
 **Status:** ✅ Decidida
 
-**Decisão:** a profissão deixa de ser só um multiplicador de salário com um risco macro. Cada uma ganha uma ação ou um bônus próprio, como as classes de um RPG: nenhuma é ruim, e cada uma tem como sair na frente se for bem jogada. A ação imita o que a profissão faz na vida real e reage à economia da partida (o Locador compra imóveis, e a vacância sobe quando o PIB cai e o desemprego sobe). A calibragem fecha com cada profissão entre 0,8× e 1,25× o patrimônio final do CLT em 5, 10 e 26 anos, nas salas com e sem correção pelo IPCA.
+**Decisão:** a profissão deixa de ser só um multiplicador de salário com um risco macro. Cada uma ganha uma mecânica própria, como as classes de um RPG: nenhuma é ruim, e cada uma tem como sair na frente se for bem jogada. A mecânica pode ser uma ação do jogador, um bônus passivo ou os dois, decidido por profissão; imita o que a profissão faz na vida real e reage à economia da partida (o Locador compra imóveis, e a vacância sobe quando o PIB cai e o desemprego sobe). Cada classe tem um formato de curva próprio: o Herdeiro começa forte e pode quebrar, o Recém-formado é fraco no começo e o de maior salário numa partida longa, e o Administrador troca de setor seguindo a economia.
+
+A calibragem não enquadra as profissões numa faixa. A régua é o poupador da sala, um perfil que ninguém joga (ganha o salário da sala, reajusta igual à sala, nunca é demitido, não tem mecânica e guarda a sobra no CDI), e a medição soa três alarmes, em 5, 10, 20 e 26 anos, nas salas com e sem correção pelo IPCA: a mecânica não vale a pena (a profissão jogando a política razoável não termina acima dela mesma sem a mecânica), uma profissão é a primeira em todos os horizontes nas duas salas, ou uma profissão é a última em todos. A política razoável é a mesma regra que os bots seguem para usar a mecânica.
 
 **Por quê:**
 - No playtest de 17/11, as profissões que começam atrás não tinham como recuperar: sem caixa no começo, o Recém-formado nunca alcança os juros compostos de quem começa ganhando, e o Aposentado não tem nada a fazer além de esperar.
-- Ajustar só o multiplicador nivela a média, mas deixa todas as profissões iguais de jogar; a ação própria dá a cada uma um jeito de vencer.
+- Ajustar só o multiplicador nivela a média, mas deixa todas as profissões iguais de jogar; a mecânica própria dá a cada uma um jeito de vencer.
+- A faixa de 0,8× a 1,25× o CLT, pensada quando a profissão era só um multiplicador, amarra as classes com mecânica: uma classe de fim de jogo fica fora dela por definição. Com o CLT ganhando mecânica própria (FGTS e hora extra), ele também deixa de servir de régua fixa.
 
-**Consequências:** a 4.2 sai com as profissões como estão, com a meta mínima acima do capital de todos e um ajuste de números só nas muito fora da curva. A versão 4.3 (Profissões) desenha as ações, as séries de dados novas que elas pedirem e o uso pelos bots, que trazem junto o crédito nas estratégias e os comandos de trapaça do modo debug para testar e calibrar.
+**Consequências:** a 4.2 saiu com as profissões como estavam, com a meta mínima acima do capital de todos e um ajuste de números só nas muito fora da curva. A versão 4.3 (Profissões) traz a página Profissão (desenhada no canvas antes), uma mecânica por profissão, a profissão nova Administrador, a troca de profissão no meio da partida, as séries do preço de imóvel, do IGP-M e da TR, a política razoável dos bots, o crédito nas estratégias e os comandos de trapaça do modo debug para testar e calibrar. As profissões continuam um modo da sala (mesmo salário ou profissões), sem virar expansão: o modo já é o botão de desligar, e a sala sem profissões fica como era. A venda a descoberto e as ordens novas, pensadas para o Corretor, vão para todos os jogadores na Mesa do trader, porque prender ao modo de profissões uma mecânica do mercado real esconde dela quase todos os jogadores.
