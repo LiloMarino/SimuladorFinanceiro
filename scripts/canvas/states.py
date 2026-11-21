@@ -1445,6 +1445,75 @@ def tab_quotas_issuance(page: Page) -> None:
     open_fund_tab(page, "Cotas", "Quem compra e quando")
 
 
+ISSUANCE_PREVIEW_PATTERN = re.compile(r"/api/funds/\d+/issuance/preview")
+
+
+def issuance_estimate_dialog(page: Page) -> None:
+    """Dado forjado: o diálogo de anunciar a emissão com a faixa de captação de bots e Mercado na prévia; o atalho de 50% preenche a quantidade e a dica da faixa abre por hover."""
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["estimate"] = {
+            "quotas_min": "115",
+            "quotas_max": "130",
+            "raised_min": "11470",
+            "raised_max": "12940",
+            "commission_min": "30",
+            "commission_max": "60",
+            "performance": 0.03,
+            "premium": 0.1,
+        }
+
+    fund_match(page, stage="offer-closed")
+    patch_get(page, ISSUANCE_PREVIEW_PATTERN, change)
+    open_funds_page(page)
+    page.get_by_role("button", name="Abrir emissão").first.click()
+    dialog = page.get_by_role("dialog")
+    dialog.wait_for()
+    dialog.get_by_role("button", name="50%").click()
+    dialog.get_by_text("Captação estimada").wait_for()
+    dialog.get_by_role("button", name="O que é Captação estimada").hover()
+    page.locator('[data-slot="popover-content"]').wait_for()
+
+
+def issuance_no_estimate(page: Page) -> None:
+    """Dado forjado: o cartão da sobra com a faixa de captação zerada, dizendo que a gestora rende abaixo do CDI e a cota não tem ágio."""
+
+    def change(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        body["issuance"] = {
+            "id": 1,
+            "announced_on": "2031-03-03",
+            "quotas": "200",
+            "price": "100",
+            "book_price": None,
+            "preference_ends_on": "2031-03-14",
+            "ends_on": "2031-03-21",
+            "sold": "0",
+            "closed_on": None,
+            "phase": "leftover",
+            "raised": "0",
+            "my_rights": None,
+            "my_bought": None,
+            "estimate": {
+                "quotas_min": "0",
+                "quotas_max": "0",
+                "raised_min": "0",
+                "raised_max": "0",
+                "commission_min": "0",
+                "commission_max": "0",
+                "performance": -0.02,
+                "premium": 0,
+            },
+        }
+
+    fund_match(page, stage="offer-closed")
+    patch_get(page, FUND_DETAIL_PATTERN, change)
+    open_funds_page(page)
+    open_fund_tab(page, "Cotas", "Quem compra e quando")
+    page.get_by_text("a gestora rende 2 pontos abaixo do CDI").wait_for()
+
+
 REPORT_MONTHS = [
     f"{year}-{month:02d}-01"
     for year, month in [(2030, m) for m in range(1, 13)] + [(2031, 1), (2031, 2)]
@@ -3154,6 +3223,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/aba-carteira-congelada": tab_portfolio_frozen,
     "gestoras/aba-cotas": tab_quotas,
     "gestora/cotas-emissao": tab_quotas_issuance,
+    "gestora/emissao-estimativa": issuance_estimate_dialog,
+    "gestora/emissao-sem-captacao": issuance_no_estimate,
     "gestora/relatorio-meses": tab_report_months,
     "gestoras/aba-rendimentos": tab_income,
     "gestoras/aba-relatorio": tab_report,
