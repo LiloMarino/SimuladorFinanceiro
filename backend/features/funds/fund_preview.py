@@ -8,8 +8,14 @@ from backend.core.dto.fund import (
 )
 from backend.core.dto.user import UserDTO
 from backend.core.exceptions.http_exceptions import ConflictError
-from backend.features.funds.fund_book import ISSUANCE_LIMIT, Fund, FundBook
+from backend.features.funds.fund_book import (
+    ISSUANCE_LIMIT,
+    Fund,
+    FundBook,
+    issuance_price,
+)
 from backend.features.funds.fund_details import control_quotas
+from backend.features.funds.fund_estimate import IssuanceEstimator
 from backend.features.simulation.simulation_engine import SimulationEngine
 
 
@@ -27,11 +33,16 @@ class FundPreviewBuilder:
     gestora: o front só mostra os números."""
 
     def __init__(
-        self, book: FundBook, engine: SimulationEngine, manager: UserDTO
+        self,
+        book: FundBook,
+        engine: SimulationEngine,
+        manager: UserDTO,
+        estimator: IssuanceEstimator,
     ) -> None:
         self._book = book
         self._engine = engine
         self._manager = manager
+        self._estimator = estimator
 
     def issuance(self, fund: Fund, quotas: Decimal) -> FundIssuancePreviewDTO:
         """Uma emissão de `quotas` cotas ao PL por cota de hoje: o caixa que entra e o controle do gestor."""
@@ -57,6 +68,9 @@ class FundPreviewBuilder:
             keeps_control_if_buy=_keeps_control(mine + rights, total_after),
             manager_rights=rights,
             manager_cost=nav * rights,
+            estimate=self._estimator.estimate(
+                fund, quotas, issuance_price(nav), fund.last_trade_price
+            ),
         )
 
     def directed(self, fund: Fund, quotas: Decimal) -> FundDirectedIssuancePreviewDTO:
@@ -107,12 +121,20 @@ class FundPreviewBuilder:
         right = fund.issuance_rights.get(viewer.id)
         left = right.rights - right.bought if right else Decimal(0)
         cost = issuance.price * quotas
+        cash = self._engine.get_cash(viewer.client_id)
+        # A compra da preferência não paga comissão: o caixa paga só o preço das cotas inteiras
+        affordable = (
+            (cash / issuance.price).to_integral_value(rounding=ROUND_FLOOR)
+            if issuance.price > 0
+            else Decimal(0)
+        )
         mine = self._book.quotas_of(fund, viewer)
         return FundIssuanceSubscriptionPreviewDTO(
             quotas=quotas,
             price=issuance.price,
             cost=cost,
-            cash_enough=self._engine.get_cash(viewer.client_id) >= cost,
+            cash_enough=cash >= cost,
+            max_quotas=max(Decimal(0), min(left, affordable)),
             my_quotas_after=mine + quotas,
             my_share_after=_share(mine + quotas, fund.account.quotas + quotas),
             rights_left_after=max(Decimal(0), left - quotas),

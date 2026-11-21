@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from decimal import Decimal
 
 from backend.core.dto.strategy import StrategyParamValue
 from backend.core.enum import StrategyGroup, StrategyParamKind
-from backend.core.fund_reference import FundReference, price_ceiling
+from backend.core.fund_reference import (
+    FundReference,
+    performance_premium,
+    price_ceiling,
+)
 from backend.core.professions import Expansion
 from backend.core.utils import format_quantity
 from backend.features.strategy.base_strategy import (
@@ -27,17 +32,16 @@ from backend.features.strategy.fair_value_trading import (
 )
 from backend.features.strategy.liquidity import ZERO
 
-# O prêmio da cota é duas vezes o desempenho sobre o CDI, limitado a esta fração do PL por cota
-PREMIUM_LEVERAGE = 2
-PREMIUM_LIMIT = 0.20
-
 
 def fair_value(fund: FundReference, bias: float) -> float:
     """O valor que o bot dá à cota: o PL por cota mais o prêmio do desempenho e a opinião do dia."""
-    premium = max(
-        -PREMIUM_LIMIT, min(PREMIUM_LIMIT, PREMIUM_LEVERAGE * fund.performance)
-    )
-    return fund.nav * (1 + premium + bias)
+    return fund.nav * (1 + performance_premium(fund.performance) + bias)
+
+
+def offer_value(fund: FundReference, value: float) -> float:
+    """O valor que a venda do emissor é comparada: o maior entre o valor da cota e o fechamento da foto, até o teto de compra."""
+    book = fund.book_price if fund.book_price is not None else value
+    return min(max(value, book), price_ceiling(fund.nav))
 
 
 class FundQuotas(BaseStrategy):
@@ -58,6 +62,9 @@ class FundQuotas(BaseStrategy):
         "limitado a 20% para cima ou para baixo, e cada dia traz uma opinião própria "
         "de até 5%. Compra cota que o livro vende abaixo desse valor, vende a que "
         "alguém paga acima dele e nunca paga mais que 1,2 vez o patrimônio por cota. "
+        "Na sobra de uma emissão, o ágio que a cota tinha no fechamento anterior ao "
+        "anúncio também conta como valor: se o mercado pagava 10% acima do patrimônio, "
+        "o preço fixo da sobra, igual ao patrimônio, é visto como barato. "
         "O caixa que não está reservado para cotas rende na renda fixa de liquidez diária."
     )
     group = StrategyGroup.TACTIC
@@ -101,6 +108,15 @@ class FundQuotas(BaseStrategy):
     )
 
     def next(self, ctx: StrategyContext, params: dict[str, StrategyParamValue]) -> None:
+        self.run(ctx, params, lambda ticker: opinion(ctx.seed, ticker, ctx.date))
+
+    def run(
+        self,
+        ctx: StrategyContext,
+        params: dict[str, StrategyParamValue],
+        bias_of: Callable[[str], float],
+    ) -> None:
+        """O dia da estratégia com a opinião de cada cota dada por `bias_of(ticker)`."""
         quota_pct = Decimal(param_int(params, "quota_pct")) / 100
         fund_pct = Decimal(param_int(params, "fund_pct")) / 100
         funds = sorted(
@@ -123,21 +139,22 @@ class FundQuotas(BaseStrategy):
         # Cada cota: vende a que o livro paga acima do valor e candidata a compra as demais
         candidates: list[Candidate] = []
         for quote, fund in funds:
-            value = fair_value(fund, opinion(ctx.seed, quote.ticker, ctx.date))
+            value = fair_value(fund, bias_of(quote.ticker))
             held = ctx.holdings.get(quote.ticker)
             held_value = money(quote.close) * held.size if held is not None else ZERO
             worth = round(value, 2)
 
             # A venda do emissor: compra só no último pregão, e só se o preço fixo cabe no valor
             if fund.fixed_price is not None:
-                if fund.fixed_price_last_session and fund.fixed_price <= value:
+                offered = offer_value(fund, value)
+                if fund.fixed_price_last_session and fund.fixed_price <= offered:
                     candidates.append(
                         Candidate(
                             quote,
                             fund.fixed_price,
                             held_value,
                             f"Comprou {quote.ticker} da oferta a {price_text(fund.fixed_price)}, "
-                            f"abaixo do valor de {price_text(worth)}",
+                            f"abaixo do valor de {price_text(round(offered, 2))}",
                         )
                     )
                 continue

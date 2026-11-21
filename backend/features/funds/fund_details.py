@@ -31,6 +31,7 @@ from backend.core.dto.fund import (
 from backend.core.dto.user import UserDTO
 from backend.core.enum import FixedIncomeType, FundComanagerStatus
 from backend.core.exceptions.http_exceptions import NotFoundError
+from backend.core.fund_reference import PREMIUM_LIMIT
 from backend.core.runtime.user_manager import UserManager
 from backend.core.utils import last_month_turn, next_month_turn, ratio
 from backend.features.fixed_income.entities.fixed_income_position import (
@@ -50,9 +51,9 @@ from backend.features.funds.fund_book import (
 )
 from backend.features.funds.fund_comanagers import expires_on, manager_share
 from backend.features.funds.fund_directed import expires_on as directed_expires_on
+from backend.features.funds.fund_estimate import IssuanceEstimator
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.strategy.fair_value_trading import OPINION_RANGE
-from backend.features.strategy.fund_quotas import PREMIUM_LIMIT
 from backend.features.variable_income.broker import replay_positions
 
 # Pregões lidos da série de fechamentos: de sobra para os últimos 12 meses
@@ -126,11 +127,13 @@ class FundDetailsBuilder:
         engine: SimulationEngine,
         simulation_id: int,
         colors: Callable[[], dict[int, str]],
+        estimator: IssuanceEstimator,
     ) -> None:
         self._book = book
         self._engine = engine
         self._simulation_id = simulation_id
         self._colors = colors
+        self._estimator = estimator
 
     def build(self, fund: Fund, viewer: UserDTO) -> FundDetailsDTO:
         engine = self._engine
@@ -696,6 +699,16 @@ class FundDetailsBuilder:
             raised=issuance.sold * issuance.price,
             my_rights=right.rights if right else None,
             my_bought=right.bought if right else None,
+            estimate=(
+                None
+                if issuance.closed_on is not None
+                else self._estimator.estimate(
+                    fund,
+                    issuance.quotas - issuance.sold,
+                    issuance.price,
+                    issuance.book_price,
+                )
+            ),
         )
 
     # =========================

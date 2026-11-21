@@ -8,6 +8,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { DisabledHint } from "@/shared/components/disabled-hint";
+import { QuantityShortcuts } from "@/shared/components/quantity-shortcuts";
 import { PersonalAccountNotice } from "@/shared/components/personal-account-notice";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { accountTone, isManagedFundAccount, isSovereignAccount } from "@/shared/lib/active-account";
@@ -17,7 +18,8 @@ import { ErrorState } from "@/shared/components/error-state";
 import { cn } from "@/shared/lib/utils";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { normalizeNumberString } from "@/shared/lib/utils";
-import { formatMoney, formatQuantityInput, quantityToInput } from "@/shared/lib/utils/format";
+import { formatMoney, formatQuantityInput } from "@/shared/lib/utils/format";
+import { quantityOfShare } from "@/shared/lib/quantity-shortcuts";
 import { displayDate, displayMoney, displayQuantity, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
 import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
@@ -33,12 +35,6 @@ import { useSubmitOrder } from "@/shared/hooks/mutations/useSubmitOrder";
 type Action = "buy" | "sell";
 type OrderKind = "market" | "limit";
 type SizeMode = "quantity" | "amount";
-
-const SHORTCUTS = [
-  { label: "25%", share: 0.25 },
-  { label: "50%", share: 0.5 },
-  { label: "Máx", share: 1 },
-];
 
 /** Oferta do livro que o jogador clicou: a boleta prepara a ordem do outro lado, limitada ao preço dela. */
 export type OrderPrefill = {
@@ -205,7 +201,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
     } else if (byAmount) {
       setAmountText(formatMoney(toCentsString(String(cash * share))));
     } else {
-      setQuantityText(quantityToInput(share === 1 ? maxQuantity : Number(maxQuantity) * share, fractional));
+      setQuantityText(quantityOfShare(maxQuantity, share, fractional));
     }
   };
 
@@ -330,11 +326,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                           : setQuantityText(formatQuantityInput(e.target.value, fractional))
                       }
                     />
-                    {SHORTCUTS.map((s) => (
-                      <Button key={s.label} type="button" variant="outline" onClick={() => fillShortcut(s.share)}>
-                        {buyingAtMarket && s.share === 1 ? "Tudo" : s.label}
-                      </Button>
-                    ))}
+                    <QuantityShortcuts maxLabel={buyingAtMarket ? "Tudo" : "Máx"} onPick={fillShortcut} />
                   </div>
                   {invalidSize ? (
                     <FieldError>{byAmount ? amountError : quantityError}</FieldError>

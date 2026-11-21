@@ -2,6 +2,7 @@ import { Megaphone } from "lucide-react";
 import { useDeferredValue, useState } from "react";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { MetricLabel } from "@/shared/components/metric-hint";
+import { QuantityShortcuts } from "@/shared/components/quantity-shortcuts";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
@@ -10,23 +11,25 @@ import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { displayIsoDate, displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
+import { quantityOfShare } from "@/shared/lib/quantity-shortcuts";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { FundDetails } from "@/types";
 import { useSubscribeFundIssuance } from "../hooks/mutations/useSubscribeFundIssuance";
 import { useFundSubscriptionPreview } from "../hooks/queries/useFundSubscriptionPreview";
 import { PREFERENCE_RIGHT } from "@/shared/lib/fund-metrics";
 import { rightsLeftOf } from "../lib/fund-pending";
+import { IssuanceEstimate } from "./issuance-estimate";
 
 type Issuance = NonNullable<FundDetails["issuance"]>;
 
 type SubscribeFormProps = { fundId: number; issuance: Issuance; rightsLeft: number };
 
-/** Compra do direito de preferência: a quantidade vai até o que resta do direito, e a prévia diz o custo e a parte depois. */
+/** Compra do direito de preferência: a quantidade vai até o que resta do direito, e a prévia diz o custo, a parte depois e o teto que o caixa paga. */
 function SubscribeForm({ fundId, issuance, rightsLeft }: SubscribeFormProps) {
   const [quotasText, setQuotasText] = useState("");
   const quotas = Number(quotasText);
   const deferredQuotas = useDeferredValue(quotas);
-  const { data: preview } = useFundSubscriptionPreview(fundId, deferredQuotas);
+  const { data: preview } = useFundSubscriptionPreview(fundId, Math.max(deferredQuotas, 1));
   const subscribe = useSubscribeFundIssuance(fundId);
 
   const valid = Number.isInteger(quotas) && quotas > 0;
@@ -60,6 +63,12 @@ function SubscribeForm({ fundId, issuance, rightsLeft }: SubscribeFormProps) {
             Comprar
           </Button>
         </div>
+        <QuantityShortcuts
+          size="sm"
+          className="*:flex-1"
+          disabled={preview === undefined || Number(preview.max_quotas) <= 0}
+          onPick={(share) => preview && setQuotasText(quantityOfShare(preview.max_quotas, share, false))}
+        />
         {overRights ? (
           <FieldError>Seu direito restante é de {displayQuantity(String(rightsLeft))} cotas.</FieldError>
         ) : noCash ? (
@@ -161,10 +170,22 @@ export function FundIssuanceCard({ fund }: FundIssuanceCardProps) {
               </p>
               <p>Sobra ({rules.leftover_sessions} pregões): qualquer jogador, pelo livro de ofertas, ao preço fixo.</p>
               <p>
-                Bots: só no último pregão da sobra, e só se o preço da emissão couber no valor que dão à cota, que é o
-                patrimônio por cota mais um prêmio de até ±{displayPercent(rules.bot_premium_limit, 0)} pelo desempenho
-                acima do CDI. Cada bot ainda varia a opinião em até ±{displayPercent(rules.bot_opinion_range, 0)}.
+                Bots cotistas: só no último pregão da sobra, e só se o preço da emissão couber no valor que dão à cota,
+                que é o patrimônio por cota mais um prêmio de até ±{displayPercent(rules.bot_premium_limit, 0)} pelo
+                desempenho acima do CDI, ou o ágio que a cota tinha antes do anúncio, o que for maior. Cada bot ainda
+                varia a opinião em até ±{displayPercent(rules.bot_opinion_range, 0)}.
               </p>
+              <p>
+                Mercado: também no último pregão, depois dos jogadores e dos bots. Compra a fração da sobra que o
+                desempenho acima do CDI ou o ágio pede, até a sobra inteira com{" "}
+                {displayPercent(rules.bot_premium_limit, 0)}, e nada sem um dos dois.
+              </p>
+              {issuance.estimate && (
+                <IssuanceEstimate
+                  estimate={issuance.estimate}
+                  decidesAt={`no último pregão da sobra, em ${displayIsoDate(issuance.ends_on)}`}
+                />
+              )}
             </div>
           )}
         </div>

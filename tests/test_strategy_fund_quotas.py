@@ -22,8 +22,9 @@ def reference(
     performance: float = 0.0,
     fixed_price: float | None = None,
     last_session: bool = False,
+    book_price: float | None = None,
 ) -> FundReference:
-    return FundReference(nav, performance, fixed_price, last_session)
+    return FundReference(nav, performance, fixed_price, last_session, book_price)
 
 
 def with_quote(
@@ -154,3 +155,43 @@ def test_the_cash_outside_the_quotas_goes_to_the_liquid_offer(monkeypatch):
 
     invest = [i for i in ctx.intents if i.action is StrategyAction.INVEST]
     assert [i.asset_uuid for i in invest] == [LIQUID.asset_uuid]
+
+
+def test_the_photo_makes_the_fixed_price_cheap_for_a_pessimistic_bot():
+    """Opinião de -5% dá valor de 95 e o preço fixo de 100 fica caro; com a foto a 110, o valor passa a ser 110."""
+    ctx = context(cash="10000", offers=[LIQUID])
+    with_quote(ctx, reference(fixed_price=100.0, last_session=True))
+    FundQuotas().run(ctx, PARAMS, lambda _: -0.05)
+    assert not [i for i in ctx.intents if i.action is StrategyAction.BUY]
+
+    ctx = context(cash="10000", offers=[LIQUID])
+    with_quote(ctx, reference(fixed_price=100.0, last_session=True, book_price=110.0))
+    FundQuotas().run(ctx, PARAMS, lambda _: -0.05)
+    [buy, *_] = [i for i in ctx.intents if i.action is StrategyAction.BUY]
+    assert buy.limit == 100.0
+
+
+def test_the_photo_never_lifts_the_value_over_the_buy_ceiling():
+    """Foto a 150 vale no máximo o teto de 120; o preço fixo acima dele segue caro."""
+    ctx = context(cash="10000", offers=[LIQUID])
+    with_quote(ctx, reference(fixed_price=125.0, last_session=True, book_price=150.0))
+    FundQuotas().run(ctx, PARAMS, lambda _: 0.0)
+
+    assert not [i for i in ctx.intents if i.action is StrategyAction.BUY]
+
+
+def test_the_photo_has_no_weight_before_the_last_session():
+    ctx = context(cash="10000", offers=[LIQUID])
+    with_quote(ctx, reference(fixed_price=100.0, last_session=False, book_price=110.0))
+    FundQuotas().run(ctx, PARAMS, lambda _: 0.0)
+
+    assert not [i for i in ctx.intents if i.action is StrategyAction.BUY]
+
+
+def test_the_opinion_given_to_run_replaces_the_daily_one():
+    ctx = context(cash="10000", offers=[LIQUID])
+    with_quote(ctx, reference())
+    FundQuotas().run(ctx, PARAMS, lambda _: 0.05)
+
+    [buy, *_] = [i for i in ctx.intents if i.action is StrategyAction.BUY]
+    assert buy.limit == 105.0

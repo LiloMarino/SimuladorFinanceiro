@@ -21,6 +21,7 @@ from backend.features.funds.fund_details import (
     control_quotas,
     positions_of,
 )
+from backend.features.funds.fund_estimate import IssuanceEstimator
 from backend.features.simulation.simulation_engine import SimulationEngine
 from tests.fakes import client
 
@@ -102,6 +103,7 @@ def builder() -> FundDetailsBuilder:
         cast("SimulationEngine", engine),
         1,
         lambda: {1: "chart-1", 2: "chart-2"},
+        cast("IssuanceEstimator", None),
     )
 
 
@@ -284,6 +286,7 @@ def test_holders_include_bots_and_the_maker_and_skip_empty_positions():
         cast("SimulationEngine", engine),
         1,
         lambda: {1: "chart-1", 3: "chart-3"},
+        cast("IssuanceEstimator", None),
     )
 
     result = holders_builder._holders(fund_with(), users)

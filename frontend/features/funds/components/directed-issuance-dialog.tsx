@@ -1,6 +1,7 @@
 import { useDeferredValue, useState } from "react";
 import { InfoHint } from "@/shared/components/info-hint";
 import { KeyValueRow } from "@/shared/components/key-value-row";
+import { QuantityShortcuts } from "@/shared/components/quantity-shortcuts";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from "@/
 import { Spinner } from "@/shared/components/ui/spinner";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { displayMoney, displayQuantity } from "@/shared/lib/utils/display";
+import { quantityOfShare } from "@/shared/lib/quantity-shortcuts";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { FundDetails } from "@/types";
 import { useIssueDirectedFundQuotas } from "../hooks/mutations/useIssueDirectedFundQuotas";
@@ -51,7 +53,8 @@ export function DirectedIssuanceDialog({ open, onOpenChange, fund }: DirectedIss
 
   const quotas = Number(quotasText);
   const deferredQuotas = useDeferredValue(quotas);
-  const { data: preview } = useFundDirectedIssuancePreview(fund.id, deferredQuotas);
+  // A prévia de 1 cota já traz o teto, que os atalhos de porcentagem usam
+  const { data: preview } = useFundDirectedIssuancePreview(fund.id, Math.max(deferredQuotas, 1));
   const issue = useIssueDirectedFundQuotas(fund.id);
 
   const valid = Number.isInteger(quotas) && quotas > 0;
@@ -124,6 +127,12 @@ export function DirectedIssuanceDialog({ open, onOpenChange, fund }: DirectedIss
                 <InputGroupText>cotas</InputGroupText>
               </InputGroupAddon>
             </InputGroup>
+            <QuantityShortcuts
+              size="sm"
+              className="*:flex-1"
+              disabled={preview?.room == null}
+              onPick={(share) => preview?.room != null && setQuotasText(quantityOfShare(preview.room, share, false))}
+            />
             {overLimit && hint ? <FieldError>{hint}</FieldError> : hint && <FieldDescription>{hint}</FieldDescription>}
           </Field>
 

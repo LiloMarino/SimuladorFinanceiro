@@ -134,6 +134,23 @@ class FundIssuanceDTO(BaseDTO):
     sold: Decimal
     # Nulo com a emissão aberta
     closed_on: date | None
+    # O fechamento da cota na sessão anterior ao anúncio; nulo = emissão sem ágio
+    book_price: Decimal | None
+
+
+class FundIssuanceEstimateDTO(BaseDTO):
+    """A captação que bots cotistas e o Mercado devem trazer na sobra, entre a opinião mais pessimista e a mais otimista dos bots."""
+
+    # As cotas da sobra que os dois compram nos dois extremos, o dinheiro que entra no caixa da gestora (já sem a comissão) e a comissão dos Banqueiros, que incide só na compra dos bots
+    quotas_min: Decimal
+    quotas_max: Decimal
+    raised_min: Decimal
+    raised_max: Decimal
+    commission_min: Decimal
+    commission_max: Decimal
+    # O que move a compra: o desempenho da cota sobre o CDI na janela (0,03 é 3 pontos acima) e o ágio da foto sobre o PL por cota (0,10 é 10%)
+    performance: float
+    premium: float
 
 
 class FundIssuanceRightDTO(BaseDTO):
@@ -417,6 +434,8 @@ class FundIssuanceStatusDTO(FundIssuanceDTO):
     # O direito de preferência de quem consulta e o quanto ele já usou; nulos sem direito
     my_rights: Decimal | None
     my_bought: Decimal | None
+    # A captação estimada da sobra por bots e Mercado; nula sem sobra a vender ou sem PL por cota
+    estimate: FundIssuanceEstimateDTO | None
 
 
 # O que a gestora vende ao público: a oferta de abertura ou a sobra de uma emissão
@@ -940,6 +959,8 @@ class FundIssuancePreviewDTO(BaseDTO):
     # O direito de preferência do gestor e o que custa usá-lo inteiro
     manager_rights: Decimal
     manager_cost: Decimal
+    # A captação estimada da sobra por bots e Mercado; nula sem PL por cota
+    estimate: FundIssuanceEstimateDTO | None
 
 
 class FundIssuanceSubscriptionPreviewDTO(BaseDTO):
@@ -950,6 +971,8 @@ class FundIssuanceSubscriptionPreviewDTO(BaseDTO):
     cost: Decimal
     # O caixa pessoal cobre o custo
     cash_enough: bool
+    # O máximo de cotas que ele compra agora: o menor entre o direito que resta e as cotas inteiras que o caixa paga
+    max_quotas: Decimal
     # Cotas de quem consulta e a parte dele depois da compra
     my_quotas_after: Decimal
     my_share_after: Decimal

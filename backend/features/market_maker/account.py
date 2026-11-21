@@ -1,11 +1,20 @@
 from dataclasses import dataclass, field
-from decimal import Decimal
+from decimal import ROUND_FLOOR, Decimal
 
 from backend.core.enum import OrderAction
 from backend.core.exceptions import InsufficentPositionError
 
 # A fatia dos papéis em circulação que um bot pode ter num ativo de preço sintético (posição e compras abertas)
 BOT_QUOTA_LIMIT = Decimal("0.20")
+
+
+def bot_room(quotas: Decimal, held: Decimal, resting: Decimal) -> Decimal:
+    """Quantos papéis a mais um bot pode comprar: `BOT_QUOTA_LIMIT` dos `quotas` em circulação, menos o que ele tem e o que já pediu em compras abertas."""
+    return (
+        (quotas * BOT_QUOTA_LIMIT).to_integral_value(rounding=ROUND_FLOOR)
+        - held
+        - resting
+    )
 
 
 @dataclass

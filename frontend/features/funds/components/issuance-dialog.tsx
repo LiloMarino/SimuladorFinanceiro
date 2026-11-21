@@ -1,5 +1,6 @@
 import { useDeferredValue, useState } from "react";
 import { MetricLabel } from "@/shared/components/metric-hint";
+import { QuantityShortcuts } from "@/shared/components/quantity-shortcuts";
 import { KeyValueRow } from "@/shared/components/key-value-row";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -15,12 +16,14 @@ import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/compon
 import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
+import { quantityOfShare } from "@/shared/lib/quantity-shortcuts";
 import { formatPositiveInteger } from "@/shared/lib/utils/format";
 import type { FundDetails } from "@/types";
 import { useAnnounceFundIssuance } from "../hooks/mutations/useAnnounceFundIssuance";
 import { useFundIssuancePreview } from "../hooks/queries/useFundIssuancePreview";
 import { OFFER_COMMISSION, PREFERENCE_RIGHT } from "@/shared/lib/fund-metrics";
 import { ControlNotice } from "@/shared/components/control-notice";
+import { IssuanceEstimate } from "./issuance-estimate";
 
 type IssuanceDialogProps = {
   open: boolean;
@@ -77,6 +80,11 @@ export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, tota
               onChange={(event) => setQuotasText(formatPositiveInteger(event.target.value))}
               onKeyDown={(event) => event.key === "Enter" && submit()}
             />
+            <QuantityShortcuts
+              size="sm"
+              className="*:flex-1"
+              onPick={(share) => setQuotasText(quantityOfShare(totalQuotas, share, false))}
+            />
             {overLimit ? (
               <FieldError>
                 Cada emissão vai até {displayQuantity(preview.limit)} cotas, o total que existe hoje.
@@ -97,6 +105,12 @@ export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, tota
               label="Se vender tudo, entra no caixa"
               value={valid && preview ? displayMoney(preview.raised) : "—"}
             />
+            {valid && preview?.estimate && (
+              <IssuanceEstimate
+                estimate={preview.estimate}
+                decidesAt={`no último dos ${rules.leftover_sessions} pregões da sobra`}
+              />
+            )}
             {valid && preview && Number(preview.commission) > 0 && (
               <KeyValueRow
                 label={<MetricLabel metric={OFFER_COMMISSION} />}

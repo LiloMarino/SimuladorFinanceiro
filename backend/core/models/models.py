@@ -1615,6 +1615,8 @@ class FundIssuances(Base):
     sold: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     # O dia em que a emissão fechou; nulo com ela aberta
     closed_on: Mapped[datetime.date | None] = mapped_column(Date)
+    # O preço de fechamento da cota na sessão anterior ao anúncio, fixo até o fim da emissão; nulo = sem ágio
+    book_price: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
 
 
 class FundIssuanceRights(Base):

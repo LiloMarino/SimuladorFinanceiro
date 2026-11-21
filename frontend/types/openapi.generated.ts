@@ -8817,6 +8817,30 @@ export interface components {
             sold: string;
             /** Closed On */
             closed_on: string | null;
+            /** Book Price */
+            book_price: string | null;
+        };
+        /**
+         * FundIssuanceEstimateDTO
+         * @description A captação que bots cotistas e o Mercado devem trazer na sobra, entre a opinião mais pessimista e a mais otimista dos bots.
+         */
+        FundIssuanceEstimateDTO: {
+            /** Quotas Min */
+            quotas_min: string;
+            /** Quotas Max */
+            quotas_max: string;
+            /** Raised Min */
+            raised_min: string;
+            /** Raised Max */
+            raised_max: string;
+            /** Commission Min */
+            commission_min: string;
+            /** Commission Max */
+            commission_max: string;
+            /** Performance */
+            performance: number;
+            /** Premium */
+            premium: number;
         };
         /** @enum {string} */
         FundIssuancePhase: "preference" | "leftover";
@@ -8851,6 +8875,7 @@ export interface components {
             manager_rights: string;
             /** Manager Cost */
             manager_cost: string;
+            estimate: components["schemas"]["FundIssuanceEstimateDTO"] | null;
         };
         /** FundIssuanceRequest */
         FundIssuanceRequest: {
@@ -8901,6 +8926,8 @@ export interface components {
             sold: string;
             /** Closed On */
             closed_on: string | null;
+            /** Book Price */
+            book_price: string | null;
             phase: components["schemas"]["FundIssuancePhase"];
             /** Raised */
             raised: string;
@@ -8908,6 +8935,7 @@ export interface components {
             my_rights: string | null;
             /** My Bought */
             my_bought: string | null;
+            estimate: components["schemas"]["FundIssuanceEstimateDTO"] | null;
         };
         /**
          * FundIssuanceSubscriptionPreviewDTO
@@ -8922,6 +8950,8 @@ export interface components {
             cost: string;
             /** Cash Enough */
             cash_enough: boolean;
+            /** Max Quotas */
+            max_quotas: string;
             /** My Quotas After */
             my_quotas_after: string;
             /** My Share After */

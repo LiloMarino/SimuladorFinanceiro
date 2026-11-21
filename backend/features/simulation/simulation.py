@@ -153,6 +153,7 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.fund_reference import FundReference
 from backend.core.indicators import annual_index_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.life_events import life_event_label
@@ -234,6 +235,7 @@ from backend.features.fixed_income.entities.fixed_income_position import (
 from backend.features.fixed_income.liquidity import total_redeemable
 from backend.features.funds.fund_book import Fund, FundBook
 from backend.features.funds.fund_details import FundDetailsBuilder
+from backend.features.funds.fund_estimate import IssuanceEstimator
 from backend.features.funds.fund_preview import FundPreviewBuilder
 from backend.features.funds.offers_panel import FundOffersBuilder
 from backend.features.government import presidency
@@ -1464,6 +1466,7 @@ class Simulation:
             self._engine,
             self.settings.id,
             lambda: repository.simulation_player.colors(self.settings.id),
+            self._issuance_estimator(book),
         )
         return builder.build(book.by_id(fund_id), user)
 
@@ -1476,6 +1479,7 @@ class Simulation:
             self._engine,
             self.settings.id,
             lambda: repository.simulation_player.colors(self.settings.id),
+            self._issuance_estimator(book),
         )
         return builder.monthly_report(book.by_id(fund_id), month)
 
@@ -1853,7 +1857,23 @@ class Simulation:
         return self._fund_previews(user).buyback(fund, Decimal(quantity), max_price)
 
     def _fund_previews(self, manager: UserDTO) -> FundPreviewBuilder:
-        return FundPreviewBuilder(self._ensure_funds(), self._engine, manager)
+        book = self._ensure_funds()
+        return FundPreviewBuilder(
+            book, self._engine, manager, self._issuance_estimator(book)
+        )
+
+    def _issuance_estimator(self, book: FundBook) -> IssuanceEstimator:
+        """A estimativa de captação da sobra: os bots da sala rodam a estratégia sobre o contexto de hoje."""
+
+        def bot_demand(
+            ticker: str, reference: FundReference, bias: float, quotas: Decimal
+        ) -> Decimal:
+            bots = [user for user in book.participants() if user.is_bot]
+            return self._strategies.leftover_demand(
+                bots, self._current_date, ticker, reference, bias, quotas
+            )
+
+        return IssuanceEstimator(book, self._engine, bot_demand)
 
     @synchronized
     def set_fund_fees(

@@ -183,6 +183,18 @@ export const OFFER_COMMISSION: MetricInfo = {
   format: (value) => `${value}`,
 };
 
+export const ISSUANCE_ESTIMATE: MetricInfo = {
+  label: "Captação estimada",
+  description: "Quanto os bots cotistas e o Mercado devem comprar da sobra",
+  definition:
+    "É a faixa de dinheiro que entra no caixa da gestora com o que bots cotistas e o Mercado devem comprar da sobra, no último pregão dela. Cada bot compra se o preço fixo cabe no valor que ele dá à cota: o patrimônio por cota mais o prêmio do desempenho sobre o CDI, ou o ágio que a cota tinha antes do anúncio, o que for maior. O Mercado compra a fração da sobra que o maior entre o desempenho e o ágio pede: com 20% ele leva a sobra inteira, com 10% leva metade. A faixa vai da opinião mais pessimista à mais otimista dos bots.",
+  example:
+    "Ex.: sobra de 200 cotas a R$ 100,00 e ágio de 10%. Se os bots levam 30 cotas, o Mercado compra metade das 170 que restam: 85 cotas. Total de 115 cotas, R$ 11.500,00; a comissão de 1% sobre os R$ 3.000,00 dos bots (R$ 30,00) sai, e entram R$ 11.470,00 no caixa da gestora.",
+  reading:
+    "Faixa de R$ 0,00 a R$ 0,00 é emissão sem apelo: a gestora rende menos que o CDI e a cota não tem ágio. É uma estimativa do que bots e Mercado compram: jogadores também compram na sobra, e o caixa dos bots pode mudar até o último pregão.",
+  format: (value) => `${value}`,
+};
+
 export const BUYBACK_PREMIUM_COST: MetricInfo = {
   label: "Custo do ágio",
   description: "O quanto a recompra paga acima do valor justo das cotas",

@@ -14,6 +14,8 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.features.funds.fund_book import FundBook, issuance_windows
+from backend.features.funds.fund_estimate import IssuanceEstimator
+from backend.features.funds.fund_preview import FundPreviewBuilder
 from backend.features.notifications.news import Headline
 from backend.features.variable_income.entities.order import (
     FUND_ISSUER_CLIENT_ID,
@@ -503,3 +505,191 @@ def test_buying_the_whole_right_keeps_the_share_when_the_whole_issuance_sells(
 
     assert fund.account.quotas == QUOTAS + 200
     assert setup.book.quotas_of(fund, GESTOR) / fund.account.quotas == before
+
+
+# =========================
+# A foto do preço e a compra do Mercado na sobra
+# =========================
+
+
+def _flat_performance(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A cota rende igual ao CDI: só o ágio da foto move o Mercado."""
+    monkeypatch.setattr(
+        FundBook, "_performance", lambda self, fund, nav, today: Decimal(0)
+    )
+
+
+def _announce_with_photo(
+    memory: MemoryFunds, photo: Decimal | None
+) -> tuple[Setup, Decimal]:
+    """Anuncia 200 cotas com a foto dada; Ana usa os 20 do direito dela e a sobra abre com 180."""
+    setup = _issuable(memory)
+    setup.book.get(TICKER).last_trade_price = photo
+    setup.book.announce_issuance(TICKER, Decimal(200))
+    setup.book.subscribe_issuance(TICKER, ANA, Decimal(20))
+    return setup, Decimal(180)
+
+
+def _run_sessions(setup: Setup, last: int) -> None:
+    """Os pregões da sobra, do primeiro até o dia `last` de janeiro."""
+    for day in range(20, last + 1):
+        setup.tick(date(2020, 1, day))
+        setup.book.on_close(date(2020, 1, day))
+
+
+def test_announce_records_the_last_trade_price_as_the_book_price(memory: MemoryFunds):
+    setup = _issuable(memory)
+    setup.book.get(TICKER).last_trade_price = Decimal("110")
+
+    issuance = setup.book.announce_issuance(TICKER, Decimal(200))
+
+    assert issuance.book_price == 110
+    assert setup.book.get(TICKER).issuance == issuance
+    [stored] = memory.issuances_saved[setup.book.get(TICKER).terms.id]
+    assert stored.book_price == 110
+
+
+def test_a_quota_that_never_traded_has_no_book_price(memory: MemoryFunds):
+    setup = _issuable(memory)
+
+    issuance = setup.book.announce_issuance(TICKER, Decimal(200))
+
+    assert issuance.book_price is None
+
+
+def test_the_book_price_stays_fixed_until_the_issuance_ends(memory: MemoryFunds):
+    setup, _ = _announce_with_photo(memory, Decimal("110"))
+    fund = setup.book.get(TICKER)
+
+    fund.last_trade_price = Decimal("130")
+    setup.tick(LEFTOVER_START)
+
+    assert fund.issuance is not None and fund.issuance.book_price == 110
+    assert setup.engine.fund_references[TICKER].book_price == 110.0
+
+
+def test_the_maker_buys_the_fraction_of_the_leftover_that_the_premium_asks_in_the_last_session(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    """Ágio de 10% sobre o limite de 20% leva metade da sobra de 180, paga com o caixa sintético do Mercado e sem comissão."""
+    _flat_performance(monkeypatch)
+    setup, leftover = _announce_with_photo(memory, Decimal("110"))
+    fund = setup.book.get(TICKER)
+    maker_before = fund.account.maker_quotas
+    maker_cash_before = fund.account.maker_cash
+    cash_before = _fund_cash(setup)
+
+    _run_sessions(setup, 23)
+    assert fund.account.maker_quotas == maker_before
+    assert fund.account.offer_remaining == leftover
+
+    setup.tick(ENDS_ON)
+    setup.book.on_close(ENDS_ON)
+
+    bought = Decimal(90)
+    assert fund.account.maker_quotas == maker_before + bought
+    assert fund.account.quotas == QUOTAS + 20 + bought
+    assert _fund_cash(setup) == cash_before + bought * NAV
+    assert fund.account.maker_cash == maker_cash_before - bought * NAV
+    assert fund.issuance is None
+    [closed] = memory.issuances(fund.terms.id)
+    assert (closed.sold, closed.closed_on) == (20 + bought, ENDS_ON)
+    [*_, sale] = memory.issuance_sales(closed.id)
+    assert (sale.buyer_user_id, sale.quotas, sale.price) == (None, bought, NAV)
+
+
+def test_the_maker_takes_the_whole_leftover_when_the_premium_reaches_the_limit(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    _flat_performance(monkeypatch)
+    setup, _ = _announce_with_photo(memory, Decimal("125"))
+    fund = setup.book.get(TICKER)
+
+    _run_sessions(setup, 24)
+
+    assert fund.account.quotas == QUOTAS + 200
+    [closed] = memory.issuances(fund.terms.id)
+    assert closed.sold == 200
+
+
+def test_the_maker_buys_nothing_without_premium_or_performance(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    _flat_performance(monkeypatch)
+    setup, _ = _announce_with_photo(memory, None)
+    fund = setup.book.get(TICKER)
+
+    _run_sessions(setup, 24)
+
+    assert fund.account.quotas == QUOTAS + 20
+    [closed] = memory.issuances(fund.terms.id)
+    assert closed.sold == 20
+
+
+def test_the_maker_buys_by_performance_when_there_is_no_premium(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    """Desempenho de 5 pontos sobre o CDI dá prêmio de 10%: metade da sobra."""
+    monkeypatch.setattr(
+        FundBook, "_performance", lambda self, fund, nav, today: Decimal("0.05")
+    )
+    setup, _ = _announce_with_photo(memory, None)
+    fund = setup.book.get(TICKER)
+
+    _run_sessions(setup, 24)
+
+    assert fund.account.quotas == QUOTAS + 20 + 90
+
+
+def test_the_maker_buys_after_the_players_and_the_bots(
+    memory: MemoryFunds, monkeypatch: pytest.MonkeyPatch
+):
+    """O Mercado leva a fração do que sobrou depois de quem comprou no livro."""
+    _flat_performance(monkeypatch)
+    setup, _ = _announce_with_photo(memory, Decimal("110"))
+    fund = setup.book.get(TICKER)
+    setup.tick(LEFTOVER_START)
+    setup.buy(80)
+    _run_sessions(setup, 24)
+
+    # Sobraram 100 depois dos 80 comprados no livro: metade vai ao Mercado
+    assert fund.account.quotas == QUOTAS + 20 + 80 + 50
+
+
+def _subscription_preview(setup: Setup, quotas: int):
+    builder = FundPreviewBuilder(
+        setup.book,
+        setup.engine,
+        ANA,
+        IssuanceEstimator(setup.book, setup.engine, lambda *_: Decimal(0)),
+    )
+    return builder.subscription(setup.book.get(TICKER), ANA, Decimal(quotas))
+
+
+def test_the_subscription_ceiling_is_the_smaller_of_the_rights_left_and_what_the_cash_pays(
+    memory: MemoryFunds,
+):
+    """Direito de 20 cotas a R$ 100: com R$ 100.000 o teto é o direito; com R$ 550, 5 cotas inteiras; sem caixa, zero."""
+    setup = _issuable(memory)
+    setup.book.announce_issuance(TICKER, Decimal(200))
+
+    assert _subscription_preview(setup, 1).max_quotas == 20
+
+    setup.engine.cash[ANA.client_id] = Decimal(550)
+    preview = _subscription_preview(setup, 1)
+    assert preview.max_quotas == 5
+    assert preview.cash_enough
+    assert not _subscription_preview(setup, 6).cash_enough
+
+    setup.engine.cash[ANA.client_id] = Decimal(0)
+    assert _subscription_preview(setup, 1).max_quotas == 0
+
+
+def test_the_subscription_ceiling_follows_the_rights_that_were_already_used(
+    memory: MemoryFunds,
+):
+    setup = _issuable(memory)
+    setup.book.announce_issuance(TICKER, Decimal(200))
+    setup.book.subscribe_issuance(TICKER, ANA, Decimal(12))
+
+    assert _subscription_preview(setup, 1).max_quotas == 8

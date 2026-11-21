@@ -17,8 +17,9 @@ export type IssuanceRow = {
   unsoldReason: string | null;
 };
 
-/** O bot compra no último pregão da sobra, e só quando o preço da emissão cabe no valor que ele dá à cota. */
-const UNSOLD_REASON = "Encerrada sem venda: ninguém comprou e nenhum bot achou o preço dentro do valor que dá à cota.";
+/** Bots e Mercado compram no último pregão da sobra: o bot quando o preço cabe no valor que dá à cota, o Mercado quando há desempenho acima do CDI ou ágio. */
+const UNSOLD_REASON =
+  "Encerrada sem venda: ninguém comprou, nenhum bot achou o preço dentro do valor que dá à cota e o Mercado não viu desempenho acima do CDI nem ágio.";
 
 const investors = (count: number) => `${count} ${count === 1 ? "investidor" : "investidores"}`;
 

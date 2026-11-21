@@ -28,6 +28,7 @@ export type FundDistributionRequest = components["schemas"]["FundDistributionReq
 export type FundIssuanceRequest = components["schemas"]["FundIssuanceRequest"];
 export type FundIssuanceSubscriptionRequest = components["schemas"]["FundIssuanceSubscriptionRequest"];
 export type FundIssuancePreview = components["schemas"]["FundIssuancePreviewDTO"];
+export type FundIssuanceEstimate = components["schemas"]["FundIssuanceEstimateDTO"];
 export type FundIssuanceSubscriptionPreview = components["schemas"]["FundIssuanceSubscriptionPreviewDTO"];
 export type FundBuybackRequest = components["schemas"]["FundBuybackRequest"];
 export type FundAssemblyConveneRequest = components["schemas"]["FundAssemblyConveneRequest"];

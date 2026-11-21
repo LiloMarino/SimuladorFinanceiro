@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 import traceback
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date
-from decimal import ROUND_FLOOR, Decimal
+from decimal import Decimal
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -43,14 +43,14 @@ from backend.core.exceptions.http_exceptions import (
     ConflictError,
     UnprocessableEntityError,
 )
-from backend.core.fund_reference import price_ceiling
+from backend.core.fund_reference import FundReference, price_ceiling
 from backend.core.indicators import annual_index_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.utils import required
 from backend.features.fixed_income.accrual import offer
 from backend.features.fixed_income.liquidity import redeemable_today
-from backend.features.market_maker.account import BOT_QUOTA_LIMIT
+from backend.features.market_maker.account import bot_room
 from backend.features.notifications import registry
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
@@ -67,6 +67,7 @@ from backend.features.strategy.context import (
     Quote,
     StrategyContext,
 )
+from backend.features.strategy.fund_quotas import FundQuotas
 from backend.features.strategy.intents import Intent
 from backend.features.strategy.panel import build_panel
 from backend.features.strategy.price_history import PriceHistory
@@ -690,14 +691,53 @@ class StrategyRunner:
             ),
             Decimal(0),
         )
-        room = (
-            (maker.quotas * BOT_QUOTA_LIMIT).to_integral_value(rounding=ROUND_FLOOR)
-            - held
-            - resting
-        )
+        room = bot_room(maker.quotas, held, resting)
         if room <= 0:
             raise ConflictError("A posição do bot no ativo já está no teto")
         return min(quantity, room)
+
+    def leftover_demand(
+        self,
+        bots: list[UserDTO],
+        today: date,
+        ticker: str,
+        reference: FundReference,
+        bias: float,
+        quotas: Decimal,
+    ) -> Decimal:
+        """As cotas de `ticker` que os `bots` com a estratégia de cotas compram no último pregão da sobra.
+
+        Cada bot roda a estratégia de verdade sobre o próprio contexto de hoje, com a cota na
+        `reference` do dia da decisão e a opinião `bias`; o teto de BOT_QUOTA_LIMIT conta
+        sobre as `quotas` em circulação.
+        """
+        demand = Decimal(0)
+        for bot in bots:
+            active = self._active.get(bot.client_id)
+            if active is None or active.cls is not FundQuotas:
+                continue
+            market = self._market(today, active.account)
+            quote = market.quotes.get(ticker)
+            if quote is None:
+                continue
+            market = replace(
+                market,
+                quotes={**market.quotes, ticker: replace(quote, fund=reference)},
+            )
+            ctx = self._context(active.account, market, today)
+            FundQuotas().run(ctx, active.params, lambda _: bias)
+            wanted = sum(
+                (
+                    required(intent.quantity)
+                    for intent in ctx.intents
+                    if intent.action is StrategyAction.BUY and intent.ticker == ticker
+                ),
+                Decimal(0),
+            )
+            held = ctx.holdings.get(ticker)
+            room = bot_room(quotas, held.size if held else Decimal(0), Decimal(0))
+            demand += max(Decimal(0), min(wanted, room))
+        return demand
 
     def _on_order_closed(self, order: Order) -> None:
         """A ordem limitada de estratégia que saiu do book fecha a linha dela no registro."""

@@ -51,7 +51,11 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
-from backend.core.fund_reference import FundReference
+from backend.core.fund_reference import (
+    FundReference,
+    maker_attractiveness,
+    maker_leftover,
+)
 from backend.core.indicators import index_daily_rate
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.utils import (
@@ -218,6 +222,11 @@ def offer_ends_on(listed_on: date) -> date:
 def offer_session(listed_on: date, today: date) -> int:
     """O pregão da oferta em `today`: 1 no dia da abertura, até `OFFER_SESSIONS`."""
     return window_session(listed_on, today, OFFER_SESSIONS)
+
+
+def issuance_price(nav: float | Decimal) -> Decimal:
+    """O preço fixo da sobra de uma emissão: o PL por cota de hoje, arredondado ao centavo."""
+    return Decimal(str(round(float(nav), 2)))
 
 
 def issuance_windows(announced_on: date) -> tuple[date, date]:
@@ -871,11 +880,12 @@ class FundBook:
                 id=0,
                 announced_on=today,
                 quotas=size,
-                price=Decimal(str(round(float(nav), 2))),
+                price=issuance_price(nav),
                 preference_ends_on=preference_ends_on,
                 ends_on=ends_on,
                 sold=Decimal(0),
                 closed_on=None,
+                book_price=fund.last_trade_price,
             ),
             rights,
         )
@@ -1140,6 +1150,27 @@ class FundBook:
         elif fund.issuance_phase(today) == "leftover":
             leftover = issuance.quotas - issuance.sold
             fund.account.offer_remaining = leftover if leftover > 0 else None
+
+    def _maker_buys_leftover(self, fund: Fund, today: date) -> None:
+        """No último pregão da sobra, depois dos jogadores e dos bots, o Mercado compra a fração da sobra que a atratividade da cota pede.
+
+        A atratividade é o maior entre o prêmio do desempenho e o ágio da foto; as cotas nascem
+        nas mãos do Mercado ao preço fixo da emissão, pagas com o caixa sintético dele.
+        """
+        issuance, account = fund.issuance, fund.account
+        left = account.offer_remaining
+        if issuance is None or fund.nav is None or not left or today < issuance.ends_on:
+            return
+        reference = self._reference(fund, fund.nav, today)
+        quotas = maker_leftover(left, maker_attractiveness(reference))
+        if quotas <= 0:
+            return
+        price = issuance.price
+        account.offer_remaining = left - quotas if left > quotas else None
+        account.subscribe_maker(quotas, price)
+        self._engine.credit_fund_subscription(account.client_id, quotas * price)
+        account.record_trade(quotas, price)
+        self._record_offer_sale(fund.ticker, None, quotas, price)
 
     def _close_issuance(self, fund: Fund, day: date) -> None:
         """Encerra a emissão: tira a sobra do livro e grava o fechamento; o que não vendeu não nasce."""
@@ -2261,6 +2292,7 @@ class FundBook:
             if fund.nav is None or not fund.listed:
                 continue
             self._settle_takeover(fund, today)
+            self._maker_buys_leftover(fund, today)
             trades = fund.account.take_day()
             stock = self._engine.stocks[fund.ticker]
             candle = close_candle(stock, today, trades, fund.last_close, fund.nav)
@@ -2671,6 +2703,21 @@ class FundBook:
         """O PL por cota de agora, com a reserva da recompra contada."""
         return self._nav(fund)
 
+    def leftover_reference(
+        self, fund: Fund, price: Decimal, book_price: Decimal | None
+    ) -> FundReference | None:
+        """A referência da cota no último pregão da sobra de uma emissão a `price`, com a foto `book_price`; nula sem PL por cota."""
+        nav = self._nav(fund)
+        if nav is None:
+            return None
+        return FundReference(
+            nav=float(nav),
+            performance=float(self._performance(fund, nav, self._engine.current_date)),
+            fixed_price=float(price),
+            fixed_price_last_session=True,
+            book_price=None if book_price is None else float(book_price),
+        )
+
     def quotas_of(self, fund: Fund, user: UserDTO) -> Decimal:
         """As cotas da gestora que `user` tem na carteira pessoal."""
         position = self._engine.broker.get_positions(user.client_id).get(fund.ticker)
@@ -2777,6 +2824,11 @@ class FundBook:
             performance=float(performance),
             fixed_price=fixed_price,
             fixed_price_last_session=last_session,
+            book_price=(
+                float(issuance.book_price)
+                if issuance is not None and issuance.book_price is not None
+                else None
+            ),
         )
 
     def _refresh_orders(self, fund: Fund, today: date) -> None:

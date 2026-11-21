@@ -26469,6 +26469,17 @@
               }
             ],
             "title": "Closed On"
+          },
+          "book_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Book Price"
           }
         },
         "additionalProperties": false,
@@ -26481,10 +26492,61 @@
           "preference_ends_on",
           "ends_on",
           "sold",
-          "closed_on"
+          "closed_on",
+          "book_price"
         ],
         "title": "FundIssuanceDTO",
         "description": "Uma emissão de cotas novas, com o preço fixado no anúncio."
+      },
+      "FundIssuanceEstimateDTO": {
+        "properties": {
+          "quotas_min": {
+            "type": "string",
+            "title": "Quotas Min"
+          },
+          "quotas_max": {
+            "type": "string",
+            "title": "Quotas Max"
+          },
+          "raised_min": {
+            "type": "string",
+            "title": "Raised Min"
+          },
+          "raised_max": {
+            "type": "string",
+            "title": "Raised Max"
+          },
+          "commission_min": {
+            "type": "string",
+            "title": "Commission Min"
+          },
+          "commission_max": {
+            "type": "string",
+            "title": "Commission Max"
+          },
+          "performance": {
+            "type": "number",
+            "title": "Performance"
+          },
+          "premium": {
+            "type": "number",
+            "title": "Premium"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas_min",
+          "quotas_max",
+          "raised_min",
+          "raised_max",
+          "commission_min",
+          "commission_max",
+          "performance",
+          "premium"
+        ],
+        "title": "FundIssuanceEstimateDTO",
+        "description": "A captação que bots cotistas e o Mercado devem trazer na sobra, entre a opinião mais pessimista e a mais otimista dos bots."
       },
       "FundIssuancePhase": {
         "type": "string",
@@ -26546,6 +26608,16 @@
           "manager_cost": {
             "type": "string",
             "title": "Manager Cost"
+          },
+          "estimate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundIssuanceEstimateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -26563,7 +26635,8 @@
           "share_if_buy",
           "keeps_control_if_buy",
           "manager_rights",
-          "manager_cost"
+          "manager_cost",
+          "estimate"
         ],
         "title": "FundIssuancePreviewDTO",
         "description": "O que uma emissão de `quotas` cotas faz, antes de o gestor anunciar."
@@ -26658,6 +26731,17 @@
             ],
             "title": "Closed On"
           },
+          "book_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Book Price"
+          },
           "phase": {
             "$ref": "#/components/schemas/FundIssuancePhase"
           },
@@ -26686,6 +26770,16 @@
               }
             ],
             "title": "My Bought"
+          },
+          "estimate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundIssuanceEstimateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -26699,10 +26793,12 @@
           "ends_on",
           "sold",
           "closed_on",
+          "book_price",
           "phase",
           "raised",
           "my_rights",
-          "my_bought"
+          "my_bought",
+          "estimate"
         ],
         "title": "FundIssuanceStatusDTO",
         "description": "A emissão aberta como quem consulta a vê: a fase de hoje, o que entrou no caixa e o direito dele."
@@ -26725,6 +26821,10 @@
             "type": "boolean",
             "title": "Cash Enough"
           },
+          "max_quotas": {
+            "type": "string",
+            "title": "Max Quotas"
+          },
           "my_quotas_after": {
             "type": "string",
             "title": "My Quotas After"
@@ -26745,6 +26845,7 @@
           "price",
           "cost",
           "cash_enough",
+          "max_quotas",
           "my_quotas_after",
           "my_share_after",
           "rights_left_after"

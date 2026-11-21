@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from datetime import date
 from decimal import Decimal
 
@@ -9,6 +10,7 @@ import pytest
 
 from backend.core import repository
 from backend.core.dto.events.strategy import StrategyEventDTO
+from backend.core.dto.fund import FundIssuanceRequest
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
@@ -22,8 +24,12 @@ from backend.core.player_colors import PLAYER_COLORS
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
+from backend.core.utils import next_business_day
+from backend.features.funds.fund_book import FundBook
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loader import SimulationLoader
+from backend.features.strategy import fund_quotas
+from backend.features.strategy.fair_value_trading import OPINION_RANGE
 from backend.features.strategy.intents import buy, sell
 from backend.features.strategy.runner import StrategyAccount
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
@@ -36,11 +42,16 @@ CASH = Decimal(10000)
 TICKER = "AURA11"
 
 
-def empty_match(*others: str) -> tuple[Simulation, UserDTO]:
-    """Partida com a expansão das gestoras e a jogadora Ana, mais os jogadores de `others`, ainda sem gestora."""
+def empty_match(*others: str, bots: tuple[str, ...] = ()) -> tuple[Simulation, UserDTO]:
+    """Partida com a expansão das gestoras e a jogadora Ana, mais os jogadores de `others` e os bots de `bots`, ainda sem gestora."""
     ana = new_user("Ana")
-    players = [ana, *(new_user(nickname) for nickname in others)]
-    for player in players:
+    humans = [ana, *(new_user(nickname) for nickname in others)]
+    robots = [
+        repository.user.create_user(uuid.uuid4(), nickname, is_bot=True)
+        for nickname in bots
+    ]
+    players = [*humans, *robots]
+    for player in humans:
         UserManager.player_auth(player.client_id)
     simulation_id = repository.simulation.create_simulation(
         simulation_settings().model_copy(
@@ -64,9 +75,9 @@ def empty_match(*others: str) -> tuple[Simulation, UserDTO]:
     return sim, ana
 
 
-def fund_match() -> tuple[Simulation, int]:
-    """Partida com a expansão das gestoras, uma jogadora e a gestora dela com 1.000 cotas ao PL de R$ 100."""
-    sim, ana = empty_match()
+def fund_match(*bots: str) -> tuple[Simulation, int]:
+    """Partida com a expansão das gestoras, uma jogadora, os bots de `bots` e a gestora dela com 1.000 cotas ao PL de R$ 100."""
+    sim, ana = empty_match(bots=bots)
     assert sim._funds is not None
     fund = sim._funds.found(
         ticker=TICKER,
@@ -202,6 +213,111 @@ def test_bot_buy_is_cut_to_twenty_percent_of_the_quotas(match):
     sim._engine.matching_engine.order_book.add(resting)
     assert runner._quantity_allowed(ana, buy(TICKER, 500, "teste")) == 100
     assert runner._quantity_allowed(ana, buy(TICKER, 30, "teste")) == 30
+
+
+def test_leftover_demand_counts_what_the_bots_buy_at_the_fixed_price_with_the_photo(
+    match,
+):
+    """Com a foto em R$ 110 o bot vê o preço fixo (R$ 100) abaixo do valor que a estratégia aceita;
+    sem foto, com opinião pessimista, ele não compra."""
+    sim, user_id = match
+    ana = next(
+        u
+        for u in repository.simulation_player.participants(sim.settings.id)
+        if u.id == user_id
+    )
+    sim.next_tick()
+    sim.set_my_strategy(ana, "fund_quotas", {})
+    runner = sim._strategies
+    quotas = Decimal(1120)
+
+    def demand(photo: float | None, bias: float) -> Decimal:
+        reference = FundReference(100.0, 0.0, 100.0, True, book_price=photo)
+        return runner.leftover_demand(
+            [ana], sim._current_date, TICKER, reference, bias, quotas
+        )
+
+    assert demand(110.0, -0.05) > 0
+    assert demand(None, -0.05) == 0
+    assert demand(None, 0.05) > 0
+    assert demand(110.0, 0.05) >= demand(110.0, -0.05)
+    # Quem não liga a estratégia de cotas não entra na conta
+    sim.set_my_strategy(ana, None, {})
+    assert demand(110.0, 0.05) == 0
+
+
+def test_the_estimate_ceiling_is_what_the_bot_and_the_maker_buy_and_the_fund_receives(
+    started,  # noqa: F811
+    monkeypatch,
+):
+    """Com a opinião do bot no extremo de cima no pregão da decisão, a estimativa lida antes do último
+    pregão da sobra bate com as cotas vendidas na sobra e com o dinheiro que entra no caixa da gestora.
+
+    Nos outros dias o bot opina no extremo de baixo e não compra pelo livro: o caixa dele chega
+    inteiro ao pregão da decisão, que é o que a estimativa lê."""
+    # Desempenho de 1 ponto sobre o CDI dá prêmio de 2%: o Mercado leva 10% do que sobra
+    monkeypatch.setattr(
+        FundBook, "_performance", lambda self, fund, nav, today: Decimal("0.01")
+    )
+    decision: dict[str, date] = {}
+    monkeypatch.setattr(
+        fund_quotas,
+        "opinion",
+        lambda seed, ticker, day: (
+            OPINION_RANGE if day == decision.get("day") else -OPINION_RANGE
+        ),
+    )
+    sim, ana_id = fund_match("Cotista")
+    assert sim._funds is not None
+    people = repository.simulation_player.participants(sim.settings.id)
+    ana = next(u for u in people if u.id == ana_id)
+    bot = next(u for u in people if u.is_bot)
+    fund = sim._funds.get(TICKER)
+    sim._strategies.set_mode(
+        StrategyAccount.of_user(bot),
+        "fund_quotas",
+        {"quota_pct": 100, "fund_pct": 100},
+        sim._current_date,
+    )
+    # Um Banqueiro de ofertas: a comissão sai da compra do bot, não da do Mercado
+    banker = new_user("Banqueiro")
+    sim._engine.use_offer_bankers(lambda: [banker.client_id])
+    while fund.account.offer_remaining is not None:
+        sim.next_tick()
+
+    sim.announce_fund_issuance(ana, fund.terms.id, FundIssuanceRequest(quotas=200))
+    issuance = fund.issuance
+    assert issuance is not None
+    decision["day"] = issuance.ends_on
+    while next_business_day(sim._current_date) < issuance.ends_on:
+        sim.next_tick()
+    assert next_business_day(sim._current_date) == issuance.ends_on
+
+    details = sim.get_fund(ana, fund.terms.id).issuance
+    assert details is not None
+    estimate = details.estimate
+    assert estimate is not None
+    # O bot só compra com a opinião de cima; o Mercado compra nos dois extremos
+    assert 0 < estimate.quotas_min < estimate.quotas_max
+    assert estimate.commission_min == 0 < estimate.commission_max
+    quotas_before = fund.account.quotas
+    maker_before = fund.account.maker_quotas
+    cash_before = sim._engine.get_cash(fund.account.client_id)
+    bot_before = sim._engine.broker.get_positions(bot.client_id).get(TICKER)
+
+    sim.next_tick()
+    EventManager.flush()
+
+    assert fund.issuance is None
+    bot_after = sim._engine.broker.get_positions(bot.client_id)[TICKER]
+    bot_bought = bot_after.size - (bot_before.size if bot_before else 0)
+    assert bot_bought > 0
+    sold = fund.account.quotas - quotas_before
+    assert sold == estimate.quotas_max
+    assert fund.account.maker_quotas - maker_before == sold - bot_bought
+    assert sim._engine.get_cash(fund.account.client_id) - cash_before == (
+        estimate.raised_max
+    )
 
 
 def test_bot_at_the_ceiling_is_refused_and_selling_is_untouched(match):
