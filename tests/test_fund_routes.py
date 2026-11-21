@@ -30,7 +30,7 @@ from backend.routes.dependencies import ActingClient, get_current_user
 from backend.routes.dependencies.auth import get_client_id
 from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.funds import funds_router
-from tests.fakes import client
+from tests.fakes import bare_simulation, client
 
 ANA = UserDTO(id=1, client_id=client("ana"), nickname="Ana")
 BRUNO = UserDTO(id=2, client_id=client("bruno"), nickname="Bruno")
@@ -98,7 +98,7 @@ class _Book:
 
 
 def _simulation(funds: object | None) -> Simulation:
-    simulation = object.__new__(Simulation)
+    simulation = bare_simulation()
     simulation._engine = SimpleNamespace(  # type: ignore[assignment]
         _lock=threading.RLock(), asset_class=lambda _ticker: AssetClass.FUND
     )

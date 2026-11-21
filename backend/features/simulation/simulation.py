@@ -3,7 +3,8 @@ from __future__ import annotations
 import logging
 import re
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Generator
+from contextlib import contextmanager
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_FLOOR, Decimal
@@ -276,7 +277,6 @@ from backend.features.realtime.schemas import (
     ComanagerEventDTO,
     ComanagerEventKind,
     CorporateActionsEventDTO,
-    FundsUpdateEventDTO,
     PortfolioUpdateEventDTO,
     SimulationTickUpdateEventDTO,
     SnapshotUpdateEventDTO,
@@ -287,6 +287,9 @@ from backend.features.realtime.schemas import (
     StockUpdateEventDTO,
 )
 from backend.features.simulation.asset_page_feed import AssetPageFeed
+from backend.features.simulation.cash_feed import CashFeed
+from backend.features.simulation.day_feed import DayFeed
+from backend.features.simulation.funds_feed import FundsFeed
 from backend.features.simulation.life_events import (
     layoff_factor_of,
     layoff_in,
@@ -349,6 +352,9 @@ def synchronized(
                 if self._sync_depth == 0 and self._panels_stale:
                     self._panels_stale = False
                     self._publish_government_panels()
+                # E com o que o caixa e as gestoras mudaram, já no estado final
+                if self._sync_depth == 0:
+                    self._publish_changed_screens()
                 # E com as prévias de ordem que o caixa, a posição ou o book mudaram
                 if self._sync_depth == 0:
                     self._refresh_order_previews()
@@ -393,6 +399,8 @@ class Simulation:
     # `synchronized` publica os painéis do país ao fechar a operação mais externa
     _sync_depth = 0
     _panels_stale = False
+    _publishing_round = False
+    _participants_snapshot: list[UserDTO] | None = None
 
     def __init__(
         self,
@@ -438,6 +446,9 @@ class Simulation:
         self._offer_bankers: list[UUID] | None = None
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._feed = AssetPageFeed(self)
+        self._day_feed = DayFeed(self)
+        self._cash_feed = CashFeed(self)
+        self._funds_feed = FundsFeed(self)
         self._engine = SimulationEngine(
             self._current_date,
             settings.id,
@@ -504,7 +515,7 @@ class Simulation:
                 self._client_of_user,
                 lambda day, headline: news.publish(settings.id, day, headline),
                 self._manager_frozen_until,
-                lambda: repository.simulation_player.participants(settings.id),
+                self._participants,
                 # Na aquisição hostil a assembleia espera o fim da carência, e nela o
                 # gestor passa a ter no máximo a fração do mercado que sobra do mínimo
                 add_months(settings.start_date, settings.fund_grace_months)
@@ -530,6 +541,7 @@ class Simulation:
             )
         # O caixa da gestora chega, pelo tempo real, ao gestor que a gere; o do Fundo Soberano, ao presidente
         self._engine.use_account_route(self._account_route)
+        self._engine.on_cash_moved = self._cash_moved
         if self._government is not None:
             self._government.use_fund_lookup(self._fund_quotas_of)
         if self._funds is not None:
@@ -1915,9 +1927,53 @@ class Simulation:
         return book.summary(fund)
 
     def _notify_funds_update(self) -> None:
-        """Avisa a sala de que as páginas das gestoras mudaram: toda mudança de gestora
-        (pregão, negócio da cota, oferta, taxas, congelamento) passa por aqui."""
-        notify("funds_update", FundsUpdateEventDTO().to_json())
+        """Marca que as páginas das gestoras mudaram: toda mudança de gestora (pregão, negócio
+        da cota, oferta, taxas, congelamento) passa por aqui. A publicação sai ao fechar a
+        operação em curso e, sem operação em curso, na hora."""
+        with self.lock:
+            self._funds_feed.mark()
+            if self._sync_depth == 0:
+                self._publish_changed_screens()
+
+    def _cash_moved(self, audience: tuple[UUID, ...], account: int | None) -> None:
+        """O caixa de uma conta mexeu: quem a opera recebe o dado que depende dele ao fechar a operação em curso."""
+        with self.lock:
+            self._cash_feed.cash_moved(audience, account)
+            if self._sync_depth == 0:
+                self._publish_changed_screens()
+
+    def _participants(self) -> list[UserDTO]:
+        """Os jogadores da partida; numa rodada de publicação, a lista lida uma vez."""
+        if not self._publishing_round:
+            return repository.simulation_player.participants(self.settings.id)
+        if self._participants_snapshot is None:
+            self._participants_snapshot = repository.simulation_player.participants(
+                self.settings.id
+            )
+        return self._participants_snapshot
+
+    @contextmanager
+    def _publishing(self) -> Generator[None]:
+        """Uma rodada de publicação monta o dado de vários assinantes sobre os mesmos jogadores."""
+        outermost = not self._publishing_round
+        self._publishing_round = True
+        try:
+            yield
+        finally:
+            if outermost:
+                self._publishing_round = False
+                self._participants_snapshot = None
+
+    def _publish_changed_screens(self) -> None:
+        # A publicação roda dentro do lock, como uma operação sincronizada: as consultas
+        # dela não disparam a publicação de novo
+        self._sync_depth += 1
+        try:
+            with self._publishing():
+                self._funds_feed.flush()
+                self._cash_feed.flush()
+        finally:
+            self._sync_depth -= 1
 
     def _government_changed(self) -> None:
         """O livro do governo mudou: os painéis saem ao fim da operação em curso e, sem
@@ -2640,7 +2696,10 @@ class Simulation:
                 StocksUpdateEventDTO(stocks=[*stocks, *fund_candles]).to_json(),
             )
             if self._funds is not None:
-                self._notify_funds_update()
+                self._funds_feed.mark()
+            self._cash_feed.day_passed()
+            with self._publishing():
+                self._day_feed.publish(month_changed=month_changed)
             self._publish_government_panels()
             for player in UserManager.list_active_players():
                 notify(
@@ -2667,6 +2726,13 @@ class Simulation:
                         "corporate_actions",
                         CorporateActionsEventDTO.from_actions(actions).to_json(),
                         to=player.client_id,
+                    )
+                    self._day_feed.publish_corporate_events(
+                        player.client_id,
+                        [
+                            *(line.ticker for line in actions.dividends),
+                            *(split.ticker for split in actions.splits),
+                        ],
                     )
         if self.settings.game_type.has_goal:
             with metrics.measure("engine", ENGINE_GOAL):
@@ -3423,6 +3489,13 @@ class Simulation:
     ) -> OrderPreviewDTO:
         """A prévia de agora; o pedido fica registrado e a prévia nova chega pelo aviso `order_preview:{ticker}`."""
         return self._feed.watch_preview(requester, account, ticker, request)
+
+    @synchronized
+    def watch_fixed_income_projection(
+        self, requester: UUID, account: int | None, asset_id: str, amount: Decimal
+    ) -> FixedIncomeQuoteDTO:
+        """A cotação de agora; o valor fica registrado e a cotação nova chega pelo aviso `fixed_income_projection:{id}`."""
+        return self._cash_feed.watch_projection(requester, account, asset_id, amount)
 
     @synchronized
     def watch_indicators(

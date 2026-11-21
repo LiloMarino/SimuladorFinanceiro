@@ -389,17 +389,17 @@ def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
 )
 def get_fixed_income_projection(
     simulation: ActiveSimulation,
-    client_id: ActingClient,
+    client_id: ClientID,
+    account: AccountId,
     asset_uuid: str,
     amount: Annotated[Decimal, Query(ge=0)] = Decimal(0),
 ):
     """
     Projeta um investimento no ativo de renda fixa.
     """
-    fixed = simulation.get_fixed_asset(asset_uuid)
-    if not fixed:
-        raise NotFoundError("Ativo de renda fixa não encontrado")
-    return simulation.quote_fixed_income(client_id, fixed, amount)
+    return simulation.watch_fixed_income_projection(
+        client_id, account, asset_uuid, amount
+    )
 
 
 @operation_router.post(

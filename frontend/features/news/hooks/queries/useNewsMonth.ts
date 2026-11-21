@@ -1,5 +1,6 @@
 import { type InfiniteData, queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { applyRealtimeDelta } from "@/shared/lib/realtime/apply-realtime";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import type { News } from "@/types";
@@ -21,8 +22,8 @@ export function useNewsMonth(simulationId: number, month: Month) {
   // o id já presente deixa a lista como está
   useRealtime("news_published", (news) => {
     const publishedMonth = monthOf(news.news_date);
-    queryClient.setQueryData<News[]>(queryKeys.newsMonth(simulationId, publishedMonth), (items) =>
-      !items || items.some((item) => item.id === news.id) ? items : [news, ...items],
+    void applyRealtimeDelta<News[]>(queryClient, queryKeys.newsMonth(simulationId, publishedMonth), (items) =>
+      items.some((item) => item.id === news.id) ? items : [news, ...items],
     );
     queryClient.setQueriesData<InfiniteData<News[], Month>>(
       { queryKey: queryKeys.newsHistory(simulationId) },

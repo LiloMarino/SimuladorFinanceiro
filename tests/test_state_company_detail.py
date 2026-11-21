@@ -39,6 +39,7 @@ from backend.features.state_companies.detail import build_detail
 from backend.routes.dependencies import get_current_user
 from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.operation import operation_router
+from tests.fakes import bare_simulation
 from tests.test_state_company_book import FOUNDED_ON, _book, _found
 from tests.test_state_company_price import _imported_book
 
@@ -314,7 +315,7 @@ def _client(simulation: Simulation, user: UserDTO) -> TestClient:
 
 
 def _simulation(government: object) -> Simulation:
-    simulation = object.__new__(Simulation)
+    simulation = bare_simulation()
     simulation._engine = SimpleNamespace(_lock=threading.RLock())  # type: ignore[assignment]
     simulation._government = government  # type: ignore[assignment]
     simulation._current_date = TODAY

@@ -24,6 +24,7 @@ from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.core.runtime.user_manager import UserManager
 from backend.features.funds.fund_book import FundBook
 from backend.features.government.measures import short_date
 from backend.features.simulation.simulation import Simulation
@@ -884,40 +885,63 @@ def test_there_is_no_report_before_the_first_month_turn(started):  # noqa: F811
     assert page.return_since is not None
 
 
+class FundsListWatch:
+    """Quem assina `funds_list_update` na partida: cada entrega registrada é uma lista de gestoras publicada."""
+
+    def __init__(self) -> None:
+        self.watchers: dict = {}
+        self.sent: list[tuple[str, object]] = []
+
+    def watch(self, user: UserDTO) -> None:
+        self.watchers[user.client_id] = user
+
+    def count(self, event: str = "funds_list_update") -> int:
+        return sum(1 for name, _to in self.sent if name == event)
+
+
 @pytest.fixture
-def sent_events(monkeypatch) -> list[str]:
-    """Os nomes dos eventos de tempo real que a partida emite, na ordem."""
-    sent: list[str] = []
+def sent_events(monkeypatch) -> FundsListWatch:
+    watch = FundsListWatch()
     monkeypatch.setattr(
         RealtimeBrokerManager,
         "get_broker",
         lambda: SimpleNamespace(
-            subscribed_clients=lambda _event: set(),
-            notify=lambda event, payload, to=None: sent.append(event),
+            subscribed_clients=lambda event: (
+                set(watch.watchers) if event == "funds_list_update" else set()
+            ),
+            notify=lambda event, payload, to=None: watch.sent.append((event, to)),
         ),
     )
-    return sent
+    original = UserManager.get_user
+    monkeypatch.setattr(
+        UserManager,
+        "get_user",
+        lambda client_id: watch.watchers.get(client_id) or original(client_id),
+    )
+    return watch
 
 
-def test_the_close_of_the_session_announces_the_funds_update(flow, sent_events):
+def test_the_close_of_the_session_publishes_the_funds_list_once(flow, sent_events):
     sim, ana = flow
     fund_with_cash(sim, ana)
-    sent_events.clear()
+    sent_events.watch(ana)
+    sent_events.sent.clear()
 
     sim.next_tick()
 
-    assert sent_events.count("funds_update") == 1
+    assert sent_events.count() == 1
 
 
-def test_each_manager_action_announces_the_funds_update(flow, sent_events):
+def test_each_manager_action_publishes_the_funds_list_once(flow, sent_events):
     sim, ana = flow
+    sent_events.watch(ana)
 
     fund = sim.found_fund(ana, found_request())
-    assert sent_events.count("funds_update") == 1
+    assert sent_events.count() == 1
     sim.contribute_to_fund(ana, fund.id, FundContributionRequest(cash=Decimal(5000)))
-    assert sent_events.count("funds_update") == 2
+    assert sent_events.count() == 2
     sim.open_fund_offer(ana, fund.id, 20)
-    assert sent_events.count("funds_update") == 3
+    assert sent_events.count() == 3
     sim.set_fund_fees(
         ana,
         fund.id,
@@ -925,17 +949,18 @@ def test_each_manager_action_announces_the_funds_update(flow, sent_events):
             management_fee=Decimal("0.005"), performance_fee=Decimal("0.10")
         ),
     )
-    assert sent_events.count("funds_update") == 4
+    assert sent_events.count() == 4
     sim.close_fund_offer(ana, fund.id)
-    assert sent_events.count("funds_update") == 5
+    assert sent_events.count() == 5
 
 
-def test_a_quota_trade_announces_the_funds_update(started, sent_events):  # noqa: F811
+def test_a_quota_trade_publishes_the_funds_list_once(started, sent_events):  # noqa: F811
     sim, ana = empty_match("Bruno")
     bruno = player(sim, "Bruno")
     fund_id = fund_with_cash(sim, ana)
     sim.open_fund_offer(ana, fund_id, 20)
-    sent_events.clear()
+    sent_events.watch(bruno)
+    sent_events.sent.clear()
 
     sim.create_order(
         MarketOrder(
@@ -947,7 +972,36 @@ def test_a_quota_trade_announces_the_funds_update(started, sent_events):  # noqa
         )
     )
 
-    assert sent_events.count("funds_update") == 1
+    assert sent_events.count() == 1
+
+
+def test_several_changes_in_one_call_publish_the_funds_once(flow, sent_events):
+    sim, ana = flow
+    sent_events.watch(ana)
+    sent_events.sent.clear()
+
+    with sim.lock:
+        sim._sync_depth += 1
+        try:
+            sim._notify_funds_update()
+            sim._notify_funds_update()
+            sim._notify_funds_update()
+            assert sent_events.count() == 0
+        finally:
+            sim._sync_depth -= 1
+        sim._publish_changed_screens()
+
+    assert sent_events.count() == 1
+
+
+def test_the_funds_are_not_published_without_a_subscriber(flow, sent_events):
+    sim, ana = flow
+
+    sim.found_fund(ana, found_request())
+    sim.next_tick()
+
+    fund_events = [name for name, _to in sent_events.sent if "fund" in name]
+    assert fund_events == []
 
 
 def test_the_managers_accounts_share_one_owner_in_the_order_book(started):  # noqa: F811

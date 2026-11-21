@@ -38,7 +38,7 @@ from backend.routes.dependencies.simulation import (
 )
 from backend.routes.importer import import_router
 from backend.routes.state_companies import state_companies_router
-from tests.fakes import client
+from tests.fakes import bare_simulation, client
 from tests.test_government_book import (
     ALICE,
     BOB,
@@ -88,7 +88,7 @@ def room(monkeypatch: pytest.MonkeyPatch, engine) -> None:
 
 
 def _simulation(book: GovernmentBook, day: date = TERM_START) -> Simulation:
-    simulation = object.__new__(Simulation)
+    simulation = bare_simulation()
     simulation._engine = SimpleNamespace(  # type: ignore[assignment]
         _lock=threading.RLock()
     )

@@ -79,10 +79,25 @@ entregam.
 - **Dado derivado do pedido do cliente** (prévia da ordem, indicadores técnicos) usa assinatura
   com parâmetro: a rota HTTP responde na hora e o servidor guarda o último pedido do cliente no
   ativo; a cada pregão ele recalcula para quem ainda assina e entrega só àquele cliente, em
-  `order_preview:{ticker}` e `indicators_update:{ticker}`. O aviso devolve o pedido que o
+  `order_preview:{ticker}` e `indicators_update:{ticker}`; a cotação da boleta de renda fixa
+  segue o mesmo molde em `fixed_income_projection:{id}`, com o valor digitado no pedido. O aviso devolve o pedido que o
   gerou, e o hook só aplica o que corresponde ao pedido atual da tela. A ordem que deixa de caber vai no mesmo aviso, com o motivo (`refused`); a chave da prévia guarda a prévia ou o motivo, venha da leitura HTTP (422) ou do aviso.
 - **Dado igual para todos** (padrões de vela, estatal do ativo) vai num evento por ativo,
   `candle_patterns_update:{ticker}` e `state_company_update:{ticker}`, calculado só para quem o assina.
+- **Dado por jogador** (Fundo Soberano, crédito, títulos do Tesouro, vida financeira, pendências,
+  páginas das gestoras) é montado para cada assinante e entregue só a ele, com `to=`. O dado de
+  uma conta de gestora chega marcado com o `account` dela, e o hook só aplica o que é da conta
+  ativa (`eventAccountKey(account)`).
+- **Publicação uma vez por operação**: o caixa e as gestoras mudam em vários pontos da mesma
+  operação (a compra, a taxa, a oferta). Cada ponto só marca a mudança, e o dado sai uma vez, ao
+  fechar a operação mais externa (`synchronized`), já no estado final. O pregão marca todas as
+  contas e publica o dia por tela (`DayFeed`, `CashFeed`, `FundsFeed`).
+- **O que não mudou não sai**: o catálogo do Tesouro guarda o último enviado e só um catálogo
+  diferente volta a sair; a série do Tesouro recebe o ponto novo (`merge` por mês) só na virada
+  do mês; o crédito só sai nas contas com parcela em atraso.
+- **Prévias abertas na página da gestora** partem do preço da cota: ficam fora do aviso e são
+  conferidas de novo (`invalidateQueries`, só as que estão abertas) quando `fund_update:{id}`
+  chega.
 - **Reconexão**: `useRefetchOnReconnect`, montado no `SimulationProvider`, lê uma vez as
   consultas ativas que ficaram desatualizadas durante a queda. A primeira conexão não dispara nada.
 

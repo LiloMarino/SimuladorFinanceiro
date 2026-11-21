@@ -57,7 +57,7 @@ export default function TreasuryPage() {
         <RiskThermometer thermometer={catalog.data.thermometer} />
       </div>
 
-      {buying && <BuyDialog title={buying} currentDate={today} onClose={() => setBuying(null)} />}
+      {buying && <BuyDialog title={buying} onClose={() => setBuying(null)} />}
       {selling && <SellDialog position={selling} currentDate={today} onClose={() => setSelling(null)} />}
     </div>
   );

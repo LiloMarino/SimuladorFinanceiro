@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { applyRealtime } from "@/shared/lib/realtime/apply-realtime";
 import type { EconomyPanel } from "@/types";
 
 /**
@@ -19,7 +20,7 @@ export function useEconomyPanel() {
   });
 
   useRealtime("economy_update", (panel) => {
-    queryClient.setQueryData(queryKeys.economyPanel(), panel);
+    void applyRealtime<EconomyPanel>(queryClient, queryKeys.economyPanel(), panel);
   });
 
   return query;

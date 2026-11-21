@@ -10,14 +10,13 @@ from backend.core.dto.user import UserDTO
 from backend.core.enum import AssetClass, EquityEventType
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.import_data.importer_service import infer_asset_class
-from backend.features.simulation.simulation import Simulation
 from backend.features.variable_income.income_tax import (
     LossPool,
     MonthlyTax,
     assess,
     darf_due_date,
 )
-from tests.fakes import PORTFOLIO_ID, USER_ID, client
+from tests.fakes import PORTFOLIO_ID, USER_ID, bare_simulation, client
 
 CLASSES = {
     "ABCD3": AssetClass.STOCK,
@@ -328,7 +327,7 @@ class _TaxEngine:
 def test_tick_pays_darf_only_on_due_date(today, paid, monkeypatch: pytest.MonkeyPatch):
     """O DARF de fevereiro sai do caixa no último dia útil de março, e só nele."""
     monkeypatch.setattr(SimulationManager, "get_portfolio_id", lambda _: PORTFOLIO_ID)
-    simulation = object.__new__(Simulation)
+    simulation = bare_simulation()
     simulation._current_date = today
     engine = _TaxEngine(
         [

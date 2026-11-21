@@ -6931,6 +6931,15 @@ export interface components {
             account: number | null;
         };
         /**
+         * CreditUpdateEventDTO
+         * @description O crédito de uma conta com parcela em atraso, que multa e mora recalculam a cada dia.
+         */
+        CreditUpdateEventDTO: {
+            overview: components["schemas"]["CreditOverviewDTO"];
+            /** Account */
+            account: number | null;
+        };
+        /**
          * DealDTO
          * @description Um acordo de apoio por emenda, da proposta ao fim.
          */
@@ -7787,6 +7796,17 @@ export interface components {
             fx_rate: string | null;
         };
         /**
+         * FixedIncomeProjectionEventDTO
+         * @description A cotação da boleta de renda fixa recalculada para o último valor digitado do cliente, só para ele.
+         */
+        FixedIncomeProjectionEventDTO: {
+            /** Amount */
+            amount: string;
+            /** Account */
+            account: number | null;
+            quote: components["schemas"]["FixedIncomeQuoteDTO"];
+        };
+        /**
          * FixedIncomeQuoteDTO
          * @description A projeção com o caixa do jogador e a tabela regressiva, para a boleta.
          *
@@ -7969,6 +7989,14 @@ export interface components {
             eliminated_on: string | null;
             /** Role */
             role: ("manager" | "comanager" | "president") | null;
+        };
+        /**
+         * FundAccountsUpdateEventDTO
+         * @description As contas com que o jogador opera, com o caixa e o congelamento de cada uma.
+         */
+        FundAccountsUpdateEventDTO: {
+            /** Accounts */
+            accounts: components["schemas"]["FundAccountDTO"][];
         };
         /**
          * FundAssemblyAgenda
@@ -9321,6 +9349,14 @@ export interface components {
             /** I Comanage */
             i_comanage: boolean;
         };
+        /**
+         * FundRoomUpdateEventDTO
+         * @description As gestoras da sala como o jogador as vê.
+         */
+        FundRoomUpdateEventDTO: {
+            /** Funds */
+            funds: components["schemas"]["FundRoomItemDTO"][];
+        };
         /** FundSeriesPointDTO */
         FundSeriesPointDTO: {
             /**
@@ -9428,12 +9464,6 @@ export interface components {
             /** Owner Name */
             owner_name: string | null;
         };
-        /**
-         * FundsUpdateEventDTO
-         * @description Algo nas gestoras mudou (PL, cotas, cotistas, oferta, taxas ou congelamento): o aviso
-         *     não carrega dado, quem exibe uma gestora busca de novo.
-         */
-        FundsUpdateEventDTO: Record<string, never>;
         /**
          * FutureParamsDTO
          * @description Os controles de uma geração: os mesmos valores geram o mesmo futuro.
@@ -10685,6 +10715,13 @@ export interface components {
             driver: components["schemas"]["IncomeDriver"] | null;
             /** Driver Value */
             driver_value: string | null;
+        };
+        /**
+         * LifeStatusUpdateEventDTO
+         * @description A vida financeira do jogador no viver de renda, entregue a quem a tem aberta.
+         */
+        LifeStatusUpdateEventDTO: {
+            status: components["schemas"]["LifeStatusDTO"];
         };
         /**
          * LinkEffectDTO
@@ -11996,6 +12033,14 @@ export interface components {
          */
         PendingType: "OVERDUE_INSTALLMENT" | "NEGATIVE_CASH" | "IMPEACHMENT_RISK" | "CASH_SHORT" | "STRATEGY_ERROR" | "VICE_INVITE" | "CAMPAIGN_OPEN" | "UNPAID_CONTRIBUTION" | "UNGUIDED_VOTE" | "FEDERATION_PROPOSAL" | "DEAL_PROPOSAL" | "DEAL_DEMAND" | "SELIC_MEETING" | "FUND_ASSEMBLY_INVITE" | "FUND_ASSEMBLY_VOTE" | "COMANAGER_INVITE" | "DIRECTED_ISSUANCE_OFFER" | "FUND_DISTRIBUTION_SHORT_CASH";
         /**
+         * PendingUpdateEventDTO
+         * @description As pendências do jogador, das graves para as de aviso.
+         */
+        PendingUpdateEventDTO: {
+            /** Items */
+            items: components["schemas"]["PendingDTO"][];
+        };
+        /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
          * @enum {string}
@@ -13108,7 +13153,21 @@ export interface components {
             cash_update: components["schemas"]["CashUpdateEventDTO"];
             stocks_update: components["schemas"]["StocksUpdateEventDTO"];
             fixed_assets_update: components["schemas"]["FixedAssetsUpdateEventDTO"];
-            funds_update: components["schemas"]["FundsUpdateEventDTO"];
+            fixed_income_offer_update: components["schemas"]["FixedIncomeOfferDTO"];
+            fixed_income_projection: components["schemas"]["FixedIncomeProjectionEventDTO"];
+            sovereign_fund_update: components["schemas"]["SovereignFundPanelDTO"];
+            state_companies_update: components["schemas"]["StateCompaniesPanelDTO"];
+            credit_update: components["schemas"]["CreditUpdateEventDTO"];
+            treasury_catalog_update: components["schemas"]["TreasuryCatalogDTO"];
+            treasury_history_update: components["schemas"]["TreasuryHistoryUpdateEventDTO"];
+            treasury_positions_update: components["schemas"]["TreasuryPositionsUpdateEventDTO"];
+            life_status_update: components["schemas"]["LifeStatusUpdateEventDTO"];
+            pending_update: components["schemas"]["PendingUpdateEventDTO"];
+            fund_accounts_update: components["schemas"]["FundAccountsUpdateEventDTO"];
+            funds_list_update: components["schemas"]["FundRoomUpdateEventDTO"];
+            fund_offers_update: components["schemas"]["FundOffersDTO"];
+            fund_update: components["schemas"]["FundDetailsDTO"];
+            corporate_events_update: components["schemas"]["AssetCorporateEventsDTO"];
             comanager_update: components["schemas"]["ComanagerEventDTO"];
             budget_update: components["schemas"]["BudgetDTO"];
             economy_update: components["schemas"]["EconomyPanelDTO"];
@@ -15798,6 +15857,13 @@ export interface components {
             effective_annual_rate: string | null;
         };
         /**
+         * TreasuryHistoryUpdateEventDTO
+         * @description O ponto do mês que fechou na série do Tesouro; a série já aberta na tela só recebe esse ponto.
+         */
+        TreasuryHistoryUpdateEventDTO: {
+            point: components["schemas"]["TreasuryHistoryPointDTO"];
+        };
+        /**
          * TreasuryPositionDTO
          * @description Uma posição do jogador no Tesouro, com o que ela rendeu e o que o mercado faz com ela.
          */
@@ -15820,6 +15886,16 @@ export interface components {
             mark: string;
             /** Market Value */
             market_value: string;
+        };
+        /**
+         * TreasuryPositionsUpdateEventDTO
+         * @description Os títulos do Tesouro de uma conta do jogador, marcados no preço do dia.
+         */
+        TreasuryPositionsUpdateEventDTO: {
+            /** Positions */
+            positions: components["schemas"]["TreasuryPositionDTO"][];
+            /** Account */
+            account: number | null;
         };
         /**
          * TreasurySaleQuoteDTO

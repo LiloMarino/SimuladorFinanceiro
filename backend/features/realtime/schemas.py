@@ -26,15 +26,25 @@ from backend.core.dto.candle_challenge import (
     ChallengeNoticeEventDTO,
 )
 from backend.core.dto.candle_patterns import CandlePatternsUpdateDTO
+from backend.core.dto.credit import CreditOverviewDTO
+from backend.core.dto.dividends import AssetCorporateEventsDTO
 from backend.core.dto.economy import EconomyPanelDTO
-from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
+from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncomeOfferDTO
+from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
+from backend.core.dto.fund import (
+    FundAccountDTO,
+    FundDetailsDTO,
+    FundOffersDTO,
+    FundRoomItemDTO,
+)
 from backend.core.dto.goal import GoalProgressDTO
 from backend.core.dto.government import CongressBaseDTO
-from backend.core.dto.life import LifeEventDTO
+from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
 from backend.core.dto.news import NewsDTO
 from backend.core.dto.order import OrderDTO
 from backend.core.dto.order_preview import OrderPreviewDTO, OrderPreviewRequest
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
+from backend.core.dto.pending import PendingDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.preparation import PreparationsDTO
@@ -42,12 +52,21 @@ from backend.core.dto.presence import PlayerPresenceEventDTO, PlayerRemovedEvent
 from backend.core.dto.preset import PresetAppliedEventDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
-from backend.core.dto.state_company import StateCompanyDetailDTO
+from backend.core.dto.sovereign_fund import SovereignFundPanelDTO
+from backend.core.dto.state_company import (
+    StateCompaniesPanelDTO,
+    StateCompanyDetailDTO,
+)
 from backend.core.dto.strategy import StrategyOrderLineDTO
 from backend.core.dto.summaries import SummaryDTO
 from backend.core.dto.technical_indicators import (
     IndicatorsRequestDTO,
     TechnicalIndicatorsDTO,
+)
+from backend.core.dto.treasury import (
+    TreasuryCatalogDTO,
+    TreasuryHistoryPointDTO,
+    TreasuryPositionDTO,
 )
 from backend.core.enum import (
     CampaignActionKind,
@@ -166,9 +185,60 @@ class FixedAssetsUpdateEventDTO(BaseDTO):
     assets: list[FixedIncomeAssetDTO]
 
 
-class FundsUpdateEventDTO(BaseDTO):
-    """Algo nas gestoras mudou (PL, cotas, cotistas, oferta, taxas ou congelamento): o aviso
-    não carrega dado, quem exibe uma gestora busca de novo."""
+class FixedIncomeProjectionEventDTO(BaseDTO):
+    """A cotação da boleta de renda fixa recalculada para o último valor digitado do cliente, só para ele."""
+
+    # O valor que gerou a cotação: a boleta só aplica a que corresponde ao que ela digitou
+    amount: Decimal
+    # A conta em que a cotação foi pedida (id da gestora; nulo é a pessoal)
+    account: int | None
+    quote: FixedIncomeQuoteDTO
+
+
+class CreditUpdateEventDTO(BaseDTO):
+    """O crédito de uma conta com parcela em atraso, que multa e mora recalculam a cada dia."""
+
+    overview: CreditOverviewDTO
+    # A gestora dona da conta do crédito; nulo é a conta pessoal
+    account: int | None
+
+
+class TreasuryPositionsUpdateEventDTO(BaseDTO):
+    """Os títulos do Tesouro de uma conta do jogador, marcados no preço do dia."""
+
+    positions: list[TreasuryPositionDTO]
+    # A gestora dona dos títulos; nulo é a conta pessoal
+    account: int | None
+
+
+class TreasuryHistoryUpdateEventDTO(BaseDTO):
+    """O ponto do mês que fechou na série do Tesouro; a série já aberta na tela só recebe esse ponto."""
+
+    point: TreasuryHistoryPointDTO
+
+
+class LifeStatusUpdateEventDTO(BaseDTO):
+    """A vida financeira do jogador no viver de renda, entregue a quem a tem aberta."""
+
+    status: LifeStatusDTO
+
+
+class PendingUpdateEventDTO(BaseDTO):
+    """As pendências do jogador, das graves para as de aviso."""
+
+    items: list[PendingDTO]
+
+
+class FundAccountsUpdateEventDTO(BaseDTO):
+    """As contas com que o jogador opera, com o caixa e o congelamento de cada uma."""
+
+    accounts: list[FundAccountDTO]
+
+
+class FundRoomUpdateEventDTO(BaseDTO):
+    """As gestoras da sala como o jogador as vê."""
+
+    funds: list[FundRoomItemDTO]
 
 
 type ComanagerEventKind = Literal[
@@ -421,7 +491,21 @@ class RealtimeEventCatalog(BaseDTO):
     cash_update: CashUpdateEventDTO
     stocks_update: StocksUpdateEventDTO
     fixed_assets_update: FixedAssetsUpdateEventDTO
-    funds_update: FundsUpdateEventDTO
+    fixed_income_offer_update: FixedIncomeOfferDTO
+    fixed_income_projection: FixedIncomeProjectionEventDTO
+    sovereign_fund_update: SovereignFundPanelDTO
+    state_companies_update: StateCompaniesPanelDTO
+    credit_update: CreditUpdateEventDTO
+    treasury_catalog_update: TreasuryCatalogDTO
+    treasury_history_update: TreasuryHistoryUpdateEventDTO
+    treasury_positions_update: TreasuryPositionsUpdateEventDTO
+    life_status_update: LifeStatusUpdateEventDTO
+    pending_update: PendingUpdateEventDTO
+    fund_accounts_update: FundAccountsUpdateEventDTO
+    funds_list_update: FundRoomUpdateEventDTO
+    fund_offers_update: FundOffersDTO
+    fund_update: FundDetailsDTO
+    corporate_events_update: AssetCorporateEventsDTO
     comanager_update: ComanagerEventDTO
     budget_update: BudgetDTO
     economy_update: EconomyPanelDTO

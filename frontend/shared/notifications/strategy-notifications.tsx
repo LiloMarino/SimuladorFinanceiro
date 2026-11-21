@@ -11,23 +11,26 @@ import { displayMoney } from "@/shared/lib/utils/display";
 const INDIVIDUAL_TOAST_LIMIT = 2;
 
 /**
- * Dono único dos avisos da estratégia em tempo real: cada evento renova o modo, o registro
- * e a carteira, e avisa do que ela fez ou de por que voltou ao manual.
+ * Dono único dos avisos da estratégia em tempo real: cada evento renova o modo e o registro, e avisa do que ela fez ou de por que voltou ao manual.
  */
 export function StrategyNotifications() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { isToastOn } = useNotificationPreferences();
 
-  const renew = () => {
+  const renewLog = () => {
     void queryClient.invalidateQueries({ queryKey: queryKeys.myStrategy() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.strategyLogs() });
+  };
+  const renew = () => {
+    renewLog();
     void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
   };
   const seeStrategies = { label: "Ver", onClick: () => void navigate("/strategies") };
 
+  // A carteira muda com a ordem executada e chega pronta por `portfolio_update` ao fim do pregão
   useRealtime("strategy_orders", ({ orders }) => {
-    renew();
+    renewLog();
     if (!isToastOn("STRATEGY_ORDERS")) return;
     if (orders.length > INDIVIDUAL_TOAST_LIMIT) {
       toast.info(`A estratégia mandou ${orders.length} ordens hoje`, {

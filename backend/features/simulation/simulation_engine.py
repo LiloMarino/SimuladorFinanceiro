@@ -155,6 +155,9 @@ class SimulationEngine:
             Callable[[UUID, EquityEventType, str, Decimal, Decimal], None] | None
         ) = None
         self.on_dividend: Callable[[UUID, str, Decimal], None] | None = None
+        # Quem acompanha o caixa de cada conta: recebe quem a opera e a gestora dona (nula na pessoal)
+        # a cada movimento, depois do aviso `cash_update`
+        self.on_cash_moved: Callable[[tuple[UUID, ...], int | None], None] | None = None
         # (pregão, provento por ação dos últimos 12 meses): o rendimento da Carteira lê daqui
         self._per_share_cache: tuple[date, dict[int, Decimal]] | None = None
 
@@ -324,6 +327,8 @@ class SimulationEngine:
         payload = CashUpdateEventDTO(cash=new_cash, account=account).to_json()
         for recipient in audience:
             notify("cash_update", payload, to=recipient)
+        if self.on_cash_moved is not None:
+            self.on_cash_moved(audience, account)
 
     def pay_dividend(self, client_id: UUID, ticker: str, amount: Decimal) -> None:
         """Provento bruto de `ticker` no caixa do jogador."""

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { applyRealtimeDelta } from "@/shared/lib/realtime/apply-realtime";
 import type { SimulationState } from "@/types";
 
 /**
@@ -19,10 +20,11 @@ export function useSimulationState() {
   });
 
   const patch = (update: Partial<SimulationState>) => {
-    // Um evento parcial não pode substituir a resposta inicial completa.
-    queryClient.setQueryData(queryKeys.simulationState(), (prev: SimulationState | undefined) =>
-      prev ? { ...prev, ...update } : prev,
-    );
+    // Um evento parcial se soma à resposta inicial completa
+    void applyRealtimeDelta<SimulationState>(queryClient, queryKeys.simulationState(), (prev) => ({
+      ...prev,
+      ...update,
+    }));
   };
 
   useRealtime("simulation_update", patch);

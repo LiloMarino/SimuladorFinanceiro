@@ -32,18 +32,17 @@ import { baseRateCaption, displayDay, displayMonthYear, percentOf, pointsOf, tre
 
 type BuyDialogProps = {
   title: TreasuryTitle;
-  currentDate: string;
   onClose: () => void;
 };
 
 /** A compra de um título: o valor, a taxa que fica travada e o que o título devolve se for até o vencimento. */
-export function BuyDialog({ title, currentDate, onClose }: BuyDialogProps) {
+export function BuyDialog({ title, onClose }: BuyDialogProps) {
   const [amountText, setAmountText] = useState(formatMoney("0"));
   const [touched, setTouched] = useState(false);
   const amountString = normalizeNumberString(amountText);
   const amount = Number(amountString) || 0;
 
-  const { data: quote } = useFixedIncomeProjection(title.asset_uuid, amountString, currentDate);
+  const { data: quote } = useFixedIncomeProjection(title.asset_uuid, amountString);
   const buy = useBuyFixedIncome(title.asset_uuid);
   const tradeLock = useFixedIncomeLock();
   const locked = tradeLock !== null;

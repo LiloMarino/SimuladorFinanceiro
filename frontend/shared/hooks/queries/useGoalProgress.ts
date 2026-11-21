@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { applyRealtime } from "@/shared/lib/realtime/apply-realtime";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import type { GoalProgress } from "@/types";
 import { hasGoal } from "@/shared/lib/game-types";
@@ -16,7 +17,7 @@ function currentMatchId(simulation: ReturnType<typeof useSimulation>["simulation
  * pregão por goal_progress_update. Na Clássica não há corrida: a busca nem sai e o dado
  * fica indefinido. O cache é por partida, então uma partida nova nunca herda a anterior.
  * A meta subir de um pregão para o outro é o reajuste pelo IPCA: o relatório (de onde sai
- * a meta em degraus) e a vida financeira são renovados no mesmo instante.
+ * a meta em degraus) é renovado no mesmo instante; a vida financeira chega por `life_status_update`.
  */
 export function useGoalProgress() {
   const queryClient = useQueryClient();
@@ -34,13 +35,10 @@ export function useGoalProgress() {
     "goal_progress_update",
     (progress) => {
       const previous = queryClient.getQueryData<GoalProgress>(queryKeys.goalProgress(simulationId));
-      queryClient.setQueryData(queryKeys.goalProgress(simulationId), progress);
+      void applyRealtime<GoalProgress>(queryClient, queryKeys.goalProgress(simulationId), progress);
       if (!previous || Number(progress.goal) <= Number(previous.goal)) return;
 
       void queryClient.invalidateQueries({ queryKey: queryKeys.statistics() });
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.lifeStatus(simulationId),
-      });
     },
     racing,
   );

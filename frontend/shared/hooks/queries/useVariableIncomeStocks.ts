@@ -3,6 +3,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { applyStocksUpdate } from "@/shared/lib/market-quotes";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { applyRealtimeDelta } from "@/shared/lib/realtime/apply-realtime";
 import type { MarketQuote } from "@/types";
 
 /**
@@ -19,13 +20,11 @@ export function useVariableIncomeStocks() {
   });
 
   useRealtime("stocks_update", ({ stocks }) => {
-    const previous = queryClient.getQueryData<MarketQuote[]>(queryKeys.variableIncomeList());
-    if (!previous) return;
-    const { quotes, hasUnknown } = applyStocksUpdate(previous, stocks);
-    queryClient.setQueryData(queryKeys.variableIncomeList(), quotes);
-    if (hasUnknown) {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.variableIncomeList() }, { cancelRefetch: false });
-    }
+    // Um ticker que a lista ainda não tem manda ler a lista de novo
+    void applyRealtimeDelta<MarketQuote[]>(queryClient, queryKeys.variableIncomeList(), (previous) => {
+      const { quotes, hasUnknown } = applyStocksUpdate(previous, stocks);
+      return hasUnknown ? null : quotes;
+    });
   });
 
   return query;

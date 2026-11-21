@@ -28,6 +28,7 @@ from backend.routes.dependencies import ActingClient, get_current_user
 from backend.routes.dependencies.auth import get_client_id
 from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.sovereign_fund import sovereign_fund_router
+from tests.fakes import bare_simulation
 from tests.test_government_book import (
     ALICE,
     BOB,
@@ -58,7 +59,7 @@ def _simulation(
     positions: dict[str, Any] | None = None,
     resting: list[Any] | None = None,
 ) -> Simulation:
-    simulation = object.__new__(Simulation)
+    simulation = bare_simulation()
     simulation._engine = SimpleNamespace(  # type: ignore[assignment]
         _lock=threading.RLock(),
         asset_class=lambda _ticker: asset_class,

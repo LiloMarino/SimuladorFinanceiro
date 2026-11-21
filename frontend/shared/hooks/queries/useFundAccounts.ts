@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { applyRealtime, applyRealtimeDelta } from "@/shared/lib/realtime/apply-realtime";
 import type { FundAccount } from "@/types";
 
 /** As contas com que o jogador opera: a pessoal primeiro e depois cada gestora que ele gere. Só existe com Gestoras ou Governo ligados: o presidente também opera o Fundo Soberano. */
@@ -12,9 +13,18 @@ export function useFundAccounts({ enabled = true }: { enabled?: boolean } = {}) 
   useRealtime(
     "cash_update",
     ({ cash, account }) => {
-      queryClient.setQueryData<FundAccount[]>(queryKeys.fundAccounts(), (accounts) =>
-        accounts?.map((item) => (item.fund_id === account ? { ...item, cash } : item)),
+      void applyRealtimeDelta<FundAccount[]>(queryClient, queryKeys.fundAccounts(), (accounts) =>
+        accounts.map((item) => (item.fund_id === account ? { ...item, cash } : item)),
       );
+    },
+    enabled,
+  );
+
+  // O congelamento e o papel de cada conta chegam com a lista inteira
+  useRealtime(
+    "fund_accounts_update",
+    ({ accounts }) => {
+      void applyRealtime<FundAccount[]>(queryClient, queryKeys.fundAccounts(), accounts);
     },
     enabled,
   );

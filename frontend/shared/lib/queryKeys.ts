@@ -48,8 +48,7 @@ export const queryKeys = {
   economyPanel: () => ["economy-panel"] as const,
   fixedIncomeList: () => ["fixed-income", "list"] as const,
   fixedIncomeAsset: (id: string) => ["fixed-income", id] as const,
-  fixedIncomeProjection: (id: string, amount: string, currentDate: string) =>
-    ["fixed-income", id, "projection", amount, currentDate] as const,
+  fixedIncomeProjection: (id: string, amount: string) => ["fixed-income", id, "projection", amount] as const,
   fixedIncomeRedemption: (id: string, amount: string, currentDate: string) =>
     ["fixed-income", id, "redemption", amount, currentDate] as const,
   fundAccounts: () => ["funds", "accounts"] as const,

@@ -12,12 +12,25 @@ from backend.core.dto.stock import StockDTO
 from backend.core.enum import GameType, PlayerGrouping, VictoryCriterion
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.fixed_income.fixed_broker import CoverSale
+from backend.features.simulation.cash_feed import CashFeed
+from backend.features.simulation.day_feed import DayFeed
+from backend.features.simulation.funds_feed import FundsFeed
+from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.entities.position import Position
 
 USER_ID = 1
 # A carteira que o resolvedor devolve para todo cliente dos testes sem banco
 PORTFOLIO_ID = 1
+
+
+def bare_simulation() -> Simulation:
+    """Uma partida sem o construtor: só os avisos de tela, que toda operação sincronizada usa."""
+    simulation = object.__new__(Simulation)
+    simulation._day_feed = DayFeed(simulation)
+    simulation._cash_feed = CashFeed(simulation)
+    simulation._funds_feed = FundsFeed(simulation)
+    return simulation
 
 
 def no_pay(*_) -> Decimal:

@@ -8,11 +8,7 @@ import { INCOME_LOSS_NAMES } from "@/shared/lib/professions";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 
-/**
- * Dono único da vida financeira em tempo real: renova a vida financeira e o histórico
- * quando o caixa muda (cash_update) ou um imprevisto cai (life_event) e avisa de cada imprevisto.
- * A renovação acompanha os eventos que mexem no caixa, não o ritmo dos pregões.
- */
+/** Dono único dos imprevistos em tempo real: renova o histórico e avisa de cada um. */
 export function LifeNotifications() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -30,9 +26,6 @@ export function LifeNotifications() {
   useRealtime(
     "life_event",
     (event) => {
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.lifeStatus(simulationId),
-      });
       void queryClient.invalidateQueries({
         queryKey: queryKeys.lifeHistoryAll(simulationId),
       });
@@ -59,18 +52,6 @@ export function LifeNotifications() {
       toast.warning(`Imprevisto: ${event.label.toLowerCase()}`, {
         description: `${displaySignedMoney(-Number(event.amount))} do caixa · todos receberam o mesmo`,
         action: showHistory(event.event_date),
-      });
-    },
-    independence,
-  );
-
-  // O caixa negativo avisa pela pendência; aqui o caixa só renova a vida financeira
-  useRealtime(
-    "cash_update",
-    ({ account }) => {
-      if (account !== null) return;
-      void queryClient.invalidateQueries({
-        queryKey: queryKeys.lifeStatus(simulationId),
       });
     },
     independence,

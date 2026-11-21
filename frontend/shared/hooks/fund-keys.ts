@@ -13,3 +13,15 @@ export const fundKeys = {
     ["funds", "buyback-preview", fundId, quantity, maxPrice] as const,
   report: (fundId: number, month: string) => ["funds", "report", fundId, month] as const,
 };
+
+const PREVIEW_KINDS = new Set([
+  "issuance-preview",
+  "subscription-preview",
+  "directed-preview",
+  "merge-preview",
+  "buyback-preview",
+]);
+
+/** A chave é de uma prévia de operação da gestora `fundId`. */
+export const isFundPreviewOf = (fundId: number, queryKey: readonly unknown[]) =>
+  queryKey[0] === "funds" && PREVIEW_KINDS.has(queryKey[1] as string) && queryKey[2] === fundId;

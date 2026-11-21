@@ -24,7 +24,17 @@ export type SimulationEvents = {
   cash_update: RealtimeEventCatalog["cash_update"];
   stocks_update: RealtimeEventCatalog["stocks_update"];
   fixed_assets_update: RealtimeEventCatalog["fixed_assets_update"];
-  funds_update: RealtimeEventCatalog["funds_update"];
+  sovereign_fund_update: RealtimeEventCatalog["sovereign_fund_update"];
+  state_companies_update: RealtimeEventCatalog["state_companies_update"];
+  credit_update: RealtimeEventCatalog["credit_update"];
+  treasury_catalog_update: RealtimeEventCatalog["treasury_catalog_update"];
+  treasury_history_update: RealtimeEventCatalog["treasury_history_update"];
+  treasury_positions_update: RealtimeEventCatalog["treasury_positions_update"];
+  life_status_update: RealtimeEventCatalog["life_status_update"];
+  pending_update: RealtimeEventCatalog["pending_update"];
+  fund_accounts_update: RealtimeEventCatalog["fund_accounts_update"];
+  funds_list_update: RealtimeEventCatalog["funds_list_update"];
+  fund_offers_update: RealtimeEventCatalog["fund_offers_update"];
   comanager_update: RealtimeEventCatalog["comanager_update"];
   budget_update: RealtimeEventCatalog["budget_update"];
   economy_update: RealtimeEventCatalog["economy_update"];
@@ -88,4 +98,12 @@ export type SimulationEvents = {
   [K in `candle_patterns_update:${string}`]: RealtimeEventCatalog["candle_patterns_update"];
 } & {
   [K in `state_company_update:${string}`]: RealtimeEventCatalog["state_company_update"];
+} & {
+  [K in `fixed_income_offer_update:${string}`]: RealtimeEventCatalog["fixed_income_offer_update"];
+} & {
+  [K in `fixed_income_projection:${string}`]: RealtimeEventCatalog["fixed_income_projection"];
+} & {
+  [K in `fund_update:${string}`]: RealtimeEventCatalog["fund_update"];
+} & {
+  [K in `corporate_events_update:${string}`]: RealtimeEventCatalog["corporate_events_update"];
 };

@@ -91,12 +91,7 @@ function FixedIncomeDetail({ id, offer, today }: { id: string; offer: FixedIncom
   const [searchParams] = useSearchParams();
   const [tab, setTab] = useState<"invest" | "redeem">(searchParams.get("tab") === "redeem" ? "redeem" : "invest");
   const [amountText, setAmountText] = useState(formatMoney("0"));
-  const {
-    data: quote,
-    error,
-    isLoading,
-    refetch,
-  } = useFixedIncomeProjection(id, normalizeNumberString(amountText), today);
+  const { data: quote, error, isLoading, refetch } = useFixedIncomeProjection(id, normalizeNumberString(amountText));
   const { data: offers } = useFixedIncomeAssets();
   const { data: portfolio } = usePortfolio({ activeAccount: true });
   const position = portfolio?.fixed_income.find((p) => p.asset.asset_uuid === id);

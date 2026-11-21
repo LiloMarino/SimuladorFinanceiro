@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { describe, expect, it } from "vitest";
-import type { TreasuryCatalog, TreasuryHistoryPoint } from "@/types";
+import type { TreasuryHistoryPoint } from "@/types";
 import {
   baseRateCaption,
   baseShare,
@@ -10,7 +10,7 @@ import {
   displayDay,
   displayMonthYear,
   historyRows,
-  isCatalogStale,
+  mergeHistoryPoint,
   percentOf,
   pointsOf,
   pointsUnit,
@@ -149,25 +149,28 @@ describe("rótulos do gráfico e do termômetro", () => {
   });
 });
 
-describe("isCatalogStale", () => {
-  const catalog = {
-    next_review: "2026-09-01",
-    titles: [{ maturity_date: "2026-09-15" }, { maturity_date: "2029-01-01" }],
-  } as TreasuryCatalog;
+describe("mergeHistoryPoint", () => {
+  const point = (month: string) => ({ month, selic: "0.10" }) as TreasuryHistoryPoint;
+  const series = [point("2026-07-01"), point("2026-08-01")];
 
-  it("vale durante o mês da revisão", () => {
-    expect(isCatalogStale(catalog, "2026-08-31")).toBe(false);
+  it("acrescenta o mês seguinte ao fim da série", () => {
+    expect(mergeHistoryPoint(series, point("2026-09-01"))).toEqual([...series, point("2026-09-01")]);
   });
 
-  it("vence quando o dia simulado alcança a revisão, mesmo que o dia 1º não seja dia útil", () => {
-    // 1º de setembro de 2026 cai numa terça; o dia 3 de um mês que abre no fim de semana também vence
-    expect(isCatalogStale(catalog, "2026-09-01")).toBe(true);
-    expect(isCatalogStale(catalog, "2026-09-03")).toBe(true);
+  it("troca o ponto quando o mês é o último da série", () => {
+    const revised = { ...point("2026-08-01"), selic: "0.12" };
+    expect(mergeHistoryPoint(series, revised)).toEqual([series[0], revised]);
   });
 
-  it("vence quando um título do catálogo vence antes da revisão", () => {
-    const early = { ...catalog, next_review: "2026-10-01" };
-    expect(isCatalogStale(early, "2026-09-14")).toBe(false);
-    expect(isCatalogStale(early, "2026-09-15")).toBe(true);
+  it("ignora um mês que a série já fechou", () => {
+    expect(mergeHistoryPoint(series, point("2026-07-01"))).toBe(series);
+  });
+
+  it("pede a série de novo quando o ponto pula um mês", () => {
+    expect(mergeHistoryPoint(series, point("2026-10-01"))).toBeNull();
+  });
+
+  it("começa a série quando ela está vazia", () => {
+    expect(mergeHistoryPoint([], point("2026-09-01"))).toEqual([point("2026-09-01")]);
   });
 });

@@ -13,9 +13,9 @@ from sqlalchemy.orm import Session
 from backend.core import repository
 from backend.core.models.models import Stock, StockPriceHistory
 from backend.core.runtime.simulation_manager import SimulationManager
-from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.variable_income.price_impact import PriceImpact
+from tests.fakes import bare_simulation
 
 TODAY = date(2020, 1, 8)
 
@@ -273,7 +273,7 @@ def test_batch_reads_use_active_match_version_and_import_uses_only_real_common_p
 def test_market_keeps_quote_and_sparkline_consistent_and_reuses_classification(
     quotes: Engine,
 ) -> None:
-    sim = object.__new__(Simulation)
+    sim = bare_simulation()
     sim._current_date = TODAY
     sim._engine = SimulationEngine(TODAY, 1, date(2030, 1, 1))
     sim._price_impact = PriceImpact(1, False, 0.02, 20)

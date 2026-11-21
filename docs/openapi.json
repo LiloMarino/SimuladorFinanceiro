@@ -20752,6 +20752,32 @@
         ],
         "title": "CreditRatingChangedEventDTO"
       },
+      "CreditUpdateEventDTO": {
+        "properties": {
+          "overview": {
+            "$ref": "#/components/schemas/CreditOverviewDTO"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "overview",
+          "account"
+        ],
+        "title": "CreditUpdateEventDTO",
+        "description": "O crédito de uma conta com parcela em atraso, que multa e mora recalculam a cada dia."
+      },
       "DealDTO": {
         "properties": {
           "id": {
@@ -23155,6 +23181,37 @@
         ],
         "title": "FixedIncomePositionDTO"
       },
+      "FixedIncomeProjectionEventDTO": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
+          },
+          "quote": {
+            "$ref": "#/components/schemas/FixedIncomeQuoteDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "account",
+          "quote"
+        ],
+        "title": "FixedIncomeProjectionEventDTO",
+        "description": "A cotação da boleta de renda fixa recalculada para o último valor digitado do cliente, só para ele."
+      },
       "FixedIncomeQuoteDTO": {
         "properties": {
           "amount": {
@@ -23772,6 +23829,24 @@
         ],
         "title": "FundAccountDTO",
         "description": "Uma conta com que o jogador opera: a pessoal (sem gestora), uma gestora que ele gere ou, ao presidente, o Fundo Soberano."
+      },
+      "FundAccountsUpdateEventDTO": {
+        "properties": {
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/FundAccountDTO"
+            },
+            "type": "array",
+            "title": "Accounts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "accounts"
+        ],
+        "title": "FundAccountsUpdateEventDTO",
+        "description": "As contas com que o jogador opera, com o caixa e o congelamento de cada uma."
       },
       "FundAssemblyAgenda": {
         "type": "string",
@@ -28014,6 +28089,24 @@
         "title": "FundRoomItemDTO",
         "description": "A gestora na lista da sala, com as cotas e o papel de quem consulta."
       },
+      "FundRoomUpdateEventDTO": {
+        "properties": {
+          "funds": {
+            "items": {
+              "$ref": "#/components/schemas/FundRoomItemDTO"
+            },
+            "type": "array",
+            "title": "Funds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "funds"
+        ],
+        "title": "FundRoomUpdateEventDTO",
+        "description": "As gestoras da sala como o jogador as vê."
+      },
       "FundSeriesPointDTO": {
         "properties": {
           "day": {
@@ -28435,13 +28528,6 @@
         ],
         "title": "FundTickerCheckDTO",
         "description": "O que a conferência da sigla achou: livre, fora do formato, de um ativo ou de uma gestora."
-      },
-      "FundsUpdateEventDTO": {
-        "properties": {},
-        "additionalProperties": false,
-        "type": "object",
-        "title": "FundsUpdateEventDTO",
-        "description": "Algo nas gestoras mudou (PL, cotas, cotistas, oferta, taxas ou congelamento): o aviso\nnão carrega dado, quem exibe uma gestora busca de novo."
       },
       "FutureParamsDTO": {
         "properties": {
@@ -31881,6 +31967,20 @@
         ],
         "title": "LifeStatusDTO",
         "description": "A vida financeira de quem pede, no pregão corrente do viver de renda."
+      },
+      "LifeStatusUpdateEventDTO": {
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/LifeStatusDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "title": "LifeStatusUpdateEventDTO",
+        "description": "A vida financeira do jogador no viver de renda, entregue a quem a tem aberta."
       },
       "LinkEffectDTO": {
         "properties": {
@@ -35770,6 +35870,24 @@
         "title": "PendingType",
         "description": "Um tipo de pendência: o que pede ação do jogador e fica à vista até a condição acabar."
       },
+      "PendingUpdateEventDTO": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PendingDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "PendingUpdateEventDTO",
+        "description": "As pendências do jogador, das graves para as de aviso."
+      },
       "PlaceKind": {
         "type": "string",
         "enum": [
@@ -39161,8 +39279,50 @@
           "fixed_assets_update": {
             "$ref": "#/components/schemas/FixedAssetsUpdateEventDTO"
           },
-          "funds_update": {
-            "$ref": "#/components/schemas/FundsUpdateEventDTO"
+          "fixed_income_offer_update": {
+            "$ref": "#/components/schemas/FixedIncomeOfferDTO"
+          },
+          "fixed_income_projection": {
+            "$ref": "#/components/schemas/FixedIncomeProjectionEventDTO"
+          },
+          "sovereign_fund_update": {
+            "$ref": "#/components/schemas/SovereignFundPanelDTO"
+          },
+          "state_companies_update": {
+            "$ref": "#/components/schemas/StateCompaniesPanelDTO"
+          },
+          "credit_update": {
+            "$ref": "#/components/schemas/CreditUpdateEventDTO"
+          },
+          "treasury_catalog_update": {
+            "$ref": "#/components/schemas/TreasuryCatalogDTO"
+          },
+          "treasury_history_update": {
+            "$ref": "#/components/schemas/TreasuryHistoryUpdateEventDTO"
+          },
+          "treasury_positions_update": {
+            "$ref": "#/components/schemas/TreasuryPositionsUpdateEventDTO"
+          },
+          "life_status_update": {
+            "$ref": "#/components/schemas/LifeStatusUpdateEventDTO"
+          },
+          "pending_update": {
+            "$ref": "#/components/schemas/PendingUpdateEventDTO"
+          },
+          "fund_accounts_update": {
+            "$ref": "#/components/schemas/FundAccountsUpdateEventDTO"
+          },
+          "funds_list_update": {
+            "$ref": "#/components/schemas/FundRoomUpdateEventDTO"
+          },
+          "fund_offers_update": {
+            "$ref": "#/components/schemas/FundOffersDTO"
+          },
+          "fund_update": {
+            "$ref": "#/components/schemas/FundDetailsDTO"
+          },
+          "corporate_events_update": {
+            "$ref": "#/components/schemas/AssetCorporateEventsDTO"
           },
           "comanager_update": {
             "$ref": "#/components/schemas/ComanagerEventDTO"
@@ -39331,7 +39491,21 @@
           "cash_update",
           "stocks_update",
           "fixed_assets_update",
-          "funds_update",
+          "fixed_income_offer_update",
+          "fixed_income_projection",
+          "sovereign_fund_update",
+          "state_companies_update",
+          "credit_update",
+          "treasury_catalog_update",
+          "treasury_history_update",
+          "treasury_positions_update",
+          "life_status_update",
+          "pending_update",
+          "fund_accounts_update",
+          "funds_list_update",
+          "fund_offers_update",
+          "fund_update",
+          "corporate_events_update",
           "comanager_update",
           "budget_update",
           "economy_update",
@@ -46895,6 +47069,20 @@
         ],
         "title": "TreasuryHistoryQuoteDTO"
       },
+      "TreasuryHistoryUpdateEventDTO": {
+        "properties": {
+          "point": {
+            "$ref": "#/components/schemas/TreasuryHistoryPointDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "point"
+        ],
+        "title": "TreasuryHistoryUpdateEventDTO",
+        "description": "O ponto do mês que fechou na série do Tesouro; a série já aberta na tela só recebe esse ponto."
+      },
       "TreasuryPositionDTO": {
         "properties": {
           "asset": {
@@ -46944,6 +47132,36 @@
         ],
         "title": "TreasuryPositionDTO",
         "description": "Uma posição do jogador no Tesouro, com o que ela rendeu e o que o mercado faz com ela."
+      },
+      "TreasuryPositionsUpdateEventDTO": {
+        "properties": {
+          "positions": {
+            "items": {
+              "$ref": "#/components/schemas/TreasuryPositionDTO"
+            },
+            "type": "array",
+            "title": "Positions"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "positions",
+          "account"
+        ],
+        "title": "TreasuryPositionsUpdateEventDTO",
+        "description": "Os títulos do Tesouro de uma conta do jogador, marcados no preço do dia."
       },
       "TreasurySaleQuoteDTO": {
         "properties": {

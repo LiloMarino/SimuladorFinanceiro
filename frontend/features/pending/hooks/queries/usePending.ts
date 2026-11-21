@@ -2,17 +2,21 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { applyRealtime } from "@/shared/lib/realtime/apply-realtime";
 import type { Pending } from "@/types";
 
 /**
  * O que pede ação do jogador agora, das graves para as de aviso. A lista é o estado do
- * servidor: cada evento que cria ou resolve uma pendência manda conferi-la de novo.
+ * servidor: o caixa e o dia entregam a lista nova por `pending_update`; os eventos de crédito,
+ * da estratégia e do governo que criam ou resolvem uma pendência mandam conferi-la de novo.
  */
 export function usePending() {
   const queryClient = useQueryClient();
   const renew = () => void queryClient.invalidateQueries({ queryKey: queryKeys.pending() });
 
-  useRealtime("cash_update", renew);
+  useRealtime("pending_update", ({ items }) => {
+    void applyRealtime<Pending[]>(queryClient, queryKeys.pending(), items);
+  });
   useRealtime("credit_installment_late", renew);
   useRealtime("credit_installment_warning", renew);
   useRealtime("credit_installment_paid", renew);

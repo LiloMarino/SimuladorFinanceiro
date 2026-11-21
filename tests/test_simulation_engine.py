@@ -36,7 +36,7 @@ from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.statistics.cache import ReportCache
 from backend.features.variable_income.entities.candle import Candle
 from backend.features.variable_income.entities.position import Position
-from tests.fakes import PORTFOLIO_ID, USER_ID, client
+from tests.fakes import PORTFOLIO_ID, USER_ID, bare_simulation, client
 
 PLAYER = client("player")
 TODAY = date(2020, 1, 6)
@@ -462,7 +462,7 @@ def test_player_joining_mid_match_gets_the_starting_deposit_and_the_day_snapshot
     player_book, captured_events, monkeypatch: pytest.MonkeyPatch
 ):
     """Quem entra com a partida em andamento recebe o depósito inicial datado de hoje e o snapshot do dia."""
-    sim = object.__new__(Simulation)
+    sim = bare_simulation()
     sim._engine = _engine()
     sim.settings = cast("SimulationDTO", SimpleNamespace(starting_cash=Decimal("500")))
     sim.statistics = ReportCache()
