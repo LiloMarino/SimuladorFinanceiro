@@ -2522,7 +2522,9 @@ def lobby_game_type_expansions_off(page: Page) -> None:
             "government_enabled": False,
         },
     )
-    page.get_by_text("Ligue a expansão Gestoras").wait_for()
+    expect(
+        page.get_by_role("radio", name=re.compile("Aquisição hostil"))
+    ).to_be_visible()
 
 
 def lobby_game_type_takeover(page: Page) -> None:
@@ -2586,11 +2588,18 @@ def lobby_takeover_teams_conflict(page: Page) -> None:
     page.get_by_role("dialog").get_by_text(TAKEOVER_TEAMS_CONFLICTS[0]).wait_for()
 
 
-def lobby_funds_locked_by_type(page: Page) -> None:
-    """Aba Expansões com Aquisição hostil escolhida: o cartão Gestoras fica ligado e travado."""
+def lobby_expansion_free(page: Page) -> None:
+    """
+    Aquisição hostil escolhida: a chave de Gestoras segue livre na aba Expansões. Desligada, o tipo
+    volta à Clássica na mesma ação, o que a aba Regras mostra.
+    """
     lobby_game_type_takeover(page)
-    page.get_by_role("tab", name="Expansões").click()
-    page.get_by_text("ficam embaixo do tipo, na aba Regras").wait_for()
+    page.get_by_role("tab", name=re.compile(r"^Expansões")).click()
+    funds = page.get_by_role("switch", name="Ligar Gestoras")
+    expect(funds).to_be_enabled()
+    funds.click()
+    page.get_by_role("tab", name="Regras").click()
+    expect(page.get_by_role("radio", name=re.compile("Clássica"))).to_be_checked()
 
 
 # Os co-gestores: dado forjado sobre a gestora real do host, que nasce sem nenhum
@@ -2852,6 +2861,26 @@ def account_ticket_sovereign(page: Page) -> None:
     page.get_by_role("menuitem", name=re.compile("Fundo Soberano")).click()
     expect(page.get_by_text("Operando pelo")).to_be_visible()
     account_stock(page, "100")
+
+
+def account_ticket_sovereign_empty(page: Page) -> None:
+    """
+    Dado forjado: o Fundo Soberano sem caixa. A boleta mostra o caixa zerado e, fora da área
+    bloqueada, o caminho do aporte.
+    """
+
+    def accounts(body: dict | list) -> None:
+        assert isinstance(body, list)
+        body.append(SOVEREIGN_ACCOUNT | {"cash": "0.00"})
+
+    topbar_open(page)
+    patch_get(page, ACCOUNTS_GLOB, accounts)
+    reload_stocks(page)
+    cash_button(page).click()
+    page.get_by_role("menuitem", name=re.compile("Fundo Soberano")).click()
+    expect(page.get_by_text("Operando pelo")).to_be_visible()
+    open_stock(page)
+    expect(page.get_by_role("link", name="Propor aporte")).to_be_visible()
 
 
 def funds_room_list(page: Page) -> None:
@@ -3119,7 +3148,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "lobby/tipo-aquisicao-hostil": lobby_game_type_takeover,
     "lobby/equipes-aquisicao-hostil": lobby_takeover_teams,
     "lobby/equipes-aquisicao-conflito": lobby_takeover_teams_conflict,
-    "lobby/expansoes-gestoras-travada": lobby_funds_locked_by_type,
+    "lobby/expansao-livre": lobby_expansion_free,
     "renda-variavel/cota-gestora": stock_fund_quota,
     "gestoras/sem-gestora-lista": funds_room_list,
     "renda-variavel/estatal": stock_state_owned,
@@ -3130,4 +3159,5 @@ STATES: dict[str, Callable[[Page], None]] = {
     "conta/pessoal-boleta": account_ticket_personal,
     "conta/gestora-boleta": account_ticket_fund,
     "conta/soberano-boleta": account_ticket_sovereign,
+    "boleta/fundo-sem-caixa": account_ticket_sovereign_empty,
 }
