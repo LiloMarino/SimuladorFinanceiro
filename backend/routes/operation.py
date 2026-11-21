@@ -16,7 +16,11 @@ from backend.core.dto.fixed_income_projection import (
     FixedIncomeRedemptionQuoteDTO,
 )
 from backend.core.dto.order import OrderDTO
-from backend.core.dto.order_preview import OrderPreviewDTO, TradeDTO
+from backend.core.dto.order_preview import (
+    OrderPreviewDTO,
+    OrderPreviewRequest,
+    TradeDTO,
+)
 from backend.core.dto.state_company import StateCompanyDetailDTO
 from backend.core.dto.stock_details import StockDetailsDTO
 from backend.core.dto.technical_indicators import (
@@ -36,13 +40,11 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.features.technical_analysis.assistance import ensure_chart_hints
 from backend.features.technical_analysis.patterns import build_candle_patterns
-from backend.features.technical_analysis.summary import (
-    build_technical_indicators,
-    price_frame,
-)
+from backend.features.technical_analysis.summary import price_frame
 from backend.features.variable_income.broker import to_money
 from backend.features.variable_income.entities.order import LimitOrder, MarketOrder
 from backend.routes.dependencies import (
+    AccountId,
     ActingClient,
     ActiveSimulation,
     ClientID,
@@ -177,12 +179,15 @@ def get_variable_income_corporate_events(
     ),
 )
 def get_variable_income_indicators(
-    simulation: ActiveSimulation, asset: str, payload: IndicatorsRequestDTO
+    client_id: ClientID,
+    simulation: ActiveSimulation,
+    asset: str,
+    payload: IndicatorsRequestDTO,
 ):
-    stock = simulation.get_stock_details(asset)
-    if not stock:
+    result = simulation.watch_indicators(client_id, asset, payload)
+    if result is None:
         raise NotFoundError("Ativo não encontrado.")
-    return build_technical_indicators(price_frame(stock.history), payload)
+    return result
 
 
 @operation_router.get(
@@ -303,32 +308,6 @@ def cancel_order(
         raise NotFoundError("Ordem não encontrada")
 
 
-class OrderPreviewRequest(BaseModel):
-    action: OrderAction
-    # Exatamente um tamanho: a quantidade, o valor da compra a mercado, ou o limite inteiro
-    quantity: Decimal | None = Field(default=None, ge=0, decimal_places=8)
-    amount: Decimal | None = Field(default=None, ge=0, decimal_places=2)
-    max_size: bool | None = None
-    limit_price: float | None = Field(default=None, gt=0)
-
-    @model_validator(mode="after")
-    def exactly_one_size(self):
-        sizes = (
-            (self.quantity is not None)
-            + (self.amount is not None)
-            + bool(self.max_size)
-        )
-        if sizes != 1:
-            raise ValueError(
-                "Informe exatamente um tamanho: a quantidade, o valor ou o máximo"
-            )
-        if self.amount is not None and (
-            self.action != OrderAction.BUY or self.limit_price is not None
-        ):
-            raise ValueError("O valor só vale na compra a mercado")
-        return self
-
-
 @operation_router.post(
     "/variable-income/{asset}/order-preview",
     response_model=OrderPreviewDTO,
@@ -336,20 +315,13 @@ class OrderPreviewRequest(BaseModel):
     description="Preço estimado, total, caixa antes e depois, quantidade máxima e, na venda, o lucro e o IR que a ordem acrescenta ao mês.",
 )
 def preview_order(
-    client_id: ActingClient,
+    client_id: ClientID,
+    account: AccountId,
     simulation: ActiveSimulation,
     asset: str,
     payload: OrderPreviewRequest,
 ):
-    return simulation.preview_order(
-        client_id,
-        asset,
-        payload.action,
-        payload.quantity,
-        payload.limit_price,
-        payload.amount,
-        bool(payload.max_size),
-    )
+    return simulation.watch_order_preview(client_id, account, asset, payload)
 
 
 # Execuções mostradas na aba Histórico do livro de ofertas

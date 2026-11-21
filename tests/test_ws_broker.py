@@ -142,3 +142,91 @@ def test_debug_counts_a_send_nobody_subscribed(broker, collector: Metrics):
     (traffic,) = collector.snapshot().traffic
     assert server.sent == []
     assert (traffic.sends, traffic.unheard, traffic.total_bytes) == (1, 1, 0)
+
+
+def test_the_request_lives_while_the_client_subscribes_the_event(broker):
+    socket_broker, _ = broker
+    client = uuid4()
+    socket_broker.register_client(client, "tab")
+    socket_broker.update_subscription("tab", ["indicators_update:PETR4"])
+
+    socket_broker.remember_request("indicators_update:PETR4", client, "pedido")
+
+    assert socket_broker.requests("indicators_update:PETR4") == {client: "pedido"}
+
+
+def test_the_request_drops_when_the_client_stops_subscribing(broker):
+    socket_broker, _ = broker
+    client = uuid4()
+    socket_broker.register_client(client, "tab")
+    socket_broker.update_subscription("tab", ["indicators_update:PETR4"])
+    socket_broker.remember_request("indicators_update:PETR4", client, "pedido")
+
+    socket_broker.update_subscription("tab", ["indicators_update:VALE3"])
+
+    assert socket_broker.requests("indicators_update:PETR4") == {}
+    # Assinar o ativo de novo não traz o pedido de volta: ele precisa ser refeito por HTTP
+    socket_broker.update_subscription("tab", ["indicators_update:PETR4"])
+    assert socket_broker.requests("indicators_update:PETR4") == {}
+
+
+def test_the_request_drops_when_the_last_connection_closes(broker):
+    socket_broker, _ = broker
+    client = uuid4()
+    socket_broker.register_client(client, "tab-1")
+    socket_broker.register_client(client, "tab-2")
+    socket_broker.update_subscription("tab-1", ["order_preview:PETR4"])
+    socket_broker.update_subscription("tab-2", ["order_preview:PETR4"])
+    socket_broker.remember_request("order_preview:PETR4", client, "pedido")
+
+    socket_broker.remove_client(client, "tab-1")
+    assert socket_broker.requests("order_preview:PETR4") == {client: "pedido"}
+
+    socket_broker.remove_client(client, "tab-2")
+    assert socket_broker.requests("order_preview:PETR4") == {}
+
+
+def test_a_request_that_arrives_before_the_subscription_waits_for_it(broker):
+    socket_broker, _ = broker
+    client = uuid4()
+    socket_broker.register_client(client, "tab")
+
+    socket_broker.remember_request("order_preview:PETR4", client, "pedido")
+    # Uma troca de assinatura que ainda não inclui o evento não derruba o pedido
+    socket_broker.update_subscription("tab", ["portfolio_update"])
+    socket_broker.update_subscription(
+        "tab", ["order_preview:PETR4", "portfolio_update"]
+    )
+
+    assert socket_broker.requests("order_preview:PETR4") == {client: "pedido"}
+
+    socket_broker.update_subscription("tab", ["portfolio_update"])
+    assert socket_broker.requests("order_preview:PETR4") == {}
+
+
+def test_only_the_requests_of_subscribed_clients_are_listed(broker):
+    socket_broker, _ = broker
+    ana, bia = uuid4(), uuid4()
+    socket_broker.register_client(ana, "ana")
+    socket_broker.register_client(bia, "bia")
+    socket_broker.update_subscription("ana", ["order_preview:PETR4"])
+    socket_broker.update_subscription("bia", ["order_preview:PETR4"])
+    socket_broker.remember_request("order_preview:PETR4", ana, "da ana")
+    socket_broker.remember_request("order_preview:PETR4", bia, "da bia")
+
+    socket_broker.update_subscription("bia", [])
+
+    assert socket_broker.requests("order_preview:PETR4") == {ana: "da ana"}
+
+
+def test_the_notice_of_a_request_reaches_only_its_client(broker):
+    socket_broker, server = broker
+    ana, bia = uuid4(), uuid4()
+    socket_broker.register_client(ana, "ana")
+    socket_broker.register_client(bia, "bia")
+    socket_broker.update_subscription("ana", ["order_preview:PETR4"])
+    socket_broker.update_subscription("bia", ["order_preview:PETR4"])
+
+    socket_broker.notify("order_preview:PETR4", {}, to=bia)
+
+    assert server.sent == [("order_preview:PETR4", "bia")]

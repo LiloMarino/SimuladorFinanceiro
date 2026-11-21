@@ -25,6 +25,7 @@ from backend.core.dto.candle_challenge import (
     CandleChallengeStateDTO,
     ChallengeNoticeEventDTO,
 )
+from backend.core.dto.candle_patterns import CandlePatternsUpdateDTO
 from backend.core.dto.economy import EconomyPanelDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.goal import GoalProgressDTO
@@ -32,6 +33,7 @@ from backend.core.dto.government import CongressBaseDTO
 from backend.core.dto.life import LifeEventDTO
 from backend.core.dto.news import NewsDTO
 from backend.core.dto.order import OrderDTO
+from backend.core.dto.order_preview import OrderPreviewDTO, OrderPreviewRequest
 from backend.core.dto.patrimonial_history import PortfolioHistoryPointDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PositionDTO
@@ -40,8 +42,13 @@ from backend.core.dto.presence import PlayerPresenceEventDTO, PlayerRemovedEvent
 from backend.core.dto.preset import PresetAppliedEventDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
+from backend.core.dto.state_company import StateCompanyDetailDTO
 from backend.core.dto.strategy import StrategyOrderLineDTO
 from backend.core.dto.summaries import SummaryDTO
+from backend.core.dto.technical_indicators import (
+    IndicatorsRequestDTO,
+    TechnicalIndicatorsDTO,
+)
 from backend.core.enum import (
     CampaignActionKind,
     CreditGrade,
@@ -125,6 +132,34 @@ class OrderEventDTO(BaseDTO):
 
 class OrderBookSnapshotEventDTO(BaseDTO):
     orders: list[OrderDTO]
+
+
+class OrderPreviewEventDTO(BaseDTO):
+    """A prévia recalculada do último pedido do cliente no ativo, só para ele."""
+
+    # O pedido que gerou a prévia: a boleta só aplica a que corresponde ao rascunho dela
+    request: OrderPreviewRequest
+    # A conta em que o pedido foi feito (id da gestora; nulo é a pessoal)
+    account: int | None
+    # Nulo quando a ordem não cabe; `refused` traz então o motivo
+    preview: OrderPreviewDTO | None
+    refused: str | None
+
+
+class IndicatorsUpdateEventDTO(BaseDTO):
+    """O último pregão nos indicadores do último pedido do cliente no ativo, só para ele."""
+
+    request: IndicatorsRequestDTO
+    # O pregão anterior ao do aviso: o ponto novo só se soma a séries que terminam nele
+    previous_date: date | None
+    # `series` traz só o ponto novo de cada série pedida; o resumo vem inteiro
+    update: TechnicalIndicatorsDTO
+
+
+class StateCompanyUpdateEventDTO(BaseDTO):
+    """A estatal do ativo como o jogador a vê, entregue a cada dia a quem abre a página."""
+
+    detail: StateCompanyDetailDTO
 
 
 class FixedAssetsUpdateEventDTO(BaseDTO):
@@ -419,6 +454,10 @@ class RealtimeEventCatalog(BaseDTO):
     order_added: OrderEventDTO
     order_updated: OrderEventDTO
     order_book_snapshot: OrderBookSnapshotEventDTO
+    order_preview: OrderPreviewEventDTO
+    indicators_update: IndicatorsUpdateEventDTO
+    candle_patterns_update: CandlePatternsUpdateDTO
+    state_company_update: StateCompanyUpdateEventDTO
     future_recording_progress: FutureRecordingProgressEventDTO
     achievement_unlocked: AchievementUnlockedEventDTO
     summary_delivered: SummaryDTO

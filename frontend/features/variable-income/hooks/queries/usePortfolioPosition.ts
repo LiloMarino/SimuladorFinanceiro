@@ -3,6 +3,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { applyRealtime } from "@/shared/lib/realtime/apply-realtime";
 import { eventAccountKey } from "@/shared/lib/active-account";
 import type { Position } from "@/types";
 
@@ -23,7 +24,11 @@ export function usePortfolioPosition(ticker: string | undefined) {
   useRealtime(
     `position_update:${ticker}`,
     ({ position, account }) => {
-      queryClient.setQueryData(queryKeys.portfolioPosition(eventAccountKey(account), ticker ?? ""), position);
+      void applyRealtime<Position>(
+        queryClient,
+        queryKeys.portfolioPosition(eventAccountKey(account), ticker ?? ""),
+        position,
+      );
     },
     !!ticker,
   );
@@ -33,7 +38,11 @@ export function usePortfolioPosition(ticker: string | undefined) {
     ({ portfolio, account }) => {
       const position = portfolio.variable_income.find((p) => p.ticker === ticker);
       if (position) {
-        queryClient.setQueryData(queryKeys.portfolioPosition(eventAccountKey(account), ticker ?? ""), position);
+        void applyRealtime<Position>(
+          queryClient,
+          queryKeys.portfolioPosition(eventAccountKey(account), ticker ?? ""),
+          position,
+        );
       }
     },
     !!ticker,

@@ -80,4 +80,12 @@ export type SimulationEvents = {
   [K in `order_updated:${string}`]: RealtimeEventCatalog["order_updated"];
 } & {
   [K in `order_book_snapshot:${string}`]: RealtimeEventCatalog["order_book_snapshot"];
+} & {
+  [K in `order_preview:${string}`]: RealtimeEventCatalog["order_preview"];
+} & {
+  [K in `indicators_update:${string}`]: RealtimeEventCatalog["indicators_update"];
+} & {
+  [K in `candle_patterns_update:${string}`]: RealtimeEventCatalog["candle_patterns_update"];
+} & {
+  [K in `state_company_update:${string}`]: RealtimeEventCatalog["state_company_update"];
 };

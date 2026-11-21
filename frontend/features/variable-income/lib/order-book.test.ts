@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Order } from "@/types";
 import {
+  applyOrderEvent,
   barShare,
   displayBookQuantity,
   bookSpread,
@@ -98,5 +99,76 @@ describe("displayBookQuantity", () => {
 
   it("mantém a quantidade inteira abaixo disso", () => {
     expect(displayBookQuantity("1500")).toBe("1.500");
+  });
+});
+
+describe("applyOrderEvent", () => {
+  const book = [
+    order({ id: "b1", action: "buy", limit_price: 10 }),
+    order({ id: "b2", action: "buy", limit_price: 9 }),
+    order({ id: "s1", action: "sell", limit_price: 11 }),
+    order({ id: "s2", action: "sell", limit_price: 12 }),
+  ];
+  const ids = (orders: Order[]) => orders.map((o) => o.id);
+
+  it("a compra nova entra no lugar do preço, depois das que chegaram antes no mesmo preço", () => {
+    expect(ids(applyOrderEvent(book, order({ id: "n", action: "buy", limit_price: 10 })))).toEqual([
+      "b1",
+      "n",
+      "b2",
+      "s1",
+      "s2",
+    ]);
+    expect(ids(applyOrderEvent(book, order({ id: "n", action: "buy", limit_price: 9.5 })))).toEqual([
+      "b1",
+      "n",
+      "b2",
+      "s1",
+      "s2",
+    ]);
+    expect(ids(applyOrderEvent(book, order({ id: "n", action: "buy", limit_price: 8 })))).toEqual([
+      "b1",
+      "b2",
+      "n",
+      "s1",
+      "s2",
+    ]);
+  });
+
+  it("a venda nova entra da menor para a maior oferta", () => {
+    expect(ids(applyOrderEvent(book, order({ id: "n", action: "sell", limit_price: 11.5 })))).toEqual([
+      "b1",
+      "b2",
+      "s1",
+      "n",
+      "s2",
+    ]);
+    expect(ids(applyOrderEvent(book, order({ id: "n", action: "sell", limit_price: 10.5 })))).toEqual([
+      "b1",
+      "b2",
+      "n",
+      "s1",
+      "s2",
+    ]);
+  });
+
+  it("a ordem que mudou fica onde estava", () => {
+    const next = applyOrderEvent(
+      book,
+      order({ id: "b2", action: "buy", limit_price: 9, status: "partial", remaining: "40" }),
+    );
+    expect(ids(next)).toEqual(ids(book));
+    expect(next[1]?.remaining).toBe("40");
+  });
+
+  it("a ordem que deixou de estar aberta sai do livro", () => {
+    expect(
+      ids(applyOrderEvent(book, order({ id: "s1", action: "sell", limit_price: 11, status: "executed" }))),
+    ).toEqual(["b1", "b2", "s2"]);
+    expect(applyOrderEvent(book, order({ id: "x", status: "canceled" }))).toBe(book);
+  });
+
+  it("o livro vazio recebe a primeira ordem", () => {
+    expect(ids(applyOrderEvent([], order({ id: "n" })))).toEqual(["n"]);
   });
 });

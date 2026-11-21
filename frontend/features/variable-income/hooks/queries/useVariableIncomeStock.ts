@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
+import { applyRealtimeDelta } from "@/shared/lib/realtime/apply-realtime";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import type { StockDetails } from "@/types";
 import { mergeStockUpdate } from "../../lib/stock-history";
@@ -18,8 +19,10 @@ export function useVariableIncomeStock(ticker: string | undefined) {
   useRealtime(
     `stock_update:${ticker}`,
     ({ stock }) => {
-      queryClient.setQueryData(queryKeys.variableIncomeStock(ticker ?? ""), (prev: StockDetails | undefined) =>
-        mergeStockUpdate(prev, stock),
+      void applyRealtimeDelta<StockDetails>(
+        queryClient,
+        queryKeys.variableIncomeStock(ticker ?? ""),
+        (current) => mergeStockUpdate(current, stock) ?? null,
       );
     },
     !!ticker,

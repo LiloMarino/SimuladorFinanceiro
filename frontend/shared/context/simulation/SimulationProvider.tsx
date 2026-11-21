@@ -1,4 +1,4 @@
-import { useEffect, type PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { SimulationContext } from "./SimulationContext";
@@ -12,17 +12,14 @@ import { CreditNotifications } from "@/shared/notifications/credit-notifications
 import { StrategyNotifications } from "@/shared/notifications/strategy-notifications";
 import { LifeNotifications } from "@/shared/notifications/life-notifications";
 import { PlayerActivityReporter } from "./PlayerActivityReporter";
-import { useRealtimeContext } from "@/shared/hooks/useRealtimeContext";
+import { useRefetchOnReconnect } from "@/shared/hooks/useRefetchOnReconnect";
 import { revalidateSimulation } from "@/shared/lib/simulation-cache";
 
 export function SimulationProvider({ children }: PropsWithChildren) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { connected } = useRealtimeContext();
 
-  useEffect(() => {
-    if (connected) void revalidateSimulation(queryClient);
-  }, [connected, queryClient]);
+  useRefetchOnReconnect();
 
   useRealtime("speed_update", ({ speed }) => {
     if (speed <= 0) void revalidateSimulation(queryClient);

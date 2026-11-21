@@ -34,6 +34,10 @@ class SocketBroker(RealtimeBroker):
             set
         )  # client_id -> sids
         self._sid_to_client: dict[SID, ClientID] = {}  # sid -> client_id
+        # Último pedido de cada cliente num evento de assinatura com parâmetro
+        self._requests: dict[Event, dict[ClientID, object]] = defaultdict(dict)
+        # Pedidos que chegaram antes de a aba assinar o evento
+        self._awaiting: set[tuple[Event, ClientID]] = set()
 
     def bind_event_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         """Associa o event loop principal para execuções thread-safe."""
@@ -53,10 +57,12 @@ class SocketBroker(RealtimeBroker):
                 subs.discard(sid)
 
             sids = self._client_to_sids.get(client_id)
+            if sids is not None:
+                sids.discard(sid)
+            self._forget_unsubscribed_requests(client_id)
             if sids is None:
                 return True
 
-            sids.discard(sid)
             if sids:
                 return False
 
@@ -69,11 +75,54 @@ class SocketBroker(RealtimeBroker):
 
     def update_subscription(self, sid: SID, events: Iterable[Event]) -> None:
         """Troca os eventos que a conexão assina pela lista nova."""
+        events = list(events)
         with self._lock:
             for subs in self._subscriptions.values():
                 subs.discard(sid)
             for event in events:
                 self._subscriptions[event].add(sid)
+            client_id = self._sid_to_client.get(sid)
+            if client_id is not None:
+                self._awaiting -= {(event, client_id) for event in events}
+                self._forget_unsubscribed_requests(client_id)
+
+    def remember_request(self, event: Event, client_id: ClientID, request: object):
+        """Guarda o último pedido do cliente no evento, para recalcular a cada publicação."""
+        with self._lock:
+            self._requests[event][client_id] = request
+            sids = self._client_to_sids.get(client_id, set())
+            if not (self._subscriptions.get(event, set()) & sids):
+                self._awaiting.add((event, client_id))
+
+    def requests(self, event: Event) -> dict[ClientID, object]:
+        """Os pedidos guardados dos clientes que ainda assinam o evento."""
+        with self._lock:
+            subscribed = {
+                self._sid_to_client[sid]
+                for sid in self._subscriptions.get(event, set())
+                if sid in self._sid_to_client
+            }
+            return {
+                client_id: request
+                for client_id, request in self._requests.get(event, {}).items()
+                if client_id in subscribed
+            }
+
+    def _forget_unsubscribed_requests(self, client_id: ClientID) -> None:
+        """
+        O pedido vive enquanto o cliente assina o evento. Um pedido que chega antes do
+        subscribe da aba fica guardado: só cai quando o cliente já assinou e deixou de assinar.
+        """
+        # Chamado com o lock tomado
+        sids = self._client_to_sids.get(client_id, set())
+        for event in list(self._requests):
+            if client_id not in self._requests[event]:
+                continue
+            if sids and (event, client_id) in self._awaiting:
+                continue
+            if not (self._subscriptions.get(event, set()) & sids):
+                del self._requests[event][client_id]
+                self._awaiting.discard((event, client_id))
 
     def subscribed_clients(self, event: Event) -> set[ClientID]:
         with self._lock:

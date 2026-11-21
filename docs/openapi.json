@@ -244,6 +244,11 @@
         "summary": "Indicadores técnicos de um ativo",
         "description": "Calcula os indicadores técnicos sobre o mesmo histórico do gráfico do ativo, que termina na data da simulação, com os parâmetros enviados. Devolve as séries pedidas em `series` e o Resumo técnico do dia, que conta todos os indicadores.",
         "operationId": "get_variable_income_indicators_api_variable_income__asset__indicators_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
         "parameters": [
           {
             "name": "asset",
@@ -260,7 +265,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IndicatorsRequestDTO"
+                "$ref": "#/components/schemas/IndicatorsRequestDTO-Input"
               }
             }
           }
@@ -617,7 +622,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/OrderPreviewRequest"
+                "$ref": "#/components/schemas/OrderPreviewRequest-Input"
               }
             }
           }
@@ -18760,6 +18765,45 @@
         "title": "CandlePatternsDTO",
         "description": "A lista e as estatísticas contam o histórico inteiro até a data da simulação."
       },
+      "CandlePatternsUpdateDTO": {
+        "properties": {
+          "from_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Date"
+          },
+          "patterns": {
+            "items": {
+              "$ref": "#/components/schemas/CandlePatternDTO"
+            },
+            "type": "array",
+            "title": "Patterns"
+          },
+          "stats": {
+            "items": {
+              "$ref": "#/components/schemas/PatternStatsDTO"
+            },
+            "type": "array",
+            "title": "Stats"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "from_date",
+          "patterns",
+          "stats"
+        ],
+        "title": "CandlePatternsUpdateDTO",
+        "description": "O que o último pregão muda nos padrões: os que terminam a partir de `from_date` (os recém-\nformados e os que ganharam desfecho) e as estatísticas inteiras. Quem tem a lista troca\nnela tudo o que termina de `from_date` em diante por `patterns`."
+      },
       "CashResponse": {
         "properties": {
           "cash": {
@@ -30744,7 +30788,7 @@
         "title": "IndicatorSettingsDTO",
         "description": "O que o jogador deixou ligado no gráfico e com quais parâmetros; vale para todas as ações."
       },
-      "IndicatorsRequestDTO": {
+      "IndicatorsRequestDTO-Input": {
         "properties": {
           "params": {
             "$ref": "#/components/schemas/IndicatorParamsDTO-Input",
@@ -30784,6 +30828,82 @@
         "additionalProperties": false,
         "type": "object",
         "title": "IndicatorsRequestDTO"
+      },
+      "IndicatorsRequestDTO-Output": {
+        "properties": {
+          "params": {
+            "$ref": "#/components/schemas/IndicatorParamsDTO-Output",
+            "default": {
+              "averages": [
+                {
+                  "kind": "sma",
+                  "period": 20
+                },
+                {
+                  "kind": "ema",
+                  "period": 50
+                }
+              ],
+              "bollinger_period": 20,
+              "bollinger_deviations": 2.0,
+              "rsi_period": 14,
+              "rsi_overbought": 70,
+              "rsi_oversold": 30,
+              "macd_fast": 12,
+              "macd_slow": 26,
+              "macd_signal": 9,
+              "stochastic_k": 14,
+              "stochastic_d": 3,
+              "atr_period": 14
+            }
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorKey"
+            },
+            "type": "array",
+            "title": "Series",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "params",
+          "series"
+        ],
+        "title": "IndicatorsRequestDTO"
+      },
+      "IndicatorsUpdateEventDTO": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/IndicatorsRequestDTO-Output"
+          },
+          "previous_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Date"
+          },
+          "update": {
+            "$ref": "#/components/schemas/TechnicalIndicatorsDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request",
+          "previous_date",
+          "update"
+        ],
+        "title": "IndicatorsUpdateEventDTO",
+        "description": "O último pregão nos indicadores do último pedido do cliente no ativo, só para ele."
       },
       "InflationCurvePointDTO": {
         "properties": {
@@ -34527,7 +34647,56 @@
         "title": "OrderPreviewDTO",
         "description": "O que uma ordem faria se executasse agora, para a boleta mostrar antes do envio."
       },
-      "OrderPreviewRequest": {
+      "OrderPreviewEventDTO": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/OrderPreviewRequest-Output"
+          },
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrderPreviewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refused": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refused"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request",
+          "account",
+          "preview",
+          "refused"
+        ],
+        "title": "OrderPreviewEventDTO",
+        "description": "A prévia recalculada do último pedido do cliente no ativo, só para ele."
+      },
+      "OrderPreviewRequest-Input": {
         "properties": {
           "action": {
             "$ref": "#/components/schemas/OrderAction"
@@ -34553,6 +34722,63 @@
                 "type": "number",
                 "minimum": 0.0
               },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "max_size": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Size"
+          },
+          "limit_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limit Price"
+          }
+        },
+        "type": "object",
+        "required": [
+          "action"
+        ],
+        "title": "OrderPreviewRequest"
+      },
+      "OrderPreviewRequest-Output": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/OrderAction"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "amount": {
+            "anyOf": [
               {
                 "type": "string"
               },
@@ -39034,6 +39260,18 @@
           "order_book_snapshot": {
             "$ref": "#/components/schemas/OrderBookSnapshotEventDTO"
           },
+          "order_preview": {
+            "$ref": "#/components/schemas/OrderPreviewEventDTO"
+          },
+          "indicators_update": {
+            "$ref": "#/components/schemas/IndicatorsUpdateEventDTO"
+          },
+          "candle_patterns_update": {
+            "$ref": "#/components/schemas/CandlePatternsUpdateDTO"
+          },
+          "state_company_update": {
+            "$ref": "#/components/schemas/StateCompanyUpdateEventDTO"
+          },
           "future_recording_progress": {
             "$ref": "#/components/schemas/FutureRecordingProgressEventDTO"
           },
@@ -39126,6 +39364,10 @@
           "order_added",
           "order_updated",
           "order_book_snapshot",
+          "order_preview",
+          "indicators_update",
+          "candle_patterns_update",
+          "state_company_update",
           "future_recording_progress",
           "achievement_unlocked",
           "summary_delivered",
@@ -43117,6 +43359,20 @@
         ],
         "title": "StateCompanyStatus",
         "description": "Onde a estatal está: com o governo, em oferta de privatização ou já vendida."
+      },
+      "StateCompanyUpdateEventDTO": {
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/StateCompanyDetailDTO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "StateCompanyUpdateEventDTO",
+        "description": "A estatal do ativo como o jogador a vê, entregue a cada dia a quem abre a página."
       },
       "StateControl": {
         "type": "string",

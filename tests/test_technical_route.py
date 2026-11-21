@@ -4,17 +4,26 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 from types import SimpleNamespace
+from typing import TYPE_CHECKING, cast
+from uuid import UUID
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core.dto.stock_price_history import StockPriceHistoryDTO
+from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
+from backend.features.simulation.asset_page_feed import AssetPageFeed
+from backend.routes.dependencies.auth import get_client_id
 from backend.routes.dependencies.simulation import get_active_simulation
 from backend.routes.operation import operation_router
 
+if TYPE_CHECKING:
+    from backend.features.simulation.simulation import Simulation
+
 START = date(2023, 1, 2)
 DAYS = 40
+CLIENT = UUID(int=1)
 
 
 def candle(day: int) -> StockPriceHistoryDTO:
@@ -30,7 +39,22 @@ def candle(day: int) -> StockPriceHistoryDTO:
 
 
 @pytest.fixture
-def client() -> TestClient:
+def remembered(monkeypatch: pytest.MonkeyPatch) -> list[tuple[str, UUID, object]]:
+    saved: list[tuple[str, UUID, object]] = []
+    monkeypatch.setattr(
+        RealtimeBrokerManager,
+        "get_broker",
+        lambda: SimpleNamespace(
+            remember_request=lambda event, client_id, request: saved.append(
+                (event, client_id, request)
+            )
+        ),
+    )
+    return saved
+
+
+@pytest.fixture
+def client(remembered: list[tuple[str, UUID, object]]) -> TestClient:
     # O detalhe da partida já termina na data da simulação: é o histórico do gráfico
     history = [candle(day) for day in range(DAYS)]
     simulation = SimpleNamespace(
@@ -38,9 +62,13 @@ def client() -> TestClient:
             SimpleNamespace(history=history) if ticker == "PETR4" else None
         )
     )
+    simulation.watch_indicators = AssetPageFeed(
+        cast("Simulation", simulation)
+    ).watch_indicators
     app = FastAPI()
     app.include_router(operation_router)
     app.dependency_overrides[get_active_simulation] = lambda: simulation
+    app.dependency_overrides[get_client_id] = lambda: CLIENT
     return TestClient(app)
 
 
@@ -83,3 +111,13 @@ def test_an_unknown_asset_is_not_found(client: TestClient):
     response = client.post("/api/variable-income/XXXX3/indicators", json={})
 
     assert response.status_code == 404
+
+
+def test_the_request_is_kept_for_the_next_daily_notices(
+    client: TestClient, remembered: list[tuple[str, UUID, object]]
+):
+    client.post("/api/variable-income/PETR4/indicators", json={"series": ["rsi"]})
+
+    assert [(event, who) for event, who, _ in remembered] == [
+        ("indicators_update:PETR4", CLIENT)
+    ]

@@ -49,7 +49,9 @@ def paused_match(
         RealtimeBrokerManager,
         "get_broker",
         lambda: SimpleNamespace(
-            subscribed_clients=lambda _event: set(), notify=lambda *_a, **_kw: None
+            subscribed_clients=lambda _event: set(),
+            remember_request=lambda *_a: None,
+            notify=lambda *_a, **_kw: None,
         ),
     )
     settings = simulation_settings().model_copy(

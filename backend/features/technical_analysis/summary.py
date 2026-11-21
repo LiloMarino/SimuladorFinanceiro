@@ -72,6 +72,20 @@ def build_technical_indicators(
     )
 
 
+def build_indicators_update(
+    frame: pd.DataFrame, request: IndicatorsRequestDTO
+) -> TechnicalIndicatorsDTO:
+    """
+    O que o último pregão acrescenta aos indicadores: o ponto novo de cada série pedida e o
+    Resumo técnico inteiro. Os indicadores só olham para trás, então o passado já entregue
+    não muda e quem tem a série soma o ponto à ponta dela.
+    """
+    return TechnicalIndicatorsDTO(
+        series=_series(frame, request, last_only=True),
+        summary=build_summary(frame, request.params),
+    )
+
+
 def build_summary(
     frame: pd.DataFrame, params: IndicatorParamsDTO
 ) -> TechnicalSummaryDTO:
@@ -358,7 +372,10 @@ _READINGS: list[Callable[[pd.DataFrame, IndicatorParamsDTO], TechnicalReadingDTO
 ]
 
 
-def _points(series: pd.Series) -> list[IndicatorPointDTO]:
+def _points(series: pd.Series, last_only: bool) -> list[IndicatorPointDTO]:
+    # O ponto de hoje é o último da tabela; fica de fora quando o indicador ainda não aquece
+    if last_only:
+        series = series.iloc[-1:]
     return [
         IndicatorPointDTO(
             date=cast(pd.Timestamp, day).date(), value=round(float(value), 4)
@@ -367,7 +384,9 @@ def _points(series: pd.Series) -> list[IndicatorPointDTO]:
     ]
 
 
-def _series(frame: pd.DataFrame, request: IndicatorsRequestDTO) -> IndicatorSeriesDTO:
+def _series(
+    frame: pd.DataFrame, request: IndicatorsRequestDTO, last_only: bool = False
+) -> IndicatorSeriesDTO:
     params, wanted = request.params, set(request.series)
     close = _close(frame)
     updates: dict[str, object] = {}
@@ -379,7 +398,8 @@ def _series(frame: pd.DataFrame, request: IndicatorsRequestDTO) -> IndicatorSeri
                 points=_points(
                     indicators.sma(close, a.period)
                     if a.kind == "sma"
-                    else indicators.ema(close, a.period)
+                    else indicators.ema(close, a.period),
+                    last_only,
                 ),
             )
             for a in params.averages
@@ -389,30 +409,30 @@ def _series(frame: pd.DataFrame, request: IndicatorsRequestDTO) -> IndicatorSeri
             close, params.bollinger_period, params.bollinger_deviations
         )
         updates["bollinger"] = BandsSeriesDTO(
-            upper=_points(bands.upper),
-            middle=_points(bands.middle),
-            lower=_points(bands.lower),
+            upper=_points(bands.upper, last_only),
+            middle=_points(bands.middle, last_only),
+            lower=_points(bands.lower, last_only),
         )
     if "rsi" in wanted:
-        updates["rsi"] = _points(indicators.rsi(close, params.rsi_period))
+        updates["rsi"] = _points(indicators.rsi(close, params.rsi_period), last_only)
     if "macd" in wanted:
         result = indicators.macd(
             close, params.macd_fast, params.macd_slow, params.macd_signal
         )
         updates["macd"] = MacdSeriesDTO(
-            line=_points(result.line),
-            signal=_points(result.signal),
-            histogram=_points(result.histogram),
+            line=_points(result.line, last_only),
+            signal=_points(result.signal, last_only),
+            histogram=_points(result.histogram, last_only),
         )
     if "stochastic" in wanted:
         result = indicators.stochastic(frame, params.stochastic_k, params.stochastic_d)
         updates["stochastic"] = StochasticSeriesDTO(
-            k=_points(result.k), d=_points(result.d)
+            k=_points(result.k, last_only), d=_points(result.d, last_only)
         )
     if "atr" in wanted:
-        updates["atr"] = _points(indicators.atr(frame, params.atr_period))
+        updates["atr"] = _points(indicators.atr(frame, params.atr_period), last_only)
     if "obv" in wanted:
-        updates["obv"] = _points(indicators.obv(frame))
+        updates["obv"] = _points(indicators.obv(frame), last_only)
     return IndicatorSeriesDTO.model_validate(updates)
 
 

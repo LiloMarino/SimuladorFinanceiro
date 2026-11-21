@@ -6249,6 +6249,20 @@ export interface components {
             /** Stats */
             stats: components["schemas"]["PatternStatsDTO"][];
         };
+        /**
+         * CandlePatternsUpdateDTO
+         * @description O que o último pregão muda nos padrões: os que terminam a partir de `from_date` (os recém-
+         *     formados e os que ganharam desfecho) e as estatísticas inteiras. Quem tem a lista troca
+         *     nela tudo o que termina de `from_date` em diante por `patterns`.
+         */
+        CandlePatternsUpdateDTO: {
+            /** From Date */
+            from_date: string | null;
+            /** Patterns */
+            patterns: components["schemas"]["CandlePatternDTO"][];
+            /** Stats */
+            stats: components["schemas"]["PatternStatsDTO"][];
+        };
         /** CashResponse */
         CashResponse: {
             /** Cash */
@@ -10245,7 +10259,7 @@ export interface components {
             patterns: boolean;
         };
         /** IndicatorsRequestDTO */
-        IndicatorsRequestDTO: {
+        "IndicatorsRequestDTO-Input": {
             /**
              * @default {
              *       "averages": [
@@ -10277,6 +10291,50 @@ export interface components {
              * @default []
              */
             series: components["schemas"]["IndicatorKey"][];
+        };
+        /** IndicatorsRequestDTO */
+        "IndicatorsRequestDTO-Output": {
+            /**
+             * @default {
+             *       "averages": [
+             *         {
+             *           "kind": "sma",
+             *           "period": 20
+             *         },
+             *         {
+             *           "kind": "ema",
+             *           "period": 50
+             *         }
+             *       ],
+             *       "bollinger_period": 20,
+             *       "bollinger_deviations": 2,
+             *       "rsi_period": 14,
+             *       "rsi_overbought": 70,
+             *       "rsi_oversold": 30,
+             *       "macd_fast": 12,
+             *       "macd_slow": 26,
+             *       "macd_signal": 9,
+             *       "stochastic_k": 14,
+             *       "stochastic_d": 3,
+             *       "atr_period": 14
+             *     }
+             */
+            params: components["schemas"]["IndicatorParamsDTO-Output"];
+            /**
+             * Series
+             * @default []
+             */
+            series: components["schemas"]["IndicatorKey"][];
+        };
+        /**
+         * IndicatorsUpdateEventDTO
+         * @description O último pregão nos indicadores do último pedido do cliente no ativo, só para ele.
+         */
+        IndicatorsUpdateEventDTO: {
+            request: components["schemas"]["IndicatorsRequestDTO-Output"];
+            /** Previous Date */
+            previous_date: string | null;
+            update: components["schemas"]["TechnicalIndicatorsDTO"];
         };
         /** InflationCurvePointDTO */
         InflationCurvePointDTO: {
@@ -11566,13 +11624,37 @@ export interface components {
             tax_due_date: string | null;
             sovereign: components["schemas"]["SovereignOrderPreviewDTO"] | null;
         };
+        /**
+         * OrderPreviewEventDTO
+         * @description A prévia recalculada do último pedido do cliente no ativo, só para ele.
+         */
+        OrderPreviewEventDTO: {
+            request: components["schemas"]["OrderPreviewRequest-Output"];
+            /** Account */
+            account: number | null;
+            preview: components["schemas"]["OrderPreviewDTO"] | null;
+            /** Refused */
+            refused: string | null;
+        };
         /** OrderPreviewRequest */
-        OrderPreviewRequest: {
+        "OrderPreviewRequest-Input": {
             action: components["schemas"]["OrderAction"];
             /** Quantity */
             quantity?: number | string | null;
             /** Amount */
             amount?: number | string | null;
+            /** Max Size */
+            max_size?: boolean | null;
+            /** Limit Price */
+            limit_price?: number | null;
+        };
+        /** OrderPreviewRequest */
+        "OrderPreviewRequest-Output": {
+            action: components["schemas"]["OrderAction"];
+            /** Quantity */
+            quantity?: string | null;
+            /** Amount */
+            amount?: string | null;
             /** Max Size */
             max_size?: boolean | null;
             /** Limit Price */
@@ -13059,6 +13141,10 @@ export interface components {
             order_added: components["schemas"]["OrderEventDTO"];
             order_updated: components["schemas"]["OrderEventDTO"];
             order_book_snapshot: components["schemas"]["OrderBookSnapshotEventDTO"];
+            order_preview: components["schemas"]["OrderPreviewEventDTO"];
+            indicators_update: components["schemas"]["IndicatorsUpdateEventDTO"];
+            candle_patterns_update: components["schemas"]["CandlePatternsUpdateDTO"];
+            state_company_update: components["schemas"]["StateCompanyUpdateEventDTO"];
             future_recording_progress: components["schemas"]["FutureRecordingProgressEventDTO"];
             achievement_unlocked: components["schemas"]["AchievementUnlockedEventDTO"];
             summary_delivered: components["schemas"]["SummaryDTO"];
@@ -14578,6 +14664,13 @@ export interface components {
          * @enum {string}
          */
         StateCompanyStatus: "ACTIVE" | "PRIVATIZING" | "PRIVATIZED";
+        /**
+         * StateCompanyUpdateEventDTO
+         * @description A estatal do ativo como o jogador a vê, entregue a cada dia a quem abre a página.
+         */
+        StateCompanyUpdateEventDTO: {
+            detail: components["schemas"]["StateCompanyDetailDTO"];
+        };
         /**
          * StateControl
          * @description O degrau do controle de preço: quantos por cento a estatal segura o preço abaixo do que ele seria.
@@ -16419,7 +16512,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["IndicatorsRequestDTO"];
+                "application/json": components["schemas"]["IndicatorsRequestDTO-Input"];
             };
         };
         responses: {
@@ -16638,7 +16731,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["OrderPreviewRequest"];
+                "application/json": components["schemas"]["OrderPreviewRequest-Input"];
             };
         };
         responses: {

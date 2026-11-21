@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import date
 from typing import cast
 
 import numpy as np
@@ -26,6 +27,7 @@ from backend.core.dto.candle_patterns import (
     CandlePatternCode,
     CandlePatternDTO,
     CandlePatternsDTO,
+    CandlePatternsUpdateDTO,
     PatternDirection,
     PatternStatsDTO,
 )
@@ -304,11 +306,14 @@ def outcome(frame: pd.DataFrame, occurrence: Occurrence) -> float | None:
     Variação do fechamento do 5º pregão depois do fim do padrão, em fração (0,028 é
     +2,8%); None enquanto ainda não houve 5 pregões depois dele.
     """
-    target = occurrence.end_pos + OUTCOME_SESSIONS
-    if target >= len(frame):
+    return _change(frame["close"].to_numpy(dtype=float), occurrence.end_pos)
+
+
+def _change(closes: npt.NDArray[np.float64], end_pos: int) -> float | None:
+    target = end_pos + OUTCOME_SESSIONS
+    if target >= len(closes):
         return None
-    close = frame["close"]
-    return float(close.iloc[target] / close.iloc[occurrence.end_pos] - 1)
+    return float(closes[target] / closes[end_pos] - 1)
 
 
 def is_hit(direction: PatternDirection, change: float | None) -> bool | None:
@@ -318,17 +323,23 @@ def is_hit(direction: PatternDirection, change: float | None) -> bool | None:
     return change > 0 if direction == "up" else change < 0
 
 
-def build_candle_patterns(frame: pd.DataFrame) -> CandlePatternsDTO:
+def build_candle_patterns(
+    frame: pd.DataFrame, since: date | None = None
+) -> CandlePatternsDTO:
+    """Os padrões do histórico e o placar de cada um; `since` limita a lista, o placar é sempre inteiro."""
     patterns: list[CandlePatternDTO] = []
     checked = dict.fromkeys(PATTERNS, 0)
     hits = dict.fromkeys(PATTERNS, 0)
+    closes = frame["close"].to_numpy(dtype=float)
     for occurrence in detect(frame):
         direction = PATTERNS[occurrence.code].direction
-        change = outcome(frame, occurrence)
+        change = _change(closes, occurrence.end_pos)
         hit = is_hit(direction, change)
         if hit is not None:
             checked[occurrence.code] += 1
             hits[occurrence.code] += hit
+        if since is not None and occurrence.end.date() < since:
+            continue
         patterns.append(
             CandlePatternDTO(
                 code=occurrence.code,
@@ -345,4 +356,20 @@ def build_candle_patterns(frame: pd.DataFrame) -> CandlePatternsDTO:
             PatternStatsDTO(code=code, checked=checked[code], hits=hits[code])
             for code in PATTERNS
         ],
+    )
+
+
+def build_candle_patterns_update(frame: pd.DataFrame) -> CandlePatternsUpdateDTO:
+    """
+    Só o que o último pregão mexe: o padrão que termina nos últimos `OUTCOME_SESSIONS + 1`
+    pregões é novo ou acabou de ganhar o desfecho; os mais antigos já estão fechados.
+    """
+    if not len(frame):
+        return CandlePatternsUpdateDTO(
+            from_date=None, patterns=[], stats=build_candle_patterns(frame).stats
+        )
+    from_date = frame.index[max(len(frame) - OUTCOME_SESSIONS - 1, 0)].date()
+    recent = build_candle_patterns(frame, since=from_date)
+    return CandlePatternsUpdateDTO(
+        from_date=from_date, patterns=recent.patterns, stats=recent.stats
     )

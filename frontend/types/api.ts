@@ -3,7 +3,7 @@ import type { components, operations } from "@/types/openapi";
 // Stock
 export type MarketQuote = components["schemas"]["MarketQuoteDTO"];
 export type OrderPreview = components["schemas"]["OrderPreviewDTO"];
-export type OrderPreviewRequest = components["schemas"]["OrderPreviewRequest"];
+export type OrderPreviewRequest = components["schemas"]["OrderPreviewRequest-Input"];
 export type SubmitOrderRequest = components["schemas"]["SubmitOrderRequest"];
 export type SubmitOrderResponse = components["schemas"]["SubmitOrderResponse"];
 export type Trade = components["schemas"]["TradeDTO"];
@@ -166,7 +166,7 @@ export type IndicatorSettings = components["schemas"]["IndicatorSettingsDTO-Outp
 export type IndicatorParams = components["schemas"]["IndicatorParamsDTO-Output"];
 export type IndicatorKey = IndicatorSettings["visible"][number];
 export type MovingAverage = IndicatorParams["averages"][number];
-export type IndicatorsRequest = components["schemas"]["IndicatorsRequestDTO"];
+export type IndicatorsRequest = components["schemas"]["IndicatorsRequestDTO-Input"];
 export type TechnicalIndicators = components["schemas"]["TechnicalIndicatorsDTO"];
 export type TechnicalSummary = TechnicalIndicators["summary"];
 export type TechnicalReading = TechnicalSummary["readings"][number];

@@ -1,7 +1,36 @@
 from datetime import date
 from decimal import Decimal
 
+from pydantic import BaseModel, Field, model_validator
+
 from backend.core.dto.base import BaseDTO
+from backend.core.enum import OrderAction
+
+
+class OrderPreviewRequest(BaseModel):
+    action: OrderAction
+    # Exatamente um tamanho: a quantidade, o valor da compra a mercado, ou o limite inteiro
+    quantity: Decimal | None = Field(default=None, ge=0, decimal_places=8)
+    amount: Decimal | None = Field(default=None, ge=0, decimal_places=2)
+    max_size: bool | None = None
+    limit_price: float | None = Field(default=None, gt=0)
+
+    @model_validator(mode="after")
+    def exactly_one_size(self):
+        sizes = (
+            (self.quantity is not None)
+            + (self.amount is not None)
+            + bool(self.max_size)
+        )
+        if sizes != 1:
+            raise ValueError(
+                "Informe exatamente um tamanho: a quantidade, o valor ou o máximo"
+            )
+        if self.amount is not None and (
+            self.action != OrderAction.BUY or self.limit_price is not None
+        ):
+            raise ValueError("O valor só vale na compra a mercado")
+        return self
 
 
 class SovereignOrderPreviewDTO(BaseDTO):

@@ -97,7 +97,8 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   const size = orderSizeOf({ maxChosen, byAmount, quantity, amount });
   const [request] = useDebounce({ action, ...size, limit_price: limitPrice }, 250);
 
-  const { data: preview, error, isLoading, refetch } = useOrderPreview(ticker, request);
+  const { preview, refused, error, isLoading, refetch } = useOrderPreview(ticker, request);
+  const previewFailed = !!error || refused !== null;
   const requestMatches =
     request.action === action &&
     request.quantity === size.quantity &&
@@ -151,7 +152,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
     !locked &&
     !quotaOnFundAccount &&
     requestMatches &&
-    !error &&
+    !previewFailed &&
     hasSize &&
     !invalidSize &&
     sovereignRefusal === null &&
@@ -170,7 +171,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
         : `Máx = ${displayQuantity(maxQuantity)} com o caixa de hoje.`;
   const amountHint = maxChosen
     ? maxHint
-    : amountNumber === 0 || error
+    : amountNumber === 0 || previewFailed
       ? null
       : requestMatches && preview
         ? `≈ ${displayQuantity(preview.quantity)} ${ticker} (estimado) ao melhor preço de venda, ${displayMoney(preview.price ?? 0)}.`
@@ -188,7 +189,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
     ? MANAGED_FUND_QUOTA_REFUSAL
     : quotaOnFundAccount
       ? "Volte para a carteira pessoal para negociar a cota."
-      : error
+      : previewFailed
         ? "Atualize a prévia antes de enviar."
         : !requestMatches || !preview
           ? "Conferindo a ordem…"
@@ -387,10 +388,10 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                 )}
               </form>
 
-              {error && (
+              {previewFailed && (
                 <ErrorState
                   title="Não deu para conferir a ordem"
-                  description="Atualize a prévia antes de enviar."
+                  description={refused ?? "Atualize a prévia antes de enviar."}
                   error={error}
                   onRetry={() => void refetch()}
                 />
@@ -448,7 +449,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                   )}
                 </dl>
               ) : (
-                !error && <SummarySkeleton rows={selling ? 2 : 4} />
+                !previewFailed && <SummarySkeleton rows={selling ? 2 : 4} />
               )}
 
               {sovereignStake && <SovereignStake data={sovereignStake} />}

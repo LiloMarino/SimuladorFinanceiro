@@ -51,3 +51,15 @@ class CandlePatternsDTO(BaseDTO):
 
     patterns: list[CandlePatternDTO]
     stats: list[PatternStatsDTO]
+
+
+class CandlePatternsUpdateDTO(BaseDTO):
+    """
+    O que o último pregão muda nos padrões: os que terminam a partir de `from_date` (os recém-
+    formados e os que ganharam desfecho) e as estatísticas inteiras. Quem tem a lista troca
+    nela tudo o que termina de `from_date` em diante por `patterns`.
+    """
+
+    from_date: date | None
+    patterns: list[CandlePatternDTO]
+    stats: list[PatternStatsDTO]

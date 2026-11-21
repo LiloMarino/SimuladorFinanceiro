@@ -29,6 +29,27 @@ export function splitBook(orders: Order[]): OrderBook {
   };
 }
 
+/** A ordem `a` fica antes da `b` na fila do livro: compras da maior para a menor oferta, depois vendas da menor para a maior. */
+function queuesBefore(a: Order, b: Order) {
+  if (a.action !== b.action) return a.action === "buy";
+  const [x, y] = [a.limit_price ?? 0, b.limit_price ?? 0];
+  return a.action === "buy" ? x >= y : x <= y;
+}
+
+/**
+ * Aplica ao livro o aviso de uma ordem. A fila é por preço e, no mesmo preço, por chegada:
+ * a ordem nova entra no fim do degrau do preço dela, e a que mudou fica onde estava.
+ * A ordem que deixou de estar aberta sai do livro.
+ */
+export function applyOrderEvent(orders: Order[], order: Order): Order[] {
+  const index = orders.findIndex((item) => item.id === order.id);
+  if (!isOpenOrder(order)) return index === -1 ? orders : orders.filter((item) => item.id !== order.id);
+  if (index !== -1) return orders.map((item) => (item.id === order.id ? order : item));
+  // A fila está ordenada: a nova fica depois de todas as ordens que têm prioridade sobre ela
+  const position = orders.filter((item) => queuesBefore(item, order)).length;
+  return [...orders.slice(0, position), order, ...orders.slice(position)];
+}
+
 /** Preço típico do dia, `(máxima + mínima + fechamento) / 3`: o centro das ofertas do Mercado. */
 export function typicalPrice({ high, low, close }: { high: number; low: number; close: number }) {
   return (high + low + close) / 3;

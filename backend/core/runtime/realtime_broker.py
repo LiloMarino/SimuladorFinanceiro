@@ -25,6 +25,18 @@ class RealtimeBroker(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def remember_request(
+        self, event: Event, client_id: ClientID, request: object
+    ) -> None:
+        """Guarda o último pedido do cliente num evento de assinatura com parâmetro."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def requests(self, event: Event) -> dict[ClientID, object]:
+        """Os pedidos guardados dos clientes que ainda assinam o evento."""
+        raise NotImplementedError
+
+    @abstractmethod
     def notify(
         self,
         event: Event,

@@ -3,6 +3,7 @@ import { apiFetch } from "@/shared/lib/api/apiFetch";
 import { queryKeys } from "@/shared/lib/queryKeys";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { useRealtime } from "@/shared/hooks/useRealtime";
+import { applyRealtime } from "@/shared/lib/realtime/apply-realtime";
 import { eventAccountKey } from "@/shared/lib/active-account";
 import type { PortfolioState } from "@/types";
 
@@ -26,7 +27,7 @@ export function usePortfolio({
   });
 
   useRealtime("portfolio_update", ({ portfolio, account }) => {
-    queryClient.setQueryData(queryKeys.portfolioOf(eventAccountKey(account)), portfolio);
+    void applyRealtime<PortfolioState>(queryClient, queryKeys.portfolioOf(eventAccountKey(account)), portfolio);
   });
 
   return query;

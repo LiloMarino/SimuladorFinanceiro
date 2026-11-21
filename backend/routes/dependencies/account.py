@@ -8,6 +8,18 @@ from backend.routes.dependencies.auth import get_client_id
 from backend.routes.dependencies.simulation import get_active_simulation
 
 
+def get_account_id(
+    x_account: Annotated[
+        int | None,
+        Header(
+            description="Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
+        ),
+    ] = None,
+) -> int | None:
+    """A conta que o header X-Account escolheu; nula é a do jogador."""
+    return x_account
+
+
 def get_acting_client_id(
     client_id: Annotated[UUID, Depends(get_client_id)],
     simulation: Annotated[Simulation, Depends(get_active_simulation)],

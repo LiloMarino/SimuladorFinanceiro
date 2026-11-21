@@ -90,7 +90,11 @@ from backend.core.dto.life import (
     LifeStatusDTO,
 )
 from backend.core.dto.order import OrderDTO
-from backend.core.dto.order_preview import OrderPreviewDTO, SovereignOrderPreviewDTO
+from backend.core.dto.order_preview import (
+    OrderPreviewDTO,
+    OrderPreviewRequest,
+    SovereignOrderPreviewDTO,
+)
 from backend.core.dto.patrimonial_history import (
     PatrimonialHistoryDTO,
     PortfolioHistoryPointDTO,
@@ -122,6 +126,10 @@ from backend.core.dto.strategy import (
     StrategyLogPageDTO,
     StrategyParamValue,
     StrategyViewDTO,
+)
+from backend.core.dto.technical_indicators import (
+    IndicatorsRequestDTO,
+    TechnicalIndicatorsDTO,
 )
 from backend.core.dto.treasury import (
     TreasuryCatalogDTO,
@@ -278,6 +286,7 @@ from backend.features.realtime.schemas import (
     StocksUpdateEventDTO,
     StockUpdateEventDTO,
 )
+from backend.features.simulation.asset_page_feed import AssetPageFeed
 from backend.features.simulation.life_events import (
     layoff_factor_of,
     layoff_in,
@@ -340,6 +349,9 @@ def synchronized(
                 if self._sync_depth == 0 and self._panels_stale:
                     self._panels_stale = False
                     self._publish_government_panels()
+                # E com as prévias de ordem que o caixa, a posição ou o book mudaram
+                if self._sync_depth == 0:
+                    self._refresh_order_previews()
 
     return call
 
@@ -425,6 +437,7 @@ class Simulation:
         self._parties: dict[int, str] = {}
         self._offer_bankers: list[UUID] | None = None
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
+        self._feed = AssetPageFeed(self)
         self._engine = SimulationEngine(
             self._current_date,
             settings.id,
@@ -2616,6 +2629,7 @@ class Simulation:
                     f"stock_update:{ticker}",
                     StockUpdateEventDTO(stock=stock).to_json(),
                 )
+            self._feed.publish_day([*stocks, *created_candles])
             notify(
                 "simulation_update",
                 SimulationTickUpdateEventDTO(current_date=self._current_date).to_json(),
@@ -3398,6 +3412,35 @@ class Simulation:
                 )
             }
         )
+
+    @synchronized
+    def watch_order_preview(
+        self,
+        requester: UUID,
+        account: int | None,
+        ticker: str,
+        request: OrderPreviewRequest,
+    ) -> OrderPreviewDTO:
+        """A prévia de agora; o pedido fica registrado e a prévia nova chega pelo aviso `order_preview:{ticker}`."""
+        return self._feed.watch_preview(requester, account, ticker, request)
+
+    @synchronized
+    def watch_indicators(
+        self, requester: UUID, ticker: str, request: IndicatorsRequestDTO
+    ) -> TechnicalIndicatorsDTO | None:
+        """Os indicadores de agora; o pedido fica registrado e o ponto novo chega pelo aviso `indicators_update:{ticker}`."""
+        return self._feed.watch_indicators(requester, ticker, request)
+
+    def _refresh_order_previews(self) -> None:
+        # A varredura roda dentro do lock, como uma operação sincronizada: as consultas
+        # dela não disparam a varredura de novo
+        self._sync_depth += 1
+        try:
+            self._feed.refresh_previews()
+        except Exception:
+            logger.exception("Falha ao atualizar as prévias de ordem")
+        finally:
+            self._sync_depth -= 1
 
     @synchronized
     def get_orders(self, ticker: str) -> list[OrderDTO]:

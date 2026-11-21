@@ -51,18 +51,40 @@ Os parâmetros do hook são o que varia entre as chamadas: id, ticker, corpo da 
 ### Tempo real
 
 O evento que só atualiza a própria query mora dentro do hook dela, com `useRealtime` +
-`setQueryData`. Todo consumidor do hook recebe o dado novo:
+`applyRealtime`. Todo consumidor do hook recebe o dado novo:
 
 ```typescript
 // shared/hooks/queries/usePortfolio.ts
-useRealtime("portfolio_update", ({ portfolio }) => {
-  queryClient.setQueryData(queryKeys.portfolio(), portfolio);
+useRealtime("portfolio_update", ({ portfolio, account }) => {
+  void applyRealtime(queryClient, queryKeys.portfolioOf(eventAccountKey(account)), portfolio);
 });
 ```
 
 O evento que mexe em várias queries, ou que também navega, fica no componente que orquestra
 a tela (página ou provider). Exemplo: `simulation_ended` no `SimulationProvider` invalida as
 estatísticas, troca de rota e renova o status da partida.
+
+### Avisos que carregam o dado
+
+O aviso do websocket carrega o dado novo, e o front o aplica no cache. A leitura HTTP busca
+na abertura da tela e quando a conexão volta; entre uma e outra, a tela vive do que os avisos
+entregam.
+
+- **`applyRealtime`** (`shared/lib/realtime/apply-realtime.ts`) é o jeito de aplicar: cancela a
+  leitura em voo da chave (`cancelQueries`) e só então faz `setQueryData`. Uma resposta HTTP que
+  saiu antes do aviso não chega depois dele e desfaz o que ele entregou.
+- **`applyRealtimeDelta`** serve ao aviso que acrescenta ao que a tela já tem (o ponto novo de
+  uma série, uma ordem do livro). A função `merge` é pura e mora em `lib/`, com teste. Quando
+  o aviso não encaixa no que a tela tem, `merge` devolve `null` e a chave é lida de novo.
+- **Dado derivado do pedido do cliente** (prévia da ordem, indicadores técnicos) usa assinatura
+  com parâmetro: a rota HTTP responde na hora e o servidor guarda o último pedido do cliente no
+  ativo; a cada pregão ele recalcula para quem ainda assina e entrega só àquele cliente, em
+  `order_preview:{ticker}` e `indicators_update:{ticker}`. O aviso devolve o pedido que o
+  gerou, e o hook só aplica o que corresponde ao pedido atual da tela. A ordem que deixa de caber vai no mesmo aviso, com o motivo (`refused`); a chave da prévia guarda a prévia ou o motivo, venha da leitura HTTP (422) ou do aviso.
+- **Dado igual para todos** (padrões de vela, estatal do ativo) vai num evento por ativo,
+  `candle_patterns_update:{ticker}` e `state_company_update:{ticker}`, calculado só para quem o assina.
+- **Reconexão**: `useRefetchOnReconnect`, montado no `SimulationProvider`, lê uma vez as
+  consultas ativas que ficaram desatualizadas durante a queda. A primeira conexão não dispara nada.
 
 ### Mutations
 

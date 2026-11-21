@@ -49,6 +49,14 @@ class _SilentRealtimeBroker:
     def subscribed_clients(self, event: Event) -> set[ClientID]:
         return set()
 
+    def remember_request(
+        self, event: Event, client_id: ClientID, request: object
+    ) -> None:
+        pass
+
+    def requests(self, event: Event) -> dict[ClientID, object]:
+        return {}
+
     def notify(
         self, event: Event, payload: JSONValue, to: ClientID | None = None
     ) -> None:
