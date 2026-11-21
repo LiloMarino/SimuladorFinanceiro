@@ -102,16 +102,21 @@ class _FundSimulation:
         self.calls.append(("set", user.id, fund_id, key, params))
 
 
-def test_the_fund_strategy_is_set_without_touching_the_player_profile(
-    profile: _Profile,
-):
+@pytest.fixture
+def fund_http(profile: _Profile) -> tuple[TestClient, _FundSimulation]:
     fake = _FundSimulation()
     app = FastAPI()
     app.include_router(strategy_router)
     app.include_router(funds_router)
     app.dependency_overrides[get_active_simulation] = lambda: fake
     app.dependency_overrides[get_current_user] = lambda: ALICE
-    http = TestClient(app)
+    return TestClient(app), fake
+
+
+def test_the_fund_strategy_is_set_on_the_fund_account(
+    fund_http: tuple[TestClient, _FundSimulation],
+):
+    http, fake = fund_http
 
     listed = http.get("/api/strategies", params={"fund": True})
     answer = http.put(
@@ -125,4 +130,28 @@ def test_the_fund_strategy_is_set_without_touching_the_player_profile(
         ("list", True),
         ("set", ALICE.id, 5, "moving_average_cross", CROSS),
     ]
-    assert profile.saved == {}
+
+
+def test_turning_on_the_fund_strategy_saves_the_params_in_the_player_profile(
+    fund_http: tuple[TestClient, _FundSimulation], profile: _Profile
+):
+    http, _ = fund_http
+
+    http.put(
+        "/api/funds/5/strategy",
+        json={"key": "moving_average_cross", "params": CROSS},
+    )
+
+    assert profile.saved == {ALICE.id: {"moving_average_cross": CROSS}}
+
+
+def test_turning_the_fund_strategy_off_keeps_the_saved_params(
+    fund_http: tuple[TestClient, _FundSimulation], profile: _Profile
+):
+    http, _ = fund_http
+    profile.saved = {ALICE.id: {"moving_average_cross": CROSS}}
+
+    answer = http.put("/api/funds/5/strategy", json={"key": None})
+
+    assert answer.status_code == 204
+    assert profile.saved == {ALICE.id: {"moving_average_cross": CROSS}}

@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Path, Query, Response, status
 
+from backend.core import repository
 from backend.core.dto.fund import (
     FundAccountDTO,
     FundAssemblyConveneRequest,
@@ -575,7 +576,7 @@ def get_fund_strategy(simulation: ActiveSimulation, user: CurrentUser, fund_id: 
     "/{fund_id}/strategy",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Ligar, ajustar ou desligar o automático da gestora",
-    description="Liga a estratégia na carteira da gestora, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. A estratégia opera pela conta da gestora e não compra cota de gestora. O principal e os co-gestores ativos ligam, inclusive na presidência do principal, quando a estratégia descongela a carteira.",
+    description="Liga a estratégia na carteira da gestora, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Os parâmetros aceitos ficam salvos no perfil do jogador, como no automático pessoal. A estratégia opera pela conta da gestora e não compra cota de gestora. O principal e os co-gestores ativos ligam, inclusive na presidência do principal, quando a estratégia descongela a carteira.",
 )
 def set_fund_strategy(
     simulation: ActiveSimulation,
@@ -584,6 +585,8 @@ def set_fund_strategy(
     payload: SetStrategyRequestDTO,
 ):
     simulation.set_fund_strategy(user, fund_id, payload.key, payload.params)
+    if payload.key is not None:
+        repository.settings.set_strategy_params(user.id, payload.key, payload.params)
 
 
 @funds_router.post(

@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { Bot, Lock, Megaphone } from "lucide-react";
 import { FundMark } from "@/shared/components/fund-mark";
 import { CommonKpis } from "@/shared/components/fund-metrics-row";
@@ -7,8 +8,8 @@ import { Card } from "@/shared/components/ui/card";
 import { fundStage, type FundStage } from "@/shared/lib/fund-view";
 import { displayIsoDate, displayMoney, displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { useFundStrategies } from "../hooks/queries/useFundStrategies";
-import { useFundStrategy } from "../hooks/queries/useFundStrategy";
+import { accountStrategyQuery } from "@/shared/hooks/queries/useMyStrategy";
+import { useStrategies } from "@/shared/hooks/queries/useStrategies";
 
 const STAGE_LABEL: Record<FundStage, string> = { closed: "Fechada", offer: "Oferta aberta", listed: "Negociada" };
 
@@ -65,8 +66,8 @@ function RoleLine({ fund }: { fund: FundDetails }) {
 
 /** O aviso da carteira no automático durante a presidência: qual estratégia ela segue e o que desligar custa. */
 function AutomaticNotice({ fund, until }: { fund: FundDetails; until: string }) {
-  const mine = useFundStrategy(fund.id);
-  const strategies = useFundStrategies();
+  const mine = useQuery(accountStrategyQuery(fund.id));
+  const strategies = useStrategies({ fund: true });
   const name = strategies.data?.find((strategy) => strategy.key === mine.data?.active?.key)?.name;
 
   return (

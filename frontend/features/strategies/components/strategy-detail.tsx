@@ -37,6 +37,8 @@ type StrategyDetailProps = {
   missingTickers: string[];
   /** Caixa de hoje, em reais */
   cash: string;
+  /** Como o formulário chama esse caixa; omitido, vale o texto da conta pessoal */
+  cashLabel?: string;
   /** Dia da partida; o gráfico acompanha */
   currentDate: string | undefined;
   tickerOptions: BotTicker[];
@@ -54,6 +56,7 @@ export function StrategyDetail({
   draft,
   missingTickers,
   cash,
+  cashLabel,
   currentDate,
   tickerOptions,
   heldTickers,
@@ -248,6 +251,7 @@ export function StrategyDetail({
               tickerOptions={tickerOptions}
               heldTickers={heldTickers}
               cash={cash}
+              {...(cashLabel !== undefined && { cashLabel })}
               onChange={onDraftChange}
             />
           ) : (

@@ -40,6 +40,8 @@ export function useActiveAccount() {
 
   return {
     accounts,
+    /** Há escolha de conta e a lista ainda não chegou: a conta do topo é desconhecida */
+    accountsPending: hasAccountChoice(match) && accounts === undefined,
     active,
     /** A conta em uso quando não é a pessoal: uma gestora ou o Fundo Soberano; nulo na conta pessoal */
     fund: active !== undefined && active.fund_id !== null ? active : null,

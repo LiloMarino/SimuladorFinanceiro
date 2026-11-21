@@ -25,7 +25,6 @@ import {
   displayShortDate,
 } from "@/shared/lib/utils/display";
 import type { FundDetails } from "@/types";
-import { FundAutomaticLog } from "../fund-automatic-log";
 import { useAnswerComanagerInvite } from "../../hooks/mutations/useAnswerComanagerInvite";
 import { useFixedTeams } from "../../hooks/useFixedTeams";
 import { useAnswerDirectedIssuance } from "../../hooks/mutations/useAnswerDirectedIssuance";
@@ -333,9 +332,6 @@ export function ActionsTab({ fund, userId, actions }: ActionsTabProps) {
           />
         </ActionGroup>
       )}
-
-      {/* O que o automático fez */}
-      {(isManager || isComanager) && fund.automatic && <FundAutomaticLog fund={fund} />}
 
       {/* Como co-gestor */}
       {isComanager && (

@@ -1,6 +1,7 @@
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { useGovernment } from "@/shared/hooks/queries/useGovernment";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
+import { presidencyFreezeEnd } from "@/shared/hooks/usePresidencyFreeze";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { isSovereignAccount } from "@/shared/lib/active-account";
 
@@ -12,7 +13,7 @@ import { isSovereignAccount } from "@/shared/lib/active-account";
 export type TradeLock =
   | { reason: "eliminated"; since: string }
   | { reason: "automatic" }
-  | { reason: "fund-automatic"; fundId: number; name: string; until: string | null }
+  | { reason: "fund-automatic"; name: string; until: string | null }
   | { reason: "president"; until: string }
   | { reason: "fund"; until: string; name: string }
   | { reason: "sovereign"; name: string };
@@ -31,8 +32,7 @@ export function useTradeLock(): TradeLock | null {
   // Com uma gestora ativa vale o estado dela, não o da conta pessoal: a estratégia da gestora trava a carteira dela
   // O automático solta a carteira da gestora; o fim do mandato só aparece quando o gestor governa
   if (fund?.automatic && fund.fund_id !== null) {
-    const until = government?.is_president && government.portfolio ? government.portfolio.frozen_until : null;
-    return { reason: "fund-automatic", fundId: fund.fund_id, name: fund.name, until };
+    return { reason: "fund-automatic", name: fund.name, until: presidencyFreezeEnd(government) };
   }
   if (fund?.frozen_until) return { reason: "fund", until: fund.frozen_until, name: fund.name };
   if (!fund && government?.is_president && government.portfolio) {

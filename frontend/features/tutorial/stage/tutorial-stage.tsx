@@ -38,7 +38,7 @@ function createStageClient() {
   const client = new QueryClient({
     defaultOptions: { queries: { staleTime: Infinity, retry: false, refetchOnWindowFocus: false } },
   });
-  client.setQueryData(queryKeys.myStrategy(), manualStrategy);
+  client.setQueryData(queryKeys.myStrategyOf("personal"), manualStrategy);
   return client;
 }
 

@@ -3562,7 +3562,7 @@ export interface paths {
         get: operations["get_fund_strategy_api_funds__fund_id__strategy_get"];
         /**
          * Ligar, ajustar ou desligar o automático da gestora
-         * @description Liga a estratégia na carteira da gestora, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. A estratégia opera pela conta da gestora e não compra cota de gestora. O principal e os co-gestores ativos ligam, inclusive na presidência do principal, quando a estratégia descongela a carteira.
+         * @description Liga a estratégia na carteira da gestora, troca por outra, ajusta os parâmetros ou, sem chave, volta ao manual. Os parâmetros aceitos ficam salvos no perfil do jogador, como no automático pessoal. A estratégia opera pela conta da gestora e não compra cota de gestora. O principal e os co-gestores ativos ligam, inclusive na presidência do principal, quando a estratégia descongela a carteira.
          */
         put: operations["set_fund_strategy_api_funds__fund_id__strategy_put"];
         post?: never;

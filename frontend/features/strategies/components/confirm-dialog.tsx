@@ -10,7 +10,7 @@ import {
 } from "@/shared/components/ui/alert-dialog";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { KeyValueRow } from "@/shared/components/key-value-row";
-import type { StrategyInfo } from "@/types";
+import type { FundAccount, StrategyInfo } from "@/types";
 import type { ParamValues } from "@/shared/lib/strategy-params";
 
 /** A mudança de modo que espera a confirmação do jogador. */
@@ -24,8 +24,12 @@ type ConfirmDialogProps = {
   strategies: StrategyInfo[];
   /** A estratégia ligada agora, se houver */
   activeKey: string | undefined;
-  /** Ordens abertas do jogador, canceladas por qualquer mudança de modo */
+  /** Ordens abertas da conta, canceladas por qualquer mudança de modo */
   openOrders: number;
+  /** A gestora que o automático opera; nulo na conta pessoal */
+  fund: FundAccount | null;
+  /** O fim do mandato do jogador presidente: até lá desligar o automático congela a carteira; nulo fora da presidência */
+  mandateEnd: string | null;
   pending: boolean;
   onCancel: () => void;
   onConfirm: (change: ModeChange) => void;
@@ -37,12 +41,15 @@ export function ConfirmDialog({
   strategies,
   activeKey,
   openOrders,
+  fund,
+  mandateEnd,
   pending,
   onCancel,
   onConfirm,
 }: ConfirmDialogProps) {
   const nameOf = (key: string | undefined) =>
     strategies.find((strategy) => strategy.key === key)?.name ?? "A estratégia";
+  const operated = fund ? `a carteira da ${fund.name}` : "por você";
   const cancels = openOrders > 0 ? ` e cancelar ${openOrders} ${openOrders === 1 ? "ordem" : "ordens"}` : "";
 
   const copy = !change
@@ -50,7 +57,7 @@ export function ConfirmDialog({
     : change.kind === "turn-on"
       ? {
           title: "Ligar o automático?",
-          description: `${nameOf(change.key)} passa a operar por você a partir do próximo dia da partida.`,
+          description: `${nameOf(change.key)} passa a operar ${operated} a partir do próximo dia da partida.`,
           tickets: "travadas enquanto estiver ligado",
           action: `Ligar${cancels}`,
         }
@@ -63,7 +70,7 @@ export function ConfirmDialog({
           }
         : {
             title: "Voltar ao manual?",
-            description: `${nameOf(activeKey)} deixa de operar. O que ela já comprou continua na sua carteira.`,
+            description: `${nameOf(activeKey)} deixa de operar. O que ela já comprou continua ${fund ? "na carteira da gestora" : "na sua carteira"}.${fund && mandateEnd ? " Na presidência, a carteira fica congelada até o fim do mandato." : ""}`,
             tickets: "liberadas para operar à mão",
             action: openOrders > 0 ? `Voltar${cancels}` : "Voltar ao manual",
           };
@@ -80,7 +87,7 @@ export function ConfirmDialog({
 
             <div>
               <KeyValueRow
-                label="Suas ordens abertas"
+                label={fund ? "Ordens abertas da gestora" : "Suas ordens abertas"}
                 value={
                   openOrders > 0
                     ? `${openOrders} ${openOrders === 1 ? "será cancelada" : "serão canceladas"}`

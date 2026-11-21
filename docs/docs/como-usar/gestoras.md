@@ -71,9 +71,9 @@ O gestor principal pode chamar até **3 co-gestores** pelo botão **Convidar co-
 
 ## Automático da carteira
 
-O gestor principal, e os co-gestores ativos, podem pôr uma **estratégia** para operar a carteira da gestora: aba **Configurações**, cartão **Automático da carteira**. A lista é a mesma da página **Estratégias** e da aba **Minha preparação** do lobby, e cada gestora tem a estratégia dela, **independente da conta pessoal**: a estratégia da gestora opera só a carteira da gestora, e sua conta pessoal segue à mão.
+O gestor principal, e os co-gestores ativos, podem pôr uma **estratégia** para operar a carteira da gestora: página **Estratégias**, com a gestora como conta ativa no topo (a aba **Configurações** da gestora traz um resumo e o botão **Abrir em Estratégias**, que troca a conta ativa). A página mostra qual conta está sendo operada, e a lista é a mesma da conta pessoal, sem as estratégias que a gestora não pode usar. Cada gestora tem a estratégia dela, **independente da conta pessoal**: ela opera só a carteira da gestora, e sua conta pessoal segue à mão. Ao ligar na gestora, os parâmetros também ficam salvos no seu perfil, e o formulário da gestora abre com os últimos parâmetros usados.
 
-- **Ligado:** as boletas da gestora travam e a estratégia opera a cada pregão. Na aba **Suas ações**, o cartão **O que o automático fez** mostra as últimas ordens, cada uma com o motivo.
+- **Ligado:** as boletas da gestora travam e a estratégia opera a cada pregão. Na página **Estratégias**, o registro mostra as últimas ordens da gestora, cada uma com o motivo.
 - **Desligado:** a carteira volta ao manual. Trocar o gestor principal também desliga a estratégia.
 - **Na presidência:** o automático solta só a **carteira**. Contribuição, oferta, taxas e convocação de assembleia seguem congeladas, e as taxas não correm até o fim do mandato. Desligar o automático congela a carteira até o fim do mandato.
 

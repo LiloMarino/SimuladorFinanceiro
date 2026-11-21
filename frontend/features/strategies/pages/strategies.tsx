@@ -1,16 +1,29 @@
 import { useEffect, useRef, useState } from "react";
-import { CircleCheck } from "lucide-react";
+import { Bot, CircleCheck } from "lucide-react";
 import { toast } from "sonner";
 import { ErrorState } from "@/shared/components/error-state";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
+import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/shared/components/ui/empty";
+import { usePresidencyFreeze } from "@/shared/hooks/usePresidencyFreeze";
+import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
+import { useStrategyRoute } from "@/shared/hooks/useStrategyRoute";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
 import { useSavedStrategyParams } from "@/shared/hooks/queries/useSavedStrategyParams";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useVariableIncomeStocks } from "@/shared/hooks/queries/useVariableIncomeStocks";
-import type { BotTicker, MyStrategy, SavedStrategyParams, StrategyInfo } from "@/types";
+import type { BotTicker, FundAccount, MyStrategy, SavedStrategyParams, StrategyInfo } from "@/types";
+import { AccountHeader } from "../components/account-header";
 import { ConfirmDialog, type ModeChange } from "../components/confirm-dialog";
 import { ErrorBanner } from "../components/error-banner";
 import { ModeCard, type Mode } from "../components/mode-card";
@@ -20,16 +33,61 @@ import { StrategyList } from "@/shared/components/strategy-list";
 import { StrategyLog } from "../components/strategy-log";
 import { useMarkStrategyErrorSeen } from "../hooks/mutations/useMarkStrategyErrorSeen";
 import { useSetMyStrategy } from "@/shared/hooks/mutations/useSetMyStrategy";
-import { useStrategies } from "../hooks/queries/useStrategies";
+import { useStrategies } from "@/shared/hooks/queries/useStrategies";
 import { fromDraft, profileValues, toDraft, type ParamDraft, type ParamValues } from "@/shared/lib/strategy-params";
 
 export default function StrategiesPage() {
   usePageLabel("Estratégias");
-  const strategies = useStrategies();
-  const mine = useMyStrategy();
+  const route = useStrategyRoute();
+  const { active, accountKey, switchAccount } = useActiveAccount();
+
+  // A conta do topo só se conhece com a lista de contas na mão
+  if (route.kind === "pending") return <StrategiesSkeleton />;
+
+  // O Fundo Soberano investe pelas decisões do governo: não há estratégia para ligar nele
+  if (route.kind === "sovereign") {
+    return (
+      <Card>
+        <CardContent>
+          <Empty variant="dashed">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Bot />
+              </EmptyMedia>
+              <EmptyTitle>O Fundo Soberano não tem automático</EmptyTitle>
+              <EmptyDescription>
+                Ele investe pelas decisões do governo. Para ligar uma estratégia, volte à sua carteira pessoal ou
+                escolha uma gestora que você gere.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent className="flex-row justify-center">
+              <Button variant="outline" onClick={() => switchAccount(null)}>
+                Usar minha carteira
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Cada conta tem a sua área de trabalho: rascunhos e estratégia escolhida não passam de uma conta para outra
+  return <StrategiesLoader key={accountKey} account={active} fund={route.kind === "fund" ? (active ?? null) : null} />;
+}
+
+type LoaderProps = {
+  /** A conta no topo; indefinida quando só existe a pessoal */
+  account: FundAccount | undefined;
+  /** A gestora que o automático opera; nulo na conta pessoal */
+  fund: FundAccount | null;
+};
+
+function StrategiesLoader({ account, fund }: LoaderProps) {
+  const strategies = useStrategies({ fund: fund !== null });
+  const mine = useMyStrategy({ activeAccount: true });
   const saved = useSavedStrategyParams();
   const quotes = useVariableIncomeStocks();
-  const portfolio = usePortfolio();
+  const portfolio = usePortfolio({ activeAccount: true });
 
   if (!strategies.data || !mine.data || !saved.data || !quotes.data || !portfolio.data) {
     const error = strategies.error ?? mine.error ?? saved.error ?? quotes.error ?? portfolio.error;
@@ -57,27 +115,44 @@ export default function StrategiesPage() {
 
   return (
     <StrategiesWorkspace
+      account={account}
+      fund={fund}
       strategies={strategies.data}
       mine={mine.data}
       saved={saved.data}
       tickerOptions={quotes.data.map(({ ticker, name }) => ({ ticker, name }))}
       heldTickers={portfolio.data.variable_income.map((position) => position.ticker)}
+      cash={portfolio.data.cash}
     />
   );
 }
 
 type WorkspaceProps = {
+  account: FundAccount | undefined;
+  fund: FundAccount | null;
   strategies: StrategyInfo[];
   mine: MyStrategy;
   saved: SavedStrategyParams;
   /** As ações da partida: as opções do "Escolher" e o filtro das ações salvas no perfil */
   tickerOptions: BotTicker[];
-  /** As ações da carteira, para o atalho "Só as da carteira" */
+  /** As ações da carteira da conta, para o atalho "Só as da carteira" */
   heldTickers: string[];
+  /** O caixa da conta, em reais */
+  cash: string;
 };
 
-function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTickers }: WorkspaceProps) {
+function StrategiesWorkspace({
+  account,
+  fund,
+  strategies,
+  mine,
+  saved,
+  tickerOptions,
+  heldTickers,
+  cash,
+}: WorkspaceProps) {
   const { data: state } = useSimulationState();
+  const mandateEnd = usePresidencyFreeze();
   const setStrategy = useSetMyStrategy();
   const { mutate: markErrorSeen } = useMarkStrategyErrorSeen();
 
@@ -92,7 +167,8 @@ function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTicke
     strategies.find((strategy) => strategy.key === (pickedKey ?? mine.active?.key ?? errorKey)) ?? strategies[0];
   const activeStrategy = strategies.find((strategy) => strategy.key === mine.active?.key);
 
-  const errorUnseen = !!mine.error && !mine.error.seen;
+  // O erro visto e o ponto vermelho do menu são da conta pessoal
+  const errorUnseen = fund === null && !!mine.error && !mine.error.seen;
   // Abrir a página é ver o erro: o ponto vermelho do menu sai
   useEffect(() => {
     if (errorUnseen) markErrorSeen();
@@ -158,6 +234,8 @@ function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTicke
 
   return (
     <div className="grid gap-5">
+      {account && <AccountHeader fund={fund} />}
+
       {mine.error && (
         <ErrorBanner
           error={mine.error}
@@ -181,6 +259,8 @@ function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTicke
         mine={mine}
         activeStrategy={activeStrategy}
         currentDate={state?.current_date}
+        fund={fund}
+        mandateEnd={mandateEnd}
         onModeChange={changeMode}
       />
 
@@ -203,7 +283,8 @@ function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTicke
             active={activeHere}
             draft={draft}
             missingTickers={drafts[selected.key] ? [] : initial.missing}
-            cash={state?.cash ?? "0"}
+            cash={cash}
+            {...(fund && { cashLabel: "o caixa da gestora hoje" })}
             currentDate={state?.current_date}
             tickerOptions={tickerOptions}
             heldTickers={heldTickers}
@@ -224,6 +305,8 @@ function StrategiesWorkspace({ strategies, mine, saved, tickerOptions, heldTicke
         strategies={strategies}
         activeKey={mine.active?.key}
         openOrders={mine.open_orders}
+        fund={fund}
+        mandateEnd={mandateEnd}
         pending={setStrategy.isPending}
         onCancel={() => setChange(null)}
         onConfirm={confirm}
