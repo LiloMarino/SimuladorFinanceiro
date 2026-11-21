@@ -101,10 +101,9 @@
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
-| [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | — | — | ✅ |
+| [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 
 </details>
 
@@ -148,14 +148,14 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 3/23 concluídos
+> **Progresso:** 4/23 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | ✅ Concluído |
 | 2 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | ✅ Concluído |
 | 3 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | — | ✅ Concluído |
-| 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ⏳ Pendente |
+| 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ✅ Concluído |
 | 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ⏳ Pendente |
 | 6 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | ⏳ Pendente |
 | 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | — | ⏳ Pendente |
@@ -269,7 +269,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 · 6º | 0 | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 · 7º | 13 | Alto | Bom | ⏳ |
@@ -354,7 +353,6 @@
 | **F334** | Feature | Calibração das profissões pelos três alarmes | N39 | D23 | M29 · 4.3 | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | Médio | Médio | Alto | Bom |
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
 | **F336** | Feature | Ordem stop e validade na boleta | N43 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
-| **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -621,18 +619,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f336"></a>
 **F336 — Ordem stop e validade na boleta.** Serve N43. A boleta ganha um "Avançado" recolhido, fechado por padrão, com o stop (vira ordem a mercado ou limitada quando o preço cruza o gatilho: o stop loss limita a perda, o stop gain realiza o lucro) e a validade (vale hoje ou até cancelar). `OrderType` ganha o stop e o stop limitado, o `order_book` dispara o gatilho a cada pregão e a lista de ordens pendentes mostra o gatilho. A boleta padrão continua com a ordem a mercado e a limitada. Fica fora a OCO e as outras ordens de nicho.
 
-<a id="f337"></a>
-**F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
-
-Decidido:
-
-- **Mercado compra a sobra:** no último pregão da sobra, depois dos jogadores e dos bots, o Mercado mede a atratividade da cota como o maior entre o prêmio do desempenho (o mesmo dos bots, sem a opinião do dia) e o ágio do livro (P/VP menos 1, com o P/VP sendo o preço da cota dividido pelo patrimônio por cota). Leva da sobra a fração atratividade ÷ 20%, até a sobra inteira, e revende essas cotas na escada dele. Atratividade zero ou negativa, não compra. Exemplos: gestora 3 pontos acima do CDI dá prêmio de 6% e o Mercado leva 30% da sobra; cota a P/VP 1,12 dá 12% e ele leva 60%. Só o ágio não basta porque a escada do Mercado se centra no patrimônio por cota, e numa sala com poucos compradores o P/VP fica perto de 1: o Mercado nunca compraria justo onde falta comprador. Só o desempenho ignora a demanda que o livro mostra.
-- **Bots cotistas pesam o ágio na emissão:** na oferta e na sobra, o bot compara o preço com o maior entre o valor que dá à cota e o preço do livro, sem passar do teto de 1,2 vez o patrimônio por cota. Cota a P/VP 1,15 faz a emissão a R$ 100 sair 13% abaixo do que o livro paga (R$ 115), e o bot compra mesmo com a gestora um pouco abaixo do CDI. A descrição da estratégia diz isso.
-- **Estimativa de captação:** o diálogo de anunciar e o cartão da emissão mostram uma faixa de quanto o mercado deve levar (a opinião diária dos bots varia ±5%), somando os bots da sala, pelo valor e pelo caixa de cada um, e o Mercado, pela fração acima. Quando a faixa é zero, o cartão diz o que falta: "a gestora rende 2 pontos abaixo do CDI e a cota não tem ágio". Diz também em que pregão bots e Mercado decidem.
-- **% e quantidade nos formulários de cota:** anunciar emissão, comprar na preferência ou na sobra e emitir para si ou para um co-gestor ganham os atalhos de percentual e o campo de quantidade inteira da boleta de ações, sobre o teto de cada um (o teto da emissão, o direito de preferência, o caixa).
-
-**Aceite:** testes da compra do Mercado (fração pela atratividade, zero sem atratividade, depois de jogadores e bots) e do bot cotista com ágio; a estimativa bate com a compra numa emissão de teste sem opinião do dia; `pnpm run check` verde.
-
 ---
 
 ## 🔍 Em avaliação
@@ -718,6 +704,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 |
 | **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 |
 | **F318** | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 |
+| **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 
 <a id="f316"></a>
 **F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
@@ -742,6 +729,18 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f318"></a>
 **F318 — Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho.** Do playtest de 20/11. Hoje as cotas do gestor e dos co-gestores não votam o aumento de taxa, e bots e o formador de mercado também não. Com os outros cotistas todos bots, ninguém vota, e empate ou zero votos mantém a taxa: o gestor nunca sobe a taxa, mesmo com 90% das cotas. Decidido: o bot cotista vota, com o peso das cotas dele, a favor quando a gestora bateu o CDI nos últimos 6 meses (126 pregões, a janela de desempenho de `performance.py`, rendimentos incluídos, a mesma que dá o prêmio que o bot paga pela cota) e contra quando não bateu. O Mercado (formador de mercado), que junta cotas comprando de quem vende, vota com a mesma regra, para a taxa nunca travar com as cotas paradas nele. A aba Assembleia mostra no placar "Bots cotistas" e "Mercado" separados, e a regra numa dica.
+
+<a id="f337"></a>
+**F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
+
+Decidido:
+
+- **Mercado compra a sobra:** no último pregão da sobra, depois dos jogadores e dos bots, o Mercado mede a atratividade da cota como o maior entre o prêmio do desempenho (o mesmo dos bots, sem a opinião do dia) e o ágio do livro (P/VP menos 1, com o P/VP sendo o preço da cota dividido pelo patrimônio por cota). Leva da sobra a fração atratividade ÷ 20%, até a sobra inteira, e revende essas cotas na escada dele. Atratividade zero ou negativa, não compra. Exemplos: gestora 3 pontos acima do CDI dá prêmio de 6% e o Mercado leva 30% da sobra; cota a P/VP 1,12 dá 12% e ele leva 60%. Só o ágio não basta porque a escada do Mercado se centra no patrimônio por cota, e numa sala com poucos compradores o P/VP fica perto de 1: o Mercado nunca compraria justo onde falta comprador. Só o desempenho ignora a demanda que o livro mostra.
+- **Bots cotistas pesam o ágio na emissão:** na oferta e na sobra, o bot compara o preço com o maior entre o valor que dá à cota e o preço do livro, sem passar do teto de 1,2 vez o patrimônio por cota. Cota a P/VP 1,15 faz a emissão a R$ 100 sair 13% abaixo do que o livro paga (R$ 115), e o bot compra mesmo com a gestora um pouco abaixo do CDI. A descrição da estratégia diz isso.
+- **Estimativa de captação:** o diálogo de anunciar e o cartão da emissão mostram uma faixa de quanto o mercado deve levar (a opinião diária dos bots varia ±5%), somando os bots da sala, pelo valor e pelo caixa de cada um, e o Mercado, pela fração acima. Quando a faixa é zero, o cartão diz o que falta: "a gestora rende 2 pontos abaixo do CDI e a cota não tem ágio". Diz também em que pregão bots e Mercado decidem.
+- **% e quantidade nos formulários de cota:** anunciar emissão, comprar na preferência ou na sobra e emitir para si ou para um co-gestor ganham os atalhos de percentual e o campo de quantidade inteira da boleta de ações, sobre o teto de cada um (o teto da emissão, o direito de preferência, o caixa).
+
+**Aceite:** testes da compra do Mercado (fração pela atratividade, zero sem atratividade, depois de jogadores e bots) e do bot cotista com ágio; a estimativa bate com a compra numa emissão de teste sem opinião do dia; `pnpm run check` verde.
 
 ---
 
