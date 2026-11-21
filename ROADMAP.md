@@ -43,7 +43,7 @@
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
 | **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F284](#f284), [F317](#f317) | — | — | — |
 | **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334) | — | — | — |
-| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221), [F320](#f320) | — | — | — |
+| **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221), [F320](#f320), [F338](#f338) | — | — | — |
 | **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227) | — | — | — |
 | **N42** | — | Chegar a um estado da partida sem jogar até ele | — | [F286](#f286) | — | — | — |
 | **N43** | — | Operar como numa corretora de verdade: proteger a posição e ganhar também na queda | — | [F335](#f335), [F336](#f336) | — | — | — |
@@ -83,7 +83,7 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
-| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -100,6 +100,7 @@
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
+| [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
@@ -148,7 +149,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 5/23 concluídos
+> **Progresso:** 5/24 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -157,7 +158,7 @@
 | 3 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | — | ✅ Concluído |
 | 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ✅ Concluído |
 | 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ✅ Concluído |
-| 6 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | ⏳ Pendente |
+| 6 | [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | — | ⏳ Pendente |
 | 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | — | ⏳ Pendente |
 | 8 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ⏳ Pendente |
 | 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | [F315](#f315), [F321](#f321) | ⏳ Pendente |
@@ -175,6 +176,7 @@
 | 21 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
 | 22 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
 | 23 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
+| 24 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | — | ⏳ Pendente |
 
 ### 4.4 — Mesa do trader (M24)
 
@@ -269,11 +271,12 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 · 6º | 0 | Médio | Bom | ⏳ |
+| [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | M29 · 4.3 · 6º | 0 | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 · 7º | 13 | Alto | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 8º | 3 | Médio | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 21º | 0 | Baixo | Bom | ⏳ |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 22º | 0 | Médio | Bom | ⏳ |
+| [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 24º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.4 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.4 · 3º | 0 | Médio | Bom | ⏳ |
@@ -334,7 +337,7 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
-| **F320** | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
+| **F320** | Correção | Ações do jogador respondem com o jogo andando | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
 | **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Médio | Baixo | Alto | Bom |
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
@@ -351,6 +354,7 @@
 | **F334** | Feature | Calibração das profissões pelos três alarmes | N39 | D23 | M29 · 4.3 | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | Médio | Médio | Alto | Bom |
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
 | **F336** | Feature | Ordem stop e validade na boleta | N43 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
+| **F338** | Performance | Dia da partida mais rápido com gestoras e bots | N40 | — | M29 · 4.3 | — | Médio | Médio | Bom | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -564,7 +568,7 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 **Aceite:** a página mostra card e séries para toda profissão; a troca no meio da partida tem teste; `pnpm run check` verde.
 
 <a id="f320"></a>
-**F320 — Ações do jogador sem espera em velocidade alta.** Do playtest de 20/11: em velocidade alta, diálogos e ações ficam carregando sem fim ou demoram muito. O loop (`simulation_loop.py`) segura o lock da partida durante o dia inteiro e só solta no intervalo entre dias (5 a 10 ms a 100x). O lock não é justo e volta direto para o loop, e as rotas de ordem, diálogo, pausa e velocidade esperam por ele sem prazo. A partida da triagem rodou sem o modo debug, então os logs não têm tempos. Medir pela CLI com o modo debug (tempo de espera das rotas e duração do dia a 100x) e fazer a rota esperar no máximo um dia: o loop cede a vez a quem está esperando antes de começar o dia seguinte.
+**F320 — Ações do jogador respondem com o jogo andando.** Do playtest de 20/11: com o jogo andando, a boleta e os diálogos (os do presidente, por exemplo) ficam com o botão desabilitado por vários dias de jogo, como se a ação não tivesse ido, e o Máx da boleta dá "caixa não cobre". Na medição pela CLI (salva 10 do banco de teste, 100x, 396 ordens), criar a ordem levou 2 ms na metade dos casos: quem prende o botão é a tela. `useSubmitOrder` devolve no `onSettled` a promessa do `revalidateOrder`, e o TanStack Query mantém a ação pendente até as 8 leituras que ela afeta voltarem, cada uma esperando o dia em andamento (0,5 s típico, 1 s em 95% dos casos). Passos: (1) reproduzir no app de teste a 100x com o modo debug, pela aba Network do DevTools, a boleta (compra a mercado, limitada com Máx, cancelamento) e os diálogos do presidente, e anotar em cada um se o pedido fica pendente no servidor ou volta e a tela não destrava; (2) o botão libera quando o servidor confirma, e as releituras seguem em segundo plano, com o estado novo chegando pelo aviso de dia do websocket, em toda ação que hoje espera releitura; (3) o Máx da ordem limitada vai ao servidor como intenção (todo o caixa, tudo o que tenho), e o servidor calcula a quantidade no preço do dia, como a compra a mercado por valor já faz; (4) conferir se a fila de threads do FastAPI (40 por padrão, e 301 das 303 rotas são síncronas) enche de pedidos parados na trava da partida e segura até rota que não precisa dela. Se encher, a saída se decide com o usuário. O dia lento é a F338.
 
 <a id="f321"></a>
 **F321 — Séries do preço de imóvel, do IGP-M e da TR.** Serve N39; segue a D23. Três séries novas em `IndicatorSeries`, do cliente do Banco Central que o jogo já usa (`bcb_sgs.py`, entradas em `INDICATOR_SOURCES` de `indicators.py`): o IVG-R (índice de valores de garantia dos imóveis residenciais financiados, mensal desde março de 2001), o IGP-M (o índice que reajusta os contratos de aluguel) e a TR (a Taxa Referencial, que rende o FGTS); os códigos SGS se conferem na importação. O futuro se gera em `synthetic.py`/`future.py` como nas outras séries mensais, e o IVG-R antes de março de 2001 recebe preenchimento sintético pelo IPCA. As três entram na Central como séries da economia, com uma linha dizendo o que medem. Testes do importador com resposta gravada.
@@ -613,6 +617,9 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 <a id="f336"></a>
 **F336 — Ordem stop e validade na boleta.** Serve N43. A boleta ganha um "Avançado" recolhido, fechado por padrão, com o stop (vira ordem a mercado ou limitada quando o preço cruza o gatilho: o stop loss limita a perda, o stop gain realiza o lucro) e a validade (vale hoje ou até cancelar). `OrderType` ganha o stop e o stop limitado, o `order_book` dispara o gatilho a cada pregão e a lista de ordens pendentes mostra o gatilho. A boleta padrão continua com a ordem a mercado e a limitada. Fica fora a OCO e as outras ordens de nicho.
+
+<a id="f338"></a>
+**F338 — Dia da partida mais rápido com gestoras e bots.** Do playtest de 20/11 e da medição pela CLI. Na partida com gestoras e bots (salva 10 do banco de teste, 200 dias a 100x), um dia leva 0,34 s na metade dos casos, 0,95 s em 95% deles (as viradas de mês) e chega a 1,5 s. A 100x o jogo entrega cerca de 1 dia por segundo, e toda leitura e ação do jogador espera o dia em andamento, porque o loop segura a trava da partida o dia inteiro. Ceder a vez entre um dia e outro foi medido e descartado: só baixa os picos. Medir com o modo debug (`backend/core/metrics.py`, `GET /api/debug/metrics`) onde o dia gasta o tempo, por etapa (gestoras, bots, estratégias, idas ao banco), comparar com uma partida sem gestoras e otimizar o que pesa mais. O alvo sai da medição; a régua é a 100x passar de 1 dia por segundo nessa partida. O script da medição de espera e de duração do dia está em `.claude/trabalho/medicao-dia/`.
 
 ---
 
