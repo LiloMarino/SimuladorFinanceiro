@@ -525,8 +525,17 @@ class FundAssemblyVoterDTO(BaseDTO):
     is_manager: bool
 
 
+class FundAssemblyAutoVoteDTO(BaseDTO):
+    """O grupo que vota pelo desempenho no aumento de taxa (bots cotistas ou formador de mercado): as cotas e o lado."""
+
+    quotas: Decimal
+    # Fração das cotas em circulação: 0,25 é 25%
+    share: Decimal
+    stance: FundAssemblyStance
+
+
 class FundAssemblyTallyDTO(BaseDTO):
-    """O placar em cotas: a favor, contra e abstenção (quem não votou, bots e formador de mercado)."""
+    """O placar em cotas: a favor, contra e abstenção (quem não votou e, fora do aumento de taxa, bots e formador de mercado)."""
 
     in_favor: Decimal
     against: Decimal
@@ -600,8 +609,11 @@ class FundAssemblyStatusDTO(BaseDTO):
     # Placar e cotistas de agora; nulos com o convite esperando o aliado
     tally: FundAssemblyTallyDTO | None
     voters: list[FundAssemblyVoterDTO]
-    # A parte da abstenção que são bots e formador de mercado, que não votam
+    # A parte da abstenção que nunca vota: bots e formador de mercado (fora do aumento de taxa) e quem opera a gestora
     non_voting: Decimal
+    # Os bots cotistas e o formador de mercado no aumento de taxa; nulos nas outras pautas
+    bots: FundAssemblyAutoVoteDTO | None = None
+    market: FundAssemblyAutoVoteDTO | None = None
     # O voto de quem consulta: a favor, contra, ou nulo se ainda não votou
     my_vote: bool | None
     # Se quem consulta pode votar agora (tem cota, não é o gestor)

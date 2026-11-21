@@ -28,6 +28,7 @@ from backend.features.funds.fund_assembly import (
     stance_of,
     tally,
 )
+from backend.features.funds.performance import NavPoint
 from backend.features.notifications.news import Headline
 from tests.fakes import client
 from tests.test_fund_book import (
@@ -583,6 +584,12 @@ def _propose_fee(setup: Setup, proposer: UserDTO = GESTOR) -> None:
     setup.book.propose_fee_increase(TICKER, proposer, *RAISED)
 
 
+def _performance(setup: Setup, *, beats_cdi: bool) -> None:
+    """Põe o início da janela de desempenho abaixo ou acima do PL por cota de hoje (100)."""
+    start = Decimal(50) if beats_cdi else Decimal(200)
+    setup.book.get(TICKER).navs = [NavPoint(date(2020, 1, 2), start)]
+
+
 def _comanage(setup: Setup, user: UserDTO) -> None:
     """Põe `user` como co-gestor ativo da gestora."""
     fund = setup.book.get(TICKER)
@@ -683,9 +690,12 @@ def test_manager_and_comanagers_do_not_vote_the_fee(memory: MemoryFunds):
         setup.book.cast_assembly_vote(TICKER, FEE, ROBOT, True)
 
     setup.book.cast_assembly_vote(TICKER, FEE, ANA, True)
-    result = setup.book._assemblies.score(setup.book.get(TICKER), FEE)
-    # Só Ana (300) pesa; as 400 do gestor e as 200 do co-gestor não contam contra
-    assert (result.in_favor, result.against) == (Decimal(300), Decimal(0))
+    fund = setup.book.get(TICKER)
+    _performance(setup, beats_cdi=True)
+    result = setup.book._assemblies.score(fund, FEE)
+    # Pesam Ana (300), o bot (100) e o Mercado; as 400 do gestor e as 200 do co-gestor ficam fora
+    automatic = Decimal(100) + fund.account.maker_quotas
+    assert (result.in_favor, result.against) == (Decimal(300) + automatic, Decimal(0))
 
 
 def test_an_approved_fee_takes_effect_in_the_month_after_the_result(
@@ -694,6 +704,7 @@ def test_an_approved_fee_takes_effect_in_the_month_after_the_result(
     setup = _assemblable(memory)
     fund = setup.book.get(TICKER)
     _propose_fee(setup)
+    _performance(setup, beats_cdi=True)
     setup.book.cast_assembly_vote(TICKER, FEE, ANA, True)
     setup.book.cast_assembly_vote(TICKER, FEE, BETO, False)
 
@@ -830,3 +841,178 @@ def test_an_open_vote_is_pending_for_who_can_vote_and_has_not_voted(
     assert setup.book.open_votes_for(BETO) == [
         (setup.book.get(TICKER), setup.book.get(TICKER).assemblies[FEE])
     ]
+
+
+# =========================
+# Bots e Mercado no aumento de taxa
+# =========================
+
+
+def test_fee_tally_weighs_the_automatic_quotas_on_the_side_given():
+    """Os 150 de bots e Mercado pesam a favor ou contra; o gestor (300) segue fora."""
+    kwargs = {
+        "total": Decimal(1000),
+        "holdings": {1: Decimal(300), 3: Decimal(100)},
+        "votes": {3: True},
+        "excluded": {1},
+        "automatic": Decimal(150),
+    }
+
+    favor = fee_tally(**kwargs, automatic_in_favor=True)
+    against = fee_tally(**kwargs, automatic_in_favor=False)
+
+    assert (favor.in_favor, favor.against) == (Decimal(250), Decimal(0))
+    assert (against.in_favor, against.against) == (Decimal(100), Decimal(150))
+    # Fora de quem pode votar ficam só o gestor e o que sobra do total
+    assert favor.non_voting == Decimal(1000) - Decimal(100) - Decimal(150)
+
+
+def test_bots_and_the_market_vote_the_fee_in_favor_when_the_fund_beats_the_cdi(
+    memory: MemoryFunds,
+):
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    _propose_fee(setup)
+    _performance(setup, beats_cdi=True)
+
+    result = setup.book._assemblies.score(fund, FEE)
+
+    market = fund.account.maker_quotas
+    assert market > 0
+    assert (result.in_favor, result.against) == (Decimal(100) + market, Decimal(0))
+    assert result.wins
+
+
+@pytest.mark.parametrize("start", [Decimal(200), Decimal(100)])
+def test_bots_and_the_market_vote_the_fee_against_when_the_fund_is_below_or_equal_to_the_cdi(
+    memory: MemoryFunds, start: Decimal
+):
+    """Abaixo do CDI e igual a ele (PL por cota parado em 100, CDI zero) o voto é contra."""
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    _propose_fee(setup)
+    fund.navs = [NavPoint(date(2020, 1, 2), start)]
+
+    result = setup.book._assemblies.score(fund, FEE)
+
+    assert (result.in_favor, result.against) == (
+        Decimal(0),
+        Decimal(100) + fund.account.maker_quotas,
+    )
+    assert not result.wins
+
+
+def test_a_fee_vote_without_history_counts_bots_and_the_market_against(
+    memory: MemoryFunds,
+):
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    _propose_fee(setup)
+    fund.navs = []
+
+    result = setup.book._assemblies.score(fund, FEE)
+
+    assert result.in_favor == Decimal(0)
+    assert result.against == Decimal(100) + fund.account.maker_quotas
+
+
+@pytest.mark.parametrize(("beats_cdi", "expected"), [(True, True), (False, False)])
+def test_the_manager_with_most_of_the_quotas_raises_the_fee_only_when_the_fund_beats_the_cdi(
+    memory: MemoryFunds, beats_cdi: bool, expected: bool
+):
+    """O gestor (e a Ana, Beto e Caio) saem das cotas; só bots e Mercado decidem."""
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    # Os jogadores passam as cotas ao gestor, que ainda compra mais: ele fica com 90% do total
+    for user in (ANA, BETO, CAIO):
+        held = setup.engine.broker.get_positions(user.client_id)[TICKER].size
+        setup.engine.broker.transfer_position(
+            user.client_id, GESTOR.client_id, TICKER, held
+        )
+    _give(setup, GESTOR, 1000)
+    manager = setup.engine.broker.get_positions(GESTOR.client_id)[TICKER].size
+    assert manager / _total(setup) > Decimal("0.89")
+    _propose_fee(setup)
+    _performance(setup, beats_cdi=beats_cdi)
+
+    _close_all_sessions(setup)
+
+    approved = fund.assembly_history[-1].status is FundAssemblyStatus.APPROVED
+    assert approved is expected
+    assert fund.terms.pending_management_fee == (Decimal("0.03") if expected else None)
+
+
+def test_the_vote_of_bots_and_the_market_follows_the_performance_until_the_close(
+    memory: MemoryFunds,
+):
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    _propose_fee(setup)
+    _performance(setup, beats_cdi=True)
+    assert setup.book._assemblies.score(fund, FEE).wins
+
+    _performance(setup, beats_cdi=False)
+
+    assert not setup.book._assemblies.score(fund, FEE).wins
+    _close_all_sessions(setup)
+    assert fund.assembly_history[-1].status is FundAssemblyStatus.REJECTED
+    # O fechamento grava o placar apurado, com bots e Mercado contra
+    assert fund.assembly_history[-1].against_quotas == Decimal(100) + (
+        fund.account.maker_quotas
+    )
+
+
+def test_operators_stay_out_of_the_fee_vote_with_bots_voting(memory: MemoryFunds):
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    _comanage(setup, BETO)
+    _propose_fee(setup)
+    _performance(setup, beats_cdi=False)
+
+    result = setup.book._assemblies.score(fund, FEE)
+
+    # Gestor (400) e co-gestor (200) não pesam; contra só o bot e o Mercado
+    assert result.against == Decimal(100) + fund.account.maker_quotas
+    assert result.in_favor == Decimal(0)
+    # Fora de quem pode votar: o gestor, o co-gestor e o que sobra do total
+    players = Decimal(300) + Decimal(100)
+    automatic = Decimal(100) + fund.account.maker_quotas
+    assert result.non_voting == _total(setup) - players - automatic
+
+
+def test_the_panel_shows_bots_and_the_market_apart_from_the_players(
+    memory: MemoryFunds,
+):
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    _propose_fee(setup)
+    _performance(setup, beats_cdi=True)
+
+    panel = setup.book.assembly_panel(fund, ANA, {}, {})
+
+    [current] = panel.current
+    assert current.bots is not None
+    assert current.market is not None
+    assert (current.bots.quotas, current.bots.stance) == (Decimal(100), "favor")
+    assert (current.market.quotas, current.market.stance) == (
+        fund.account.maker_quotas,
+        "favor",
+    )
+    assert {voter.user_id for voter in current.voters} == {ANA.id, BETO.id, CAIO.id}
+
+
+def test_swap_and_merge_votes_have_no_bot_or_market_vote(memory: MemoryFunds):
+    setup = _assemblable(memory)
+    fund = setup.book.get(TICKER)
+    _performance(setup, beats_cdi=True)
+    setup.book.convene_assembly(TICKER, ANA, None)
+
+    swap = setup.book._assemblies.score(fund, SWAP)
+    merge = setup.book._assemblies.score(fund, FundAssemblyAgenda.MERGE)
+
+    # Só o convocador (Ana, 300) vota na troca; Bots e Mercado abstêm em ambas as pautas
+    assert (swap.in_favor, swap.against) == (Decimal(300), Decimal(400))
+    assert (merge.in_favor, merge.against) == (Decimal(0), Decimal(0))
+    panel = setup.book.assembly_panel(fund, ANA, {}, {})
+    [current] = panel.current
+    assert (current.bots, current.market) == (None, None)

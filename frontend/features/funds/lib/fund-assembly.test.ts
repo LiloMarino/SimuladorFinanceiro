@@ -57,6 +57,8 @@ const current = (over: Partial<AssemblyCurrent> = {}): AssemblyCurrent => ({
   tally: tally(),
   voters: [],
   non_voting: "0",
+  bots: null,
+  market: null,
   my_vote: null,
   can_vote: true,
   ...over,

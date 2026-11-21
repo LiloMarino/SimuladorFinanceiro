@@ -373,7 +373,11 @@ class FundBook:
         self._maker = MarketMaker(engine.matching_engine, engine.broker.maker_accounts)
         self._offer = FundOffer(engine.matching_engine, self._accounts)
         self._assemblies = FundAssemblies(
-            simulation_id, engine, lambda: self.participants(), grace_ends
+            simulation_id,
+            engine,
+            lambda: self.participants(),
+            self._beat_cdi,
+            grace_ends,
         )
         self._comanagers = FundComanagers(lambda: self.participants())
         self._directed = FundDirectedIssuances()
@@ -2738,6 +2742,18 @@ class FundBook:
         if self._engine.matching_engine.market_data.get_last(fund.ticker) is None:
             self._engine.update_market_data([self._flat_candle(fund, nav, today)])
 
+    def _performance(self, fund: Fund, nav: Decimal, today: date) -> Decimal:
+        """O retorno da cota acima do CDI na janela de desempenho, com os rendimentos pagos.
+
+        A janela termina no pregão anterior a `today`, de manhã e no fechamento do dia.
+        """
+        points = [point for point in fund.navs if point.day < today]
+        return excess_return(points, nav, today, fund.distributions, cdi_growth)
+
+    def _beat_cdi(self, fund: Fund, today: date) -> bool:
+        """Se a gestora rendeu acima do CDI na janela de desempenho; igual ao CDI, ou sem PL, é não."""
+        return fund.nav is not None and self._performance(fund, fund.nav, today) > 0
+
     def _reference(self, fund: Fund, nav: Decimal, today: date) -> FundReference:
         """A referência de negociação da cota no pregão de hoje.
 
@@ -2755,9 +2771,7 @@ class FundBook:
                 last_session = today >= issuance.ends_on
             elif listed_on is not None:
                 last_session = today >= offer_ends_on(listed_on)
-        performance = excess_return(
-            fund.navs, nav, today, fund.distributions, cdi_growth
-        )
+        performance = self._performance(fund, nav, today)
         return FundReference(
             nav=float(nav),
             performance=float(performance),

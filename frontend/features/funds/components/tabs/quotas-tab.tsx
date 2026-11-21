@@ -122,7 +122,7 @@ function HoldersCard({ fund }: { fund: FundDetails }) {
                 <TableCell numeric>{displayQuantity(holder.quotas)}</TableCell>
                 <TableCell numeric>{displayPercent(holder.share, 1)}</TableCell>
                 <TableCell numeric>{nav === null ? "—" : displayMoney(Number(holder.quotas) * nav)}</TableCell>
-                <TableCell>{holder.kind === "player" ? "Sim" : "Não"}</TableCell>
+                <TableCell>{holder.kind === "player" ? "Sim" : "Só no aumento de taxa"}</TableCell>
               </TableRow>
             ))}
             <TableRow>

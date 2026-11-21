@@ -9993,7 +9993,7 @@
           "Funds"
         ],
         "summary": "Levar um aumento de taxa à assembleia",
-        "description": "Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.",
+        "description": "Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; os bots cotistas e o Mercado votam com o peso das cotas, a favor quando a gestora bateu o CDI nos últimos 126 pregões e contra quando não. Vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.",
         "operationId": "propose_fund_fee_increase_api_funds__fund_id__assembly_fee_increase_post",
         "security": [
           {
@@ -10284,7 +10284,7 @@
           "Funds"
         ],
         "summary": "Votar na assembleia",
-        "description": "O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam. Cada pauta tem a sua votação.",
+        "description": "O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam, e os bots e o Mercado votam pelo desempenho. Cada pauta tem a sua votação.",
         "operationId": "vote_fund_assembly_api_funds__fund_id__assembly_vote_put",
         "security": [
           {
@@ -23739,6 +23739,30 @@
         "title": "FundAssemblyAgenda",
         "description": "A pauta de uma assembleia de cotistas; cada pauta tem a sua votação."
       },
+      "FundAssemblyAutoVoteDTO": {
+        "properties": {
+          "quotas": {
+            "type": "string",
+            "title": "Quotas"
+          },
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "stance": {
+            "$ref": "#/components/schemas/FundAssemblyStance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas",
+          "share",
+          "stance"
+        ],
+        "title": "FundAssemblyAutoVoteDTO",
+        "description": "O grupo que vota pelo desempenho no aumento de taxa (bots cotistas ou formador de mercado): as cotas e o lado."
+      },
       "FundAssemblyBlock": {
         "type": "string",
         "enum": [
@@ -24286,6 +24310,26 @@
             "type": "string",
             "title": "Non Voting"
           },
+          "bots": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyAutoVoteDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "market": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundAssemblyAutoVoteDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "my_vote": {
             "anyOf": [
               {
@@ -24322,6 +24366,8 @@
           "tally",
           "voters",
           "non_voting",
+          "bots",
+          "market",
           "my_vote",
           "can_vote"
         ],
@@ -24361,7 +24407,7 @@
           "missing_to_win"
         ],
         "title": "FundAssemblyTallyDTO",
-        "description": "O placar em cotas: a favor, contra e abstenção (quem não votou, bots e formador de mercado)."
+        "description": "O placar em cotas: a favor, contra e abstenção (quem não votou e, fora do aumento de taxa, bots e formador de mercado)."
       },
       "FundAssemblyVoteRequest": {
         "properties": {

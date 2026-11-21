@@ -343,7 +343,7 @@ def convene_fund_assembly(
     "/{fund_id}/assembly/fee-increase",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Levar um aumento de taxa à assembleia",
-    description="Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.",
+    description="Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; os bots cotistas e o Mercado votam com o peso das cotas, a favor quando a gestora bateu o CDI nos últimos 126 pregões e contra quando não. Vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.",
 )
 def propose_fund_fee_increase(
     simulation: ActiveSimulation,
@@ -422,7 +422,7 @@ def refuse_fund_assembly_invite(
     "/{fund_id}/assembly/vote",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Votar na assembleia",
-    description="O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam. Cada pauta tem a sua votação.",
+    description="O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam, e os bots e o Mercado votam pelo desempenho. Cada pauta tem a sua votação.",
 )
 def vote_fund_assembly(
     simulation: ActiveSimulation,

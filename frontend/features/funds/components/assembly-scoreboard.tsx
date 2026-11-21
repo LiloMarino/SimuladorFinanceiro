@@ -1,3 +1,4 @@
+import { InfoHint } from "@/shared/components/info-hint";
 import { PlayerAvatar } from "@/shared/components/player-avatar";
 import { StackedBar } from "@/shared/components/stacked-bar";
 import { Badge } from "@/shared/components/ui/badge";
@@ -6,6 +7,7 @@ import { displayPercent, displayQuantity } from "@/shared/lib/utils/display";
 import { missingText, participation, voteShares, type AssemblyCurrent } from "../lib/fund-assembly";
 
 type Voter = AssemblyCurrent["voters"][number];
+type AutoVote = NonNullable<AssemblyCurrent["bots"]>;
 
 const STANCE_BADGE = {
   favor: { variant: "success", label: "a favor" },
@@ -38,12 +40,46 @@ function VoterRow({ voter, managerVotes }: { voter: Voter; managerVotes: boolean
   );
 }
 
+type AutoVoteRowProps = { label: string; bot: boolean; vote: AutoVote };
+
+/** Bots cotistas ou o Mercado: as cotas do grupo e o lado em que ele vota pelo desempenho. */
+function AutoVoteRow({ label, bot, vote }: AutoVoteRowProps) {
+  const badge = STANCE_BADGE[vote.stance];
+  return (
+    <li className="flex items-center gap-2.5 border-t border-muted py-2 text-[13px] first:border-t-0">
+      <PlayerAvatar nickname={label} bot={bot} size="sm" />
+      <span className="min-w-0 flex-1 truncate font-medium" title={label}>
+        {label}
+      </span>
+      <span className="font-mono text-muted-foreground">{displayQuantity(vote.quotas)}</span>
+      <span className="w-14 text-right font-mono text-muted-foreground">{displayPercent(vote.share, 1)}</span>
+      <Badge variant={badge.variant} size="tag" className="w-20">
+        {badge.label}
+      </Badge>
+    </li>
+  );
+}
+
+/** Bots e Mercado votam o aumento de taxa pelo desempenho da gestora; a dica diz a regra. */
+function AutoVoteHint() {
+  return (
+    <InfoHint label="Como bots e Mercado votam">
+      Bots e Mercado votam a favor quando a gestora rendeu acima do CDI nos últimos 6 meses (126 pregões), contra quando
+      não.
+    </InfoHint>
+  );
+}
+
 type AssemblyScoreboardProps = { assembly: AssemblyCurrent; tally: NonNullable<AssemblyCurrent["tally"]> };
 
 /** O placar ao vivo: o peso de cada lado entre as cotas que votaram, a participação e quem pesa quanto. */
 export function AssemblyScoreboard({ assembly, tally }: AssemblyScoreboardProps) {
   const shares = voteShares(tally);
   const turnout = participation(tally, assembly.non_voting);
+  const { bots, market } = assembly;
+  const showBots = bots !== null && Number(bots.quotas) > 0;
+  const showMarket = market !== null && Number(market.quotas) > 0;
+  const autoVoting = bots !== null && market !== null;
 
   return (
     <div className="grid gap-3">
@@ -66,14 +102,17 @@ export function AssemblyScoreboard({ assembly, tally }: AssemblyScoreboardProps)
       />
       <p className="text-xs text-muted-foreground">
         Votaram {displayQuantity(String(turnout.voted))} de {displayQuantity(String(turnout.eligible))} cotas com voto (
-        {displayPercent(turnout.share, 1)}). O formador de mercado e os bots não votam.{" "}
+        {displayPercent(turnout.share, 1)}). {autoVoting ? "" : "O formador de mercado e os bots não votam. "}
         {missingText(tally, assembly.agenda)}
+        {autoVoting && <AutoVoteHint />}
       </p>
-      {assembly.voters.length > 0 && (
+      {(assembly.voters.length > 0 || showBots || showMarket) && (
         <ul className="grid">
           {assembly.voters.map((voter) => (
             <VoterRow key={voter.user_id} voter={voter} managerVotes={assembly.agenda === "MERGE"} />
           ))}
+          {showBots && <AutoVoteRow label="Bots cotistas" bot vote={bots} />}
+          {showMarket && <AutoVoteRow label="Mercado" bot={false} vote={market} />}
         </ul>
       )}
     </div>

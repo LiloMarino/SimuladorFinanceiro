@@ -3259,7 +3259,7 @@ export interface paths {
         put?: never;
         /**
          * Levar um aumento de taxa à assembleia
-         * @description Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.
+         * @description Só o gestor principal propõe, sem exigir cotas. A votação abre já por 5 pregões entre os cotistas que não operam a gestora; os bots cotistas e o Mercado votam com o peso das cotas, a favor quando a gestora bateu o CDI nos últimos 126 pregões e contra quando não. Vence quem tem mais cotas a favor que contra, e sem voto nenhum a proposta cai. Aprovada, a taxa nova vale no primeiro dia útil do mês seguinte ao resultado. Uma votação aberta por vez, sem intervalo entre propostas.
          */
         post: operations["propose_fund_fee_increase_api_funds__fund_id__assembly_fee_increase_post"];
         delete?: never;
@@ -3358,7 +3358,7 @@ export interface paths {
         get?: never;
         /**
          * Votar na assembleia
-         * @description O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam. Cada pauta tem a sua votação.
+         * @description O cotista vota a favor ou contra a pauta, e muda o voto até o fim da votação. O peso é o das cotas dele no fechamento do último pregão. Na troca de gestor o gestor não vota e as cotas dele contam contra; no aumento de taxa o gestor e os co-gestores não votam e não pesam, e os bots e o Mercado votam pelo desempenho. Cada pauta tem a sua votação.
          */
         put: operations["vote_fund_assembly_api_funds__fund_id__assembly_vote_put"];
         post?: never;
@@ -7962,6 +7962,17 @@ export interface components {
          * @enum {string}
          */
         FundAssemblyAgenda: "REPLACE_MANAGER" | "FEE_INCREASE" | "MERGE";
+        /**
+         * FundAssemblyAutoVoteDTO
+         * @description O grupo que vota pelo desempenho no aumento de taxa (bots cotistas ou formador de mercado): as cotas e o lado.
+         */
+        FundAssemblyAutoVoteDTO: {
+            /** Quotas */
+            quotas: string;
+            /** Share */
+            share: string;
+            stance: components["schemas"]["FundAssemblyStance"];
+        };
         /** @enum {string} */
         FundAssemblyBlock: "share" | "interval" | "pending" | "manager" | "unlisted" | "grace" | "manager_only" | "no_partner" | "busy" | "frozen" | "swap_open" | "merge_open" | "team";
         /** FundAssemblyConveneRequest */
@@ -8137,6 +8148,8 @@ export interface components {
             voters: components["schemas"]["FundAssemblyVoterDTO"][];
             /** Non Voting */
             non_voting: string;
+            bots: components["schemas"]["FundAssemblyAutoVoteDTO"] | null;
+            market: components["schemas"]["FundAssemblyAutoVoteDTO"] | null;
             /** My Vote */
             my_vote: boolean | null;
             /** Can Vote */
@@ -8144,7 +8157,7 @@ export interface components {
         };
         /**
          * FundAssemblyTallyDTO
-         * @description O placar em cotas: a favor, contra e abstenção (quem não votou, bots e formador de mercado).
+         * @description O placar em cotas: a favor, contra e abstenção (quem não votou e, fora do aumento de taxa, bots e formador de mercado).
          */
         FundAssemblyTallyDTO: {
             /** In Favor */

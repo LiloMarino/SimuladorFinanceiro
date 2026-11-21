@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from backend.core import repository
 from backend.core.dto.fund import (
+    FundAssemblyAutoVoteDTO,
     FundAssemblyBlock,
     FundAssemblyDTO,
     FundAssemblyFeeDTO,
@@ -66,14 +67,34 @@ ACTIVE = (FundAssemblyStatus.INVITED, FundAssemblyStatus.VOTING)
 
 
 @dataclass(frozen=True)
+class AutoVote:
+    """Os votos que ninguém dá: bots cotistas e formador de mercado no aumento de taxa.
+
+    `in_favor` é o voto dos dois: a favor quando a gestora bateu o CDI na janela de desempenho.
+    """
+
+    bots: Decimal
+    market: Decimal
+    in_favor: bool
+
+    @property
+    def quotas(self) -> Decimal:
+        return self.bots + self.market
+
+    @property
+    def stance(self) -> FundAssemblyStance:
+        return "favor" if self.in_favor else "against"
+
+
+@dataclass(frozen=True)
 class Tally:
     """O placar em cotas: a favor da pauta, contra e abstenção."""
 
     in_favor: Decimal
     against: Decimal
     abstention: Decimal
-    # A parte da abstenção que nunca vota: bots e formador de mercado (e, na pauta de taxa, o
-    # gestor e os co-gestores)
+    # A parte da abstenção que nunca vota: bots e formador de mercado nas pautas de troca e fusão
+    # (e, na pauta de taxa, o gestor e os co-gestores)
     non_voting: Decimal
 
     @property
@@ -128,11 +149,13 @@ def fee_tally(
     holdings: Mapping[int, Decimal],
     votes: Mapping[int, bool],
     excluded: Collection[int],
+    automatic: Decimal = Decimal(0),
+    automatic_in_favor: bool = False,
 ) -> Tally:
-    """Apura o aumento de taxa: só vota quem tem cota e não opera a gestora.
+    """Apura o aumento de taxa: vota quem tem cota e não opera a gestora.
 
-    O gestor e os co-gestores (`excluded`) não pesam nem a favor nem contra: as cotas deles,
-    como as dos bots e do formador de mercado, ficam fora de quem pode votar.
+    O gestor e os co-gestores (`excluded`) não pesam nem a favor nem contra. As cotas dos bots
+    e do formador de mercado (`automatic`) pesam inteiras para o lado de `automatic_in_favor`.
     """
     eligible = {
         user_id: quotas
@@ -141,11 +164,15 @@ def fee_tally(
     }
     in_favor = sum((q for u, q in eligible.items() if votes.get(u) is True), Decimal(0))
     against = sum((q for u, q in eligible.items() if votes.get(u) is False), Decimal(0))
+    if automatic_in_favor:
+        in_favor += automatic
+    else:
+        against += automatic
     return Tally(
         in_favor=in_favor,
         against=against,
         abstention=total - in_favor - against,
-        non_voting=total - sum(eligible.values(), Decimal(0)),
+        non_voting=total - sum(eligible.values(), Decimal(0)) - automatic,
     )
 
 
@@ -261,11 +288,14 @@ class FundAssemblies:
         simulation_id: int,
         engine: SimulationEngine,
         participants: Callable[[], list[UserDTO]],
+        beat_cdi: Callable[["Fund", date], bool],
         grace_ends: date | None = None,
     ) -> None:
         self._simulation_id = simulation_id
         self._engine = engine
         self._participants = participants
+        # A decisão de desempenho que bots e formador de mercado votam no aumento de taxa
+        self._beat_cdi = beat_cdi
         # No modo aquisição hostil a assembleia só abre a partir deste dia; nulo, sem carência
         self.grace_ends = grace_ends
 
@@ -305,9 +335,13 @@ class FundAssemblies:
 
     def holdings(self, fund: "Fund") -> dict[int, Decimal]:
         """As cotas dos jogadores (sem bots) na carteira pessoal, por id de usuário."""
+        return self._held_by(fund, bots=False)
+
+    def _held_by(self, fund: "Fund", *, bots: bool) -> dict[int, Decimal]:
+        """As cotas na carteira pessoal dos participantes que são bots (`bots`) ou jogadores."""
         held: dict[int, Decimal] = {}
         for user in self._participants():
-            if user.is_bot:
+            if user.is_bot is not bots:
                 continue
             position = self._engine.broker.get_positions(user.client_id).get(
                 fund.ticker
@@ -316,21 +350,46 @@ class FundAssemblies:
                 held[user.id] = position.size
         return held
 
+    def auto_vote(self, fund: "Fund") -> AutoVote:
+        """O voto dos bots cotistas e do formador de mercado no aumento de taxa, pelas cotas e pelo desempenho de agora.
+
+        O voto é calculado a cada consulta: acompanha o desempenho até o fechamento.
+        """
+        operators = operators_of(fund)
+        bots = sum(
+            (
+                quotas
+                for user_id, quotas in self._held_by(fund, bots=True).items()
+                if user_id not in operators
+            ),
+            Decimal(0),
+        )
+        market = fund.account.maker_quotas
+        return AutoVote(
+            bots=bots,
+            market=market,
+            in_favor=bots + market > 0
+            and self._beat_cdi(fund, self._engine.current_date),
+        )
+
     def score(
         self,
         fund: "Fund",
         agenda: FundAssemblyAgenda,
         holdings: Mapping[int, Decimal] | None = None,
     ) -> Tally:
-        """O placar de agora da votação da pauta; as cotas são as de agora."""
+        """O placar de agora da votação da pauta; as cotas e, no aumento de taxa, o desempenho são os de agora."""
         held = self.holdings(fund) if holdings is None else holdings
         votes = fund.assembly_votes.get(agenda, {})
         if agenda is FEE:
+            auto = self.auto_vote(fund)
             return fee_tally(
                 total=fund.account.quotas,
                 holdings=held,
                 votes=votes,
                 excluded=operators_of(fund),
+                automatic=auto.quotas,
+                automatic_in_favor=auto.in_favor,
             )
         if agenda is MERGE:
             # Na fusão o gestor e os co-gestores votam como qualquer cotista
@@ -812,6 +871,7 @@ class FundAssemblies:
         votes = fund.assembly_votes.get(agenda, {})
         total = fund.account.quotas
         current = self.score(fund, agenda, holdings) if voting else None
+        auto = self.auto_vote(fund) if voting and agenda is FEE else None
         voters = (
             sorted(
                 (
@@ -860,6 +920,8 @@ class FundAssemblies:
             tally=_tally_dto(current) if current else None,
             voters=voters,
             non_voting=current.non_voting if current else Decimal(0),
+            bots=_auto_dto(auto.bots, auto, total) if auto else None,
+            market=_auto_dto(auto.market, auto, total) if auto else None,
             my_vote=votes.get(viewer.id),
             can_vote=voting and self.can_vote(fund, agenda, viewer, holdings),
         )
@@ -883,6 +945,14 @@ def _fee_dto(assembly: FundAssemblyDTO) -> FundAssemblyFeeDTO | None:
         management_to=assembly.proposed_management_fee,
         performance_from=assembly.previous_performance_fee,
         performance_to=assembly.proposed_performance_fee,
+    )
+
+
+def _auto_dto(
+    quotas: Decimal, auto: AutoVote, total: Decimal
+) -> FundAssemblyAutoVoteDTO:
+    return FundAssemblyAutoVoteDTO(
+        quotas=quotas, share=ratio(quotas, total), stance=auto.stance
     )
 
 
