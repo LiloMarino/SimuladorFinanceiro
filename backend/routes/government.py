@@ -77,7 +77,7 @@ def get_map(simulation: ActiveSimulation, user: CurrentUser):
 def get_map_timeline(
     simulation: ActiveSimulation, user: CurrentUser, year: int | None = None
 ):
-    return simulation.get_map_timeline(user, year)
+    return simulation.get_map_timeline(year)
 
 
 @government_router.post(

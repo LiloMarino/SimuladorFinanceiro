@@ -29453,6 +29453,69 @@
             ],
             "title": "Winner Name"
           },
+          "winner_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Winner Share"
+          },
+          "finalists": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finalists"
+          },
+          "inauguration": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inauguration"
+          },
+          "runoff": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runoff"
+          },
+          "endorsers": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Endorsers"
+          },
           "accepted": {
             "anyOf": [
               {
@@ -29556,6 +29619,73 @@
             ],
             "title": "Approval"
           },
+          "impeachment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpeachmentDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "term_end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term End"
+          },
+          "next_election": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Election"
+          },
+          "heir_abbr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heir Abbr"
+          },
+          "heir_seats": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heir Seats"
+          },
+          "heir_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heir Name"
+          },
           "previous_approval": {
             "anyOf": [
               {
@@ -29650,6 +29780,60 @@
             ],
             "title": "Rival Abbr"
           },
+          "support": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support"
+          },
+          "rejection": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rejection"
+          },
+          "band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DiceBand"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "roll": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roll"
+          },
+          "received": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received"
+          },
           "seats_before": {
             "anyOf": [
               {
@@ -29728,6 +29912,11 @@
           "round",
           "winner_abbr",
           "winner_name",
+          "winner_share",
+          "finalists",
+          "inauguration",
+          "runoff",
+          "endorsers",
           "accepted",
           "measure_title",
           "yes",
@@ -29737,6 +29926,12 @@
           "tickers",
           "months_below_floor",
           "approval",
+          "impeachment",
+          "term_end",
+          "next_election",
+          "heir_abbr",
+          "heir_seats",
+          "heir_name",
           "previous_approval",
           "groups_approved",
           "groups_reproved",
@@ -29745,6 +29940,11 @@
           "campaign_action",
           "group",
           "rival_abbr",
+          "support",
+          "rejection",
+          "band",
+          "roll",
+          "received",
           "seats_before",
           "seats_after",
           "broken_by_ally",
@@ -29753,7 +29953,7 @@
           "requested_by"
         ],
         "title": "GovernmentUpdateEventDTO",
-        "description": "A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."
+        "description": "Um fato do governo ou da eleição: o aviso conta o que houve e carrega o dado que o toast e o diálogo mostram."
       },
       "GroupApprovalDTO": {
         "properties": {
@@ -39558,6 +39758,34 @@
           "base_update": {
             "$ref": "#/components/schemas/CongressBaseDTO"
           },
+          "election_update": {
+            "$ref": "#/components/schemas/ElectionPanelDTO"
+          },
+          "map_update": {
+            "$ref": "#/components/schemas/MapPanelDTO"
+          },
+          "map_timeline_update": {
+            "$ref": "#/components/schemas/MapTimelineDTO"
+          },
+          "campaign_update": {
+            "$ref": "#/components/schemas/CampaignPanelDTO"
+          },
+          "campaign_history_update": {
+            "$ref": "#/components/schemas/CampaignHistoryDTO"
+          },
+          "promises_update": {
+            "$ref": "#/components/schemas/PromisesPanelDTO"
+          },
+          "balances_update": {
+            "items": {
+              "$ref": "#/components/schemas/BalanceDTO"
+            },
+            "type": "array",
+            "title": "Balances Update"
+          },
+          "government_panel_update": {
+            "$ref": "#/components/schemas/GovernmentPanelDTO"
+          },
           "snapshot_update": {
             "$ref": "#/components/schemas/SnapshotUpdateEventDTO"
           },
@@ -39740,6 +39968,14 @@
           "budget_update",
           "economy_update",
           "base_update",
+          "election_update",
+          "map_update",
+          "map_timeline_update",
+          "campaign_update",
+          "campaign_history_update",
+          "promises_update",
+          "balances_update",
+          "government_panel_update",
           "snapshot_update",
           "portfolio_update",
           "statistics_snapshot_update",

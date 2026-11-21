@@ -9710,7 +9710,7 @@ export interface components {
         };
         /**
          * GovernmentUpdateEventDTO
-         * @description A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve.
+         * @description Um fato do governo ou da eleição: o aviso conta o que houve e carrega o dado que o toast e o diálogo mostram.
          */
         GovernmentUpdateEventDTO: {
             kind: components["schemas"]["GovernmentNoticeKind"];
@@ -9728,6 +9728,18 @@ export interface components {
             winner_abbr: string | null;
             /** Winner Name */
             winner_name: string | null;
+            /** Winner Share */
+            winner_share: string | null;
+            /** Finalists */
+            finalists: string[] | null;
+            /** Inauguration */
+            inauguration: string | null;
+            /** Runoff */
+            runoff: string | null;
+            /** Endorsers */
+            endorsers: {
+                [key: string]: string;
+            } | null;
             /** Accepted */
             accepted: boolean | null;
             /** Measure Title */
@@ -9746,6 +9758,17 @@ export interface components {
             months_below_floor: number | null;
             /** Approval */
             approval: number | null;
+            impeachment: components["schemas"]["ImpeachmentDTO"] | null;
+            /** Term End */
+            term_end: string | null;
+            /** Next Election */
+            next_election: string | null;
+            /** Heir Abbr */
+            heir_abbr: string | null;
+            /** Heir Seats */
+            heir_seats: number | null;
+            /** Heir Name */
+            heir_name: string | null;
             /** Previous Approval */
             previous_approval: number | null;
             /** Groups Approved */
@@ -9760,6 +9783,15 @@ export interface components {
             group: components["schemas"]["VoterGroup"] | null;
             /** Rival Abbr */
             rival_abbr: string | null;
+            /** Support */
+            support: string | null;
+            /** Rejection */
+            rejection: string | null;
+            band: components["schemas"]["DiceBand"] | null;
+            /** Roll */
+            roll: number | null;
+            /** Received */
+            received: boolean | null;
             /** Seats Before */
             seats_before: number | null;
             /** Seats After */
@@ -13234,6 +13266,15 @@ export interface components {
             budget_update: components["schemas"]["BudgetDTO"];
             economy_update: components["schemas"]["EconomyPanelDTO"];
             base_update: components["schemas"]["CongressBaseDTO"];
+            election_update: components["schemas"]["ElectionPanelDTO"];
+            map_update: components["schemas"]["MapPanelDTO"];
+            map_timeline_update: components["schemas"]["MapTimelineDTO"];
+            campaign_update: components["schemas"]["CampaignPanelDTO"];
+            campaign_history_update: components["schemas"]["CampaignHistoryDTO"];
+            promises_update: components["schemas"]["PromisesPanelDTO"];
+            /** Balances Update */
+            balances_update: components["schemas"]["BalanceDTO"][];
+            government_panel_update: components["schemas"]["GovernmentPanelDTO"];
             snapshot_update: components["schemas"]["SnapshotUpdateEventDTO"];
             portfolio_update: components["schemas"]["PortfolioUpdateEventDTO"];
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];

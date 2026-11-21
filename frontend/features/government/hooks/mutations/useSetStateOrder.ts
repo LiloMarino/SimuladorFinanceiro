@@ -13,7 +13,6 @@ export function useSetStateOrder(ticker: string) {
     onError: (err) => toastApiError(err),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.stateCompanies() });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.government() });
     },
   });
 }

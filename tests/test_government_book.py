@@ -1947,6 +1947,9 @@ def test_event_is_paid_on_click_and_lifts_the_group(
     book: GovernmentBook, engine: PoliticalEngine, notices
 ):
     mine, _ = two_parties(book)
+    # O aviso da ação vai aos outros filiados do partido
+    book.join_party(CARLA, CAMPAIGN_OPEN, mine.id, Decimal(0))
+    book.on_tick(USERS, CAMPAIGN_OPEN, False)
     wallet = engine.get_cash(ALICE.client_id)
     cash = mine.cash
     spent = mine.spent

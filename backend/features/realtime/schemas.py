@@ -20,6 +20,7 @@ from backend.core.dto.backtest import (
 )
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.budget import BudgetDTO
+from backend.core.dto.campaign import CampaignHistoryDTO, CampaignPanelDTO
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.candle_challenge import (
     CandleChallengeStateDTO,
@@ -43,7 +44,15 @@ from backend.core.dto.fund import (
     FundRoomItemDTO,
 )
 from backend.core.dto.goal import GoalProgressDTO
-from backend.core.dto.government import CongressBaseDTO
+from backend.core.dto.government import (
+    CongressBaseDTO,
+    ElectionPanelDTO,
+    GovernmentPanelDTO,
+    ImpeachmentDTO,
+    MapPanelDTO,
+    MapTimelineDTO,
+    PromisesPanelDTO,
+)
 from backend.core.dto.life import LifeEventDTO, LifeStatusDTO
 from backend.core.dto.news import NewsDTO
 from backend.core.dto.order import OrderDTO
@@ -55,6 +64,7 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.preparation import PreparationsDTO
 from backend.core.dto.presence import PlayerPresenceEventDTO, PlayerRemovedEventDTO
 from backend.core.dto.preset import PresetAppliedEventDTO
+from backend.core.dto.promises import BalanceDTO
 from backend.core.dto.simulation import SimulationSettingsDTO, SimulationStatusResponse
 from backend.core.dto.snapshot import SnapshotDTO
 from backend.core.dto.sovereign_fund import SovereignFundPanelDTO
@@ -80,6 +90,7 @@ from backend.core.dto.treasury import (
 from backend.core.enum import (
     CampaignActionKind,
     CreditGrade,
+    DiceBand,
     GovernmentNoticeKind,
     OrderAction,
     PauseReason,
@@ -467,7 +478,7 @@ class CreditLoanPaidOffEventDTO(BaseDTO):
 
 
 class GovernmentUpdateEventDTO(BaseDTO):
-    """A eleição mudou: a página renova e, conforme o tipo, o aviso conta o que houve."""
+    """Um fato do governo ou da eleição: o aviso conta o que houve e carrega o dado que o toast e o diálogo mostram."""
 
     kind: GovernmentNoticeKind
     # Quem fez e quem sofreu a ação, pelo apelido
@@ -479,6 +490,13 @@ class GovernmentUpdateEventDTO(BaseDTO):
     round: int | None = None
     winner_abbr: str | None = None
     winner_name: str | None = None
+    # No resultado: a fatia dos votos válidos do vencedor, as siglas que vão ao 2º turno, as datas da posse e do 2º turno,
+    # e os fundadores (apelido por sigla) dos partidos eliminados, que podem declarar apoio
+    winner_share: Decimal | None = None
+    finalists: list[str] | None = None
+    inauguration: date | None = None
+    runoff: date | None = None
+    endorsers: dict[str, str] | None = None
     # Na resposta ao convite de vice: se aceitou
     accepted: bool | None = None
     # Nas votações da casa: o título da medida, o placar (Sim, Não e quantos desobedeceram), o dia em que passa a valer e os ativos que atinge
@@ -491,6 +509,13 @@ class GovernmentUpdateEventDTO(BaseDTO):
     # No impeachment: quem saiu (actor) e quem assumiu (target, nulo sem vice); no aviso, os meses abaixo do piso
     months_below_floor: int | None = None
     approval: int | None = None
+    # No impeachment: a votação, o fim do mandato, a eleição seguinte e a bancada do computador que assume sem vice
+    impeachment: ImpeachmentDTO | None = None
+    term_end: date | None = None
+    next_election: date | None = None
+    heir_abbr: str | None = None
+    heir_seats: int | None = None
+    heir_name: str | None = None
     # No fechamento do mês: a aprovação do mês anterior e os grupos que aprovaram e reprovaram
     previous_approval: int | None = None
     groups_approved: list[VoterGroup] | None = None
@@ -502,6 +527,13 @@ class GovernmentUpdateEventDTO(BaseDTO):
     campaign_action: CampaignActionKind | None = None
     group: VoterGroup | None = None
     rival_abbr: str | None = None
+    # O efeito da ação no grupo e o dado, como o destinatário os vê: quem agiu vê o dado e a rejeição, o atacado só o apoio
+    support: Decimal | None = None
+    rejection: Decimal | None = None
+    band: DiceBand | None = None
+    roll: int | None = None
+    # Verdadeiro quando o aviso é o ataque que o partido do destinatário sofreu
+    received: bool | None = None
     # Nos acordos de apoio: as cadeiras da base antes e depois, e se foi o aliado quem rompeu
     seats_before: int | None = None
     seats_after: int | None = None
@@ -582,6 +614,14 @@ class RealtimeEventCatalog(BaseDTO):
     budget_update: BudgetDTO
     economy_update: EconomyPanelDTO
     base_update: CongressBaseDTO
+    election_update: ElectionPanelDTO
+    map_update: MapPanelDTO
+    map_timeline_update: MapTimelineDTO
+    campaign_update: CampaignPanelDTO
+    campaign_history_update: CampaignHistoryDTO
+    promises_update: PromisesPanelDTO
+    balances_update: list[BalanceDTO]
+    government_panel_update: GovernmentPanelDTO
     snapshot_update: SnapshotUpdateEventDTO
     portfolio_update: PortfolioUpdateEventDTO
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO

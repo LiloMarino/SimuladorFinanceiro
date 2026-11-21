@@ -17,6 +17,7 @@ from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.dto.government import (
     PARTY_ABBR_PATTERN,
+    ImpeachmentDTO,
     MeasurePreviewDTO,
     ValueMoveDTO,
 )
@@ -43,6 +44,7 @@ from backend.core.enum import (
     ComputerDifficulty,
     DealBreaker,
     DealStatus,
+    DiceBand,
     DividendPolicy,
     EquityEventType,
     FederationStatus,
@@ -1915,6 +1917,7 @@ class GovernmentBook:
             GovernmentNoticeKind.DEAL_ENDED,
             party_abbr=", ".join(abbrs),
             accepted=new_congress,
+            to=[president] if (president := self.president()) else [],
         )
         self._on_news(
             today,
@@ -2846,6 +2849,7 @@ class GovernmentBook:
         support_before = self.support_of(target, group) if group else None
         rejection_before = party.rejection[group] if group else None
         record = self._emit_action(party, user.id, today, kind, group, rival, price)
+        # Os outros filiados veem o dado e a rejeição; o partido atacado vê só o apoio perdido
         self._notice(
             GovernmentNoticeKind.CAMPAIGN_ACTION,
             user,
@@ -2853,7 +2857,23 @@ class GovernmentBook:
             campaign_action=kind,
             group=group,
             rival_abbr=rival.abbr if rival else None,
+            support=record.support,
+            rejection=record.rejection,
+            band=record.band,
+            roll=record.roll,
+            to=[m for m in self._members_of(party) if m.id != user.id],
         )
+        if rival is not None:
+            self._notice(
+                GovernmentNoticeKind.CAMPAIGN_ACTION,
+                party_abbr=party.abbr,
+                campaign_action=kind,
+                group=group,
+                rival_abbr=rival.abbr,
+                support=record.support,
+                received=True,
+                to=self._members_of(rival),
+            )
         return CampaignResult(record, support_before, rejection_before)
 
     def _check_action_target(
@@ -4065,7 +4085,7 @@ class GovernmentBook:
         satisfaction: dict[VoterGroup, Decimal],
         value: int,
     ) -> None:
-        """Conta à sala como os grupos fecharam o mês; o front mostra só aos filiados do governo."""
+        """Conta aos filiados do partido do governo como os grupos fecharam o mês."""
         term = required(self.state.term)
         verdicts = {g: voters.month_verdict(v) for g, v in satisfaction.items()}
         self._notice(
@@ -4079,6 +4099,7 @@ class GovernmentBook:
             groups_reproved=[
                 g for g, v in verdicts.items() if v is GroupVerdict.REPROVES
             ],
+            to=self._members_of(self.state.parties.get(term.party_id or 0)),
         )
 
     def _vote(self, today: date) -> None:
@@ -4180,11 +4201,30 @@ class GovernmentBook:
             self._on_leave_office(out, today)
         if successor is not None:
             self._on_office(successor, today)
+        heir_party = (
+            self.state.parties.get(heir.party_id)
+            if heir is not None and heir.party_id is not None
+            else None
+        )
         self._notice(
             GovernmentNoticeKind.IMPEACHMENT,
             out,
             target=successor,
             party_abbr=self._party_abbr(term.party_id),
+            impeachment=ImpeachmentDTO(
+                date=today,
+                president=out.nickname if out else None,
+                successor=successor.nickname if successor else None,
+                months=approval_rules.IMPEACHMENT_MONTHS,
+                floor=approval_rules.FLOOR,
+                yes=tally.yes,
+                no=tally.no,
+            ),
+            term_end=self.term_end(),
+            next_election=self.cycle().first_round,
+            heir_abbr=heir.abbr if heir else None,
+            heir_seats=heir.seats if heir else None,
+            heir_name=heir_party.candidate_name if heir_party else None,
         )
         if out is not None:
             self._on_news(
@@ -4949,10 +4989,33 @@ class GovernmentBook:
             not_voted=str(not_voted),
         )
         winner_party = self.state.parties.get(winner) if winner is not None else None
+        winner_ticket = (
+            election.effective_ticket(self.state, winner_party)[0]
+            if winner_party is not None
+            else None
+        )
+        # Os fundadores dos eliminados do turno: são eles que podem declarar apoio
+        endorsers = {
+            party.abbr: founder.nickname
+            for party in running
+            if party.id not in finalists
+            and party.founder_id is not None
+            and (founder := self._people.get(party.founder_id)) is not None
+        }
         self._notice(
             GovernmentNoticeKind.ELECTION_RESULT,
             round_number=round_number,
             winner_abbr=winner_party.abbr if winner_party else None,
+            winner_name=(
+                self.candidate_name(winner_party, winner_ticket)
+                if winner_party is not None
+                else None
+            ),
+            winner_share=shares[winner_party.id] if winner_party else None,
+            finalists=[self.state.parties[f].abbr for f in finalists],
+            inauguration=cycle.inauguration,
+            runoff=cycle.runoff,
+            endorsers=endorsers,
         )
         if winner_party is not None:
             candidate, _ = election.effective_ticket(self.state, winner_party)
@@ -5142,6 +5205,12 @@ class GovernmentBook:
             raise ConflictError("Você não está em nenhum partido.")
         return party
 
+    def _members_of(self, party: Party | None) -> list[UserDTO]:
+        """Os jogadores filiados ao partido que estão na partida."""
+        if party is None:
+            return []
+        return [self._people[uid] for uid in party.members if uid in self._people]
+
     def _founded_party(self, user: UserDTO) -> Party:
         party = self._my_party(user)
         if party.founder_id != user.id:
@@ -5198,43 +5267,82 @@ class GovernmentBook:
         federation_name: str | None = None,
         partner_abbr: str | None = None,
         requested_by: str | None = None,
+        winner_share: Decimal | None = None,
+        finalists: list[str] | None = None,
+        inauguration: date | None = None,
+        runoff: date | None = None,
+        endorsers: dict[str, str] | None = None,
+        impeachment: ImpeachmentDTO | None = None,
+        term_end: date | None = None,
+        next_election: date | None = None,
+        heir_abbr: str | None = None,
+        heir_seats: int | None = None,
+        heir_name: str | None = None,
+        support: Decimal | None = None,
+        rejection: Decimal | None = None,
+        band: DiceBand | None = None,
+        roll: int | None = None,
+        received: bool | None = None,
+        to: Iterable[UserDTO] | None = None,
     ) -> None:
-        notify(
-            "government_update",
-            GovernmentUpdateEventDTO(
-                kind=kind,
-                actor=actor.nickname if actor else None,
-                target=target.nickname if target else None,
-                party_abbr=party_abbr,
-                amount=amount,
-                round=round_number,
-                winner_abbr=winner_abbr,
-                winner_name=winner_name,
-                accepted=accepted,
-                measure_title=measure_title,
-                yes=yes,
-                no=no,
-                defected=defected,
-                effective=effective,
-                tickers=tickers,
-                months_below_floor=months_below_floor,
-                approval=approval,
-                previous_approval=previous_approval,
-                groups_approved=groups_approved,
-                groups_reproved=groups_reproved,
-                ticket_deadline=ticket_deadline,
-                first_round=first_round,
-                campaign_action=campaign_action,
-                group=group,
-                rival_abbr=rival_abbr,
-                seats_before=seats_before,
-                seats_after=seats_after,
-                broken_by_ally=broken_by_ally,
-                federation_name=federation_name,
-                partner_abbr=partner_abbr,
-                requested_by=requested_by,
-            ).to_json(),
-        )
+        """
+        Conta o fato à sala, ou só a `to` quando o aviso é de quem o recebe; o dado que o
+        toast e o diálogo mostram vai no próprio aviso. Os painéis saem pelo `_emit` do fato.
+        """
+        payload = GovernmentUpdateEventDTO(
+            kind=kind,
+            actor=actor.nickname if actor else None,
+            target=target.nickname if target else None,
+            party_abbr=party_abbr,
+            amount=amount,
+            round=round_number,
+            winner_abbr=winner_abbr,
+            winner_name=winner_name,
+            accepted=accepted,
+            measure_title=measure_title,
+            yes=yes,
+            no=no,
+            defected=defected,
+            effective=effective,
+            tickers=tickers,
+            months_below_floor=months_below_floor,
+            approval=approval,
+            previous_approval=previous_approval,
+            groups_approved=groups_approved,
+            groups_reproved=groups_reproved,
+            ticket_deadline=ticket_deadline,
+            first_round=first_round,
+            campaign_action=campaign_action,
+            group=group,
+            rival_abbr=rival_abbr,
+            seats_before=seats_before,
+            seats_after=seats_after,
+            broken_by_ally=broken_by_ally,
+            federation_name=federation_name,
+            partner_abbr=partner_abbr,
+            requested_by=requested_by,
+            winner_share=winner_share,
+            finalists=finalists,
+            inauguration=inauguration,
+            runoff=runoff,
+            endorsers=endorsers,
+            impeachment=impeachment,
+            term_end=term_end,
+            next_election=next_election,
+            heir_abbr=heir_abbr,
+            heir_seats=heir_seats,
+            heir_name=heir_name,
+            support=support,
+            rejection=rejection,
+            band=band,
+            roll=roll,
+            received=received,
+        ).to_json()
+        if to is None:
+            notify("government_update", payload)
+        else:
+            for person in to:
+                notify("government_update", payload, to=person.client_id)
 
 
 def _key(item: PromiseRequest) -> tuple[MeasureKind, str | None, str | None]:

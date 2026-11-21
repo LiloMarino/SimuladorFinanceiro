@@ -6,23 +6,23 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
 import { parseLocalDate } from "@/shared/lib/utils/display";
-import type { GovernmentPanel } from "@/types";
+import type { GovernmentNotice } from "@/types";
 import { monthsSpan } from "../lib/approval";
 import { monthYear } from "../lib/government";
 import { PartyMark } from "@/shared/components/party-mark";
 
 type ImpeachmentDialogProps = {
-  /** O governo logo depois do impeachment; nulo mantém o diálogo fechado */
-  panel: GovernmentPanel | null;
+  /** O aviso do impeachment; nulo mantém o diálogo fechado */
+  notice: GovernmentNotice | null;
   onClose: () => void;
 };
 
 /** O impeachment, para todos: quem saiu, quem assume e o que muda nas carteiras. */
-export function ImpeachmentDialog({ panel, onClose }: ImpeachmentDialogProps) {
+export function ImpeachmentDialog({ notice, onClose }: ImpeachmentDialogProps) {
   return (
-    <Dialog open={!!panel?.last_impeachment} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={!!notice?.impeachment} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-110">
-        {panel?.last_impeachment && <ImpeachmentBody panel={panel} onClose={onClose} />}
+        {notice?.impeachment && <ImpeachmentBody notice={notice} onClose={onClose} />}
       </DialogContent>
     </Dialog>
   );
@@ -33,16 +33,16 @@ function lastClosing(voteDate: string) {
   return format(subMonths(parseLocalDate(voteDate), 1), "yyyy-MM-dd");
 }
 
-function ImpeachmentBody({ panel, onClose }: ImpeachmentDialogProps) {
-  const impeachment = panel?.last_impeachment;
-  if (!panel || !impeachment) return null;
+function ImpeachmentBody({ notice, onClose }: ImpeachmentDialogProps) {
+  const impeachment = notice?.impeachment;
+  if (!notice || !impeachment) return null;
   const { successor, months, floor, date, yes, no } = impeachment;
   const president = impeachment.president ?? "O presidente";
   const cause = `A aprovação fechou ${months} meses seguidos abaixo de ${floor}%, de ${monthsSpan(lastClosing(date), months)}, e a casa aprovou o impeachment por ${yes} a ${no}.`;
-  const until = panel.term_end ? monthYear(panel.term_end) : "o fim do mandato";
+  const until = notice.term_end ? monthYear(notice.term_end) : "o fim do mandato";
   // Sem vice, assume o partido do computador com mais cadeiras: a bancada que agora governa
-  const heir = successor ? undefined : panel.congress.house.blocs.find((bloc) => bloc.governing && bloc.is_computer);
-  const heirName = panel.term?.president?.name;
+  const heir = notice.heir_abbr ? { abbr: notice.heir_abbr, seats: notice.heir_seats } : undefined;
+  const heirName = notice.heir_name;
 
   return (
     <div className="grid justify-items-start gap-2.5">
@@ -59,7 +59,7 @@ function ImpeachmentBody({ panel, onClose }: ImpeachmentDialogProps) {
           ? `${cause} ${successor} governa até ${until}, como vice: a carteira de ${successor} congela e a de ${president} volta a operar.`
           : heir
             ? `${cause} ${president} não tinha vice. Assume o partido do computador com mais cadeiras, ${heir.abbr} (${heir.seats}), até ${until}: ele propõe medidas pelos grupos de eleitores dele, e a casa vota como sempre. A carteira de ${president} volta a operar.`
-            : `${cause} Não havia vice para assumir: um governo neutro do computador conduz o país, sem mudar impostos, até a eleição de ${monthYear(panel.next_election)}. A carteira de ${president} volta a operar.`}
+            : `${cause} Não havia vice para assumir: um governo neutro do computador conduz o país, sem mudar impostos, até a eleição de ${notice.next_election ? monthYear(notice.next_election) : "a próxima"}. A carteira de ${president} volta a operar.`}
       </DialogDescription>
       {successor ? (
         <div className="flex items-center gap-2">

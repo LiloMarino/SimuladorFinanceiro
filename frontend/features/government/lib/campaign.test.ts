@@ -80,6 +80,22 @@ const notice = (partial: Partial<GovernmentNotice>): GovernmentNotice => ({
   seats_after: null,
   broken_by_ally: null,
   requested_by: null,
+  winner_share: null,
+  finalists: null,
+  inauguration: null,
+  runoff: null,
+  endorsers: null,
+  impeachment: null,
+  term_end: null,
+  next_election: null,
+  heir_abbr: null,
+  heir_seats: null,
+  heir_name: null,
+  support: null,
+  rejection: null,
+  band: null,
+  roll: null,
+  received: null,
   ...partial,
 });
 
@@ -194,53 +210,66 @@ describe("resultado do dado", () => {
 });
 
 describe("campaignToast", () => {
-  const mine = { abbr: "PRL", nickname: "Lilo" };
-
-  it("avisa o partido atacado", () => {
-    const toast = campaignToast(notice({ campaign_action: "ATTACK", party_abbr: "FDS", rival_abbr: "PRL" }), mine);
+  it("avisa o partido atacado com o apoio perdido, sem o dado", () => {
+    const toast = campaignToast(
+      notice({
+        campaign_action: "ATTACK",
+        actor: null,
+        party_abbr: "FDS",
+        rival_abbr: "PRL",
+        support: "-5",
+        received: true,
+      }),
+    );
     expect(toast?.tone).toBe("warning");
     expect(toast?.title).toBe("O FDS atacou o PRL entre aposentados");
+    expect(toast?.description).toBe("−5 de apoio ao PRL no grupo");
   });
 
-  it("o ataque entre outros partidos é só do jornal", () => {
-    expect(campaignToast(notice({ campaign_action: "ATTACK", party_abbr: "FDS", rival_abbr: "UPR" }), mine)).toBeNull();
-  });
-
-  it("conta ao partido a ação de outro filiado, e só a ela", () => {
-    expect(campaignToast(notice({}), mine)?.title).toBe("Duda fez um evento com aposentados");
-    expect(campaignToast(notice({ campaign_action: "TV", group: null }), mine)?.title).toBe(
+  it("conta ao partido a ação de outro filiado, com o dado", () => {
+    expect(campaignToast(notice({}))?.title).toBe("Duda fez um evento com aposentados");
+    expect(campaignToast(notice({ campaign_action: "TV", group: null }))?.title).toBe(
       "Duda fez TV para todos os grupos",
     );
-    expect(campaignToast(notice({ campaign_action: "ATTACK", rival_abbr: "FDS" }), mine)?.title).toBe(
+    expect(campaignToast(notice({ campaign_action: "ATTACK", rival_abbr: "FDS" }))?.title).toBe(
       "Duda atacou o FDS entre aposentados",
     );
-    expect(campaignToast(notice({ actor: "Lilo" }), mine)).toBeNull();
-    expect(campaignToast(notice({ party_abbr: "FDS" }), mine)).toBeNull();
-    expect(campaignToast(notice({}), undefined)).toBeNull();
+  });
+
+  it("o aviso sem ação de campanha não vira toast", () => {
+    expect(campaignToast(notice({ campaign_action: null }))).toBeNull();
   });
 });
 
 describe("toastEffect", () => {
   it("conta ao filiado a faixa e o efeito no partido dele", () => {
-    expect(toastEffect(entry({ band: "VIRAL", roll: 20, support: "18", rejection: "0" }), "PRL")).toBe(
+    expect(toastEffect(notice({ band: "VIRAL", roll: 20, support: "18", rejection: "0" }))).toBe(
       "Viralizou (20): +18 de apoio ao PRL",
     );
-    expect(toastEffect(entry({ kind: "TV", group: null, support: "3", rejection: "0" }), "PRL")).toBe(
+    expect(toastEffect(notice({ campaign_action: "TV", group: null, band: "NORMAL", roll: 11, support: "3" }))).toBe(
       "Normal (11): +3 de apoio ao PRL em cada grupo",
     );
   });
 
+  it("conta o efeito do ataque no rival e a rejeição de quem atacou", () => {
+    expect(
+      toastEffect(
+        notice({
+          campaign_action: "ATTACK",
+          rival_abbr: "FDS",
+          band: "NORMAL",
+          roll: 9,
+          support: "-4",
+          rejection: "1",
+        }),
+      ),
+    ).toBe("Normal (9): −4 de apoio ao FDS · +1 de rejeição");
+  });
+
   it("conta ao atacado o efeito, sem o dado", () => {
-    const received = entry({
-      kind: "ATTACK_RECEIVED",
-      party_abbr: "FDS",
-      band: null,
-      roll: null,
-      rolls: [],
-      support: "-5",
-      rejection: "0",
-    });
-    expect(toastEffect(received, "PRL")).toBe("−5 de apoio ao PRL no grupo");
+    expect(toastEffect(notice({ campaign_action: "ATTACK", rival_abbr: "PRL", support: "-5", received: true }))).toBe(
+      "−5 de apoio ao PRL no grupo",
+    );
   });
 });
 

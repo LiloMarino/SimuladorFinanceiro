@@ -7,7 +7,8 @@ dia, a parcela): cada mudança só marca a conta, e a publicação sai uma vez, 
 operação mais externa, com o estado já final. O pregão marca todas as contas.
 
 O caixa de uma conta de gestora mexe nas pendências de quem a opera; a vida financeira é
-só da conta pessoal. O crédito é de quem vê a conta: o dono da pessoal e o gestor principal
+só da conta pessoal. O dinheiro que o governo e a eleição mexem na conta pessoal (contribuição
+e doação à campanha, legado do presidente) leva também a carteira nova ao dono dela. O crédito é de quem vê a conta: o dono da pessoal e o gestor principal
 da gestora.
 """
 
@@ -24,6 +25,7 @@ from fastapi import HTTPException
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
 from backend.core.dto.user import UserDTO
+from backend.core.enum import CashflowEventType
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.features.credit.overview import build_overview
 from backend.features.realtime.client_requests import ClientRequests
@@ -32,6 +34,7 @@ from backend.features.realtime.schemas import (
     FixedIncomeProjectionEventDTO,
     LifeStatusUpdateEventDTO,
     PendingUpdateEventDTO,
+    PortfolioUpdateEventDTO,
 )
 from backend.features.simulation.feed_support import (
     guarded,
@@ -41,6 +44,15 @@ from backend.features.simulation.feed_support import (
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation import Simulation
+
+# Os lançamentos do governo e da eleição que mexem na carteira de quem os paga ou recebe
+POLITICAL_CASH = frozenset(
+    {
+        CashflowEventType.CAMPAIGN_CONTRIBUTION,
+        CashflowEventType.CAMPAIGN_DONATION,
+        CashflowEventType.PRESIDENT_LEGACY,
+    }
+)
 
 # A conta que o caixa mexeu: quem a recebe no tempo real e a gestora dona (nula na pessoal)
 type MovedAccount = tuple[UUID, int | None]
@@ -64,6 +76,8 @@ class CashFeed:
         # Títulos com cotação registrada: a publicação só olha para eles
         self._projected: set[str] = set()
         self._moved: set[MovedAccount] = set()
+        # Os clientes cuja carteira pessoal o governo mexeu
+        self._portfolio: set[UUID] = set()
         # As contas de crédito (client_id) que mudaram e os clientes cuja lista de pendências mudou
         self._credit: set[UUID] = set()
         self._pending: set[UUID] = set()
@@ -77,9 +91,17 @@ class CashFeed:
         """A lista de pendências de `recipients` mudou por algo que não é o caixa."""
         self._pending.update(recipients)
 
-    def cash_moved(self, audience: Iterable[UUID], account: int | None) -> None:
+    def cash_moved(
+        self,
+        audience: Iterable[UUID],
+        account: int | None,
+        event_type: CashflowEventType | None = None,
+    ) -> None:
         """O caixa da conta `account` mexeu; quem a opera recebe o dado novo ao fechar a operação."""
-        self._moved.update((recipient, account) for recipient in audience)
+        recipients = tuple(audience)
+        self._moved.update((recipient, account) for recipient in recipients)
+        if account is None and event_type in POLITICAL_CASH:
+            self._portfolio.update(recipients)
 
     def day_passed(self) -> None:
         """O pregão mudou a data de todas as telas que dependem dela."""
@@ -119,15 +141,18 @@ class CashFeed:
         if not (self._moved or self._day or self._credit or self._pending):
             return
         moved, day = self._moved, self._day
-        credit, pending = self._credit, self._pending
+        credit, pending, portfolio = self._credit, self._pending, self._portfolio
         self._moved, self._day = set(), False
-        self._credit, self._pending = set(), set()
+        self._credit, self._pending, self._portfolio = set(), set(), set()
         guarded(
             lambda: self._publish_projections(moved, day), "a cotação da renda fixa"
         )
         guarded(lambda: self._publish_life(moved, day), "a vida financeira")
         guarded(lambda: self._publish_pending(moved, day, pending), "as pendências")
         guarded(lambda: self._publish_credit(credit, day), "o crédito")
+        # O pregão já leva a carteira a todos os jogadores
+        if not day:
+            guarded(lambda: self._publish_portfolio(portfolio), "a carteira")
 
     def _publish_projections(self, moved: set[MovedAccount], day: bool) -> None:
         for asset_id in list(self._projected):
@@ -176,6 +201,19 @@ class CashFeed:
             "pending_update",
             lambda user: [PendingUpdateEventDTO(items=simulation.get_pending(user))],
             recipients,
+        )
+
+    def _publish_portfolio(self, portfolio: set[UUID]) -> None:
+        """A carteira pessoal dos jogadores que o governo mexeu."""
+        simulation = self._simulation
+        publish_each(
+            "portfolio_update",
+            lambda user: [
+                PortfolioUpdateEventDTO(
+                    portfolio=simulation.get_portfolio(user.client_id), account=None
+                )
+            ],
+            portfolio,
         )
 
     def _publish_credit(self, credit: set[UUID], day: bool) -> None:

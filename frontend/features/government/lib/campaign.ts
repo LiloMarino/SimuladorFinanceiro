@@ -263,26 +263,24 @@ export function freshGroup(targets: CampaignTarget[]) {
 const capitalize = (text: string) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 
 /**
- * O aviso de uma ação de campanha para quem vê: o ataque contra o partido dele e a ação de outro
- * filiado do mesmo partido. O que é público (todo ataque, o viral e o desastre) sai no jornal da partida.
+ * O aviso de uma ação de campanha para quem o recebe: o ataque contra o partido dele e a ação de outro
+ * filiado do mesmo partido. O servidor só o entrega a eles; o que é público (todo ataque, o viral e o
+ * desastre) sai no jornal da partida.
  */
-export function campaignToast(
-  notice: GovernmentNotice,
-  mine: { abbr: string; nickname: string } | undefined,
-): CampaignToast | null {
+export function campaignToast(notice: GovernmentNotice): CampaignToast | null {
   const kind = notice.campaign_action;
-  if (!kind || !mine) return null;
+  if (!kind) return null;
   const abbr = notice.party_abbr ?? "";
   const group = notice.group ? groupWord(notice.group) : null;
+  const description = toastEffect(notice);
 
-  if (notice.rival_abbr === mine.abbr && kind === "ATTACK") {
+  if (notice.received) {
     return {
       tone: "warning",
-      title: `O ${abbr} atacou o ${mine.abbr}${group ? ` entre ${group}` : ""}`,
-      description: "O efeito aparece no histórico da campanha.",
+      title: `O ${abbr} atacou o ${notice.rival_abbr ?? "seu partido"}${group ? ` entre ${group}` : ""}`,
+      description,
     };
   }
-  if (mine.abbr !== abbr || notice.actor === mine.nickname) return null;
 
   const did = {
     TV: "fez TV para todos os grupos",
@@ -290,28 +288,25 @@ export function campaignToast(
     RALLY: `fez um comício com ${group}`,
     ATTACK: `atacou o ${notice.rival_abbr ?? "rival"} entre ${group}`,
   }[kind];
-  return {
-    tone: "info",
-    title: `${notice.actor} ${did}`,
-    description: "O resultado do dado está no histórico da campanha.",
-  };
+  return { tone: "info", title: `${notice.actor} ${did}`, description };
 }
 
 /**
- * A linha do efeito de uma ação que o toast mostra, lida da linha do histórico:
+ * A linha do efeito de uma ação que o toast mostra, lida do aviso:
  * "Viralizou (20): +18 de apoio ao PRL" para quem agiu, "−5 de apoio ao PRL no grupo" para o atacado.
  */
-export function toastEffect(entry: CampaignEntry, mineAbbr: string) {
-  const support = Number(entry.support);
-  const rejection = Number(entry.rejection);
-  const target = entry.kind === "ATTACK" ? (entry.rival_abbr ?? "rival") : mineAbbr;
+export function toastEffect(notice: GovernmentNotice) {
+  const support = Number(notice.support ?? 0);
+  const rejection = Number(notice.rejection ?? 0);
+  const attack = notice.campaign_action === "ATTACK";
+  const target = (attack ? notice.rival_abbr : notice.party_abbr) ?? (attack ? "rival" : "");
   const parts: string[] = [];
   if (support !== 0) {
-    const where = entry.group === null ? " em cada grupo" : entry.kind === "ATTACK_RECEIVED" ? " no grupo" : "";
+    const where = notice.group === null ? " em cada grupo" : notice.received ? " no grupo" : "";
     parts.push(`${signed(support)} de apoio ao ${target}${where}`);
   }
   if (rejection !== 0) parts.push(`${signed(rejection)} de rejeição`);
   const text = parts.length > 0 ? parts.join(" · ") : `o apoio ao ${target} não muda`;
-  if (entry.kind === "ATTACK_RECEIVED" || entry.band === null) return capitalize(text);
-  return `${BAND_INFO[entry.band].label}${entry.roll === null ? "" : ` (${entry.roll})`}: ${text}`;
+  if (notice.received || !notice.band) return capitalize(text);
+  return `${BAND_INFO[notice.band].label}${notice.roll === null ? "" : ` (${notice.roll})`}: ${text}`;
 }

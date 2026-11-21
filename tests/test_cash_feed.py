@@ -13,6 +13,7 @@ import pytest
 from socketio import AsyncServer
 
 from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
+from backend.core.enum import CashflowEventType
 from backend.core.exceptions.http_exceptions import NotFoundError
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.user_manager import UserManager
@@ -77,6 +78,7 @@ class FakeSimulation:
         self.quotes = 0
         self.life_calls: list[UUID] = []
         self.pending_calls: list[UUID] = []
+        self.portfolio_calls: list[UUID] = []
         self.has_asset = True
         self._funds = None
         self._current_date = date(2026, 3, 2)
@@ -99,6 +101,10 @@ class FakeSimulation:
     def get_pending(self, user: Any) -> list[Any]:
         self.pending_calls.append(user.client_id)
         return []
+
+    def get_portfolio(self, client_id: UUID) -> Payload:
+        self.portfolio_calls.append(client_id)
+        return Payload({"portfolio": "ok"})
 
 
 @pytest.fixture
@@ -135,6 +141,12 @@ def server(monkeypatch: pytest.MonkeyPatch) -> RecordingServer:
         cash_feed_module,
         "CreditUpdateEventDTO",
         lambda overview, account: Payload({"account": account}),
+    )
+    # A carteira real tem dezenas de campos: o feed só a repassa
+    monkeypatch.setattr(
+        cash_feed_module,
+        "PortfolioUpdateEventDTO",
+        lambda portfolio, account: Payload({"account": account}),
     )
     OVERDUE["value"] = False
     recording.broker = broker
@@ -370,3 +382,51 @@ def test_the_projection_of_an_unknown_title_is_not_found(
 
     with pytest.raises(NotFoundError):
         feed.watch_projection(uuid4(), None, str(uuid4()), Decimal(100))
+
+
+def test_the_political_cash_of_the_personal_account_sends_the_new_portfolio(
+    server: RecordingServer, sim: FakeSimulation, feed: CashFeed
+) -> None:
+    payer = open_tab(server, "a", ["portfolio_update"])
+    open_tab(server, "b", ["portfolio_update"])
+
+    feed.cash_moved((payer,), None, CashflowEventType.CAMPAIGN_DONATION)
+    feed.flush()
+
+    assert [sid for sid, _ in server.of("portfolio_update")] == ["a"]
+    assert sim.portfolio_calls == [payer]
+
+
+@pytest.mark.parametrize(
+    ("account", "event_type"),
+    [
+        (None, CashflowEventType.DEPOSIT),
+        (None, None),
+        (7, CashflowEventType.CAMPAIGN_DONATION),
+    ],
+)
+def test_other_cash_moves_do_not_send_the_portfolio(
+    server: RecordingServer,
+    sim: FakeSimulation,
+    feed: CashFeed,
+    account: int | None,
+    event_type: CashflowEventType | None,
+) -> None:
+    client = open_tab(server, "a", ["portfolio_update"])
+
+    feed.cash_moved((client,), account, event_type)
+    feed.flush()
+
+    assert server.of("portfolio_update") == []
+
+
+def test_the_close_of_the_day_does_not_repeat_the_portfolio_of_the_political_cash(
+    server: RecordingServer, sim: FakeSimulation, feed: CashFeed
+) -> None:
+    client = open_tab(server, "a", ["portfolio_update"])
+
+    feed.cash_moved((client,), None, CashflowEventType.PRESIDENT_LEGACY)
+    feed.day_passed()
+    feed.flush()
+
+    assert server.of("portfolio_update") == []

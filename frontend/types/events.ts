@@ -39,6 +39,14 @@ export type SimulationEvents = {
   budget_update: RealtimeEventCatalog["budget_update"];
   economy_update: RealtimeEventCatalog["economy_update"];
   base_update: RealtimeEventCatalog["base_update"];
+  election_update: RealtimeEventCatalog["election_update"];
+  map_update: RealtimeEventCatalog["map_update"];
+  map_timeline_update: RealtimeEventCatalog["map_timeline_update"];
+  campaign_update: RealtimeEventCatalog["campaign_update"];
+  campaign_history_update: RealtimeEventCatalog["campaign_history_update"];
+  promises_update: RealtimeEventCatalog["promises_update"];
+  balances_update: RealtimeEventCatalog["balances_update"];
+  government_panel_update: RealtimeEventCatalog["government_panel_update"];
   snapshot_update: RealtimeEventCatalog["snapshot_update"];
   portfolio_update: RealtimeEventCatalog["portfolio_update"];
   statistics_snapshot_update: RealtimeEventCatalog["statistics_snapshot_update"];

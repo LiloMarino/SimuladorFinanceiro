@@ -1,34 +1,31 @@
 import { displayPercent, displayShortDate } from "@/shared/lib/utils/display";
-import type { ElectionPanel, ElectionRound, GovernmentNotice } from "@/types";
+import type { GovernmentNotice } from "@/types";
 import type { MeasureToast } from "./measure-toast";
 
 const percent = (share: string) => displayPercent(share, 1, { trim: true });
 
 /** O resultado de um turno para toda a sala: quem venceu, ou quem vai ao 2º turno e quem pode declarar apoio. */
-export function roundResultToast(panel: ElectionPanel, result: ElectionRound): MeasureToast {
-  const winner = result.parties.find((party) => party.party_id === result.winner);
-  if (winner) {
-    const name = winner.candidate?.name ?? `O candidato do ${winner.abbr}`;
+export function roundResultToast(event: GovernmentNotice): MeasureToast {
+  const round = event.round ?? 1;
+  if (event.winner_abbr) {
+    const name = event.winner_name ?? `O candidato do ${event.winner_abbr}`;
+    const inauguration = event.inauguration ? ` Posse em ${displayShortDate(event.inauguration)}.` : "";
     return {
       tone: "success",
-      title: `Resultado do ${result.round}º turno`,
-      description: `${name} (${winner.abbr}) venceu${result.round === 1 ? " já no 1º turno" : ""} com ${percent(winner.share)} dos votos válidos. Posse em ${displayShortDate(panel.dates.inauguration)}.`,
+      title: `Resultado do ${round}º turno`,
+      description: `${name} (${event.winner_abbr}) venceu${round === 1 ? " já no 1º turno" : ""} com ${percent(event.winner_share ?? "0")} dos votos válidos.${inauguration}`,
     };
   }
-  const finalists = result.parties.filter((party) => result.finalists.includes(party.party_id));
-  const eliminated = result.parties.filter((party) => !result.finalists.includes(party.party_id));
-  const leaders = eliminated
-    .map((party) => panel.parties.find((candidate) => candidate.id === party.party_id))
-    .filter((party) => party?.founder)
-    .map((party) => `${party?.founder} (${party?.abbr})`);
+  const leaders = Object.entries(event.endorsers ?? {}).map(([abbr, founder]) => `${founder} (${abbr})`);
   const declare =
     leaders.length > 0
       ? ` ${leaders.join(" e ")} ${leaders.length === 1 ? "pode declarar" : "podem declarar"} apoio a um dos dois.`
       : "";
+  const when = event.runoff ? `, em ${displayShortDate(event.runoff)}` : "";
   return {
     tone: "info",
-    title: `Resultado do ${result.round}º turno`,
-    description: `${finalists.map((party) => party.abbr).join(" e ")} vão ao 2º turno, em ${displayShortDate(panel.dates.runoff)}.${declare}`,
+    title: `Resultado do ${round}º turno`,
+    description: `${(event.finalists ?? []).join(" e ")} vão ao 2º turno${when}.${declare}`,
   };
 }
 

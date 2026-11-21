@@ -7,17 +7,14 @@ import type { Pending } from "@/types";
 
 /**
  * O que pede ação do jogador agora, das graves para as de aviso. A lista é o estado do
- * servidor: o caixa e o dia entregam a lista nova por `pending_update`; os eventos de crédito,
- * da estratégia e do governo que criam ou resolvem uma pendência mandam conferi-la de novo.
+ * servidor: o caixa, o dia e o governo entregam a lista nova por `pending_update`.
  */
 export function usePending() {
   const queryClient = useQueryClient();
-  const renew = () => void queryClient.invalidateQueries({ queryKey: queryKeys.pending() });
 
   useRealtime("pending_update", ({ items }) => {
     void applyRealtime<Pending[]>(queryClient, queryKeys.pending(), items);
   });
-  useRealtime("government_update", renew);
 
   return useQuery({
     queryKey: queryKeys.pending(),

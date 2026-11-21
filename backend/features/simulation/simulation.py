@@ -141,6 +141,7 @@ from backend.core.dto.treasury import (
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     AssetClass,
+    CashflowEventType,
     FixedIncomeType,
     FundAssemblyAgenda,
     FundComanagerStatus,
@@ -272,7 +273,7 @@ from backend.features.government.promise_panel import (
 )
 from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
-from backend.features.realtime import notify, subscribed_clients
+from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     ComanagerEventDTO,
     ComanagerEventKind,
@@ -298,6 +299,7 @@ from backend.features.simulation.fund_preview_feed import (
     FundPreviewFeed,
 )
 from backend.features.simulation.funds_feed import FundsFeed
+from backend.features.simulation.government_feed import GovernmentFeed
 from backend.features.simulation.life_events import (
     layoff_factor_of,
     layoff_in,
@@ -457,6 +459,7 @@ class Simulation:
         self._day_feed = DayFeed(self)
         self._cash_feed = CashFeed(self)
         self._funds_feed = FundsFeed(self)
+        self._government_feed = GovernmentFeed(self)
         self._fund_preview_feed = FundPreviewFeed(self)
         self._engine = SimulationEngine(
             self._current_date,
@@ -844,7 +847,7 @@ class Simulation:
         return build_map(book, self.settings, user, self._current_date)
 
     @synchronized
-    def get_map_timeline(self, user: UserDTO, year: int | None) -> MapTimelineDTO:
+    def get_map_timeline(self, year: int | None) -> MapTimelineDTO:
         book = self._ensure_government()
         book.state.advance(self._current_date)
         return build_timeline(book, self.settings, self._current_date, year)
@@ -1990,10 +1993,15 @@ class Simulation:
             if self._sync_depth == 0:
                 self._publish_changed_screens()
 
-    def _cash_moved(self, audience: tuple[UUID, ...], account: int | None) -> None:
+    def _cash_moved(
+        self,
+        audience: tuple[UUID, ...],
+        account: int | None,
+        event_type: CashflowEventType,
+    ) -> None:
         """O caixa de uma conta mexeu: quem a opera recebe o dado que depende dele ao fechar a operação em curso."""
         with self.lock:
-            self._cash_feed.cash_moved(audience, account)
+            self._cash_feed.cash_moved(audience, account, event_type)
             self._fund_preview_feed.cash_moved(audience, account)
             if self._sync_depth == 0:
                 self._publish_changed_screens()
@@ -2048,47 +2056,25 @@ class Simulation:
             self._sync_depth -= 1
 
     def _government_changed(self) -> None:
-        """O livro do governo mudou: os painéis saem ao fim da operação em curso e, sem
-        operação em curso, na hora."""
+        """O livro do governo mudou: os painéis e as pendências dos jogadores saem ao fim da
+        operação em curso e, sem operação em curso, na hora."""
         with self.lock:
             self._panels_stale = True
+            # Convites, pedidos e votações do governo entram e saem da lista de pendências
+            self._cash_feed.pending_changed(
+                player.client_id for player in UserManager.list_active_players()
+            )
             if self._sync_depth == 0:
                 self._panels_stale = False
                 self._publish_government_panels()
+                self._publish_changed_screens()
 
     @synchronized
     def _publish_government_panels(self) -> None:
-        """Leva ao vivo o painel da economia, o orçamento e a base do Congresso a quem está
-        com a tela aberta (assina o evento). O payload é o mesmo que a rota devolve e cada
-        painel só é montado quando alguém o escuta; a base vai a cada jogador, porque muda
-        com quem olha. O pregão publica uma vez ao fim do dia e cada ação do governo, uma vez
-        ao fechar, com o estado já completo."""
-        try:
-            if subscribed_clients("economy_update"):
-                notify("economy_update", self.get_economy_panel().to_json())
-            if self._government is None:
-                return
-            if subscribed_clients("budget_update"):
-                notify("budget_update", self.get_budget().to_json())
-            listeners = subscribed_clients("base_update")
-            if listeners:
-                participants = repository.simulation_player.participants(
-                    self.settings.id
-                )
-                for player in UserManager.list_active_players():
-                    if player.client_id in listeners:
-                        notify(
-                            "base_update",
-                            build_base(
-                                self._government,
-                                participants,
-                                player,
-                                self._current_date,
-                            ).to_json(),
-                            to=player.client_id,
-                        )
-        except Exception:
-            logger.exception("Erro ao publicar os painéis do país")
+        """Leva ao vivo os painéis do país a quem está com a tela aberta (assina o evento do
+        painel). O pregão publica uma vez ao fim do dia e cada ação do governo, uma vez ao
+        fechar, com o estado já completo."""
+        self._government_feed.publish()
 
     def _ensure_funds(self) -> FundBook:
         if self._funds is None:

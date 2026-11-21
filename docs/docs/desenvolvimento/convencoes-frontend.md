@@ -88,6 +88,10 @@ entregam.
   páginas das gestoras) é montado para cada assinante e entregue só a ele, com `to=`. O dado de
   uma conta de gestora chega marcado com o `account` dela, e o hook só aplica o que é da conta
   ativa (`eventAccountKey(account)`).
+- **Painéis do governo e da eleição** (eleição, mapa, campanha, promessas, balanços, governo, base,
+  orçamento) têm cada um o seu evento com o DTO da rota (`GovernmentFeed`), entregue a cada
+  assinante com `to=` quando muda com quem olha; o botão da ação não renova nada, e o
+  `government_update` carrega só o fato (com o dado do toast e do diálogo).
 - **Publicação uma vez por operação**: o caixa e as gestoras mudam em vários pontos da mesma
   operação (a compra, a taxa, a oferta). Cada ponto só marca a mudança, e o dado sai uma vez, ao
   fechar a operação mais externa (`synchronized`), já no estado final. O pregão marca todas as

@@ -1,20 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
-import { queryKeys } from "@/shared/lib/queryKeys";
-import type { ElectionPanel, GovernmentPanel } from "@/types";
-import { campaignToast, toastEffect } from "../lib/campaign";
+import type { GovernmentNotice } from "@/types";
+import { campaignToast } from "../lib/campaign";
 import { dealAnsweredToast, dealBrokenToast, dealEndedToast, dealLeftToast } from "../lib/deal-toast";
 import { federationAnsweredToast, federationLeftToast, federationProposedToast } from "../lib/federation-toast";
 import { impeachmentToast, measureVotedToast, monthClosedToast } from "../lib/measure-toast";
 import { endorsementToast, roundResultToast } from "../lib/runoff-toast";
-import { campaignQuery } from "../hooks/queries/useCampaign";
-import { useRenewElection } from "../hooks/mutations/useRenewElection";
-import { useRenewBase } from "../hooks/mutations/useRenewBase";
 import { useDealDialog } from "../hooks/useDealDialog";
 import { DealProposalDialog } from "./deal-proposal-dialog";
 import { ImpeachmentDialog } from "./impeachment-dialog";
@@ -23,21 +18,19 @@ import { ImpeachmentDialog } from "./impeachment-dialog";
 const IMPEACHMENT_VOTES = 68;
 
 /**
- * Dono único dos avisos da eleição em tempo real: cada evento renova a página da eleição
- * e a carteira (contribuição e doação saem do caixa) e conta o que aconteceu.
+ * Dono único dos avisos da eleição em tempo real: cada evento conta o que aconteceu com o dado
+ * que o próprio aviso carrega. Os painéis chegam pelos seus eventos, e o servidor entrega cada
+ * aviso a quem ele interessa.
  * O impeachment abre um diálogo para todos, ao vivo, com a partida pausada; o do resultado de um turno é o `PausedRoundResult`.
  * A abertura da campanha e o convite de vice são pendências: o diálogo abre pela lista.
  */
 export function GovernmentNotifications() {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { isToastOn } = useNotificationPreferences();
-  const [impeachment, setImpeachment] = useState<GovernmentPanel | null>(null);
+  const [impeachment, setImpeachment] = useState<GovernmentNotice | null>(null);
   const me = user?.nickname;
 
-  const renew = useRenewElection();
-  const renewBase = useRenewBase();
   const dealDialog = useDealDialog();
 
   const openGovernment = () => void navigate("/government");
@@ -83,44 +76,27 @@ export function GovernmentNotifications() {
           });
         }
         break;
-      case "ELECTION_RESULT":
-        // O resultado só chega depois de o painel atualizar: o aviso lê o turno apurado do cache
-        void queryClient.invalidateQueries({ queryKey: queryKeys.electionMap() });
-        void queryClient.refetchQueries({ queryKey: queryKeys.election() }).then(() => {
-          const panel = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
-          const last = panel?.last_result;
-          if (!panel || !last || last.round !== event.round) return;
-          const notice = roundResultToast(panel, last);
-          toast[notice.tone](notice.title, { description: notice.description });
-        });
+      case "ELECTION_RESULT": {
+        const notice = roundResultToast(event);
+        toast[notice.tone](notice.title, { description: notice.description });
         break;
-      case "POLL_PUBLISHED":
-        // Cada pesquisa nova entra no mapa e na linha do tempo do ano
-        void queryClient.invalidateQueries({ queryKey: queryKeys.electionMap() });
-        break;
+      }
       case "ENDORSEMENT": {
         const notice = endorsementToast(event);
         toast[notice.tone](notice.title, { description: notice.description });
         break;
       }
       case "MONTH_CLOSED": {
-        // O fechamento conta o que mudou no apoio só aos filiados do partido do governo
-        const election = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
-        const mine = election?.parties.find((party) => party.id === election.my_party?.party_id);
-        if (mine && mine.abbr === event.party_abbr) {
-          const notice = monthClosedToast(event);
-          toast[notice.tone](notice.title, {
-            description: notice.description,
-            action: { label: "Abrir o Governo", onClick: openGovernment },
-          });
-        }
+        // O fechamento chega só aos filiados do partido do governo
+        const notice = monthClosedToast(event);
+        toast[notice.tone](notice.title, {
+          description: notice.description,
+          action: { label: "Abrir o Governo", onClick: openGovernment },
+        });
         break;
       }
       case "IMPEACHMENT":
-        // O diálogo lê o governo já com o sucessor no cache
-        void queryClient.refetchQueries({ queryKey: queryKeys.government() }).then(() => {
-          setImpeachment(queryClient.getQueryData<GovernmentPanel>(queryKeys.government()) ?? null);
-        });
+        setImpeachment(event);
         break;
       case "MEASURE_VOTED": {
         const notice = measureVotedToast(event);
@@ -136,28 +112,13 @@ export function GovernmentNotifications() {
         break;
       }
       case "CAMPAIGN_ACTION": {
-        // Quem fez a ação já viu o dado no diálogo; os outros filiados e o partido atacado recebem o aviso
-        const election = queryClient.getQueryData<ElectionPanel>(queryKeys.election());
-        const mine = election?.parties.find((party) => party.id === election.my_party?.party_id);
-        const notice = campaignToast(event, mine && me ? { abbr: mine.abbr, nickname: me } : undefined);
-        if (notice && mine) {
-          // O efeito vem da linha do histórico do próprio partido: o aviso público não carrega o dado
-          void queryClient
-            .query({ ...campaignQuery(), staleTime: 0 })
-            .then((campaign) =>
-              campaign.recent.find((entry) =>
-                event.rival_abbr === mine.abbr
-                  ? entry.kind === "ATTACK_RECEIVED" && entry.party_abbr === event.party_abbr
-                  : entry.nickname === event.actor && entry.kind === event.campaign_action,
-              ),
-            )
-            .catch(() => undefined)
-            .then((entry) => {
-              toast[notice.tone](notice.title, {
-                description: entry ? toastEffect(entry, mine.abbr) : notice.description,
-                action: { label: "Ver", onClick: openCampaign },
-              });
-            });
+        // O servidor entrega a ação aos outros filiados do partido e o ataque ao partido atacado
+        const notice = campaignToast(event);
+        if (notice) {
+          toast[notice.tone](notice.title, {
+            description: notice.description,
+            action: { label: "Ver", onClick: openCampaign },
+          });
         }
         break;
       }
@@ -195,15 +156,12 @@ export function GovernmentNotifications() {
         }
         break;
       case "DEAL_ENDED": {
-        // O fim do acordo é aviso de quem governa
-        const panel = queryClient.getQueryData<GovernmentPanel>(queryKeys.government());
-        if (panel?.is_president) {
-          const notice = dealEndedToast(event);
-          toast[notice.tone](notice.title, {
-            description: notice.description,
-            action: { label: "Ver", onClick: openBase },
-          });
-        }
+        // O fim do acordo chega só a quem governa
+        const notice = dealEndedToast(event);
+        toast[notice.tone](notice.title, {
+          description: notice.description,
+          action: { label: "Ver", onClick: openBase },
+        });
         break;
       }
       case "FEDERATION_PROPOSED":
@@ -237,7 +195,8 @@ export function GovernmentNotifications() {
           });
         }
         break;
-      // O jornal da partida conta estes fatos (news_published) e as pendências, os que pedem ação; aqui só renovam a tela
+      // O jornal da partida conta estes fatos (news_published) e as pendências, os que pedem ação; os painéis chegam pelos próprios eventos
+      case "POLL_PUBLISHED":
       case "CAMPAIGN_OPENED":
       case "VICE_INVITED":
       case "IMPEACHMENT_WARNING":
@@ -255,14 +214,12 @@ export function GovernmentNotifications() {
       case "UPDATED":
         break;
     }
-    renew();
-    if (event.kind.startsWith("DEAL_")) renewBase();
   });
 
   return (
     <>
       <DealProposalDialog open={dealDialog.open} onOpenChange={dealDialog.setOpen} />
-      <ImpeachmentDialog panel={impeachment} onClose={() => setImpeachment(null)} />
+      <ImpeachmentDialog notice={impeachment} onClose={() => setImpeachment(null)} />
     </>
   );
 }

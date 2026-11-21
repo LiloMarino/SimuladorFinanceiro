@@ -1,47 +1,39 @@
 import { describe, expect, it } from "vitest";
-import type { ElectionPanel, ElectionRound, GovernmentNotice } from "@/types";
+import type { GovernmentNotice } from "@/types";
 import { endorsementToast, roundResultToast } from "./runoff-toast";
 
-const panel = {
-  dates: { runoff: "2022-10-28", inauguration: "2023-01-01" },
-  parties: [
-    { id: 1, abbr: "FDS", founder: "Bia" },
-    { id: 2, abbr: "PRL", founder: "Lilo" },
-    { id: 3, abbr: "MRC", founder: "Rafa" },
-  ],
-} as unknown as ElectionPanel;
-
-const party = (id: number, abbr: string, share: string, name: string) => ({
-  party_id: id,
-  abbr,
-  share,
-  candidate: { name },
-});
+const notice = (overrides: Partial<GovernmentNotice>) =>
+  ({ kind: "ELECTION_RESULT", ...overrides }) as GovernmentNotice;
 
 describe("roundResultToast", () => {
   it("conta quem vai ao 2º turno e quem pode declarar apoio", () => {
-    const result = {
-      round: 1,
-      winner: null,
-      finalists: [1, 2],
-      parties: [party(1, "FDS", "0.387", "Bia"), party(2, "PRL", "0.347", "Lilo"), party(3, "MRC", "0.266", "Rafa")],
-    } as unknown as ElectionRound;
-    const toast = roundResultToast(panel, result);
+    const toast = roundResultToast(
+      notice({
+        round: 1,
+        winner_abbr: null,
+        finalists: ["FDS", "PRL"],
+        runoff: "2022-10-28",
+        endorsers: { MRC: "Rafa" },
+      }),
+    );
     expect(toast.title).toBe("Resultado do 1º turno");
     expect(toast.description).toContain("FDS e PRL vão ao 2º turno, em 28 out");
     expect(toast.description).toContain("Rafa (MRC) pode declarar apoio a um dos dois.");
   });
 
   it("anuncia o vencedor com a fatia dos votos válidos", () => {
-    const result = {
-      round: 2,
-      winner: 2,
-      finalists: [1, 2],
-      parties: [party(1, "FDS", "0.493", "Bia"), party(2, "PRL", "0.507", "Lilo")],
-    } as unknown as ElectionRound;
-    const toast = roundResultToast(panel, result);
+    const toast = roundResultToast(
+      notice({
+        round: 2,
+        winner_abbr: "PRL",
+        winner_name: "Lilo",
+        winner_share: "0.507",
+        inauguration: "2023-01-01",
+      }),
+    );
     expect(toast.tone).toBe("success");
     expect(toast.description).toContain("Lilo (PRL) venceu com 50,7% dos votos válidos");
+    expect(toast.description).toContain("Posse em 01 jan");
   });
 });
 

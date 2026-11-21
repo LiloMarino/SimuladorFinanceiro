@@ -34,6 +34,22 @@ const NOTICE: GovernmentNotice = {
   seats_after: 74,
   broken_by_ally: null,
   requested_by: null,
+  winner_share: null,
+  finalists: null,
+  inauguration: null,
+  runoff: null,
+  endorsers: null,
+  impeachment: null,
+  term_end: null,
+  next_election: null,
+  heir_abbr: null,
+  heir_seats: null,
+  heir_name: null,
+  support: null,
+  rejection: null,
+  band: null,
+  roll: null,
+  received: null,
 };
 
 describe("dealAnsweredToast", () => {
