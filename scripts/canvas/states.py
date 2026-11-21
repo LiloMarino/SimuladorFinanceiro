@@ -1740,6 +1740,8 @@ def assembly_current(agenda: str, **over) -> dict:
         "tally": assembly_tally(20, 6, 4),
         "voters": assembly_voters(20, [("Bia", 6, "favor"), ("Caio", 4, "against")]),
         "non_voting": "5",
+        "bots": None,
+        "market": None,
         "my_vote": None,
         "can_vote": True,
         "merge": None,
@@ -1810,7 +1812,14 @@ def tab_assembly_fee(page: Page) -> None:
     forge_assembly(
         page,
         assembly_panel(
-            current=[assembly_current("FEE_INCREASE", can_vote=False)],
+            current=[
+                assembly_current(
+                    "FEE_INCREASE",
+                    can_vote=False,
+                    bots={"quotas": "3", "share": "0.1", "stance": "against"},
+                    market={"quotas": "2", "share": "0.0667", "stance": "against"},
+                )
+            ],
             options=[
                 {
                     "agenda": "REPLACE_MANAGER",
@@ -1835,6 +1844,37 @@ def tab_assembly_fee(page: Page) -> None:
     )
     open_funds_page(page)
     open_fund_tab(page, "Assembleia", "Como a assembleia decide")
+
+
+def assembly_fee_bots(page: Page) -> None:
+    """Dado forjado: um aumento de taxa em votação com bots cotistas e o Mercado a favor no placar, e a dica da regra aberta por hover."""
+    fund_match(page, stage="offer-closed")
+    forge_assembly(
+        page,
+        assembly_panel(
+            current=[
+                assembly_current(
+                    "FEE_INCREASE",
+                    tally=assembly_tally(100, 60, 5),
+                    voters=assembly_voters(
+                        100, [("Bia", 10, "favor"), ("Caio", 5, "against")]
+                    ),
+                    non_voting="35",
+                    bots={"quotas": "20", "share": "0.2", "stance": "favor"},
+                    market={"quotas": "30", "share": "0.3", "stance": "favor"},
+                )
+            ],
+        ),
+        manager_user_id=OTHER_MANAGER_ID,
+        manager_nickname="Duda",
+        my_role="viewer",
+        my_quotas="5",
+    )
+    open_funds_page(page)
+    open_fund_tab(page, "Assembleia", "Como a assembleia decide")
+    page.get_by_text("Bots cotistas").wait_for()
+    page.get_by_role("button", name="Como bots e Mercado votam").hover()
+    page.locator('[data-slot="popover-content"]').wait_for()
 
 
 def tab_actions_merge(page: Page) -> None:
@@ -3122,6 +3162,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/carteira-automatico": fund_automatic_presidency,
     "gestoras/aba-assembleia": tab_assembly,
     "gestoras/aba-assembleia-taxa": tab_assembly_fee,
+    "gestora/assembleia-taxa-bots": assembly_fee_bots,
     "gestoras/aba-assembleia-vazia": tab_assembly_empty,
     "gestoras/aba-assembleia-fusao": tab_assembly_merge,
     "gestoras/aba-acoes-fusao": tab_actions_merge,
