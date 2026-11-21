@@ -3,18 +3,14 @@ import { describe, expect, it } from "vitest";
 import type {
   CandlePatterns,
   IndicatorPoint,
+  OrderPreview,
   OrderPreviewRequest,
   SimulationEvents,
   TechnicalIndicators,
 } from "@/types";
 import { applyRealtime } from "@/shared/lib/realtime/apply-realtime";
-import {
-  mergeIndicatorsUpdate,
-  mergePatternsUpdate,
-  outcomeOfPreviewEvent,
-  previewMatchesDraft,
-  type OrderPreviewOutcome,
-} from "./asset-feed";
+import { outcomeOfPreviewEvent, type PreviewOutcome } from "@/shared/lib/realtime/preview-outcome";
+import { mergeIndicatorsUpdate, mergePatternsUpdate, previewMatchesDraft } from "./asset-feed";
 
 type PreviewEvent = SimulationEvents[`order_preview:${string}`];
 type IndicatorsEvent = SimulationEvents[`indicators_update:${string}`];
@@ -92,10 +88,10 @@ describe("desfecho da prévia do aviso", () => {
   it("a recusa do aviso troca a prévia que a chave guardava", async () => {
     const client = new QueryClient();
     const key = ["prévia"];
-    const previous = { preview: { quantity: "100" }, refused: null } as unknown as OrderPreviewOutcome;
+    const previous = { preview: { quantity: "100" }, refused: null } as unknown as PreviewOutcome<OrderPreview>;
     client.setQueryData(key, previous);
     await applyRealtime(client, key, outcomeOfPreviewEvent(refusedEvent));
-    expect(client.getQueryData<OrderPreviewOutcome>(key)).toEqual({
+    expect(client.getQueryData<PreviewOutcome<OrderPreview>>(key)).toEqual({
       preview: null,
       refused: "O valor não paga uma unidade",
     });

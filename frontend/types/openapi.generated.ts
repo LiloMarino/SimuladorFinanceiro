@@ -3601,7 +3601,7 @@ export interface paths {
         };
         /**
          * Listar o registro do automático da gestora
-         * @description Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela.
+         * @description Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela. Com `before`, devolve as linhas mais antigas que a linha de id `before`.
          */
         get: operations["get_fund_strategy_log_api_funds__fund_id__strategy_log_get"];
         put?: never;
@@ -3725,7 +3725,7 @@ export interface paths {
         };
         /**
          * Listar o registro da estratégia
-         * @description Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador.
+         * @description Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador. Com `before`, devolve as linhas mais antigas que a linha de id `before`.
          */
         get: operations["get_strategy_log_api_strategies_me_log_get"];
         put?: never;
@@ -8292,6 +8292,19 @@ export interface components {
             /** Keeps Control After */
             keeps_control_after: boolean;
         };
+        /**
+         * FundBuybackPreviewEventDTO
+         * @description A prévia da recompra recalculada para o último pedido do gestor na gestora, só para ele.
+         */
+        FundBuybackPreviewEventDTO: {
+            /** Quantity */
+            quantity: number;
+            /** Max Price */
+            max_price: string;
+            preview: components["schemas"]["FundBuybackPreviewDTO"] | null;
+            /** Refused */
+            refused: string | null;
+        };
         /** FundBuybackRequest */
         FundBuybackRequest: {
             /** Quantity */
@@ -8691,6 +8704,17 @@ export interface components {
             expires_on: string;
         };
         /**
+         * FundDirectedPreviewEventDTO
+         * @description A prévia da emissão dirigida recalculada para o último pedido de quem gere a gestora, só para ele.
+         */
+        FundDirectedPreviewEventDTO: {
+            /** Quotas */
+            quotas: number;
+            preview: components["schemas"]["FundDirectedIssuancePreviewDTO"] | null;
+            /** Refused */
+            refused: string | null;
+        };
+        /**
          * FundDistributionDTO
          * @description O rendimento de um mês: o lucro realizado que a data-com apurou e o que foi pago por cota.
          */
@@ -8919,6 +8943,17 @@ export interface components {
             manager_cost: string;
             estimate: components["schemas"]["FundIssuanceEstimateDTO"] | null;
         };
+        /**
+         * FundIssuancePreviewEventDTO
+         * @description A prévia da emissão recalculada para o último pedido do gestor na gestora, só para ele.
+         */
+        FundIssuancePreviewEventDTO: {
+            /** Quotas */
+            quotas: number;
+            preview: components["schemas"]["FundIssuancePreviewDTO"] | null;
+            /** Refused */
+            refused: string | null;
+        };
         /** FundIssuanceRequest */
         FundIssuanceRequest: {
             /** Quotas */
@@ -9023,6 +9058,17 @@ export interface components {
             quotas_after: string | null;
             /** Equity After */
             equity_after: string | null;
+        };
+        /**
+         * FundMergePreviewEventDTO
+         * @description A prévia da fusão recalculada para o último pedido do gestor principal, só para ele.
+         */
+        FundMergePreviewEventDTO: {
+            /** Daughter Fund Id */
+            daughter_fund_id: number;
+            preview: components["schemas"]["FundMergePreviewDTO"] | null;
+            /** Refused */
+            refused: string | null;
         };
         /**
          * FundMergeProposalRequest
@@ -9370,6 +9416,17 @@ export interface components {
             nav: string;
             /** Ranking Price */
             ranking_price: string | null;
+        };
+        /**
+         * FundSubscriptionPreviewEventDTO
+         * @description A prévia da compra na preferência recalculada para o último pedido do cotista, só para ele.
+         */
+        FundSubscriptionPreviewEventDTO: {
+            /** Quotas */
+            quotas: number;
+            preview: components["schemas"]["FundIssuanceSubscriptionPreviewDTO"] | null;
+            /** Refused */
+            refused: string | null;
         };
         /**
          * FundSummaryDTO
@@ -13167,6 +13224,11 @@ export interface components {
             funds_list_update: components["schemas"]["FundRoomUpdateEventDTO"];
             fund_offers_update: components["schemas"]["FundOffersDTO"];
             fund_update: components["schemas"]["FundDetailsDTO"];
+            fund_issuance_preview: components["schemas"]["FundIssuancePreviewEventDTO"];
+            fund_subscription_preview: components["schemas"]["FundSubscriptionPreviewEventDTO"];
+            fund_directed_preview: components["schemas"]["FundDirectedPreviewEventDTO"];
+            fund_merge_preview: components["schemas"]["FundMergePreviewEventDTO"];
+            fund_buyback_preview: components["schemas"]["FundBuybackPreviewEventDTO"];
             corporate_events_update: components["schemas"]["AssetCorporateEventsDTO"];
             comanager_update: components["schemas"]["ComanagerEventDTO"];
             budget_update: components["schemas"]["BudgetDTO"];
@@ -13216,6 +13278,7 @@ export interface components {
             credit_loan_paid_off: components["schemas"]["CreditLoanPaidOffEventDTO"];
             government_update: components["schemas"]["GovernmentUpdateEventDTO"];
             strategy_update: components["schemas"]["StrategyUpdateEventDTO"];
+            strategy_log_update: components["schemas"]["StrategyLogEventDTO"];
             strategy_orders: components["schemas"]["StrategyOrdersEventDTO"];
             candle_challenge_state: components["schemas"]["CandleChallengeStateDTO"];
             candle_challenge_notice: components["schemas"]["ChallengeNoticeEventDTO"];
@@ -15182,6 +15245,22 @@ export interface components {
             order_type: string | null;
         };
         /**
+         * StrategyLogEventDTO
+         * @description As linhas do registro da estratégia de uma conta que entraram ou mudaram depois de gravadas.
+         */
+        StrategyLogEventDTO: {
+            /** Account */
+            account: number | null;
+            /** Rows */
+            rows: components["schemas"]["StrategyLogRowDTO"][];
+            /** Total All */
+            total_all: number;
+            /** Total Orders */
+            total_orders: number;
+            /** Total Modes */
+            total_modes: number;
+        };
+        /**
          * StrategyLogKind
          * @description Linha do registro da estratégia: uma ordem ou uma mudança de modo.
          * @enum {string}
@@ -15303,13 +15382,12 @@ export interface components {
         StrategyParamValue: number | string | string[];
         /**
          * StrategyUpdateEventDTO
-         * @description O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro.
+         * @description O automático de uma conta mudou: ligou, trocou, desligou, deu erro ou o painel andou com as ordens.
          */
         StrategyUpdateEventDTO: {
-            /** Active */
-            active: boolean;
-            /** Error */
-            error: string | null;
+            /** Account */
+            account: number | null;
+            my_strategy: components["schemas"]["MyStrategyDTO"];
         };
         /**
          * StrategyView
@@ -24354,7 +24432,7 @@ export interface operations {
         parameters: {
             query?: {
                 kind?: components["schemas"]["LogFilter"];
-                offset?: number;
+                before?: number | null;
                 limit?: number;
             };
             header?: never;
@@ -24640,7 +24718,7 @@ export interface operations {
         parameters: {
             query?: {
                 kind?: components["schemas"]["LogFilter"];
-                offset?: number;
+                before?: number | null;
                 limit?: number;
             };
             header?: never;

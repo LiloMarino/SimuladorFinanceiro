@@ -81,7 +81,7 @@ entregam.
   ativo; a cada pregão ele recalcula para quem ainda assina e entrega só àquele cliente, em
   `order_preview:{ticker}` e `indicators_update:{ticker}`; a cotação da boleta de renda fixa
   segue o mesmo molde em `fixed_income_projection:{id}`, com o valor digitado no pedido. O aviso devolve o pedido que o
-  gerou, e o hook só aplica o que corresponde ao pedido atual da tela. A ordem que deixa de caber vai no mesmo aviso, com o motivo (`refused`); a chave da prévia guarda a prévia ou o motivo, venha da leitura HTTP (422) ou do aviso.
+  gerou, e o hook só aplica o que corresponde ao pedido atual da tela. A ordem que deixa de caber vai no mesmo aviso, com o motivo (`refused`); a chave da prévia guarda a prévia ou o motivo, venha da leitura HTTP ou do aviso. Recusa de regra é 409 ou 422, a mesma lista nos dois lados (`fetchPreviewOutcome` e `refusal_reason`); permissão, recurso inexistente e falha do servidor seguem como erro.
 - **Dado igual para todos** (padrões de vela, estatal do ativo) vai num evento por ativo,
   `candle_patterns_update:{ticker}` e `state_company_update:{ticker}`, calculado só para quem o assina.
 - **Dado por jogador** (Fundo Soberano, crédito, títulos do Tesouro, vida financeira, pendências,
@@ -94,10 +94,18 @@ entregam.
   contas e publica o dia por tela (`DayFeed`, `CashFeed`, `FundsFeed`).
 - **O que não mudou não sai**: o catálogo do Tesouro guarda o último enviado e só um catálogo
   diferente volta a sair; a série do Tesouro recebe o ponto novo (`merge` por mês) só na virada
-  do mês; o crédito só sai nas contas com parcela em atraso.
-- **Prévias abertas na página da gestora** partem do preço da cota: ficam fora do aviso e são
-  conferidas de novo (`invalidateQueries`, só as que estão abertas) quando `fund_update:{id}`
-  chega.
+  do mês; o crédito sai quando a conta muda e, depois do pregão, nas contas com parcela em atraso.
+- **Prévias abertas na página da gestora** (emissão, subscrição, oferta dirigida, fusão e
+  recompra) seguem o molde da prévia da ordem: a rota responde na hora e registra o pedido; o
+  servidor recalcula para quem ainda assina quando muda algo que a prévia lê (a gestora, o caixa
+  pessoal de quem pediu, o caixa da gestora, o dia) e entrega só àquele cliente, em
+  `fund_issuance_preview:{id}` e nos irmãos, com os parâmetros do pedido e a prévia ou a recusa
+  (`refused`). A prévia igual à última enviada não sai de novo, e o hook só aplica o que
+  corresponde ao pedido atual da tela.
+- **Registro da estratégia** pagina por id (`before`, a última linha da página anterior), então a
+  linha nova não repete nem pula nenhuma. `strategy_log_update` leva a conta, as linhas novas ou
+  mudadas (já com id) e o total de cada filtro; `mergeStrategyLog` coloca a linha nova no topo da
+  primeira página, troca a mudada pelo id e devolve `null` quando o total não fecha.
 - **Reconexão**: `useRefetchOnReconnect`, montado no `SimulationProvider`, lê uma vez as
   consultas ativas que ficaram desatualizadas durante a queda. A primeira conexão não dispara nada.
 

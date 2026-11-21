@@ -29,7 +29,7 @@ function SubscribeForm({ fundId, issuance, rightsLeft }: SubscribeFormProps) {
   const [quotasText, setQuotasText] = useState("");
   const quotas = Number(quotasText);
   const deferredQuotas = useDeferredValue(quotas);
-  const { data: preview } = useFundSubscriptionPreview(fundId, Math.max(deferredQuotas, 1));
+  const { preview } = useFundSubscriptionPreview(fundId, Math.max(deferredQuotas, 1));
   const subscribe = useSubscribeFundIssuance(fundId);
 
   const valid = Number.isInteger(quotas) && quotas > 0;

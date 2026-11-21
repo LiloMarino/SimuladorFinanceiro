@@ -1,4 +1,4 @@
-"""Os avisos do pregão das telas de renda fixa, Tesouro, crédito e governo, com o broker de verdade e uma simulação de mentira."""
+"""Os avisos do pregão das telas de renda fixa, Tesouro e governo, com o broker de verdade e uma simulação de mentira."""
 
 from __future__ import annotations
 
@@ -17,7 +17,6 @@ from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.user_manager import UserManager
 from backend.features.realtime import ws_broker
 from backend.features.realtime.ws_broker import SocketBroker
-from backend.features.simulation import day_feed as day_feed_module
 from backend.features.simulation.day_feed import DayFeed
 
 
@@ -49,8 +48,6 @@ class FakeSimulation:
     def __init__(self) -> None:
         self._government = object()
         self._funds = None
-        self._current_date = date(2026, 3, 2)
-        self._engine = SimpleNamespace(credit_book=object())
         self.asset_id = uuid4()
         self.offer_calls = 0
         self.sovereign_calls: list[Any] = []
@@ -233,35 +230,6 @@ def test_the_treasury_positions_carry_the_personal_account(
     assert sid == "a"
     assert payload == {"positions": [], "account": None}
     assert sim.positions_calls == [client]
-
-
-def test_the_credit_goes_only_for_accounts_with_an_overdue_installment(
-    server: RecordingServer,
-    sim: FakeSimulation,
-    feed: DayFeed,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    overdue = {"value": True}
-    monkeypatch.setattr(
-        day_feed_module,
-        "build_overview",
-        lambda *_args: SimpleNamespace(
-            loans=[SimpleNamespace(overdue=[1] if overdue["value"] else [])]
-        ),
-    )
-    monkeypatch.setattr(
-        day_feed_module,
-        "CreditUpdateEventDTO",
-        lambda overview, account: Payload({"account": account}),
-    )
-    open_tab(server, "a", ["credit_update"])
-
-    feed.publish(month_changed=False)
-    assert [payload for _, payload in server.of("credit_update")] == [{"account": None}]
-
-    overdue["value"] = False
-    feed.publish(month_changed=False)
-    assert len(server.of("credit_update")) == 1
 
 
 def test_a_new_dividend_updates_the_history_of_the_asset_for_who_holds_it(

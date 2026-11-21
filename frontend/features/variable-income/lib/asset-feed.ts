@@ -11,15 +11,6 @@ type PreviewEvent = SimulationEvents[`order_preview:${string}`];
 type IndicatorsEvent = SimulationEvents[`indicators_update:${string}`];
 type PatternsEvent = SimulationEvents[`candle_patterns_update:${string}`];
 
-/** O que a chave da prévia guarda, vindo da leitura HTTP ou do aviso: a prévia ou o motivo da recusa. */
-export type OrderPreviewOutcome = Pick<PreviewEvent, "preview" | "refused">;
-
-/** O desfecho que o aviso entrega à chave da prévia. */
-export const outcomeOfPreviewEvent = ({ preview, refused }: PreviewEvent): OrderPreviewOutcome => ({
-  preview,
-  refused,
-});
-
 const sameNumber = (sent: string | number | null | undefined, draft: string | number | null | undefined) =>
   sent === null || sent === undefined || draft === null || draft === undefined
     ? (sent ?? null) === (draft ?? null)

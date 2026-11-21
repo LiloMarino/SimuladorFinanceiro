@@ -74,7 +74,7 @@ function MergeDialogBody({
   };
   const mother = partnerIncorporates ? partner : self;
   const daughter = partnerIncorporates ? self : partner;
-  const { data: preview } = useFundMergePreview(mother.fund_id, daughter.fund_id);
+  const { preview } = useFundMergePreview(mother.fund_id, daughter.fund_id);
   const propose = useProposeFundMerge(mother.fund_id);
   const ready = preview !== undefined && preview.ratio !== null && !propose.isPending;
   const formula = preview ? ratioFormula(preview.daughter, preview.mother, preview.ratio) : null;

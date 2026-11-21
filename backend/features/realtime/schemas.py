@@ -33,7 +33,12 @@ from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO, FixedIncome
 from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
 from backend.core.dto.fund import (
     FundAccountDTO,
+    FundBuybackPreviewDTO,
     FundDetailsDTO,
+    FundDirectedIssuancePreviewDTO,
+    FundIssuancePreviewDTO,
+    FundIssuanceSubscriptionPreviewDTO,
+    FundMergePreviewDTO,
     FundOffersDTO,
     FundRoomItemDTO,
 )
@@ -57,7 +62,11 @@ from backend.core.dto.state_company import (
     StateCompaniesPanelDTO,
     StateCompanyDetailDTO,
 )
-from backend.core.dto.strategy import StrategyOrderLineDTO
+from backend.core.dto.strategy import (
+    MyStrategyDTO,
+    StrategyLogRowDTO,
+    StrategyOrderLineDTO,
+)
 from backend.core.dto.summaries import SummaryDTO
 from backend.core.dto.technical_indicators import (
     IndicatorsRequestDTO,
@@ -162,6 +171,50 @@ class OrderPreviewEventDTO(BaseDTO):
     account: int | None
     # Nulo quando a ordem não cabe; `refused` traz então o motivo
     preview: OrderPreviewDTO | None
+    refused: str | None
+
+
+class FundIssuancePreviewEventDTO(BaseDTO):
+    """A prévia da emissão recalculada para o último pedido do gestor na gestora, só para ele."""
+
+    # A quantidade que gerou a prévia: o diálogo só aplica a que corresponde ao que ele digitou
+    quotas: int
+    # Nulo quando o pedido não cabe; `refused` traz então o motivo
+    preview: FundIssuancePreviewDTO | None
+    refused: str | None
+
+
+class FundSubscriptionPreviewEventDTO(BaseDTO):
+    """A prévia da compra na preferência recalculada para o último pedido do cotista, só para ele."""
+
+    quotas: int
+    preview: FundIssuanceSubscriptionPreviewDTO | None
+    refused: str | None
+
+
+class FundDirectedPreviewEventDTO(BaseDTO):
+    """A prévia da emissão dirigida recalculada para o último pedido de quem gere a gestora, só para ele."""
+
+    quotas: int
+    preview: FundDirectedIssuancePreviewDTO | None
+    refused: str | None
+
+
+class FundMergePreviewEventDTO(BaseDTO):
+    """A prévia da fusão recalculada para o último pedido do gestor principal, só para ele."""
+
+    # A gestora incorporada que gerou a prévia
+    daughter_fund_id: int
+    preview: FundMergePreviewDTO | None
+    refused: str | None
+
+
+class FundBuybackPreviewEventDTO(BaseDTO):
+    """A prévia da recompra recalculada para o último pedido do gestor na gestora, só para ele."""
+
+    quantity: int
+    max_price: Decimal
+    preview: FundBuybackPreviewDTO | None
     refused: str | None
 
 
@@ -461,11 +514,25 @@ class GovernmentUpdateEventDTO(BaseDTO):
 
 
 class StrategyUpdateEventDTO(BaseDTO):
-    """O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro."""
+    """O automático de uma conta mudou: ligou, trocou, desligou, deu erro ou o painel andou com as ordens."""
 
-    active: bool
-    # A causa, quando a estratégia deu erro e devolveu o jogador ao manual
-    error: str | None = None
+    # A gestora dona da conta; nulo é a conta pessoal
+    account: int | None
+    # O automático da conta já como a tela o mostra
+    my_strategy: MyStrategyDTO
+
+
+class StrategyLogEventDTO(BaseDTO):
+    """As linhas do registro da estratégia de uma conta que entraram ou mudaram depois de gravadas."""
+
+    # A gestora dona do registro; nulo é o da conta pessoal
+    account: int | None
+    # As linhas novas e as alteradas (a ordem limitada que fechou), da mais recente para a mais antiga
+    rows: list[StrategyLogRowDTO]
+    # O total do registro em cada filtro, já com as linhas novas
+    total_all: int
+    total_orders: int
+    total_modes: int
 
 
 class StrategyOrdersEventDTO(BaseDTO):
@@ -505,6 +572,11 @@ class RealtimeEventCatalog(BaseDTO):
     funds_list_update: FundRoomUpdateEventDTO
     fund_offers_update: FundOffersDTO
     fund_update: FundDetailsDTO
+    fund_issuance_preview: FundIssuancePreviewEventDTO
+    fund_subscription_preview: FundSubscriptionPreviewEventDTO
+    fund_directed_preview: FundDirectedPreviewEventDTO
+    fund_merge_preview: FundMergePreviewEventDTO
+    fund_buyback_preview: FundBuybackPreviewEventDTO
     corporate_events_update: AssetCorporateEventsDTO
     comanager_update: ComanagerEventDTO
     budget_update: BudgetDTO
@@ -554,6 +626,7 @@ class RealtimeEventCatalog(BaseDTO):
     credit_loan_paid_off: CreditLoanPaidOffEventDTO
     government_update: GovernmentUpdateEventDTO
     strategy_update: StrategyUpdateEventDTO
+    strategy_log_update: StrategyLogEventDTO
     strategy_orders: StrategyOrdersEventDTO
     candle_challenge_state: CandleChallengeStateDTO
     candle_challenge_notice: ChallengeNoticeEventDTO

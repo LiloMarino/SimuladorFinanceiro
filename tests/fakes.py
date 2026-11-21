@@ -14,6 +14,7 @@ from backend.core.utils import is_business_day, next_business_day
 from backend.features.fixed_income.fixed_broker import CoverSale
 from backend.features.simulation.cash_feed import CashFeed
 from backend.features.simulation.day_feed import DayFeed
+from backend.features.simulation.fund_preview_feed import FundPreviewFeed
 from backend.features.simulation.funds_feed import FundsFeed
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_engine import SimulationEngine
@@ -30,6 +31,7 @@ def bare_simulation() -> Simulation:
     simulation._day_feed = DayFeed(simulation)
     simulation._cash_feed = CashFeed(simulation)
     simulation._funds_feed = FundsFeed(simulation)
+    simulation._fund_preview_feed = FundPreviewFeed(simulation)
     return simulation
 
 

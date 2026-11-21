@@ -289,6 +289,14 @@ from backend.features.realtime.schemas import (
 from backend.features.simulation.asset_page_feed import AssetPageFeed
 from backend.features.simulation.cash_feed import CashFeed
 from backend.features.simulation.day_feed import DayFeed
+from backend.features.simulation.fund_preview_feed import (
+    BUYBACK,
+    DIRECTED,
+    ISSUANCE,
+    MERGE,
+    SUBSCRIPTION,
+    FundPreviewFeed,
+)
 from backend.features.simulation.funds_feed import FundsFeed
 from backend.features.simulation.life_events import (
     layoff_factor_of,
@@ -449,6 +457,7 @@ class Simulation:
         self._day_feed = DayFeed(self)
         self._cash_feed = CashFeed(self)
         self._funds_feed = FundsFeed(self)
+        self._fund_preview_feed = FundPreviewFeed(self)
         self._engine = SimulationEngine(
             self._current_date,
             settings.id,
@@ -481,6 +490,9 @@ class Simulation:
         )
         if backtest is not None:
             self._strategies.on_failure = self._backtest_failed
+        self._strategies.on_pending_changed = self._pending_changed
+        # O crédito de cada conta chega pelo tempo real ao fechar a operação que o mudou
+        self._engine.credit_book.on_changed = self._credit_changed
 
         # Crescimento e desemprego do país: o painel da economia e a aprovação leem o mesmo curso
         self._macro = MacroCourse(settings.start_date)
@@ -725,9 +737,9 @@ class Simulation:
 
     @synchronized
     def get_strategy_log(
-        self, user: UserDTO, kind: LogFilter, offset: int, limit: int
+        self, user: UserDTO, kind: LogFilter, before: int | None, limit: int
     ) -> StrategyLogPageDTO:
-        return self._strategies.log(StrategyAccount.of_user(user), kind, offset, limit)
+        return self._strategies.log(StrategyAccount.of_user(user), kind, before, limit)
 
     @synchronized
     def get_fund_strategy(self, user: UserDTO, fund_id: int) -> MyStrategyDTO:
@@ -764,10 +776,15 @@ class Simulation:
 
     @synchronized
     def get_fund_strategy_log(
-        self, user: UserDTO, fund_id: int, kind: LogFilter, offset: int, limit: int
+        self,
+        user: UserDTO,
+        fund_id: int,
+        kind: LogFilter,
+        before: int | None,
+        limit: int,
     ) -> StrategyLogPageDTO:
         fund = self._operated_fund(user, fund_id)
-        return self._strategies.log(self._fund_account(user, fund), kind, offset, limit)
+        return self._strategies.log(self._fund_account(user, fund), kind, before, limit)
 
     def _operated_fund(self, user: UserDTO, fund_id: int) -> Fund:
         """A gestora cuja carteira o jogador opera, como principal ou co-gestor ativo; quem governa o país não a opera."""
@@ -1884,6 +1901,43 @@ class Simulation:
         fund = self._managed_fund(user, fund_id)
         return self._fund_previews(user).buyback(fund, Decimal(quantity), max_price)
 
+    @synchronized
+    def watch_fund_issuance_preview(
+        self, user: UserDTO, fund_id: int, quotas: int
+    ) -> FundIssuancePreviewDTO:
+        """A prévia de agora; o pedido fica registrado e a prévia nova chega pelo aviso `fund_issuance_preview:{fund_id}`."""
+        return self._fund_preview_feed.watch(ISSUANCE, user, fund_id, (quotas,))
+
+    @synchronized
+    def watch_fund_subscription_preview(
+        self, user: UserDTO, fund_id: int, quotas: int
+    ) -> FundIssuanceSubscriptionPreviewDTO:
+        """A prévia de agora; o pedido fica registrado e a prévia nova chega pelo aviso `fund_subscription_preview:{fund_id}`."""
+        return self._fund_preview_feed.watch(SUBSCRIPTION, user, fund_id, (quotas,))
+
+    @synchronized
+    def watch_fund_directed_preview(
+        self, user: UserDTO, fund_id: int, quotas: int
+    ) -> FundDirectedIssuancePreviewDTO:
+        """A prévia de agora; o pedido fica registrado e a prévia nova chega pelo aviso `fund_directed_preview:{fund_id}`."""
+        return self._fund_preview_feed.watch(DIRECTED, user, fund_id, (quotas,))
+
+    @synchronized
+    def watch_fund_merge_preview(
+        self, user: UserDTO, fund_id: int, daughter_fund_id: int
+    ) -> FundMergePreviewDTO:
+        """A prévia de agora; o pedido fica registrado e a prévia nova chega pelo aviso `fund_merge_preview:{fund_id}`."""
+        return self._fund_preview_feed.watch(MERGE, user, fund_id, (daughter_fund_id,))
+
+    @synchronized
+    def watch_fund_buyback_preview(
+        self, user: UserDTO, fund_id: int, quantity: int, max_price: Decimal
+    ) -> FundBuybackPreviewDTO:
+        """A prévia de agora; o pedido fica registrado e a prévia nova chega pelo aviso `fund_buyback_preview:{fund_id}`."""
+        return self._fund_preview_feed.watch(
+            BUYBACK, user, fund_id, (quantity, max_price)
+        )
+
     def _fund_previews(self, manager: UserDTO) -> FundPreviewBuilder:
         book = self._ensure_funds()
         return FundPreviewBuilder(
@@ -1932,6 +1986,7 @@ class Simulation:
         operação em curso e, sem operação em curso, na hora."""
         with self.lock:
             self._funds_feed.mark()
+            self._fund_preview_feed.funds_changed()
             if self._sync_depth == 0:
                 self._publish_changed_screens()
 
@@ -1939,6 +1994,22 @@ class Simulation:
         """O caixa de uma conta mexeu: quem a opera recebe o dado que depende dele ao fechar a operação em curso."""
         with self.lock:
             self._cash_feed.cash_moved(audience, account)
+            self._fund_preview_feed.cash_moved(audience, account)
+            if self._sync_depth == 0:
+                self._publish_changed_screens()
+
+    def _credit_changed(self, client_id: UUID) -> None:
+        """O crédito de uma conta mudou: quem a vê recebe o panorama e a lista de pendências ao fechar a operação em curso."""
+        with self.lock:
+            self._cash_feed.credit_changed(client_id)
+            self._cash_feed.pending_changed(self._engine.audience(client_id)[0][:1])
+            if self._sync_depth == 0:
+                self._publish_changed_screens()
+
+    def _pending_changed(self, client_id: UUID) -> None:
+        """A lista de pendências do jogador mudou por algo que não é o caixa."""
+        with self.lock:
+            self._cash_feed.pending_changed([client_id])
             if self._sync_depth == 0:
                 self._publish_changed_screens()
 
@@ -1972,6 +2043,7 @@ class Simulation:
             with self._publishing():
                 self._funds_feed.flush()
                 self._cash_feed.flush()
+                self._fund_preview_feed.flush()
         finally:
             self._sync_depth -= 1
 
@@ -2679,6 +2751,8 @@ class Simulation:
             len(users),
         )
         with metrics.measure("engine", ENGINE_PUBLISH):
+            # As linhas do registro e o modo das estratégias do dia saem com tudo já gravado
+            self._strategies.publish()
             for stock in [*stocks, *created_candles]:
                 ticker = stock.ticker
                 notify(
@@ -2697,6 +2771,7 @@ class Simulation:
             )
             if self._funds is not None:
                 self._funds_feed.mark()
+            self._fund_preview_feed.day_passed()
             self._cash_feed.day_passed()
             with self._publishing():
                 self._day_feed.publish(month_changed=month_changed)

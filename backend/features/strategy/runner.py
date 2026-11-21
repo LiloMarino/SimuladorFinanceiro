@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import traceback
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, replace
 from datetime import date
 from decimal import Decimal
@@ -24,6 +24,7 @@ from backend.core.dto.strategy import (
     StrategyErrorDTO,
     StrategyInfoDTO,
     StrategyLogPageDTO,
+    StrategyLogRowDTO,
     StrategyOrderLineDTO,
     StrategyParamValue,
     StrategyViewDTO,
@@ -52,11 +53,13 @@ from backend.features.fixed_income.accrual import offer
 from backend.features.fixed_income.liquidity import redeemable_today
 from backend.features.market_maker.account import bot_room
 from backend.features.notifications import registry
-from backend.features.realtime import notify
+from backend.features.realtime import notify, subscribed_clients
 from backend.features.realtime.schemas import (
+    StrategyLogEventDTO,
     StrategyOrdersEventDTO,
     StrategyUpdateEventDTO,
 )
+from backend.features.simulation.feed_support import guarded
 from backend.features.strategy import catalog
 from backend.features.strategy.base_strategy import CHART_DAYS, BaseStrategy
 from backend.features.strategy.context import (
@@ -120,6 +123,14 @@ class StrategyAccount:
         return self.user_id if self.fund_id is None else -self.fund_id
 
 
+@dataclass
+class _Change:
+    """O que a próxima entrega leva de uma conta: o automático dela e as linhas novas do registro."""
+
+    account: StrategyAccount
+    rows: int = 0
+
+
 @dataclass(frozen=True)
 class ActiveStrategy:
     cls: type[BaseStrategy]
@@ -155,6 +166,10 @@ class StrategyRunner:
         self._active: dict[UUID, ActiveStrategy] = {}
         # Chamado com o apelido do jogador, o dia e a mensagem quando a estratégia pessoal dele dá erro
         self.on_failure: Callable[[str, date, str], None] | None = None
+        # Chamado com o client_id da conta pessoal cuja estratégia mudou: o erro dela é uma pendência
+        self.on_pending_changed: Callable[[UUID], None] | None = None
+        # As contas que mudaram desde a última entrega, por client_id
+        self._changed: dict[UUID, _Change] = {}
         engine.matching_engine.on_order_closed = self._on_order_closed
 
     # =========================
@@ -281,29 +296,22 @@ class StrategyRunner:
         )
 
     def log(
-        self, account: StrategyAccount, kind: LogFilter, offset: int, limit: int
+        self,
+        account: StrategyAccount,
+        kind: LogFilter,
+        before: int | None,
+        limit: int,
     ) -> StrategyLogPageDTO:
-        rows, total = repository.strategy.log_page(
+        """As `limit` linhas mais antigas que a linha `before` (as mais recentes, sem cursor) e o total do filtro."""
+        rows, total = repository.strategy.log_before(
             self._engine.simulation_id,
             account.user_id,
             kind,
-            offset,
+            before,
             min(limit, LOG_PAGE_LIMIT),
             account.fund_id,
         )
-        return StrategyLogPageDTO(
-            items=[
-                row.model_copy(
-                    update={
-                        "strategy_name": STRATEGIES[row.strategy_key].name
-                        if row.strategy_key in STRATEGIES
-                        else None
-                    }
-                )
-                for row in rows
-            ],
-            total=total,
-        )
+        return StrategyLogPageDTO(items=[_named(row) for row in rows], total=total)
 
     def signal(
         self,
@@ -395,7 +403,7 @@ class StrategyRunner:
                 or f"{account.subject} voltou ao manual{_canceled_phrase(canceled, previous.cls.name, account)}",
                 quantity=Decimal(canceled),
             )
-            self._finish_mode_change(account, active=False)
+            self._finish_mode_change(account)
             return
 
         cls = get_strategy(key)
@@ -449,7 +457,7 @@ class StrategyRunner:
                 reason=reason,
                 quantity=Decimal(canceled),
             )
-        self._finish_mode_change(account, active=True)
+        self._finish_mode_change(account)
 
     def mark_error_seen(self, user: UserDTO, today: date) -> None:
         account = StrategyAccount.of_user(user)
@@ -458,6 +466,7 @@ class StrategyRunner:
             return
         self._push_mode(account, StrategyLogKind.ERROR_SEEN, None, None, today)
         EventManager.flush()
+        self.publish()
 
     # =========================
     # Fase do dia
@@ -524,9 +533,6 @@ class StrategyRunner:
             reason=message,
             detail="".join(traceback.format_exception(exc)),
         )
-        self._notify_update(
-            account, StrategyUpdateEventDTO(active=False, error=message)
-        )
         # O backtest só tem contas pessoais
         if self.on_failure is not None and account.fund_id is None:
             self.on_failure(account.nickname, today, message)
@@ -558,6 +564,7 @@ class StrategyRunner:
             row = row.model_copy(update={"detail": str(exc.detail)})
 
         EventManager.push_event(row)
+        self._touch(account, rows=1)
         return StrategyOrderLineDTO(
             action=row.action or intent.action,
             ticker=row.ticker,
@@ -740,7 +747,7 @@ class StrategyRunner:
         return demand
 
     def _on_order_closed(self, order: Order) -> None:
-        """A ordem limitada de estratégia que saiu do book fecha a linha dela no registro."""
+        """A ordem limitada de estratégia que saiu do book fecha a linha dela no registro e leva a linha alterada a quem opera a conta."""
         status = (
             StrategyOrderStatus.CANCELED
             if order.status is OrderStatus.CANCELED
@@ -748,8 +755,19 @@ class StrategyRunner:
         )
         # A linha precisa estar gravada para a situação mudar
         EventManager.flush()
-        repository.strategy.set_order_status(
-            self._engine.simulation_id, order.id, status
+        simulation_id = self._engine.simulation_id
+        repository.strategy.set_order_status(simulation_id, order.id, status)
+        found = repository.strategy.log_row_by_order(simulation_id, order.id)
+        if found is None:
+            return
+        row, user_id, fund_id = found
+        if status is StrategyOrderStatus.EXECUTED:
+            # O painel do automático conta a ordem que acabou de executar
+            self._touch(StrategyAccount(user_id, order.client_id, fund_id))
+        # As linhas novas saem antes da alterada: a tela só troca pelo id uma linha que já conhece
+        self.publish()
+        self._send_log(
+            self._engine.audience(order.client_id)[0], user_id, fund_id, [row]
         )
 
     # =========================
@@ -881,6 +899,8 @@ class StrategyRunner:
         detail: str | None = None,
         quantity: Decimal | None = None,
     ) -> None:
+        # A linha de "erro visto" não aparece no registro
+        self._touch(account, rows=0 if kind is StrategyLogKind.ERROR_SEEN else 1)
         EventManager.push_event(
             StrategyEventDTO(
                 simulation_id=self._engine.simulation_id,
@@ -896,16 +916,84 @@ class StrategyRunner:
             )
         )
 
-    def _finish_mode_change(self, account: StrategyAccount, *, active: bool) -> None:
+    def _finish_mode_change(self, account: StrategyAccount) -> None:
         EventManager.flush()
-        self._notify_update(account, StrategyUpdateEventDTO(active=active))
+        self._touch(account)
+        self.publish()
 
-    def _notify_update(
-        self, account: StrategyAccount, event: StrategyUpdateEventDTO
+    def _touch(self, account: StrategyAccount, rows: int = 0) -> None:
+        """A conta mudou: a próxima entrega leva o automático dela e as `rows` linhas novas do registro."""
+        change = self._changed.setdefault(account.client_id, _Change(account))
+        change.rows += rows
+
+    # =========================
+    # Entrega ao tempo real
+    # =========================
+
+    def publish(self) -> None:
+        """
+        Entrega a quem opera cada conta que mudou o automático como a tela o mostra e as linhas
+        novas do registro. As linhas já estão gravadas (com id) quando esta entrega roda.
+        """
+        changed, self._changed = self._changed, {}
+        for change in changed.values():
+            guarded(lambda change=change: self._publish_account(change), "a estratégia")
+
+    def _publish_account(self, change: _Change) -> None:
+        account = change.account
+        operators = self._engine.audience(account.client_id)[0]
+        if change.rows:
+            self._publish_log(account, operators, change.rows)
+        listeners = _subscribed("strategy_update", operators)
+        if listeners:
+            event = StrategyUpdateEventDTO(
+                account=account.fund_id,
+                my_strategy=self.mine(account, self._engine.current_date),
+            ).to_json()
+            for client_id in listeners:
+                notify("strategy_update", event, to=client_id)
+        # A pendência do erro da estratégia é da conta pessoal
+        if account.fund_id is None and self.on_pending_changed is not None:
+            self.on_pending_changed(account.client_id)
+
+    def _publish_log(
+        self, account: StrategyAccount, operators: Iterable[UUID], rows: int
     ) -> None:
-        """A conta pessoal avisa o jogador; a gestora avisa quem opera a carteira dela."""
-        for client_id in self._engine.audience(account.client_id)[0]:
-            notify("strategy_update", event.to_json(), to=client_id)
+        """As `rows` linhas mais recentes da conta são as que acabaram de ser gravadas."""
+        if not _subscribed("strategy_log_update", operators):
+            return
+        newest, _ = repository.strategy.log_before(
+            self._engine.simulation_id,
+            account.user_id,
+            "all",
+            None,
+            rows,
+            account.fund_id,
+        )
+        self._send_log(operators, account.user_id, account.fund_id, newest)
+
+    def _send_log(
+        self,
+        operators: Iterable[UUID],
+        user_id: int,
+        fund_id: int | None,
+        rows: list[StrategyLogRowDTO],
+    ) -> None:
+        listeners = _subscribed("strategy_log_update", operators)
+        if not listeners:
+            return
+        totals = repository.strategy.log_totals(
+            self._engine.simulation_id, user_id, fund_id
+        )
+        event = StrategyLogEventDTO(
+            account=fund_id,
+            rows=[_named(row) for row in rows],
+            total_all=totals["all"],
+            total_orders=totals["orders"],
+            total_modes=totals["modes"],
+        ).to_json()
+        for client_id in listeners:
+            notify("strategy_log_update", event, to=client_id)
 
 
 @dataclass(frozen=True)
@@ -915,6 +1003,23 @@ class _Market:
     quotes: dict[str, Quote]
     offers: list[FixedIncomeOfferDTO]
     indicators: Indicators
+
+
+def _named(row: StrategyLogRowDTO) -> StrategyLogRowDTO:
+    """A linha do registro com o nome da estratégia, que o banco guarda só pela chave."""
+    return row.model_copy(
+        update={
+            "strategy_name": STRATEGIES[row.strategy_key].name
+            if row.strategy_key in STRATEGIES
+            else None
+        }
+    )
+
+
+def _subscribed(event: str, operators: Iterable[UUID]) -> list[UUID]:
+    """Os operadores da conta que assinam o evento: quem ninguém escuta não é montado."""
+    listening = subscribed_clients(event)
+    return [client_id for client_id in operators if client_id in listening]
 
 
 def _order_action(action: StrategyAction) -> OrderAction:

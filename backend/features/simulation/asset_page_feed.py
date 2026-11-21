@@ -14,6 +14,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import Decimal
+from functools import partial
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -34,6 +35,11 @@ from backend.features.realtime.schemas import (
     OrderPreviewEventDTO,
     StateCompanyUpdateEventDTO,
 )
+from backend.features.simulation.feed_support import (
+    guarded,
+    refusal_mark,
+    refusal_reason,
+)
 from backend.features.technical_analysis.patterns import build_candle_patterns_update
 from backend.features.technical_analysis.summary import (
     build_indicators_update,
@@ -46,11 +52,6 @@ if TYPE_CHECKING:
 
 CANDLE_PATTERNS_EVENT = "candle_patterns_update"
 STATE_COMPANY_EVENT = "state_company_update"
-
-
-def _refusal_mark(reason: str) -> tuple:
-    """Marca de uma prévia recusada: o mesmo motivo sai uma vez, um motivo novo sai de novo."""
-    return ("refused", reason)
 
 
 @dataclass
@@ -85,22 +86,37 @@ class AssetPageFeed:
         """Calcula a prévia, responde e deixa o pedido registrado para os próximos avisos."""
         acting = self._simulation.acting_client(requester, account)
         watched = WatchedPreview(requester, account, request)
-        # O pedido recusado também fica registrado: o aviso traz o motivo e a prévia que voltar a caber
-        self._previews.remember(ticker, requester, watched)
-        self._previewed.add(ticker)
         try:
             preview = self._preview(acting, ticker, request)
         except HTTPException as exc:
-            watched.seen = _refusal_mark(str(exc.detail))
+            # Só a recusa de regra registra o pedido: o aviso traz o motivo e a prévia que voltar a caber
+            reason = refusal_reason(exc)
+            if reason is not None:
+                watched.seen = refusal_mark(reason)
+                self._register(ticker, requester, watched)
             raise
         watched.seen = self._fingerprint(acting, ticker, request)
+        self._register(ticker, requester, watched)
         return preview
+
+    def _register(self, ticker: str, requester: UUID, watched: WatchedPreview) -> None:
+        self._previews.remember(ticker, requester, watched)
+        self._previewed.add(ticker)
 
     def refresh_previews(self) -> None:
         """Manda de novo a prévia que o caixa, a posição ou o preço estimado mudaram fora do dia."""
         for ticker in list(self._previewed):
             for client_id, watched in self._previews.pending(ticker).items():
-                self._send_preview(ticker, client_id, watched, only_changed=True)
+                guarded(
+                    partial(
+                        self._send_preview,
+                        ticker,
+                        client_id,
+                        watched,
+                        only_changed=True,
+                    ),
+                    "a prévia da ordem",
+                )
 
     def _send_preview(
         self,
@@ -119,8 +135,10 @@ class AssetPageFeed:
                 return
             preview = self._preview(acting, ticker, watched.request)
         except HTTPException as exc:
-            refused = str(exc.detail)
-            seen = _refusal_mark(refused)
+            refused = refusal_reason(exc)
+            if refused is None:
+                raise
+            seen = refusal_mark(refused)
             if only_changed and seen == watched.seen:
                 return
         watched.seen = seen
@@ -190,7 +208,12 @@ class AssetPageFeed:
     def _publish_previews(self, ticker: str) -> None:
         pending = self._previews.pending(ticker)
         for client_id, watched in pending.items():
-            self._send_preview(ticker, client_id, watched, only_changed=False)
+            guarded(
+                partial(
+                    self._send_preview, ticker, client_id, watched, only_changed=False
+                ),
+                "a prévia da ordem",
+            )
         if not pending:
             self._previewed.discard(ticker)
 

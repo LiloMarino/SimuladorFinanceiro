@@ -54,7 +54,7 @@ export function DirectedIssuanceDialog({ open, onOpenChange, fund }: DirectedIss
   const quotas = Number(quotasText);
   const deferredQuotas = useDeferredValue(quotas);
   // A prévia de 1 cota já traz o teto, que os atalhos de porcentagem usam
-  const { data: preview } = useFundDirectedIssuancePreview(fund.id, Math.max(deferredQuotas, 1));
+  const { preview } = useFundDirectedIssuancePreview(fund.id, Math.max(deferredQuotas, 1));
   const issue = useIssueDirectedFundQuotas(fund.id);
 
   const valid = Number.isInteger(quotas) && quotas > 0;

@@ -41,7 +41,7 @@ export function IssuanceDialog({ open, onOpenChange, fundId, fundName, nav, tota
   const [quotasText, setQuotasText] = useState("");
   const quotas = Number(quotasText);
   const deferredQuotas = useDeferredValue(quotas);
-  const { data: preview } = useFundIssuancePreview(fundId, deferredQuotas);
+  const { preview } = useFundIssuancePreview(fundId, deferredQuotas);
   const announce = useAnnounceFundIssuance(fundId);
 
   const valid = Number.isInteger(quotas) && quotas > 0;

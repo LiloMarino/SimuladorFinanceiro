@@ -49,7 +49,7 @@ def active_key(sim: Simulation, user: UserDTO, fund_id: int) -> str | None:
 
 
 def last_log(sim: Simulation, user: UserDTO, fund_id: int):
-    return sim.get_fund_strategy_log(user, fund_id, "all", 0, 10).items[0]
+    return sim.get_fund_strategy_log(user, fund_id, "all", None, 10).items[0]
 
 
 # =========================
@@ -109,7 +109,7 @@ def test_the_fund_strategy_log_has_its_own_rows(match):  # noqa: F811
     turn_on(sim, ana, fund_id)
 
     assert last_log(sim, ana, fund_id).strategy_key == KEY
-    assert sim.get_strategy_log(ana, "all", 0, 10).items == []
+    assert sim.get_strategy_log(ana, "all", None, 10).items == []
     assert sim.get_fund_strategy(ana, fund_id).active is not None
 
 

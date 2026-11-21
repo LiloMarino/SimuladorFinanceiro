@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Literal
 
-from sqlalchemy import ColumnElement, delete, func, select, update
+from sqlalchemy import ColumnElement, and_, delete, func, or_, select, update
 from sqlalchemy.orm import Session
 
 from backend.core.decorators.transactional_method import transactional
@@ -103,6 +103,26 @@ def owner_clauses(
     return clauses
 
 
+def log_where(
+    simulation_id: int, user_id: int, kind: LogFilter, fund_id: int | None
+) -> list[ColumnElement[bool]]:
+    """As linhas do registro do jogador ou da gestora que o filtro `kind` mostra."""
+    where = [
+        StrategyLog.simulation_id == simulation_id,
+        StrategyLog.kind != ERROR_SEEN,
+        *owner_clauses(user_id, fund_id),
+    ]
+    if kind == "orders":
+        where.append(StrategyLog.kind == ORDER)
+    elif kind == "modes":
+        where.append(StrategyLog.kind != ORDER)
+    return where
+
+
+# A ordem do registro: o dia e, no mesmo dia, a linha gravada por último, primeiro
+LOG_ORDER = (StrategyLog.event_date.desc(), StrategyLog.id.desc())
+
+
 class StrategyRepository:
     @transactional
     def mode_rows(
@@ -152,26 +172,89 @@ class StrategyRepository:
         fund_id: int | None = None,
     ) -> tuple[list[StrategyLogRowDTO], int]:
         """Uma página do registro do jogador ou da gestora, da linha mais recente para a mais antiga."""
-        where = [
-            StrategyLog.simulation_id == simulation_id,
-            StrategyLog.kind != ERROR_SEEN,
-            *owner_clauses(user_id, fund_id),
-        ]
-        if kind == "orders":
-            where.append(StrategyLog.kind == ORDER)
-        elif kind == "modes":
-            where.append(StrategyLog.kind != ORDER)
+        where = log_where(simulation_id, user_id, kind, fund_id)
         total = session.execute(
             select(func.count()).select_from(StrategyLog).where(*where)
         ).scalar_one()
         rows = session.scalars(
             select(StrategyLog)
             .where(*where)
-            .order_by(StrategyLog.event_date.desc(), StrategyLog.id.desc())
+            .order_by(*LOG_ORDER)
             .offset(offset)
             .limit(limit)
         ).all()
         return [row_dto(row) for row in rows], total
+
+    @transactional
+    def log_before(
+        self,
+        session: Session,
+        simulation_id: int,
+        user_id: int,
+        kind: LogFilter,
+        before: int | None,
+        limit: int,
+        fund_id: int | None = None,
+    ) -> tuple[list[StrategyLogRowDTO], int]:
+        """
+        As `limit` linhas do registro mais antigas que a linha `before` (as mais recentes, sem
+        ela), na ordem do registro, e o total do filtro. Linha que não está no filtro, ou que
+        deixou de existir, não tem linhas antes dela.
+        """
+        where = log_where(simulation_id, user_id, kind, fund_id)
+        total = session.execute(
+            select(func.count()).select_from(StrategyLog).where(*where)
+        ).scalar_one()
+        older: list[ColumnElement[bool]] = []
+        if before is not None:
+            anchor = session.execute(
+                select(StrategyLog.event_date).where(StrategyLog.id == before, *where)
+            ).scalar_one_or_none()
+            if anchor is None:
+                return [], total
+            older.append(
+                or_(
+                    StrategyLog.event_date < anchor,
+                    and_(StrategyLog.event_date == anchor, StrategyLog.id < before),
+                )
+            )
+        rows = session.scalars(
+            select(StrategyLog).where(*where, *older).order_by(*LOG_ORDER).limit(limit)
+        ).all()
+        return [row_dto(row) for row in rows], total
+
+    @transactional
+    def log_totals(
+        self,
+        session: Session,
+        simulation_id: int,
+        user_id: int,
+        fund_id: int | None = None,
+    ) -> dict[LogFilter, int]:
+        """O total de linhas do registro em cada filtro."""
+        where = log_where(simulation_id, user_id, "all", fund_id)
+        orders = session.execute(
+            select(func.count())
+            .select_from(StrategyLog)
+            .where(*where, StrategyLog.kind == ORDER)
+        ).scalar_one()
+        everything = session.execute(
+            select(func.count()).select_from(StrategyLog).where(*where)
+        ).scalar_one()
+        return {"all": everything, "orders": orders, "modes": everything - orders}
+
+    @transactional
+    def log_row_by_order(
+        self, session: Session, simulation_id: int, order_id: str
+    ) -> tuple[StrategyLogRowDTO, int, int | None] | None:
+        """A linha da ordem, com o jogador e a gestora dona do registro em que ela está."""
+        row = session.scalars(
+            select(StrategyLog).where(
+                StrategyLog.simulation_id == simulation_id,
+                StrategyLog.order_id == order_id,
+            )
+        ).first()
+        return None if row is None else (row_dto(row), row.user_id, row.fund_id)
 
     @transactional
     def order_counts(

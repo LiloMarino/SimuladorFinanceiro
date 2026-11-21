@@ -212,7 +212,7 @@ def preview_fund_issuance(
     fund_id: int,
     quotas: Annotated[int, Query(gt=0)],
 ):
-    return simulation.preview_fund_issuance(user, fund_id, quotas)
+    return simulation.watch_fund_issuance_preview(user, fund_id, quotas)
 
 
 @funds_router.post(
@@ -281,7 +281,7 @@ def preview_fund_directed(
     fund_id: int,
     quotas: Annotated[int, Query(gt=0)],
 ):
-    return simulation.preview_fund_directed(user, fund_id, quotas)
+    return simulation.watch_fund_directed_preview(user, fund_id, quotas)
 
 
 @funds_router.get(
@@ -296,7 +296,7 @@ def preview_fund_subscription(
     fund_id: int,
     quotas: Annotated[int, Query(gt=0)],
 ):
-    return simulation.preview_fund_subscription(user, fund_id, quotas)
+    return simulation.watch_fund_subscription_preview(user, fund_id, quotas)
 
 
 @funds_router.post(
@@ -382,7 +382,7 @@ def preview_fund_merge(
     fund_id: int,
     daughter_fund_id: int,
 ):
-    return simulation.preview_fund_merge(user, fund_id, daughter_fund_id)
+    return simulation.watch_fund_merge_preview(user, fund_id, daughter_fund_id)
 
 
 @funds_router.delete(
@@ -529,7 +529,7 @@ def preview_fund_buyback(
     quantity: Annotated[int, Query(gt=0)],
     max_price: Annotated[Decimal, Query(gt=0, decimal_places=2)],
 ):
-    return simulation.preview_fund_buyback(user, fund_id, quantity, max_price)
+    return simulation.watch_fund_buyback_preview(user, fund_id, quantity, max_price)
 
 
 @funds_router.put(
@@ -609,14 +609,14 @@ def get_fund_strategy_view(
     "/{fund_id}/strategy/log",
     response_model=StrategyLogPageDTO,
     summary="Listar o registro do automático da gestora",
-    description="Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela.",
+    description="Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela. Com `before`, devolve as linhas mais antigas que a linha de id `before`.",
 )
 def get_fund_strategy_log(
     simulation: ActiveSimulation,
     user: CurrentUser,
     fund_id: int,
     kind: Annotated[LogFilter, Query()] = "all",
-    offset: Annotated[int, Query(ge=0)] = 0,
+    before: Annotated[int | None, Query(ge=1)] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
 ):
-    return simulation.get_fund_strategy_log(user, fund_id, kind, offset, limit)
+    return simulation.get_fund_strategy_log(user, fund_id, kind, before, limit)

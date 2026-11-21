@@ -133,7 +133,6 @@ export const queryKeys = {
   fundStrategyList: () => ["strategies", "list", "fund"] as const,
   myStrategy: () => ["strategies", "me"] as const,
   myStrategyOf: (account: AccountKey) => ["strategies", "me", account] as const,
-  strategyLogs: () => ["strategies", "log"] as const,
   strategyLog: (account: AccountKey, kind: string) => ["strategies", "log", account, kind] as const,
   strategySignal: (key: string, ticker: string, params: object, date: string | undefined) =>
     ["strategies", "signal", key, ticker, params, date] as const,

@@ -66,6 +66,10 @@ class Payload:
         return self.data
 
 
+# Se o panorama de mentira tem parcela em atraso
+OVERDUE = {"value": False}
+
+
 class FakeSimulation:
     """O que o feed lê da partida: o título, a cotação, a vida financeira e as pendências."""
 
@@ -74,6 +78,9 @@ class FakeSimulation:
         self.life_calls: list[UUID] = []
         self.pending_calls: list[UUID] = []
         self.has_asset = True
+        self._funds = None
+        self._current_date = date(2026, 3, 2)
+        self._engine = SimpleNamespace(credit_book=object())
 
     def get_fixed_asset(self, asset_id: str) -> Any:
         return object() if self.has_asset else None
@@ -116,6 +123,20 @@ def server(monkeypatch: pytest.MonkeyPatch) -> RecordingServer:
         "LifeStatusUpdateEventDTO",
         lambda status: Payload({"status": status.data}),
     )
+    # O panorama real tem dezenas de campos: o feed só o repassa
+    monkeypatch.setattr(
+        cash_feed_module,
+        "build_overview",
+        lambda *_args: SimpleNamespace(
+            loans=[SimpleNamespace(overdue=[1] if OVERDUE["value"] else [])]
+        ),
+    )
+    monkeypatch.setattr(
+        cash_feed_module,
+        "CreditUpdateEventDTO",
+        lambda overview, account: Payload({"account": account}),
+    )
+    OVERDUE["value"] = False
     recording.broker = broker
     return recording
 
@@ -163,7 +184,7 @@ def test_a_cash_move_updates_the_life_and_the_pending_of_whose_cash_moved(
     assert sim.life_calls == [first]
 
 
-def test_a_fund_account_move_does_not_touch_the_personal_screens(
+def test_a_fund_account_move_updates_the_pending_but_not_the_life(
     server: RecordingServer, sim: FakeSimulation, feed: CashFeed
 ) -> None:
     client = open_tab(server, "a", ["life_status_update", "pending_update"])
@@ -171,7 +192,65 @@ def test_a_fund_account_move_does_not_touch_the_personal_screens(
     feed.cash_moved((client,), 7)
     feed.flush()
 
-    assert server.sent == []
+    assert server.of("life_status_update") == []
+    assert [sid for sid, _ in server.of("pending_update")] == ["a"]
+    assert sim.pending_calls == [client]
+
+
+def test_a_credit_change_updates_the_overview_and_the_pending_of_who_sees_the_account(
+    server: RecordingServer, sim: FakeSimulation, feed: CashFeed
+) -> None:
+    first = open_tab(server, "a", ["credit_update", "pending_update"])
+    open_tab(server, "b", ["credit_update", "pending_update"])
+
+    feed.credit_changed(first)
+    feed.pending_changed([first])
+    feed.flush()
+
+    assert [sid for sid, _ in server.of("credit_update")] == ["a"]
+    assert [sid for sid, _ in server.of("pending_update")] == ["a"]
+    assert sim.pending_calls == [first]
+
+
+def test_several_credit_changes_before_the_flush_publish_once(
+    server: RecordingServer, sim: FakeSimulation, feed: CashFeed
+) -> None:
+    client = open_tab(server, "a", ["credit_update"])
+
+    feed.credit_changed(client)
+    feed.credit_changed(client)
+    feed.flush()
+    feed.flush()
+
+    assert len(server.of("credit_update")) == 1
+
+
+def test_the_close_of_the_day_sends_the_credit_only_with_an_overdue_installment(
+    server: RecordingServer, sim: FakeSimulation, feed: CashFeed
+) -> None:
+    open_tab(server, "a", ["credit_update"])
+
+    OVERDUE["value"] = True
+    feed.day_passed()
+    feed.flush()
+    assert [payload for _, payload in server.of("credit_update")] == [{"account": None}]
+
+    OVERDUE["value"] = False
+    feed.day_passed()
+    feed.flush()
+    assert len(server.of("credit_update")) == 1
+
+
+def test_a_pending_change_without_cash_reaches_only_who_it_names(
+    server: RecordingServer, sim: FakeSimulation, feed: CashFeed
+) -> None:
+    first = open_tab(server, "a", ["pending_update"])
+    open_tab(server, "b", ["pending_update"])
+
+    feed.pending_changed([first])
+    feed.flush()
+
+    assert [sid for sid, _ in server.of("pending_update")] == ["a"]
 
 
 def test_the_close_of_the_day_updates_every_subscriber(

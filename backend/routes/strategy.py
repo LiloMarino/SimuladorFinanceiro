@@ -94,13 +94,13 @@ def get_view(
     "/me/log",
     response_model=StrategyLogPageDTO,
     summary="Listar o registro da estratégia",
-    description="Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador.",
+    description="Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador. Com `before`, devolve as linhas mais antigas que a linha de id `before`.",
 )
 def get_strategy_log(
     simulation: ActiveSimulation,
     user: CurrentUser,
     kind: Annotated[LogFilter, Query()] = "all",
-    offset: Annotated[int, Query(ge=0)] = 0,
+    before: Annotated[int | None, Query(ge=1)] = None,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
 ):
-    return simulation.get_strategy_log(user, kind, offset, limit)
+    return simulation.get_strategy_log(user, kind, before, limit)

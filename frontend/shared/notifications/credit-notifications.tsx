@@ -1,27 +1,18 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
 import { useRealtime } from "@/shared/hooks/useRealtime";
 import { displaySelicSpread, displayWholePercent, isDowngrade } from "@/shared/lib/credit";
-import { queryKeys } from "@/shared/lib/queryKeys";
 import { displayMoney, displayMonthName } from "@/shared/lib/utils/display";
 
 /**
- * Dono único dos avisos de crédito em tempo real: cada evento renova a tela de crédito
- * e a carteira (o ponto vermelho do menu vem dela) e avisa do que aconteceu.
+ * Dono único dos avisos de crédito em tempo real: cada evento avisa do que aconteceu. O dado da tela de
+ * crédito chega por `credit_update` e o da carteira por `portfolio_update`.
  */
 export function CreditNotifications() {
-  const queryClient = useQueryClient();
   const { isToastOn } = useNotificationPreferences();
 
-  const renew = () => {
-    void queryClient.invalidateQueries({ queryKey: queryKeys.credit() });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
-  };
-
   useRealtime("credit_installment_paid", (event) => {
-    renew();
     if (!isToastOn("CREDIT_PAYMENTS")) return;
     toast.success("Parcela paga", {
       description: `Empréstimo ${event.loan_number} · ${displayMoney(event.amount)} · ${event.installment_number} de ${event.total_installments}`,
@@ -29,19 +20,15 @@ export function CreditNotifications() {
   });
 
   useRealtime("credit_monthly_summary", (event) => {
-    renew();
     if (!isToastOn("CREDIT_PAYMENTS")) return;
     toast.success(`Parcelas de ${displayMonthName(event.month)} pagas`, {
       description: `${event.installments} ${event.installments === 1 ? "parcela" : "parcelas"} · ${displayMoney(event.amount)}`,
     });
   });
 
-  // Atraso e parcela sem caixa são pendências: o aviso nasce na lista de pendências; aqui só renovam a tela
-  useRealtime("credit_installment_late", renew);
-  useRealtime("credit_installment_warning", renew);
+  // Atraso e parcela sem caixa são pendências: o aviso nasce na lista de pendências
 
   useRealtime("credit_rating_changed", (event) => {
-    renew();
     if (!isToastOn("CREDIT_RATING")) return;
     const description =
       event.spread === null
@@ -57,7 +44,6 @@ export function CreditNotifications() {
   });
 
   useRealtime("credit_loan_paid_off", (event) => {
-    renew();
     if (!isToastOn("CREDIT_PAYMENTS")) return;
     const saved = Number(event.interest_saved);
     toast.success(`Empréstimo ${event.loan_number} quitado`, {

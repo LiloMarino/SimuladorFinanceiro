@@ -11109,7 +11109,7 @@
           "Funds"
         ],
         "summary": "Listar o registro do automático da gestora",
-        "description": "Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela.",
+        "description": "Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia da gestora e as mudanças de modo dela. Com `before`, devolve as linhas mais antigas que a linha de id `before`.",
         "operationId": "get_fund_strategy_log_api_funds__fund_id__strategy_log_get",
         "security": [
           {
@@ -11136,14 +11136,20 @@
             }
           },
           {
-            "name": "offset",
+            "name": "before",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Offset"
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
             }
           },
           {
@@ -11523,7 +11529,7 @@
           "Strategy"
         ],
         "summary": "Listar o registro da estratégia",
-        "description": "Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador.",
+        "description": "Retorna, da mais recente para a mais antiga, as ordens enviadas pela estratégia e as mudanças de modo do jogador. Com `before`, devolve as linhas mais antigas que a linha de id `before`.",
         "operationId": "get_strategy_log_api_strategies_me_log_get",
         "security": [
           {
@@ -11541,14 +11547,20 @@
             }
           },
           {
-            "name": "offset",
+            "name": "before",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "integer",
-              "minimum": 0,
-              "default": 0,
-              "title": "Offset"
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
             }
           },
           {
@@ -24717,6 +24729,49 @@
         "title": "FundBuybackPreviewDTO",
         "description": "O que uma recompra de `quantity` cotas a até `max_price` faz, antes de o gestor confirmar."
       },
+      "FundBuybackPreviewEventDTO": {
+        "properties": {
+          "quantity": {
+            "type": "integer",
+            "title": "Quantity"
+          },
+          "max_price": {
+            "type": "string",
+            "title": "Max Price"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundBuybackPreviewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refused": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refused"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quantity",
+          "max_price",
+          "preview",
+          "refused"
+        ],
+        "title": "FundBuybackPreviewEventDTO",
+        "description": "A prévia da recompra recalculada para o último pedido do gestor na gestora, só para ele."
+      },
       "FundBuybackRequest": {
         "properties": {
           "quantity": {
@@ -26083,6 +26138,44 @@
         "title": "FundDirectedIssuanceViewDTO",
         "description": "A oferta de cotas novas na página da gestora, com quem compra e até quando ela vale."
       },
+      "FundDirectedPreviewEventDTO": {
+        "properties": {
+          "quotas": {
+            "type": "integer",
+            "title": "Quotas"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundDirectedIssuancePreviewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refused": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refused"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas",
+          "preview",
+          "refused"
+        ],
+        "title": "FundDirectedPreviewEventDTO",
+        "description": "A prévia da emissão dirigida recalculada para o último pedido de quem gere a gestora, só para ele."
+      },
       "FundDistributionDTO": {
         "properties": {
           "data_com": {
@@ -26760,6 +26853,44 @@
         "title": "FundIssuancePreviewDTO",
         "description": "O que uma emissão de `quotas` cotas faz, antes de o gestor anunciar."
       },
+      "FundIssuancePreviewEventDTO": {
+        "properties": {
+          "quotas": {
+            "type": "integer",
+            "title": "Quotas"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundIssuancePreviewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refused": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refused"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas",
+          "preview",
+          "refused"
+        ],
+        "title": "FundIssuancePreviewEventDTO",
+        "description": "A prévia da emissão recalculada para o último pedido do gestor na gestora, só para ele."
+      },
       "FundIssuanceRequest": {
         "properties": {
           "quotas": {
@@ -27050,6 +27181,44 @@
         ],
         "title": "FundMergePreviewDTO",
         "description": "O que a fusão faz hoje, antes de o gestor levá-la às duas assembleias."
+      },
+      "FundMergePreviewEventDTO": {
+        "properties": {
+          "daughter_fund_id": {
+            "type": "integer",
+            "title": "Daughter Fund Id"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundMergePreviewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refused": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refused"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "daughter_fund_id",
+          "preview",
+          "refused"
+        ],
+        "title": "FundMergePreviewEventDTO",
+        "description": "A prévia da fusão recalculada para o último pedido do gestor principal, só para ele."
       },
       "FundMergeProposalRequest": {
         "properties": {
@@ -28150,6 +28319,44 @@
           "ranking_price"
         ],
         "title": "FundSeriesPointDTO"
+      },
+      "FundSubscriptionPreviewEventDTO": {
+        "properties": {
+          "quotas": {
+            "type": "integer",
+            "title": "Quotas"
+          },
+          "preview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FundIssuanceSubscriptionPreviewDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "refused": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refused"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quotas",
+          "preview",
+          "refused"
+        ],
+        "title": "FundSubscriptionPreviewEventDTO",
+        "description": "A prévia da compra na preferência recalculada para o último pedido do cotista, só para ele."
       },
       "FundSummaryDTO": {
         "properties": {
@@ -39321,6 +39528,21 @@
           "fund_update": {
             "$ref": "#/components/schemas/FundDetailsDTO"
           },
+          "fund_issuance_preview": {
+            "$ref": "#/components/schemas/FundIssuancePreviewEventDTO"
+          },
+          "fund_subscription_preview": {
+            "$ref": "#/components/schemas/FundSubscriptionPreviewEventDTO"
+          },
+          "fund_directed_preview": {
+            "$ref": "#/components/schemas/FundDirectedPreviewEventDTO"
+          },
+          "fund_merge_preview": {
+            "$ref": "#/components/schemas/FundMergePreviewEventDTO"
+          },
+          "fund_buyback_preview": {
+            "$ref": "#/components/schemas/FundBuybackPreviewEventDTO"
+          },
           "corporate_events_update": {
             "$ref": "#/components/schemas/AssetCorporateEventsDTO"
           },
@@ -39468,6 +39690,9 @@
           "strategy_update": {
             "$ref": "#/components/schemas/StrategyUpdateEventDTO"
           },
+          "strategy_log_update": {
+            "$ref": "#/components/schemas/StrategyLogEventDTO"
+          },
           "strategy_orders": {
             "$ref": "#/components/schemas/StrategyOrdersEventDTO"
           },
@@ -39505,6 +39730,11 @@
           "funds_list_update",
           "fund_offers_update",
           "fund_update",
+          "fund_issuance_preview",
+          "fund_subscription_preview",
+          "fund_directed_preview",
+          "fund_merge_preview",
+          "fund_buyback_preview",
           "corporate_events_update",
           "comanager_update",
           "budget_update",
@@ -39554,6 +39784,7 @@
           "credit_loan_paid_off",
           "government_update",
           "strategy_update",
+          "strategy_log_update",
           "strategy_orders",
           "candle_challenge_state",
           "candle_challenge_notice"
@@ -44795,6 +45026,51 @@
         ],
         "title": "StrategyLastOrderDTO"
       },
+      "StrategyLogEventDTO": {
+        "properties": {
+          "account": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Account"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/StrategyLogRowDTO"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "total_all": {
+            "type": "integer",
+            "title": "Total All"
+          },
+          "total_orders": {
+            "type": "integer",
+            "title": "Total Orders"
+          },
+          "total_modes": {
+            "type": "integer",
+            "title": "Total Modes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "account",
+          "rows",
+          "total_all",
+          "total_orders",
+          "total_modes"
+        ],
+        "title": "StrategyLogEventDTO",
+        "description": "As linhas do registro da estratégia de uma conta que entraram ou mudaram depois de gravadas."
+      },
       "StrategyLogKind": {
         "type": "string",
         "enum": [
@@ -45276,30 +45552,29 @@
       },
       "StrategyUpdateEventDTO": {
         "properties": {
-          "active": {
-            "type": "boolean",
-            "title": "Active"
-          },
-          "error": {
+          "account": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "integer"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Error"
+            "title": "Account"
+          },
+          "my_strategy": {
+            "$ref": "#/components/schemas/MyStrategyDTO"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "active",
-          "error"
+          "account",
+          "my_strategy"
         ],
         "title": "StrategyUpdateEventDTO",
-        "description": "O modo do jogador mudou: ligou, trocou, desligou ou a estratégia deu erro."
+        "description": "O automático de uma conta mudou: ligou, trocou, desligou, deu erro ou o painel andou com as ordens."
       },
       "StrategyView": {
         "type": "string",

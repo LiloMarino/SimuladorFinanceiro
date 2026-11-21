@@ -110,7 +110,7 @@ def match(started, monkeypatch: pytest.MonkeyPatch):  # noqa: F811
 
 
 def log_of(sim: Simulation, user, kind: str = "all"):
-    return sim.get_strategy_log(user, kind, 0, 100).items  # type: ignore[arg-type]
+    return sim.get_strategy_log(user, kind, None, 100).items  # type: ignore[arg-type]
 
 
 def test_a_player_starts_in_manual_mode(match):

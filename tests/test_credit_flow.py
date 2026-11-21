@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from uuid import UUID
 
+import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import repository
 from backend.core.enum import CreditEventType
 from backend.core.runtime.simulation_manager import SimulationManager
+from backend.features.realtime.schemas import CreditInstallmentPaidEventDTO
+from backend.features.simulation import feed_support
 from backend.routes.credit import credit_router
 from tests.test_paused_trading import paused_match  # noqa: F401
 
@@ -72,3 +76,72 @@ def test_contract_prepay_and_payoff_while_paused(paused_match):  # noqa: F811
         assert paid_off.status_code == 204, paid_off.text
         assert http.get("/api/credit").json()["loans"] == []
         assert http.post(f"/api/credit/loans/{loan_id}/payoff").status_code == 404
+
+
+def listen(
+    monkeypatch: pytest.MonkeyPatch, *clients: UUID
+) -> list[tuple[str, UUID | None]]:
+    """Os clientes assinam o panorama e as pendências; devolve o que o servidor entregou."""
+    sent: list[tuple[str, UUID | None]] = []
+    monkeypatch.setattr(
+        feed_support,
+        "subscribed_clients",
+        lambda event: (
+            set(clients) if event in ("credit_update", "pending_update") else set()
+        ),
+    )
+    monkeypatch.setattr(
+        feed_support,
+        "notify",
+        lambda event, _payload, to=None: sent.append((event, to)),
+    )
+    return sent
+
+
+def test_each_credit_operation_sends_the_overview_and_the_pending_to_who_sees_the_account(
+    paused_match,  # noqa: F811
+    monkeypatch: pytest.MonkeyPatch,
+):
+    _sim, users, _ = paused_match
+    ana, bia = users
+    sent = listen(monkeypatch, ana.client_id, bia.client_id)
+    app = FastAPI()
+    app.include_router(credit_router)
+
+    with TestClient(app) as http:
+        http.cookies.set("client_id", str(ana.client_id))
+        assert (
+            http.post(
+                "/api/credit/loans", json={"amount": "5000", "term_months": 24}
+            ).status_code
+            == 204
+        )
+        assert sorted(sent) == sorted(
+            [("credit_update", ana.client_id), ("pending_update", ana.client_id)]
+        )
+
+        sent.clear()
+        [loan] = http.get("/api/credit").json()["loans"]
+        assert http.post(f"/api/credit/loans/{loan['id']}/payoff").status_code == 204
+        assert ("credit_update", ana.client_id) in sent
+        assert all(to == ana.client_id for _, to in sent)
+
+
+def test_every_credit_notice_marks_the_account_for_the_overview(
+    paused_match,  # noqa: F811
+):
+    sim, users, _ = paused_match
+    ana = users[0]
+    book = sim._engine.credit_book
+    changed: list[UUID] = []
+    book.on_changed = changed.append
+
+    book._notify(
+        "credit_installment_paid",
+        CreditInstallmentPaidEventDTO(
+            loan_number=1, installment_number=1, total_installments=2, amount=Decimal(1)
+        ),
+        ana.client_id,
+    )
+
+    assert changed == [ana.client_id]

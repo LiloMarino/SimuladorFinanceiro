@@ -1,14 +1,14 @@
 """
-Os avisos do pregão das telas de renda fixa, Tesouro, crédito e governo: a cada dia o
+Os avisos do pregão das telas de renda fixa, Tesouro e governo: a cada dia o
 servidor entrega o dado novo a quem tem a tela aberta, em vez de mandar a tela buscar de novo.
 
 - Iguais para todos (título de renda fixa, catálogo e série do Tesouro): montados uma vez
   e enviados a todos os assinantes.
-- Por jogador (Fundo Soberano, estatais, crédito, títulos do Tesouro): montados para cada
+- Por jogador (Fundo Soberano, estatais, títulos do Tesouro): montados para cada
   assinante e entregues só a ele; nas contas de gestora, uma entrega por conta, marcada com
   o id dela.
 - O que não muda no dia não sai: o catálogo do Tesouro segue a revisão mensal e os
-  vencimentos, e o crédito só sai nas contas com parcela em atraso.
+  vencimentos.
 """
 
 from __future__ import annotations
@@ -17,12 +17,8 @@ from collections.abc import Iterable
 from typing import TYPE_CHECKING
 from uuid import UUID
 
-from backend.core.dto.base import BaseDTO
-from backend.core.dto.user import UserDTO
-from backend.features.credit.overview import build_overview
 from backend.features.realtime import notify, subscribed_clients
 from backend.features.realtime.schemas import (
-    CreditUpdateEventDTO,
     TreasuryHistoryUpdateEventDTO,
     TreasuryPositionsUpdateEventDTO,
 )
@@ -52,7 +48,6 @@ class DayFeed:
         guarded(self._publish_fixed_income, "os títulos de renda fixa")
         guarded(self._publish_sovereign_fund, "o Fundo Soberano")
         guarded(self._publish_state_companies, "as estatais")
-        guarded(self._publish_credit, "o crédito")
         guarded(self._publish_treasury_catalog, "o catálogo do Tesouro")
         guarded(
             lambda: self._publish_treasury_history(month_changed),
@@ -100,21 +95,6 @@ class DayFeed:
             "state_companies_update",
             lambda user: [self._simulation.get_state_companies(user)],
         )
-
-    def _publish_credit(self) -> None:
-        publish_each("credit_update", self._overdue_credit)
-
-    def _overdue_credit(self, user: UserDTO) -> Iterable[BaseDTO]:
-        """O crédito de cada conta do gestor principal com parcela em atraso: multa e mora crescem a cada dia."""
-        simulation = self._simulation
-        for account, client_id in operated_accounts(
-            simulation._funds, user, managed_only=True
-        ):
-            overview = build_overview(
-                simulation._engine.credit_book, client_id, simulation._current_date
-            )
-            if any(loan.overdue for loan in overview.loans):
-                yield CreditUpdateEventDTO(overview=overview, account=account)
 
     def _publish_treasury_catalog(self) -> None:
         if not subscribed_clients("treasury_catalog_update"):

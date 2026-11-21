@@ -40,7 +40,7 @@ export function BuybackDialog({ open, onOpenChange, fund }: BuybackDialogProps) 
   const maxPrice = normalizeNumberString(priceText) || "0";
   const deferredQuantity = useDeferredValue(quantity);
   const deferredPrice = useDeferredValue(maxPrice);
-  const { data: preview } = useFundBuybackPreview(fundId, deferredQuantity, deferredPrice);
+  const { preview } = useFundBuybackPreview(fundId, deferredQuantity, deferredPrice);
   const openBuyback = useOpenFundBuyback(fundId);
 
   const valid = Number.isInteger(quantity) && quantity > 0 && Number(maxPrice) > 0;

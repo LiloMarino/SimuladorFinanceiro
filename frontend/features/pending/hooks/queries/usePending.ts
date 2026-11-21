@@ -17,11 +17,6 @@ export function usePending() {
   useRealtime("pending_update", ({ items }) => {
     void applyRealtime<Pending[]>(queryClient, queryKeys.pending(), items);
   });
-  useRealtime("credit_installment_late", renew);
-  useRealtime("credit_installment_warning", renew);
-  useRealtime("credit_installment_paid", renew);
-  useRealtime("credit_loan_paid_off", renew);
-  useRealtime("strategy_update", renew);
   useRealtime("government_update", renew);
 
   return useQuery({

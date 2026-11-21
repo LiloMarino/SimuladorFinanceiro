@@ -1,10 +1,14 @@
 """
-Os avisos que dependem do caixa e do dia: a cotação da boleta de renda fixa, a vida
-financeira e as pendências do jogador.
+Os avisos que dependem do caixa, do crédito e do dia: a cotação da boleta de renda fixa, a
+vida financeira, as pendências e o panorama do crédito do jogador.
 
-O caixa mexe várias vezes numa mesma operação (a compra, a taxa, o aporte do dia): cada
-movimento só marca a conta, e a publicação sai uma vez, ao fechar a operação mais externa,
-com o caixa já final. O pregão marca todas as contas.
+O caixa e o crédito mexem várias vezes numa mesma operação (a compra, a taxa, o aporte do
+dia, a parcela): cada mudança só marca a conta, e a publicação sai uma vez, ao fechar a
+operação mais externa, com o estado já final. O pregão marca todas as contas.
+
+O caixa de uma conta de gestora mexe nas pendências de quem a opera; a vida financeira é
+só da conta pessoal. O crédito é de quem vê a conta: o dono da pessoal e o gestor principal
+da gestora.
 """
 
 from __future__ import annotations
@@ -17,16 +21,23 @@ from uuid import UUID
 
 from fastapi import HTTPException
 
+from backend.core.dto.base import BaseDTO
 from backend.core.dto.fixed_income_projection import FixedIncomeQuoteDTO
 from backend.core.dto.user import UserDTO
 from backend.core.exceptions.http_exceptions import NotFoundError
+from backend.features.credit.overview import build_overview
 from backend.features.realtime.client_requests import ClientRequests
 from backend.features.realtime.schemas import (
+    CreditUpdateEventDTO,
     FixedIncomeProjectionEventDTO,
     LifeStatusUpdateEventDTO,
     PendingUpdateEventDTO,
 )
-from backend.features.simulation.feed_support import guarded, publish_each
+from backend.features.simulation.feed_support import (
+    guarded,
+    operated_accounts,
+    publish_each,
+)
 
 if TYPE_CHECKING:
     from backend.features.simulation.simulation import Simulation
@@ -53,7 +64,18 @@ class CashFeed:
         # Títulos com cotação registrada: a publicação só olha para eles
         self._projected: set[str] = set()
         self._moved: set[MovedAccount] = set()
+        # As contas de crédito (client_id) que mudaram e os clientes cuja lista de pendências mudou
+        self._credit: set[UUID] = set()
+        self._pending: set[UUID] = set()
         self._day = False
+
+    def credit_changed(self, client_id: UUID) -> None:
+        """O crédito da conta `client_id` mudou; o panorama novo sai ao fechar a operação em curso."""
+        self._credit.add(client_id)
+
+    def pending_changed(self, recipients: Iterable[UUID]) -> None:
+        """A lista de pendências de `recipients` mudou por algo que não é o caixa."""
+        self._pending.update(recipients)
 
     def cash_moved(self, audience: Iterable[UUID], account: int | None) -> None:
         """O caixa da conta `account` mexeu; quem a opera recebe o dado novo ao fechar a operação."""
@@ -94,15 +116,18 @@ class CashFeed:
 
     def flush(self) -> None:
         """Entrega o dado das contas que o caixa mexeu, ou de todas depois do pregão."""
-        if not self._moved and not self._day:
+        if not (self._moved or self._day or self._credit or self._pending):
             return
         moved, day = self._moved, self._day
+        credit, pending = self._credit, self._pending
         self._moved, self._day = set(), False
+        self._credit, self._pending = set(), set()
         guarded(
             lambda: self._publish_projections(moved, day), "a cotação da renda fixa"
         )
         guarded(lambda: self._publish_life(moved, day), "a vida financeira")
-        guarded(lambda: self._publish_pending(moved, day), "as pendências")
+        guarded(lambda: self._publish_pending(moved, day, pending), "as pendências")
+        guarded(lambda: self._publish_credit(credit, day), "o crédito")
 
     def _publish_projections(self, moved: set[MovedAccount], day: bool) -> None:
         for asset_id in list(self._projected):
@@ -141,10 +166,37 @@ class CashFeed:
 
         publish_each("life_status_update", build, self._personal(moved, day))
 
-    def _publish_pending(self, moved: set[MovedAccount], day: bool) -> None:
+    def _publish_pending(
+        self, moved: set[MovedAccount], day: bool, pending: set[UUID]
+    ) -> None:
         simulation = self._simulation
+        # O caixa de qualquer conta, a da gestora também, mexe nas pendências de quem a opera
+        recipients = None if day else {client_id for client_id, _ in moved} | pending
         publish_each(
             "pending_update",
             lambda user: [PendingUpdateEventDTO(items=simulation.get_pending(user))],
-            self._personal(moved, day),
+            recipients,
         )
+
+    def _publish_credit(self, credit: set[UUID], day: bool) -> None:
+        """O panorama das contas de crédito que mudaram e, depois do pregão, o das que têm parcela em atraso (multa e mora crescem por dia)."""
+        simulation = self._simulation
+
+        def build(user: UserDTO) -> list[BaseDTO]:
+            events: list[BaseDTO] = []
+            for account, client_id in operated_accounts(
+                simulation._funds, user, managed_only=True
+            ):
+                marked = client_id in credit
+                if not (marked or day):
+                    continue
+                overview = build_overview(
+                    simulation._engine.credit_book, client_id, simulation._current_date
+                )
+                if marked or any(loan.overdue for loan in overview.loans):
+                    events.append(
+                        CreditUpdateEventDTO(overview=overview, account=account)
+                    )
+            return events
+
+        publish_each("credit_update", build)

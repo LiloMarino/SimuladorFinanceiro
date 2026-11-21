@@ -7,6 +7,8 @@ from collections.abc import Callable, Collection, Iterable
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from fastapi import HTTPException
+
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.user import UserDTO
 from backend.core.runtime.user_manager import UserManager
@@ -16,6 +18,19 @@ if TYPE_CHECKING:
     from backend.features.funds.fund_book import FundBook
 
 logger = logging.getLogger(__name__)
+
+# Status com que uma prévia recusa por regra: o pedido não cabe no estado de agora (409) ou nos dados (422)
+RULE_REFUSAL_STATUS = (409, 422)
+
+
+def refusal_reason(exc: HTTPException) -> str | None:
+    """O motivo da recusa quando `exc` é recusa de regra da prévia; permissão, recurso inexistente e falha do servidor não são recusa."""
+    return str(exc.detail) if exc.status_code in RULE_REFUSAL_STATUS else None
+
+
+def refusal_mark(reason: str) -> tuple:
+    """Marca de uma prévia recusada: o mesmo motivo sai uma vez, um motivo novo sai de novo."""
+    return ("refused", reason)
 
 
 def publish_each(

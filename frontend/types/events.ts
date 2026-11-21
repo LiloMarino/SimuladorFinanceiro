@@ -75,6 +75,7 @@ export type SimulationEvents = {
   government_update: RealtimeEventCatalog["government_update"];
   strategy_update: RealtimeEventCatalog["strategy_update"];
   strategy_orders: RealtimeEventCatalog["strategy_orders"];
+  strategy_log_update: RealtimeEventCatalog["strategy_log_update"];
   candle_challenge_state: RealtimeEventCatalog["candle_challenge_state"];
   candle_challenge_notice: RealtimeEventCatalog["candle_challenge_notice"];
   backtest_started: RealtimeEventCatalog["backtest_started"];
@@ -104,6 +105,16 @@ export type SimulationEvents = {
   [K in `fixed_income_projection:${string}`]: RealtimeEventCatalog["fixed_income_projection"];
 } & {
   [K in `fund_update:${string}`]: RealtimeEventCatalog["fund_update"];
+} & {
+  [K in `fund_issuance_preview:${string}`]: RealtimeEventCatalog["fund_issuance_preview"];
+} & {
+  [K in `fund_subscription_preview:${string}`]: RealtimeEventCatalog["fund_subscription_preview"];
+} & {
+  [K in `fund_directed_preview:${string}`]: RealtimeEventCatalog["fund_directed_preview"];
+} & {
+  [K in `fund_merge_preview:${string}`]: RealtimeEventCatalog["fund_merge_preview"];
+} & {
+  [K in `fund_buyback_preview:${string}`]: RealtimeEventCatalog["fund_buyback_preview"];
 } & {
   [K in `corporate_events_update:${string}`]: RealtimeEventCatalog["corporate_events_update"];
 };

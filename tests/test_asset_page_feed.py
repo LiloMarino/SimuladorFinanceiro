@@ -131,6 +131,7 @@ class FakeSimulation:
         self.settings = SimpleNamespace(show_chart_hints=True)
         self.cash = D(1000)
         self.refuse: str | None = None
+        self.refuse_status = 422
         self.details_calls = 0
         self.preview_calls = 0
         self.state_calls: list[Any] = []
@@ -146,7 +147,7 @@ class FakeSimulation:
     def preview_order(self, *_args: Any) -> OrderPreviewDTO:
         self.preview_calls += 1
         if self.refuse:
-            raise HTTPException(status_code=422, detail=self.refuse)
+            raise HTTPException(status_code=self.refuse_status, detail=self.refuse)
         return preview(self.cash - 100)
 
     def get_stock_details(self, _ticker: str) -> Any:
@@ -367,6 +368,35 @@ def test_a_refused_request_is_registered_and_its_reason_is_not_resent_on_the_nex
     [(_, payload)] = server.of(f"order_preview:{TICKER}")
     assert payload["preview"] is not None
     assert payload["refused"] is None
+
+
+def test_a_status_that_is_not_a_rule_refusal_is_not_registered(
+    server: RecordingServer, sim: FakeSimulation, feed: AssetPageFeed
+):
+    ana = open_tab(server, "ana", [f"order_preview:{TICKER}"])
+    sim.refuse = "Sem permissão"
+    sim.refuse_status = 403
+    with pytest.raises(HTTPException):
+        feed.watch_preview(ana, None, TICKER, REQUEST)
+    sim.refuse = None
+    sim.cash = D(500)
+
+    feed.refresh_previews()
+
+    assert server.of(f"order_preview:{TICKER}") == []
+
+
+def test_a_status_that_is_not_a_rule_refusal_does_not_go_out_as_refused(
+    server: RecordingServer, sim: FakeSimulation, feed: AssetPageFeed
+):
+    ana = open_tab(server, "ana", [f"order_preview:{TICKER}"])
+    feed.watch_preview(ana, None, TICKER, REQUEST)
+    sim.refuse = "Falha do servidor"
+    sim.refuse_status = 500
+
+    feed.refresh_previews()
+
+    assert server.of(f"order_preview:{TICKER}") == []
 
 
 def test_outside_the_day_the_preview_is_sent_only_when_what_it_reads_changed(

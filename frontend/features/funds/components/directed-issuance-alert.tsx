@@ -43,7 +43,7 @@ type OfferBodyProps = {
 function BuyerOffer({ fund, offer, quotas, validity }: OfferBodyProps) {
   const answer = useAnswerDirectedIssuance(fund.id);
   // O preço de hoje é a referência; o da compra vale no momento em que o co-gestor aceita
-  const { data: preview } = useFundDirectedIssuancePreview(fund.id, Number(offer.quotas));
+  const { preview } = useFundDirectedIssuancePreview(fund.id, Number(offer.quotas));
 
   return (
     <>

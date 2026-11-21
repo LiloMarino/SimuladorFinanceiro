@@ -302,6 +302,8 @@ class CreditBook:
         self._lock = lock
         self._history = history or self._stored_history
         self._clients: LazyDict[UUID, ClientCredit] = LazyDict(self._load)
+        # Chamado com a conta cujo crédito mudou: o dono do livro leva o panorama novo à tela
+        self.on_changed: Callable[[UUID], None] | None = None
 
     def _stored_history(
         self, client_id: UUID, before: date | None, last: int | None
@@ -312,8 +314,13 @@ class CreditBook:
             return repository.fund.credit_history(portfolio_id, before, last)
         return repository.portfolio.get_patrimonial_history(portfolio_id, before, last)
 
+    def _changed(self, client_id: UUID) -> None:
+        if self.on_changed is not None:
+            self.on_changed(client_id)
+
     def _notify(self, event: Event, payload: BaseDTO, client_id: UUID) -> None:
         """O aviso vai a quem vê a conta: o dono da conta pessoal ou o gestor principal da gestora."""
+        self._changed(client_id)
         audience, account = self._engine.audience(client_id)
         json = payload.model_copy(update={"account": account}).to_json()
         for recipient in audience[:1]:
@@ -376,6 +383,8 @@ class CreditBook:
             reloaded.previous = to_client.previous
             reloaded.warned = to_client.warned
             self._clients[target] = reloaded
+            self._changed(source)
+            self._changed(target)
             return [
                 reloaded.loans[loan_id]
                 for loan_id in moved_ids
@@ -537,6 +546,7 @@ class CreditBook:
                 client = self._clients[client_id]
                 client.rating = self.closing(client_id, day)
                 client.previous = None
+                self._changed(client_id)
                 self._announce_grade(client_id, client, day)
 
     def _announce_grade(self, client_id: UUID, client: ClientCredit, day: date) -> None:
@@ -844,3 +854,4 @@ class CreditBook:
         )
         client.events.append(event)
         EventManager.push_event(event)
+        self._changed(client_id)
