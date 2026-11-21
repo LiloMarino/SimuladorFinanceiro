@@ -17,6 +17,7 @@ desempenho", e não "F45". Isso inclui o assunto e o corpo de commits e de PRs.
 ## Frontend
 
 - Queries, mutations e formulários seguem `docs/docs/desenvolvimento/convencoes-frontend.md`.
+- Aviso do websocket carrega o dado novo, e o front o aplica no cache com `setQueryData` (moldes: `frontend/features/variable-income/hooks/queries/useVariableIncomeStock.ts` e `frontend/shared/hooks/queries/usePortfolio.ts`). O servidor sabe quem assina cada aviso e entrega pronto o que a tela mostra, inclusive o que ele calcula a partir de outro dado (prévia da ordem, indicadores, padrões de vela). A query HTTP busca na abertura da tela e quando a conexão volta; entre uma e outra, a tela vive do que os avisos entregam.
 
 ## Antes de commitar
 
