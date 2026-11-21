@@ -185,6 +185,50 @@ def test_resumed_match_rebuilds_the_fund_from_the_saved_rows(match, started):  #
     assert len(after.days) == len(before.days) + 1
 
 
+def test_resumed_match_keeps_the_merged_quota_in_the_catalog(started):  # noqa: F811
+    """A incorporada sai dos mapas vivos, mas a cota dela segue no catálogo do motor: o histórico
+    de compras e vendas (e o IR sobre ele) a lê pela classe FUND, ao vivo e depois de recarregar."""
+    sim, ana = empty_match()
+    assert sim._funds is not None
+    book = sim._funds
+    for ticker, name, cash in ((TICKER, "Aura", 100000), ("BORE11", "Boreal", 50000)):
+        fund = book.found(
+            ticker=ticker,
+            name=name,
+            founder_user_id=ana.id,
+            manager_user_id=ana.id,
+            management_fee=Decimal("0.02"),
+            performance_fee=Decimal("0.20"),
+        )
+        fund.account.quotas = Decimal(1000)
+        sim._engine.add_cash(fund.account.client_id, Decimal(cash))
+        book.open_offer(ticker, Decimal(200))
+    # Ana compra e vende a cota da Boreal no mesmo dia: a venda entra no histórico do IR
+    broker = sim._engine.broker
+    broker.buy_from_fund(ana.client_id, "BORE11", Decimal(10), Decimal(50))
+    broker.sell_to_fund(ana.client_id, "BORE11", Decimal(10), Decimal(55))
+    mother, daughter = book.get(TICKER), book.get("BORE11")
+    plan = book._merge_plan(mother, daughter)
+    book._merge(mother, daughter, plan, sim._current_date)
+    EventManager.flush()
+    portfolio_id = repository.portfolio.ids(sim.settings.id)[ana.id]
+    assert book.is_merged("BORE11")
+    assert sim._engine.stocks["BORE11"].asset_class is AssetClass.FUND
+    summary = repository.simulation.get_simulation(sim.settings.id)
+    assert summary is not None
+
+    SimulationLoader.load(summary)
+
+    resumed = SimulationManager.get_active_simulation()
+    assert resumed._funds is not None
+    assert resumed._funds.is_merged("BORE11")
+    assert resumed._engine.stocks["BORE11"].asset_class is AssetClass.FUND
+    assert resumed._engine.stocks["BORE11"].name == "Boreal"
+    assert "BORE11" not in resumed._engine.broker.maker_accounts
+    assert "BORE11" not in resumed._engine.ranking_prices
+    assert resumed._engine.assess_income_tax(portfolio_id)
+
+
 def test_bot_buy_is_cut_to_twenty_percent_of_the_quotas(match):
     """O teto do bot é 20% das cotas (1.120 em circulação: 224), descontadas a posição e as
     compras abertas dele."""

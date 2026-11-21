@@ -396,6 +396,7 @@ class FundBook:
         for terms in repository.fund.of_simulation(simulation_id):
             if terms.merged_into_fund_id is not None:
                 self._merged[terms.id] = terms
+                self._register_quota(terms)
                 continue
             self._load(terms)
 
@@ -2685,6 +2686,11 @@ class FundBook:
         self._engine.broker.maker_accounts[terms.ticker] = account
         SimulationManager.add_fund_portfolios({terms.client_id: terms.portfolio_id})
         SimulationManager.add_fund_names({terms.client_id: terms.name})
+        self._register_quota(terms)
+        return fund
+
+    def _register_quota(self, terms: FundDTO) -> None:
+        """A cota da gestora, viva ou incorporada, fica no catálogo do motor como FUND: o histórico dela (IR, extrato, relatórios) a lê por ali."""
         self._engine.add_created_stock(
             StockDTO(
                 id=terms.stock_id,
@@ -2693,7 +2699,6 @@ class FundBook:
                 asset_class=AssetClass.FUND,
             )
         )
-        return fund
 
     def _announce(self, day: date, headline: Headline) -> None:
         if self._publish is not None:
