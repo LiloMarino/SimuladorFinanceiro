@@ -36,6 +36,8 @@ PHRASES = {
     "less_than_equal": "O campo {field} precisa ser no máximo {le:g}.",
     "string_too_short": "O campo {field} é curto demais (mínimo de {min_length}).",
     "string_too_long": "O campo {field} é longo demais (máximo de {max_length}).",
+    "decimal_whole_digits": "O campo {field} passa do maior valor aceito.",
+    "decimal_max_digits": "O campo {field} passa do maior valor aceito.",
     "enum": "O campo {field} aceita apenas: {expected}.",
     "literal_error": "O campo {field} aceita apenas: {expected}.",
 }

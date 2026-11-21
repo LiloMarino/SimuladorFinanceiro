@@ -1,6 +1,5 @@
 import { Controller, type UseFormReturn } from "react-hook-form";
-import { Info, Lock } from "lucide-react";
-import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
+import { Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
 import {
@@ -13,7 +12,7 @@ import {
   FieldTitle,
 } from "@/shared/components/ui/field";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
-import { EXPANSIONS, type ExpansionKey } from "@/shared/lib/expansions";
+import type { ExpansionKey } from "@/shared/lib/expansions";
 import { BASE_GAME_TYPE_OPTIONS, EXPANSION_GAME_TYPE_OPTIONS } from "@/shared/lib/game-types";
 import type { GameType } from "@/types";
 import type { SimulationFormValues } from "../../lib/simulation-form";
@@ -69,7 +68,6 @@ export function GameTypeFields({ form, readOnly, expansions, grouping, onSelect 
                 disabled={readOnly}
               >
                 {EXPANSION_GAME_TYPE_OPTIONS.map(([value, type]) => {
-                  const expansion = EXPANSIONS[type.expansion];
                   const expansionOn = expansions[type.expansion];
                   const teamsBlock = grouping === "TEAMS";
                   return (
@@ -87,18 +85,6 @@ export function GameTypeFields({ form, readOnly, expansions, grouping, onSelect 
                         <FieldContent>
                           <FieldTitle>{type.label}</FieldTitle>
                           <FieldDescription>{type.description}</FieldDescription>
-                          {!expansionOn && (
-                            <Badge variant="secondary" className="w-fit">
-                              <Lock className="size-3.5" />
-                              Ligue a expansão {expansion.label}
-                            </Badge>
-                          )}
-                          {expansionOn && field.value === value && (
-                            <Badge variant={type.expansion === "funds" ? "fund" : "government"} className="w-fit">
-                              <ExpansionEmblem expansion={type.expansion} size="xs" />
-                              expansão {expansion.label} ligada e travada
-                            </Badge>
-                          )}
                           {expansionOn && teamsBlock && (
                             <Badge variant="secondary" size="sm" className="w-fit">
                               Só em Todos contra todos

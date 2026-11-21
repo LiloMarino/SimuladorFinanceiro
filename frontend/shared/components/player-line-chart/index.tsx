@@ -61,7 +61,8 @@ export function PlayerLineChart({
   const dateTicks = xTicks ?? (axis === "date" ? monthStartTicks(firstRow.x, lastRow.x) : undefined);
   const yOf = (value: number) => MARGIN.top + (1 - (value - floor) / (ceiling - floor || 1)) * PLOT_HEIGHT;
 
-  // Último valor de cada linha visível, do topo para baixo; o rótulo que colide desce
+  // Último valor de cada linha visível, do topo para baixo; o rótulo que colide desce e nenhum passa da base do gráfico
+  const bottom = MARGIN.top + PLOT_HEIGHT;
   const ends = shown
     .map((s) => {
       const last = [...data].reverse().find((row) => row.numbers[s.key] !== undefined);
@@ -73,6 +74,10 @@ export function PlayerLineChart({
     .reduce<{ series: LineSeries; y: number }[]>((placed, end) => {
       const previous = placed.at(-1);
       return [...placed, { ...end, y: previous ? Math.max(end.y, previous.y + LABEL_SPACING) : end.y }];
+    }, [])
+    .reduceRight<{ series: LineSeries; y: number }[]>((placed, end) => {
+      const next = placed[0];
+      return [{ ...end, y: Math.min(end.y, next ? next.y - LABEL_SPACING : bottom) }, ...placed];
     }, []);
 
   return (

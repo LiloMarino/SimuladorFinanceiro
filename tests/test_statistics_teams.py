@@ -29,6 +29,8 @@ from backend.features.statistics.teams import (
 )
 from tests.conftest import SetIndicator
 
+FELL = date(2020, 1, 20)
+
 
 def history(networths: list[str]) -> list[PatrimonialHistoryDTO]:
     start = date(2020, 1, 1)
@@ -386,7 +388,7 @@ def test_an_eliminated_takeover_team_ranks_below_the_ones_still_standing():
         ],
         game_type=GameType.FUND_TAKEOVER,
         in_teams=True,
-        eliminated=frozenset({(1, "Caio"), (1, "Duda")}),
+        eliminated={(1, "Caio"): FELL, (1, "Duda"): FELL},
     )
 
     assert [t.team for t in report.teams] == [1, 2]
@@ -402,7 +404,7 @@ def test_a_team_with_one_member_still_standing_is_not_eliminated():
         ],
         game_type=GameType.FUND_TAKEOVER,
         in_teams=True,
-        eliminated=frozenset({(1, "Bia")}),
+        eliminated={(1, "Bia"): FELL},
     )
 
     assert [t.team for t in report.teams] == [2, 1]

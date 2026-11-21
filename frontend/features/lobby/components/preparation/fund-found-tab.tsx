@@ -1,7 +1,6 @@
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, CircleAlert, CircleDashed } from "lucide-react";
-import { FundMark } from "@/shared/components/fund-mark";
 import { InfoHint } from "@/shared/components/info-hint";
 import { Badge } from "@/shared/components/ui/badge";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
@@ -28,30 +27,7 @@ import { PreparationFooter } from "./preparation-footer";
 import { PreparationSection } from "./preparation-section";
 import type { FundModeProps } from "./fund-tab";
 
-const TIMELINE = [
-  {
-    when: "1º dia",
-    title: "Fundada, vazia",
-    text: "Fechada, com 0 cotas e patrimônio de R$ 0,00. Nada sai do seu caixa sozinho.",
-  },
-  {
-    when: "Quando quiser",
-    title: "Levar da carteira",
-    text: "Dinheiro, ações e títulos viram cotas de R$ 100,00, todas suas.",
-  },
-  {
-    when: "Enquanto fechada",
-    title: "Só você tem cotas",
-    text: "Dá para levar mais da carteira até abrir a primeira oferta pública.",
-  },
-  {
-    when: "Quando abrir",
-    title: "Oferta pública",
-    text: "A sala tem 5 pregões para comprar cotas; depois elas são negociadas na bolsa.",
-  },
-];
-
-/** Fundar a minha gestora: nome e sigla à esquerda; prévia, taxas e as gestoras da sala à direita. */
+/** Fundar a minha gestora: identidade e co-gestores à esquerda; taxas e as gestoras da sala à direita. */
 export function FundFoundTab({
   preparations,
   mine: myPreparation,
@@ -106,8 +82,6 @@ export function FundFoundTab({
     nameClash.length > 0
       ? `“${name.trim()}”: ${nameClash.join(" e ")} preparou uma gestora com o mesmo nome.`
       : undefined;
-  const previewName = name.trim() || "Sua gestora";
-  const previewTicker = letters.length === 4 ? tickerOf(letters) : "ABCD11";
 
   return (
     <form onSubmit={(event) => event.preventDefault()} className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto]">
@@ -117,7 +91,7 @@ export function FundFoundTab({
           disabled={locked}
           className="grid min-w-0 grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] items-start gap-6 disabled:opacity-55"
         >
-          {/* Identidade e linha do tempo */}
+          {/* Identidade e co-gestores */}
           <div className="grid min-w-0 gap-4.5">
             <PreparationSection title="Identidade" hint="salva no perfil">
               <Controller
@@ -179,59 +153,20 @@ export function FundFoundTab({
                   </Field>
                 )}
               />
+              <span className="text-xs text-muted-foreground">
+                Ela nasce fechada e vazia no 1º dia: nada sai do seu caixa sozinho. Quando quiser, você leva da carteira
+                e abre a oferta pública à sala.
+              </span>
             </PreparationSection>
 
             {/* Co-gestores */}
             {mine && (
               <FundComanagersSection comanagers={myPreparation.fund_comanagers} humans={humans} nickname={nickname} />
             )}
-
-            {/* Linha do tempo */}
-            <PreparationSection title="Como ela nasce" hint="na partida">
-              <ol className="grid">
-                {TIMELINE.map((step) => (
-                  <li key={step.title} className="grid grid-cols-[6.5rem_1fr] gap-3 border-t border-muted py-2.5">
-                    <span className="font-mono text-xs text-muted-foreground">{step.when}</span>
-                    <div className="grid gap-0.5">
-                      <b className="text-[13px] font-semibold">{step.title}</b>
-                      <span className="text-xs text-muted-foreground">{step.text}</span>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </PreparationSection>
           </div>
 
-          {/* Prévia, taxas e gestoras da sala */}
+          {/* Taxas e gestoras da sala */}
           <div className="grid min-w-0 gap-4.5">
-            <PreparationSection title="Como a sala vai ver" hint="prévia">
-              <div className="grid gap-2 rounded-[10px] bg-subtle px-3.5 py-3 ring-1 ring-border ring-inset">
-                <span className="text-xs text-muted-foreground">No menu, em Expansões</span>
-                <div className="rounded-lg bg-sidebar p-1.5">
-                  <div className="flex items-center gap-2.5 rounded-md bg-sidebar-accent px-2.5 py-2 text-sm text-sidebar-foreground">
-                    <FundMark name={previewName} />
-                    <span className="truncate" title={previewName}>
-                      {previewName}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-xs text-muted-foreground">No caixa da topbar</span>
-                <span className="inline-flex max-w-full items-center gap-1.5 justify-self-start rounded-lg bg-card px-2.5 py-1.5 text-[13px] ring-1 ring-input ring-inset">
-                  <span className="text-muted-foreground">Caixa ·</span>
-                  <b className="truncate font-semibold" title={previewName}>
-                    {previewName}
-                  </b>
-                </span>
-                <span className="text-xs text-muted-foreground">No livro de ofertas</span>
-                <span className="inline-flex items-center gap-2 justify-self-start rounded-lg bg-card px-2.5 py-1.25 text-[13px] ring-1 ring-border ring-inset">
-                  <Badge variant="fund" numeric>
-                    {previewTicker}
-                  </Badge>
-                  <span className="text-muted-foreground">depois da 1ª oferta pública</span>
-                </span>
-              </div>
-            </PreparationSection>
-
             <PreparationSection title="Taxas" hint="na partida">
               <div className="grid gap-2 rounded-[10px] p-3 ring-1 ring-border ring-inset">
                 <span className="text-[13px]">Você escolhe na página da gestora, até o teto desta sala:</span>

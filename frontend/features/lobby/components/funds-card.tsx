@@ -9,7 +9,6 @@ import { cn } from "@/shared/lib/utils";
 import { managementFeeExample, performanceFeeExample } from "../lib/fund-rules";
 import type { SimulationFormValues } from "../lib/simulation-form";
 import { ExpansionIntro } from "./expansion-intro";
-import { ExpansionLockNote } from "./expansion-lock-note";
 
 const FUNDS = EXPANSIONS.funds;
 
@@ -17,15 +16,17 @@ type FundsCardProps = {
   form: UseFormReturn<SimulationFormValues>;
   /** Sem edição: convidado ou regras de uma partida salva */
   readOnly: boolean;
+  /** Chamado ao desligar a chave, para o tipo de partida que depende dela sair junto */
+  onTurnOff: () => void;
 };
 
 /** O cartão "Gestoras": a chave da expansão e os tetos das taxas. */
-export function FundsCard({ form, readOnly }: FundsCardProps) {
+export function FundsCard({ form, readOnly, onTurnOff }: FundsCardProps) {
   const [enabled, managementCap, performanceCap, gameType] = useWatch({
     control: form.control,
     name: ["fundsEnabled", "fundMaxManagementFee", "fundMaxPerformanceFee", "gameType"],
   });
-  const lockedByType = gameType === "FUND_TAKEOVER";
+  const takeover = gameType === "FUND_TAKEOVER";
   const monthlyFee = managementFeeExample(managementCap);
   const performance = performanceFeeExample(performanceCap);
 
@@ -39,15 +40,15 @@ export function FundsCard({ form, readOnly }: FundsCardProps) {
             <Switch
               aria-label={`Ligar ${FUNDS.label}`}
               checked={field.value}
-              disabled={readOnly || lockedByType}
-              onCheckedChange={field.onChange}
+              disabled={readOnly}
+              onCheckedChange={(checked) => {
+                field.onChange(checked);
+                if (!checked) onTurnOff();
+              }}
             />
           )}
         />
       </ExpansionIntro>
-
-      {/* Tipo de partida que depende da expansão */}
-      {lockedByType && <ExpansionLockNote expansion="funds" gameType={gameType} />}
 
       {/* Tetos de taxa */}
       {enabled && (
@@ -146,7 +147,7 @@ export function FundsCard({ form, readOnly }: FundsCardProps) {
           </span>
 
           {/* Rota das regras da aquisição hostil */}
-          {lockedByType && (
+          {takeover && (
             <span className="text-xs leading-normal text-muted-foreground">
               As regras da aquisição hostil, carência e mínimo de cotas no mercado, ficam embaixo do tipo, na aba
               Regras.

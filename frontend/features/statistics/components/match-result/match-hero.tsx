@@ -385,8 +385,8 @@ interface MatchHeroProps {
 
 /** Topo do fim de partida: quem venceu, por qual critério, onde você ficou e o pódio. */
 export function MatchHero({ report, simulation, currentPlayerName }: MatchHeroProps) {
-  // Com um sobrevivente, ele é o vencedor mesmo que o patrimônio dos eliminados seja maior
-  const winner = report.players.find((p) => p.player_nickname === report.survivor_nickname) ?? report.players[0];
+  // O ranking do backend é a fonte única da ordem: o 1º é o vencedor
+  const winner = report.players[0];
   if (!winner) return null;
 
   const political = report.game_type === "POLITICAL";

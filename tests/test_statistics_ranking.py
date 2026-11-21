@@ -8,9 +8,11 @@ from pydantic import ValidationError
 
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
-from backend.core.enum import VictoryCriterion
+from backend.core.enum import GameType, VictoryCriterion
 from backend.features.statistics.ranking import build_overview
 from backend.routes.auth import UserRegisterRequest
+
+FELL = date(2020, 1, 20)
 
 
 def player(
@@ -131,17 +133,74 @@ def test_unexpected_count_follows_the_player_and_defaults_to_zero():
 
 
 def test_the_last_active_human_survives_even_when_an_eliminated_one_ranks_higher():
-    """Com a Bia eliminada (patrimônio maior, congelado), a Ana é a única humana ativa e vence."""
+    """Com a Bia eliminada (patrimônio maior, congelado), a Ana é a única humana ativa e fica em 1º."""
     report = build_overview(
         [player("Ana", networth="11000"), player("Bia", networth="15000")],
-        eliminated=frozenset({(1, "Bia")}),
+        game_type=GameType.FUND_TAKEOVER,
+        eliminated={(1, "Bia"): FELL},
     )
 
-    assert [(p.player_nickname, p.eliminated) for p in report.players] == [
-        ("Bia", True),
-        ("Ana", False),
+    assert [(p.player_nickname, p.eliminated, p.position) for p in report.players] == [
+        ("Ana", False, 1),
+        ("Bia", True, 2),
     ]
     assert report.survivor_nickname == "Ana"
+
+
+def test_takeover_ranks_the_eliminated_from_the_last_to_fall_to_the_first():
+    """Quem caiu por último vem logo depois do sobrevivente, mesmo com patrimônio menor."""
+    report = build_overview(
+        [
+            player("Ana", networth="10000"),
+            player("Bia", networth="30000"),
+            player("Caio", networth="20000"),
+            player("Duda", networth="25000"),
+        ],
+        game_type=GameType.FUND_TAKEOVER,
+        eliminated={
+            (1, "Bia"): date(2020, 1, 5),
+            (1, "Caio"): date(2020, 1, 20),
+            (1, "Duda"): date(2020, 1, 12),
+        },
+    )
+
+    assert [p.player_nickname for p in report.players] == ["Ana", "Caio", "Duda", "Bia"]
+    assert report.survivor_nickname == "Ana"
+
+
+def test_takeover_breaks_a_tie_on_the_elimination_day_by_networth():
+    report = build_overview(
+        [
+            player("Ana", networth="10000"),
+            player("Bia", networth="20000"),
+            player("Caio", networth="30000"),
+        ],
+        game_type=GameType.FUND_TAKEOVER,
+        eliminated={(1, "Bia"): FELL, (1, "Caio"): FELL},
+    )
+
+    assert [p.player_nickname for p in report.players] == ["Ana", "Caio", "Bia"]
+
+
+def test_takeover_gap_is_empty_for_an_eliminated_player_above_the_survivor():
+    """Quem caiu com patrimônio maior não está atrás do 1º no valor: sem distância."""
+    report = build_overview(
+        [player("Ana", networth="10000"), player("Bia", networth="30000")],
+        game_type=GameType.FUND_TAKEOVER,
+        eliminated={(1, "Bia"): FELL},
+    )
+
+    assert [p.leader_gap for p in report.players] == [Decimal("0"), None]
+
+
+def test_classic_ranking_follows_the_criterion_without_eliminations():
+    """Sem eliminados (todas as partidas fora da aquisição hostil) o ranking segue só o critério."""
+    players = [player("Ana", networth="11000"), player("Bia", networth="15000")]
+
+    report = build_overview(players, VictoryCriterion.NETWORTH)
+
+    assert [p.player_nickname for p in report.players] == ["Bia", "Ana"]
+    assert report.survivor_nickname is None
 
 
 def test_without_eliminated_players_nobody_is_the_survivor():
@@ -157,7 +216,7 @@ def test_two_active_humans_left_means_no_survivor_yet():
             player("Bia", networth="15000"),
             player("Caio", networth="9000"),
         ],
-        eliminated=frozenset({(1, "Caio")}),
+        eliminated={(1, "Caio"): FELL},
     )
 
     assert report.survivor_nickname is None

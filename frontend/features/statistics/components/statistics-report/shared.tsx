@@ -208,6 +208,7 @@ export function PlayerToggle({
     <ToggleGroup
       variant="segmented"
       aria-label="Jogador"
+      className="max-w-full flex-wrap"
       value={current ? [current] : []}
       onValueChange={(values) => values[0] && onSelect(values[0])}
     >

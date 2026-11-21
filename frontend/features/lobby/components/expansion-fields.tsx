@@ -10,7 +10,7 @@ import { InfoHint } from "@/shared/components/info-hint";
 import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
-import { EXPANSIONS } from "@/shared/lib/expansions";
+import { EXPANSIONS, type ExpansionKey } from "@/shared/lib/expansions";
 import { isIsoDate } from "@/shared/lib/utils/date-field";
 import { displayIsoDate } from "@/shared/lib/utils/display";
 import { cn } from "@/shared/lib/utils";
@@ -30,7 +30,6 @@ import {
 import { useInitialAccount } from "../hooks/queries/useInitialAccount";
 import type { SimulationFormValues } from "../lib/simulation-form";
 import { ExpansionIntro } from "./expansion-intro";
-import { ExpansionLockNote } from "./expansion-lock-note";
 import { FundsCard } from "./funds-card";
 
 const GOVERNMENT = EXPANSIONS.government;
@@ -41,23 +40,16 @@ type ExpansionFieldsProps = {
   readOnly: boolean;
   /** Regras de uma partida que já começou: as expansões ficam como foram gravadas */
   locked: boolean;
+  /** Chamado ao desligar uma expansão, para o tipo de partida que depende dela sair junto */
+  onExpansionOff: (expansion: ExpansionKey) => void;
 };
 
 /** A aba "Expansões" das regras: um cartão por expansão, com as chaves e as regras de cada uma. */
-export function ExpansionFields({ form, readOnly, locked }: ExpansionFieldsProps) {
-  const [enabled, startDate, endDate, firstElection, difficulty, gameType, fundsEnabled] = useWatch({
+export function ExpansionFields({ form, readOnly, locked, onExpansionOff }: ExpansionFieldsProps) {
+  const [enabled, startDate, endDate, firstElection, difficulty, fundsEnabled] = useWatch({
     control: form.control,
-    name: [
-      "governmentEnabled",
-      "startDate",
-      "endDate",
-      "firstElection",
-      "computerDifficulty",
-      "gameType",
-      "fundsEnabled",
-    ],
+    name: ["governmentEnabled", "startDate", "endDate", "firstElection", "computerDifficulty", "fundsEnabled"],
   });
-  const lockedByType = gameType === "POLITICAL";
   const longEnough = spansYears(startDate, endDate, GOVERNMENT_MIN_YEARS);
   const initialAccount = useInitialAccount(startDate, { enabled: enabled && isIsoDate(startDate) });
   const opening = campaignOpening(startDate, firstElection);
@@ -65,6 +57,7 @@ export function ExpansionFields({ form, readOnly, locked }: ExpansionFieldsProps
   // Ligar sugere a data da primeira eleição
   const toggle = (checked: boolean, onChange: (checked: boolean) => void) => {
     onChange(checked);
+    if (!checked) onExpansionOff("government");
     if (checked && !form.getValues("firstElection")) {
       form.setValue("firstElection", defaultFirstElection(startDate, endDate), { shouldValidate: true });
     }
@@ -113,15 +106,12 @@ export function ExpansionFields({ form, readOnly, locked }: ExpansionFieldsProps
               <Switch
                 aria-label={`Ligar ${GOVERNMENT.label}`}
                 checked={field.value}
-                disabled={readOnly || lockedByType || (!longEnough && !field.value)}
+                disabled={readOnly || (!longEnough && !field.value)}
                 onCheckedChange={(checked) => toggle(checked, field.onChange)}
               />
             )}
           />
         </ExpansionIntro>
-
-        {/* Tipo de partida que depende da expansão */}
-        {lockedByType && <ExpansionLockNote expansion="government" gameType={gameType} />}
 
         {/* Partida curta demais */}
         {!longEnough && (
@@ -382,7 +372,7 @@ export function ExpansionFields({ form, readOnly, locked }: ExpansionFieldsProps
         )}
       </div>
 
-      <FundsCard form={form} readOnly={readOnly} />
+      <FundsCard form={form} readOnly={readOnly} onTurnOff={() => onExpansionOff("funds")} />
     </div>
   );
 }

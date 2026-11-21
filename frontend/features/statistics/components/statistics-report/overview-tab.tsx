@@ -331,7 +331,7 @@ function Headline({
                   . A meta é a mesma para todos, então quem tem mais patrimônio está mais perto.
                 </span>
               )}
-              {you && measure !== "GOAL" && you.position > 1 && (
+              {you && measure !== "GOAL" && you.position > 1 && you.leader_gap !== null && (
                 <span className="text-[13px] text-muted-foreground">
                   {finished ? "Ficou" : "Faltam"}{" "}
                   <b className="text-foreground">{displayCriterionGap(measure, you.leader_gap)}</b>{" "}

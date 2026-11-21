@@ -129,7 +129,7 @@ export function ContributeFundDialog({ open, onOpenChange, vigenceDays }: Contri
                   {fieldState.error ? (
                     <FieldError errors={[fieldState.error]} />
                   ) : (
-                    <FieldDescription>Os atalhos trocam o valor do campo.</FieldDescription>
+                    <FieldDescription>Até R$ 500 bi por aporte. Os atalhos trocam o valor do campo.</FieldDescription>
                   )}
                 </Field>
               )}

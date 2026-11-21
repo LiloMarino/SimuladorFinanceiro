@@ -83,7 +83,7 @@ def build_overview_report(simulation_ids: list[int]) -> OverviewReportDTO:
         team_naming=team_naming,
         team_names=_team_names(simulation_ids),
         delinquent=frozenset(key for key, s in standings.items() if s.delinquent),
-        eliminated=frozenset(eliminated),
+        eliminated=eliminated,
         unexpected=_unexpected_counts(simulation_ids),
         parties=_party_ranking(simulation_ids),
     )

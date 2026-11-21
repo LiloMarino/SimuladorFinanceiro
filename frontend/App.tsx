@@ -23,6 +23,7 @@ import {
   Megaphone,
   Newspaper,
 } from "lucide-react";
+import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import type { NavItem } from "@/types";
 import VariableIncomePage from "@/features/variable-income/pages/variable-income";
 import VariableIncomeDetailPage from "@/features/variable-income/pages/variable-income-details";
@@ -177,51 +178,53 @@ export default function App() {
               <PageLabelProvider routeLabels={routeLabels}>
                 <SimulationProvider>
                   <TutorialProvider>
-                    <Routes>
-                      <Route element={<GuardLayout />}>
-                        <Route path="/login" element={<LoginPage />} />
-                        <Route path="/lobby" element={<LobbyPage />} />
-                        <Route path="/join" element={<JoinMatchPage />} />
-                        <Route element={<PlainLayout />}>
-                          <Route path="/backtest/new" element={<BacktestNewPage />} />
-                          <Route path="/backtest/running" element={<BacktestRunningPage />} />
-                          <Route path="/import-assets" element={<ImportAssetsPage />} />
-                          <Route path="/compare-simulations" element={<CompareSimulationsPage />} />
-                          <Route path="/match-result/:simulationId" element={<MatchResultPage />} />
+                    <TooltipProvider>
+                      <Routes>
+                        <Route element={<GuardLayout />}>
+                          <Route path="/login" element={<LoginPage />} />
+                          <Route path="/lobby" element={<LobbyPage />} />
+                          <Route path="/join" element={<JoinMatchPage />} />
+                          <Route element={<PlainLayout />}>
+                            <Route path="/backtest/new" element={<BacktestNewPage />} />
+                            <Route path="/backtest/running" element={<BacktestRunningPage />} />
+                            <Route path="/import-assets" element={<ImportAssetsPage />} />
+                            <Route path="/compare-simulations" element={<CompareSimulationsPage />} />
+                            <Route path="/match-result/:simulationId" element={<MatchResultPage />} />
+                          </Route>
+                          <Route element={<MainLayout navItems={navItems} />}>
+                            <Route path="/" element={<PortfolioPage />} />
+                            <Route path="/variable-income" element={<VariableIncomePage />} />
+                            <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
+                            <Route path="/fixed-income" element={<FixedIncomePage />} />
+                            <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
+                            <Route path="/treasury" element={<TreasuryPage />} />
+                            <Route path="/portfolio" element={<PortfolioPage />} />
+                            <Route path="/strategies" element={<StrategiesPage />} />
+                            <Route path="/performance" element={<PerformancePage />} />
+                            <Route path="/settings" element={<SettingsPage />} />
+                            <Route path="/goal" element={<GoalPage />} />
+                            <Route path="/credit" element={<CreditPage />} />
+                            <Route path="/statistics" element={<StatisticsPage />} />
+                            <Route path="/economy" element={<EconomyPage />} />
+                            <Route path="/journal" element={<JournalPage />} />
+                            <Route path="/election" element={<ElectionPage />} />
+                            <Route path="/map" element={<MapPage />} />
+                            <Route path="/government" element={<GovernmentPage />} />
+                            <Route path="/funds" element={<FundsPage />} />
+                            <Route path="/funds/new" element={<FundFoundPage />} />
+                            <Route path="/funds/:fundId" element={<FundDetailsPage />} />
+                            <Route path="/offers" element={<FundOffersPage />} />
+                          </Route>
+                          <Route element={<SimulationModeLayout navItems={navItems} />}>
+                            <Route path="/correlation" element={<CorrelationPage />} />
+                            <Route path="/achievements" element={<AchievementsPage />} />
+                          </Route>
                         </Route>
-                        <Route element={<MainLayout navItems={navItems} />}>
-                          <Route path="/" element={<PortfolioPage />} />
-                          <Route path="/variable-income" element={<VariableIncomePage />} />
-                          <Route path="/variable-income/:ticker" element={<VariableIncomeDetailPage />} />
-                          <Route path="/fixed-income" element={<FixedIncomePage />} />
-                          <Route path="/fixed-income/:id" element={<FixedIncomeDetailPage />} />
-                          <Route path="/treasury" element={<TreasuryPage />} />
-                          <Route path="/portfolio" element={<PortfolioPage />} />
-                          <Route path="/strategies" element={<StrategiesPage />} />
-                          <Route path="/performance" element={<PerformancePage />} />
-                          <Route path="/settings" element={<SettingsPage />} />
-                          <Route path="/goal" element={<GoalPage />} />
-                          <Route path="/credit" element={<CreditPage />} />
-                          <Route path="/statistics" element={<StatisticsPage />} />
-                          <Route path="/economy" element={<EconomyPage />} />
-                          <Route path="/journal" element={<JournalPage />} />
-                          <Route path="/election" element={<ElectionPage />} />
-                          <Route path="/map" element={<MapPage />} />
-                          <Route path="/government" element={<GovernmentPage />} />
-                          <Route path="/funds" element={<FundsPage />} />
-                          <Route path="/funds/new" element={<FundFoundPage />} />
-                          <Route path="/funds/:fundId" element={<FundDetailsPage />} />
-                          <Route path="/offers" element={<FundOffersPage />} />
-                        </Route>
-                        <Route element={<SimulationModeLayout navItems={navItems} />}>
-                          <Route path="/correlation" element={<CorrelationPage />} />
-                          <Route path="/achievements" element={<AchievementsPage />} />
-                        </Route>
-                      </Route>
-                      {/* 404 */}
-                      <Route path="*" element={<ErrorPage />} />
-                    </Routes>
-                    <AppToaster />
+                        {/* 404 */}
+                        <Route path="*" element={<ErrorPage />} />
+                      </Routes>
+                      <AppToaster />
+                    </TooltipProvider>
                   </TutorialProvider>
                 </SimulationProvider>
               </PageLabelProvider>

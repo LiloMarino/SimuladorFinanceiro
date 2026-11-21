@@ -17,6 +17,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { normalizeNumberString } from "@/shared/lib/utils";
 import { formatMoney } from "@/shared/lib/utils/format";
 import { displayDecimal, toCentsString } from "@/shared/lib/utils/display";
+import type { ExpansionKey } from "@/shared/lib/expansions";
 import { LIFE_DEFAULTS, withdrawalRateToField } from "@/shared/lib/financial-independence";
 import { POLITICAL_GAME_TYPE } from "@/shared/lib/game-types";
 import { DEFAULT_GOAL_MULTIPLE } from "@/shared/lib/goal";
@@ -24,6 +25,7 @@ import { PRICE_IMPACT_PRESETS, priceImpactModeOf, type PriceImpactMode } from "@
 import type { AppliedPreset, GameType, SimulationSettingsData } from "@/types";
 import type { CoverageCheck } from "../../lib/coverage";
 import { isPositiveMoney, isWithdrawalRate, withdrawalRateFraction } from "../../lib/life-rules";
+import { gameTypeWithoutExpansion } from "../../lib/expansion-game-type";
 import type { SimulationFormValues } from "../../lib/simulation-form";
 import { AssistanceFields } from "../assistance-fields";
 import { ExpansionFields } from "../expansion-fields";
@@ -144,6 +146,12 @@ export function RulesSheet({
       }
     }
     void form.trigger();
+  };
+
+  // Desligar a expansão devolve a Clássica ao tipo que depende dela, pelo mesmo caminho de uma escolha de tipo
+  const selectGameTypeWithoutExpansion = (expansion: ExpansionKey) => {
+    const next = gameTypeWithoutExpansion(gameType, expansion);
+    if (next !== gameType) selectGameType(next, (value) => form.setValue("gameType", value));
   };
 
   const selectImpactMode = (mode: PriceImpactMode) => {
@@ -272,7 +280,12 @@ export function RulesSheet({
         {/* Expansões */}
         {tab === "expansions" && (
           <div className="flex-1 overflow-y-auto px-6 py-5">
-            <ExpansionFields form={form} readOnly={readOnly} locked={locked} />
+            <ExpansionFields
+              form={form}
+              readOnly={readOnly}
+              locked={locked}
+              onExpansionOff={selectGameTypeWithoutExpansion}
+            />
           </div>
         )}
 

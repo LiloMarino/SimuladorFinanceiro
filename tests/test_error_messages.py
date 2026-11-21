@@ -8,6 +8,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.core import exceptions
+from backend.core.dto.government import ProposeMeasureRequest
 from backend.core.exceptions import http_exceptions
 from backend.routes import register_routes
 from backend.routes.error import UNEXPECTED_ERROR_MESSAGE
@@ -57,6 +58,10 @@ def client() -> TestClient:
     @app.get("/boom")
     def boom() -> None:
         raise RuntimeError("levels must be >= 2")
+
+    @app.post("/measure")
+    def measure(body: ProposeMeasureRequest) -> None:
+        pass
 
     @app.get("/typed")
     def typed(quantity: int) -> None:
@@ -146,3 +151,26 @@ def test_unknown_route_method_is_portuguese(client: TestClient) -> None:
 
     assert response.status_code == 405
     assert response.json() == {"message": "Este endereço não aceita esse método."}
+
+
+def test_measure_value_takes_the_largest_sovereign_fund_contribution(
+    client: TestClient,
+) -> None:
+    """R$ 100 bi e o teto de R$ 500 bi passam pelo corpo da proposta."""
+    for value in ("100000000000", "500000000000"):
+        response = client.post(
+            "/measure", json={"kind": "CONTRIBUTE_SOVEREIGN_FUND", "value": value}
+        )
+        assert response.status_code == 200, value
+
+
+@pytest.mark.parametrize("value", ["1000000000000", "1000000000000.5"])
+def test_measure_value_beyond_the_digits_has_its_own_phrase(
+    client: TestClient, value: str
+) -> None:
+    response = client.post(
+        "/measure", json={"kind": "CONTRIBUTE_SOVEREIGN_FUND", "value": value}
+    )
+
+    assert response.status_code == 422
+    assert response.json()["message"] == "O campo value passa do maior valor aceito."

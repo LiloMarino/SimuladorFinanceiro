@@ -146,7 +146,8 @@ export function HighlightsRow({
       />
       <Highlight
         label="Seu melhor mês"
-        value={best && `${displaySignedPercent(best.value)} · ${displayMonthSlashYear(best.month)}`}
+        value={best && displaySignedPercent(best.value)}
+        detail={best && displayMonthSlashYear(best.month)}
         tone={toneOf(best?.value)}
         player={best ? currentPlayerName : undefined}
         color={currentPlayerColor}

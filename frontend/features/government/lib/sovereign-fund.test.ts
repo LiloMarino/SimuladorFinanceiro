@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { billionsToField, CONTRIBUTION_SHORTCUTS_BILLIONS, fundCashLabel, shortcutLabel } from "./sovereign-fund";
 
 describe("aporte no Fundo Soberano", () => {
-  it("os atalhos vão de 10 a 100 bilhões", () => {
-    expect([...CONTRIBUTION_SHORTCUTS_BILLIONS]).toEqual([10, 25, 50, 100]);
+  it("os atalhos vão de 25 a 500 bilhões", () => {
+    expect([...CONTRIBUTION_SHORTCUTS_BILLIONS]).toEqual([25, 100, 250, 500]);
   });
 
   it("o atalho preenche o campo em reais e rotula em bilhões", () => {

@@ -1178,8 +1178,9 @@ class SelicRequest(BaseDTO):
 class ProposeMeasureRequest(BaseDTO):
     kind: MeasureKind
     # Alíquota (0.20), teto em reais ou pontos somados, conforme o tipo; o reajuste real
-    # pode ser negativo (o piso de cada tipo é validado pelo governo)
-    value: Annotated[Decimal, Field(ge=-1, max_digits=14, decimal_places=4)] | None = (
+    # pode ser negativo (o piso de cada tipo é validado pelo governo). Os 16 dígitos
+    # comportam o maior aporte no Fundo Soberano, R$ 500 bi, com 4 casas decimais
+    value: Annotated[Decimal, Field(ge=-1, max_digits=16, decimal_places=4)] | None = (
         None
     )
     sector: str | None = None

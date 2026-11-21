@@ -25,6 +25,7 @@ import type { AssetClass, FundDetails, OrderPreview, OrderPreviewRequest } from 
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
 import { ticketAccountHeading, ticketAccountSubmitLabel } from "../lib/order-ticket-account";
 import { FundQuotaBlock } from "./fund-quota-block";
+import { SovereignCashNotice } from "./sovereign-cash-notice";
 import { SovereignStake } from "./sovereign-stake";
 import { TicketAccountBand } from "./ticket-account-band";
 import { useSubmitOrder } from "@/shared/hooks/mutations/useSubmitOrder";
@@ -237,6 +238,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
       )}
       <CardContent>
         {tradeLock && <TradeLockNotice lock={tradeLock} />}
+        {sovereign && fund && <SovereignCashNotice account={fund} />}
         <div inert={locked} className={cn("grid gap-4", locked && "mt-4 opacity-55")}>
           {!locked && quotaOnFundAccount && (
             <PersonalAccountNotice>

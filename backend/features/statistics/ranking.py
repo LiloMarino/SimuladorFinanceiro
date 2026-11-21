@@ -1,6 +1,7 @@
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from datetime import date
 from decimal import Decimal
 
 from backend.core.dto.player_history import PlayerHistoryDTO
@@ -33,7 +34,7 @@ def build_overview(
     team_naming: TeamNaming = TeamNaming.COLOR,
     team_names: dict[int, str] | None = None,
     delinquent: frozenset[tuple[int, str]] = frozenset(),
-    eliminated: frozenset[tuple[int, str]] = frozenset(),
+    eliminated: Mapping[tuple[int, str], date] | None = None,
     unexpected: dict[tuple[int, str], int] | None = None,
     parties: list[PartyRankingDTO] | None = None,
 ) -> OverviewReportDTO:
@@ -47,21 +48,29 @@ def build_overview(
     dia, o maior patrimônio; sem ninguém na meta, vence quem ficou mais perto.
 
     `delinquent` traz quem tem parcela em atraso (simulação e apelido), `eliminated`
-    quem perdeu a assembleia da própria gestora no modo aquisição hostil e `unexpected`,
-    quantos imprevistos de vida cada um sofreu (sem eles, zero).
+    o dia em que cada um perdeu a assembleia da própria gestora no modo aquisição
+    hostil e `unexpected`, quantos imprevistos de vida cada um sofreu (sem eles, zero).
 
-    Com eliminados e um único humano ativo, esse jogador é o sobrevivente e vence.
+    Na aquisição hostil, quem segue de pé vem primeiro, pelo patrimônio, e os
+    eliminados depois: de quem caiu por último para quem caiu primeiro, com o
+    patrimônio desempatando quem caiu no mesmo dia. Com um único humano ativo, esse
+    jogador é o sobrevivente e vence.
 
     Em equipes, o valor da equipe em cada critério é a média dos membros e a
     equipe com a melhor média vence; o patrimônio médio desempata. Na meta, a
     média das frações é o patrimônio médio ÷ meta. A equipe eliminada (todos os
     membros em `eliminated`) fica abaixo das que seguem de pé.
     """
+    eliminated = eliminated or {}
     measure = _measure(criterion, game_type)
-    performances = sorted(
-        (_performance(player) for player in players),
-        key=lambda p: _ranking_key(measure, p),
-        reverse=True,
+    performances = _standing_first(
+        sorted(
+            (_performance(player) for player in players),
+            key=lambda p: _ranking_key(measure, p),
+            reverse=True,
+        ),
+        measure,
+        eliminated,
     )
 
     by_score = game_type is GameType.CLASSIC and criterion is VictoryCriterion.SCORE
@@ -156,6 +165,32 @@ type Performance = tuple[
 type Measure = Callable[[Performance], Decimal | None]
 
 
+def _standing_first(
+    performances: list[Performance],
+    measure: Measure,
+    eliminated: Mapping[tuple[int, str], date],
+) -> list[Performance]:
+    """Quem segue de pé mantém a ordem do critério (o único humano de pé, na frente); os eliminados vêm depois, do último a cair ao primeiro."""
+    if not eliminated:
+        return performances
+
+    def key(performance: Performance) -> tuple[int, str]:
+        return performance[0].simulation_id, performance[0].player_nickname
+
+    standing = [p for p in performances if key(p) not in eliminated]
+    humans = [p for p in standing if not p[0].is_bot]
+    if len(humans) == 1:
+        # O sobrevivente vence, mesmo com um bot de pé na frente dele no patrimônio
+        standing.remove(humans[0])
+        standing.insert(0, humans[0])
+    fallen = sorted(
+        (p for p in performances if key(p) in eliminated),
+        key=lambda p: (eliminated[key(p)], _ranking_key(measure, p)),
+        reverse=True,
+    )
+    return standing + fallen
+
+
 @dataclass(frozen=True)
 class _RankedTeam:
     """Equipe já ranqueada, com a contribuição de cada membro para a média dela."""
@@ -168,7 +203,7 @@ def _rank_teams(
     performances: list[Performance],
     measure: Measure,
     by_score: bool,
-    eliminated: frozenset[tuple[int, str]],
+    eliminated: Mapping[tuple[int, str], date],
     names: dict[int, str],
 ) -> list[_RankedTeam]:
     groups: dict[int, list[Performance]] = defaultdict(list)
@@ -330,7 +365,10 @@ def _criterion_value(
 
 
 def _gap(leader: Decimal | None, value: Decimal | None) -> Decimal | None:
-    return leader - value if leader is not None and value is not None else None
+    """A distância ao 1º no critério; quem está à frente dele no valor (eliminado com patrimônio maior) não tem distância."""
+    if leader is None or value is None or value > leader:
+        return None
+    return leader - value
 
 
 def _weakest_axis(score: ScoreDTO | None) -> ScoreAxis | None:
