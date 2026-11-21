@@ -83,7 +83,6 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
-| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -103,7 +102,7 @@
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (26 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (27 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -132,6 +131,7 @@
 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | — | — | ✅ |
+| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 
 </details>
@@ -148,7 +148,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 4/23 concluídos
+> **Progresso:** 5/23 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -156,7 +156,7 @@
 | 2 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | ✅ Concluído |
 | 3 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | — | ✅ Concluído |
 | 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ✅ Concluído |
-| 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ⏳ Pendente |
+| 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ✅ Concluído |
 | 6 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | ⏳ Pendente |
 | 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | — | ⏳ Pendente |
 | 8 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ⏳ Pendente |
@@ -269,7 +269,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 · 6º | 0 | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 · 7º | 13 | Alto | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 8º | 3 | Médio | Bom | ⏳ |
@@ -335,7 +334,6 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
-| **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F320** | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
 | **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Médio | Baixo | Alto | Bom |
@@ -565,9 +563,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 **Aceite:** a página mostra card e séries para toda profissão; a troca no meio da partida tem teste; `pnpm run check` verde.
 
-<a id="f319"></a>
-**F319 — Página Estratégias segue a conta ativa.** Do playtest de 20/11. O automático da gestora mora na aba Configurações e não tem o que a página Estratégias tem: gráfico de sinais, prévia antes de salvar, confirmação ao desligar ou trocar, registro completo, painel de resultado e parâmetros salvos no perfil. A página Estratégias opera só a conta pessoal (`useMyStrategy` busca `/api/strategies/me`) e não diz isso, e quem gere a gestora acha que ela mexe no automático da gestora. Decidido: a página Estratégias opera a conta escolhida no topo, como a boleta, e diz no cabeçalho qual conta é; a aba Configurações da gestora fica com um resumo do automático e o link para a página. O aviso de boleta travada (`trade-lock-notice.tsx`) desliga o automático de qualquer conta, não só da pessoal.
-
 <a id="f320"></a>
 **F320 — Ações do jogador sem espera em velocidade alta.** Do playtest de 20/11: em velocidade alta, diálogos e ações ficam carregando sem fim ou demoram muito. O loop (`simulation_loop.py`) segura o lock da partida durante o dia inteiro e só solta no intervalo entre dias (5 a 10 ms a 100x). O lock não é justo e volta direto para o loop, e as rotas de ordem, diálogo, pausa e velocidade esperam por ele sem prazo. A partida da triagem rodou sem o modo debug, então os logs não têm tempos. Medir pela CLI com o modo debug (tempo de espera das rotas e duração do dia a 100x) e fazer a rota esperar no máximo um dia: o loop cede a vez a quem está esperando antes de começar o dia seguinte.
 
@@ -704,6 +699,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 |
 | **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 |
 | **F318** | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 |
+| **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 
 <a id="f316"></a>
@@ -729,6 +725,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f318"></a>
 **F318 — Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho.** Do playtest de 20/11. Hoje as cotas do gestor e dos co-gestores não votam o aumento de taxa, e bots e o formador de mercado também não. Com os outros cotistas todos bots, ninguém vota, e empate ou zero votos mantém a taxa: o gestor nunca sobe a taxa, mesmo com 90% das cotas. Decidido: o bot cotista vota, com o peso das cotas dele, a favor quando a gestora bateu o CDI nos últimos 6 meses (126 pregões, a janela de desempenho de `performance.py`, rendimentos incluídos, a mesma que dá o prêmio que o bot paga pela cota) e contra quando não bateu. O Mercado (formador de mercado), que junta cotas comprando de quem vende, vota com a mesma regra, para a taxa nunca travar com as cotas paradas nele. A aba Assembleia mostra no placar "Bots cotistas" e "Mercado" separados, e a regra numa dica.
+
+<a id="f319"></a>
+**F319 — Página Estratégias segue a conta ativa.** Do playtest de 20/11. O automático da gestora mora na aba Configurações e não tem o que a página Estratégias tem: gráfico de sinais, prévia antes de salvar, confirmação ao desligar ou trocar, registro completo, painel de resultado e parâmetros salvos no perfil. A página Estratégias opera só a conta pessoal (`useMyStrategy` busca `/api/strategies/me`) e não diz isso, e quem gere a gestora acha que ela mexe no automático da gestora. Decidido: a página Estratégias opera a conta escolhida no topo, como a boleta, e diz no cabeçalho qual conta é; a aba Configurações da gestora fica com um resumo do automático e o link para a página. O aviso de boleta travada (`trade-lock-notice.tsx`) desliga o automático de qualquer conta, não só da pessoal.
 
 <a id="f337"></a>
 **F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
