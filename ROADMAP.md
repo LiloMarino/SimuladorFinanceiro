@@ -83,7 +83,6 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
-| [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | Baixo | Bom | ⏳ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -105,7 +104,7 @@
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (25 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334) | — | — | ✅ |
 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
+| [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | — | — | ✅ |
 
 </details>
 
@@ -148,13 +148,13 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 2/23 concluídos
+> **Progresso:** 3/23 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | ✅ Concluído |
 | 2 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | ✅ Concluído |
-| 3 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | — | ⏳ Pendente |
+| 3 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | — | ✅ Concluído |
 | 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ⏳ Pendente |
 | 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ⏳ Pendente |
 | 6 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | ⏳ Pendente |
@@ -269,7 +269,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 · 5º | 0 | Médio | Bom | ⏳ |
 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 · 6º | 0 | Médio | Bom | ⏳ |
@@ -337,7 +336,6 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
-| **F318** | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
 | **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F320** | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
@@ -569,9 +567,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 **Aceite:** a página mostra card e séries para toda profissão; a troca no meio da partida tem teste; `pnpm run check` verde.
 
-<a id="f318"></a>
-**F318 — Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho.** Do playtest de 20/11. Hoje as cotas do gestor e dos co-gestores não votam o aumento de taxa, e bots e o formador de mercado também não. Com os outros cotistas todos bots, ninguém vota, e empate ou zero votos mantém a taxa: o gestor nunca sobe a taxa, mesmo com 90% das cotas. Decidido: o bot cotista vota, com o peso das cotas dele, a favor quando a gestora bateu o CDI nos últimos 6 meses (126 pregões, a janela de desempenho de `performance.py`, rendimentos incluídos, a mesma que dá o prêmio que o bot paga pela cota) e contra quando não bateu. O Mercado (formador de mercado), que junta cotas comprando de quem vende, vota com a mesma regra, para a taxa nunca travar com as cotas paradas nele. A aba Assembleia mostra no placar "Bots cotistas" e "Mercado" separados, e a regra numa dica.
-
 <a id="f319"></a>
 **F319 — Página Estratégias segue a conta ativa.** Do playtest de 20/11. O automático da gestora mora na aba Configurações e não tem o que a página Estratégias tem: gráfico de sinais, prévia antes de salvar, confirmação ao desligar ou trocar, registro completo, painel de resultado e parâmetros salvos no perfil. A página Estratégias opera só a conta pessoal (`useMyStrategy` busca `/api/strategies/me`) e não diz isso, e quem gere a gestora acha que ela mexe no automático da gestora. Decidido: a página Estratégias opera a conta escolhida no topo, como a boleta, e diz no cabeçalho qual conta é; a aba Configurações da gestora fica com um resumo do automático e o link para a página. O aviso de boleta travada (`trade-lock-notice.tsx`) desliga o automático de qualquer conta, não só da pessoal.
 
@@ -722,6 +717,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | --- | --- | --- | --- | --- | --- |
 | **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 |
 | **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 |
+| **F318** | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 |
 
 <a id="f316"></a>
 **F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
@@ -743,6 +739,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 - **Dicas ⓘ que não abrem:** as dicas de "Faixa de hoje", "Preço de ranking" e de outras telas não abrem. O app não monta `TooltipProvider` desde a troca do Radix pelo Base UI (`App.tsx`), e o `InfoHint` só abre por hover. Toda ⓘ abre no hover e no clique, conferido no navegador. Dentro de boleta travada (`inert`), a dica continua acessível.
 - **Estatísticas da aquisição hostil:** o layout das estatísticas do fim de partida em aquisição hostil quebra. Sem print: reproduzir na salva da partida e consertar o que passar da borda ou desalinhar.
 - **Vencedor da aquisição hostil:** o título diz "Thales venceu: restou uma gestora", enquanto o pódio e o "Você venceu." põem em 1º quem tem mais patrimônio, eliminado ou não (`match-hero.tsx` usa `survivor_nickname`; o pódio usa a `position` de `ranking.py`, que ignora eliminação). Na aquisição hostil, quem restou fica em 1º e os eliminados vêm depois, de quem caiu por último para quem caiu primeiro; título, pódio e "Você venceu." usam a mesma ordem.
+
+<a id="f318"></a>
+**F318 — Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho.** Do playtest de 20/11. Hoje as cotas do gestor e dos co-gestores não votam o aumento de taxa, e bots e o formador de mercado também não. Com os outros cotistas todos bots, ninguém vota, e empate ou zero votos mantém a taxa: o gestor nunca sobe a taxa, mesmo com 90% das cotas. Decidido: o bot cotista vota, com o peso das cotas dele, a favor quando a gestora bateu o CDI nos últimos 6 meses (126 pregões, a janela de desempenho de `performance.py`, rendimentos incluídos, a mesma que dá o prêmio que o bot paga pela cota) e contra quando não bateu. O Mercado (formador de mercado), que junta cotas comprando de quem vende, vota com a mesma regra, para a taxa nunca travar com as cotas paradas nele. A aba Assembleia mostra no placar "Bots cotistas" e "Mercado" separados, e a regra numa dica.
 
 ---
 
