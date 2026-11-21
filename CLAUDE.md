@@ -17,7 +17,7 @@ desempenho", e não "F45". Isso inclui o assunto e o corpo de commits e de PRs.
 ## Frontend
 
 - Queries, mutations e formulários seguem `docs/docs/desenvolvimento/convencoes-frontend.md`.
-- Aviso do websocket carrega o dado novo, e o front o aplica no cache com `setQueryData` (moldes: `frontend/features/variable-income/hooks/queries/useVariableIncomeStock.ts` e `frontend/shared/hooks/queries/usePortfolio.ts`). O servidor sabe quem assina cada aviso e entrega pronto o que a tela mostra, inclusive o que ele calcula a partir de outro dado (prévia da ordem, indicadores, padrões de vela). A query HTTP busca na abertura da tela e quando a conexão volta; entre uma e outra, a tela vive do que os avisos entregam.
+- Aviso do websocket carrega o dado novo, e o front o aplica no cache com `setQueryData` (moldes: `frontend/features/variable-income/hooks/queries/useVariableIncomeStock.ts` e `frontend/shared/hooks/queries/usePortfolio.ts`). O servidor sabe quem assina cada aviso e entrega pronto o que a tela mostra, inclusive o que ele calcula a partir de outro dado (prévia da ordem, indicadores, padrões de vela). A query HTTP busca na abertura da tela e quando a conexão volta; entre uma e outra, a tela vive do que os avisos entregam. Isso vale para o dado em tempo real: o que muda a cada pregão ou pela ação de outro jogador com a tela aberta. O resto é HTTP: a tela busca ao abrir, o botão relê o que ele mesmo mudou, e um aviso raro (mensal, de conquista, da sala e do lobby) pode pedir a releitura.
 
 ## Antes de commitar
 
