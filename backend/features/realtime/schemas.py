@@ -48,6 +48,7 @@ from backend.core.dto.government import (
     CongressBaseDTO,
     ElectionPanelDTO,
     GovernmentPanelDTO,
+    GovernmentStatusDTO,
     ImpeachmentDTO,
     MapPanelDTO,
     MapTimelineDTO,
@@ -622,6 +623,7 @@ class RealtimeEventCatalog(BaseDTO):
     promises_update: PromisesPanelDTO
     balances_update: list[BalanceDTO]
     government_panel_update: GovernmentPanelDTO
+    government_status_update: GovernmentStatusDTO
     snapshot_update: SnapshotUpdateEventDTO
     portfolio_update: PortfolioUpdateEventDTO
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO

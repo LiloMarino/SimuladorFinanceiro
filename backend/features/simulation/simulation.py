@@ -78,6 +78,7 @@ from backend.core.dto.government import (
     FederationPreviewDTO,
     FoundPartyRequest,
     GovernmentPanelDTO,
+    GovernmentStatusDTO,
     MapPanelDTO,
     MapTimelineDTO,
     MeasurePreviewDTO,
@@ -260,7 +261,11 @@ from backend.features.government.campaign_panel import (
     build_roll,
 )
 from backend.features.government.federation_panel import preview_dto
-from backend.features.government.governance import build_governance, sector_options
+from backend.features.government.governance import (
+    build_governance,
+    build_government_status,
+    sector_options,
+)
 from backend.features.government.government_book import GovernmentBook
 from backend.features.government.map_panel import build_map
 from backend.features.government.map_timeline import build_timeline
@@ -1126,6 +1131,15 @@ class Simulation:
             repository.simulation_player.participants(self.settings.id),
             user,
             self._current_date,
+            self._presidential_pay,
+        )
+
+    @synchronized
+    def get_government_status(self, user: UserDTO) -> GovernmentStatusDTO:
+        return build_government_status(
+            self._ensure_government(),
+            self._current_date,
+            user,
             self._presidential_pay,
         )
 

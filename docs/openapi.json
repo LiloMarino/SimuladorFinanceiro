@@ -7895,6 +7895,53 @@
         ]
       }
     },
+    "/api/government/status": {
+      "get": {
+        "tags": [
+          "Government"
+        ],
+        "summary": "Obter o resumo do governo",
+        "description": "Retorna o que as telas de qualquer página leem do governo: quem governa, a aprovação geral com o histórico, quantas medidas esperam o próximo voto e a data dele, e, para o presidente, até quando a carteira fica congelada e o salário do cargo. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+        "operationId": "get_government_status_api_government_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernmentStatusDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/government/budget": {
       "get": {
         "tags": [
@@ -15825,6 +15872,46 @@
           "value"
         ],
         "title": "ApprovalPointDTO"
+      },
+      "ApprovalSummaryDTO": {
+        "properties": {
+          "value": {
+            "type": "integer",
+            "title": "Value"
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous"
+          },
+          "floor": {
+            "type": "integer",
+            "title": "Floor"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalPointDTO"
+            },
+            "type": "array",
+            "title": "History"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "previous",
+          "floor",
+          "history"
+        ],
+        "title": "ApprovalSummaryDTO",
+        "description": "A aprovação geral sem os grupos: o que o selo do topo mostra e desenha."
       },
       "AssetClass": {
         "type": "string",
@@ -29371,6 +29458,84 @@
         ],
         "title": "GovernmentPanelDTO"
       },
+      "GovernmentStatusDTO": {
+        "properties": {
+          "computer_until_inauguration": {
+            "type": "boolean",
+            "title": "Computer Until Inauguration"
+          },
+          "is_president": {
+            "type": "boolean",
+            "title": "Is President"
+          },
+          "president": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartyCandidateDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "approval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ApprovalSummaryDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "queued_measures": {
+            "type": "integer",
+            "title": "Queued Measures"
+          },
+          "next_vote": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Vote"
+          },
+          "frozen_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frozen Until"
+          },
+          "monthly_salary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Monthly Salary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "computer_until_inauguration",
+          "is_president",
+          "president",
+          "approval",
+          "queued_measures",
+          "next_vote",
+          "frozen_until",
+          "monthly_salary"
+        ],
+        "title": "GovernmentStatusDTO",
+        "description": "O resumo do governo para quem vê: o selo do topo e o congelamento do presidente, presentes em toda página."
+      },
       "GovernmentUpdateEventDTO": {
         "properties": {
           "kind": {
@@ -39786,6 +39951,9 @@
           "government_panel_update": {
             "$ref": "#/components/schemas/GovernmentPanelDTO"
           },
+          "government_status_update": {
+            "$ref": "#/components/schemas/GovernmentStatusDTO"
+          },
           "snapshot_update": {
             "$ref": "#/components/schemas/SnapshotUpdateEventDTO"
           },
@@ -39976,6 +40144,7 @@
           "promises_update",
           "balances_update",
           "government_panel_update",
+          "government_status_update",
           "snapshot_update",
           "portfolio_update",
           "statistics_snapshot_update",

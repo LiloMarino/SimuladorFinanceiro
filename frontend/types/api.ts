@@ -295,6 +295,7 @@ export type RunoffTransfer = RunoffRace["transfers"][number];
 export type EndorsementRequest = components["schemas"]["EndorsementRequest"];
 export type RunoffContributionRequest = components["schemas"]["RunoffContributionRequest"];
 export type GovernmentPanel = components["schemas"]["GovernmentPanelDTO"];
+export type GovernmentStatus = components["schemas"]["GovernmentStatusDTO"];
 export type GovernmentMeasure = components["schemas"]["MeasureDTO"];
 export type GovernmentNotice = components["schemas"]["GovernmentUpdateEventDTO"];
 export type MeasureKind = components["schemas"]["MeasureKind"];

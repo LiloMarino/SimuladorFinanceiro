@@ -13,6 +13,7 @@ import type {
   MeasureKind,
   MeasurePreview,
   MeasureStatus,
+  PartyCandidate,
 } from "@/types";
 import type { SpendingKind } from "@/shared/lib/spending-kinds";
 
@@ -181,8 +182,8 @@ export function successionLabel(panel: Pick<GovernmentPanel, "term">) {
 }
 
 /** O governo do partido do computador: quem governa não é jogador, e o piso do impeachment não vale. */
-export function isComputerGovernment(term: GovernmentPanel["term"]) {
-  return !!term?.president && term.president.nickname === null;
+export function isComputerGovernment(president: PartyCandidate | null) {
+  return president !== null && president.nickname === null;
 }
 
 /** A carteira como fração do total: 0.34 → "34%". */

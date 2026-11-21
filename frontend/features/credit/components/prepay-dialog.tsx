@@ -36,17 +36,26 @@ type PrepayDialogProps = {
   initialChoice: PrepayChoice;
   /** Valor já preenchido, em reais (vem das sugestões de nota) */
   initialAmount?: string | undefined;
+  /** O dia da partida: a prévia vale para ele */
+  currentDate: string;
 };
 
 /** "Pagar antes": amortiza uma parte (encurta o prazo ou reduz a parcela) ou quita o empréstimo. */
-export function PrepayDialog({ loan, open, onOpenChange, initialChoice, initialAmount }: PrepayDialogProps) {
+export function PrepayDialog({
+  loan,
+  open,
+  onOpenChange,
+  initialChoice,
+  initialAmount,
+  currentDate,
+}: PrepayDialogProps) {
   const [choice, setChoice] = useState<PrepayChoice>(initialChoice);
   const [amountText, setAmountText] = useState(() => (initialAmount ? formatMoney(toCentsString(initialAmount)) : ""));
   const [mode, setMode] = useState<PrepaymentMode>("SHORTEN_TERM");
 
   const amount = Number(normalizeNumberString(amountText)) || 0;
   const deferredAmount = useDeferredValue(amount);
-  const { data: preview } = usePrepaymentPreview(loan.id, String(choice === "part" ? deferredAmount : 0));
+  const { data: preview } = usePrepaymentPreview(loan.id, String(choice === "part" ? deferredAmount : 0), currentDate);
 
   const prepay = usePrepayLoan(loan.id);
   const payoff = usePayoffLoan(loan.id);

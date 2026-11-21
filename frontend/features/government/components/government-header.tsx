@@ -31,7 +31,7 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
             <div className="flex flex-wrap items-center gap-2.5">
               <b className="text-xl">{president ? `Governo ${president.name}` : "Governo neutro do computador"}</b>
               {president &&
-                (isComputerGovernment(term) ? (
+                (isComputerGovernment(president) ? (
                   <Badge variant="secondary">computador</Badge>
                 ) : (
                   <Badge variant="info">{term.consecutive}º mandato</Badge>

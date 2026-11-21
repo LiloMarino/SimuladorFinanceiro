@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { ErrorState } from "@/shared/components/error-state";
 import { Card, CardContent } from "@/shared/components/ui/card";
+import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { PAY_OVERDUE_PARAM } from "@/shared/lib/credit";
@@ -28,11 +29,12 @@ export default function CreditPage() {
   // O papel da conta ativa trava a tela sem consulta; o 403 tipado do servidor é a garantia
   const accountLock = creditLockOfAccount(active);
   const { data: overview, error, refetch } = useCredit({ enabled: accountLock === null });
+  const { data: simulation } = useSimulationState();
 
   const lock = accountLock ?? creditLockOfError(error);
   if (lock) return <CreditLocked lock={lock} />;
 
-  if (!overview) {
+  if (!overview || !simulation?.current_date) {
     return error ? (
       <Card>
         <CardContent>
@@ -44,12 +46,14 @@ export default function CreditPage() {
     );
   }
 
-  return <CreditContent overview={overview} fundName={fund?.name ?? null} />;
+  return <CreditContent overview={overview} fundName={fund?.name ?? null} currentDate={simulation.current_date} />;
 }
 
 type PrepayTarget = { loanId: string; choice: PrepayChoice; amount?: string };
 
-function CreditContent({ overview, fundName }: { overview: CreditOverview; fundName: string | null }) {
+type CreditContentProps = { overview: CreditOverview; fundName: string | null; currentDate: string };
+
+function CreditContent({ overview, fundName, currentDate }: CreditContentProps) {
   const [params, setParams] = useSearchParams();
   const [prepay, setPrepay] = useState<PrepayTarget | null>(null);
   const amountInput = useRef<HTMLInputElement>(null);
@@ -86,7 +90,13 @@ function CreditContent({ overview, fundName }: { overview: CreditOverview; fundN
         <RiskRatingCard rating={rating} loans={loans} />
         {openOffer ? (
           // A cada empréstimo aberto ou quitado o formulário nasce de novo, com o valor padrão do limite que sobrou
-          <LoanOfferCard key={loans.length} overview={overview} {...openOffer} amountInputRef={amountInput} />
+          <LoanOfferCard
+            key={loans.length}
+            overview={overview}
+            {...openOffer}
+            amountInputRef={amountInput}
+            currentDate={currentDate}
+          />
         ) : (
           <BlockedRatingCard overview={overview} onPayOverdue={firstOverdue ? () => openOverdue(firstOverdue) : null} />
         )}
@@ -120,6 +130,7 @@ function CreditContent({ overview, fundName }: { overview: CreditOverview; fundN
           onOpenChange={() => setPrepay(null)}
           initialChoice={prepay.choice}
           initialAmount={prepay.amount}
+          currentDate={currentDate}
         />
       )}
       {overdueLoan && (

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { DropdownMenu, DropdownMenuTrigger } from "@/shared/components/ui/dropdown-menu";
 import { Skeleton } from "@/shared/components/ui/skeleton";
-import { useGovernment } from "@/shared/hooks/queries/useGovernment";
+import { useGovernmentStatus } from "@/shared/hooks/queries/useGovernmentStatus";
 import { useLifeStatus } from "@/shared/hooks/queries/useLifeStatus";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { displayRatePercent } from "@/shared/lib/financial-independence";
@@ -35,8 +35,8 @@ export function TopbarCash({ cash, independence }: TopbarCashProps) {
 
   const { data: status } = useLifeStatus();
   const { accounts, active, switchAccount } = useActiveAccount();
-  // Sem gestoras, o congelamento do presidente vem do painel do governo
-  const { data: panel } = useGovernment({ enabled: match?.government_enabled === true && !fundsEnabled });
+  // Sem gestoras, o congelamento do presidente vem do resumo do governo
+  const { data: government } = useGovernmentStatus({ enabled: match?.government_enabled === true && !fundsEnabled });
 
   const fund = active !== undefined && active.fund_id !== null;
   const shownCash = fund ? active.cash : cash;
@@ -44,8 +44,8 @@ export function TopbarCash({ cash, independence }: TopbarCashProps) {
   // O congelamento é da carteira pessoal e das gestoras; o Fundo Soberano opera mesmo no mandato
   const frozenUntil = fundsEnabled
     ? active?.frozen_until
-    : panel?.is_president && !fund
-      ? panel.portfolio?.frozen_until
+    : government?.is_president && !fund
+      ? (government.frozen_until ?? undefined)
       : undefined;
   const hasMenu = hasAccountChoice(match) && active !== undefined && (accounts?.length ?? 0) > 1;
 

@@ -104,6 +104,7 @@ export const queryKeys = {
   electionMap: () => ["government", "map"] as const,
   electionTimeline: (year: number | null) => ["government", "map", "timeline", year] as const,
   government: () => ["government", "panel"] as const,
+  governmentStatus: () => ["government", "status"] as const,
   stateCompanies: () => ["government", "state-companies"] as const,
   stateOrderPreview: (ticker: string) => ["government", "state-companies", "order-preview", ticker] as const,
   stateFoundingPreview: (request: object) => ["government", "state-companies", "found-preview", request] as const,
@@ -124,10 +125,10 @@ export const queryKeys = {
   balances: () => ["government", "balances"] as const,
   credit: () => ["credit"] as const,
   creditOverview: (account: AccountKey) => ["credit", account, "overview"] as const,
-  loanQuote: (account: AccountKey, amount: string, termMonths: number) =>
-    ["credit", account, "quote", amount, termMonths] as const,
-  prepaymentPreview: (account: AccountKey, loanId: string, amount: string) =>
-    ["credit", account, "prepayment", loanId, amount] as const,
+  loanQuote: (account: AccountKey, amount: string, termMonths: number, currentDate: string) =>
+    ["credit", account, "quote", amount, termMonths, currentDate] as const,
+  prepaymentPreview: (account: AccountKey, loanId: string, amount: string, currentDate: string) =>
+    ["credit", account, "prepayment", loanId, amount, currentDate] as const,
   strategies: () => ["strategies"] as const,
   strategyList: () => ["strategies", "list"] as const,
   fundStrategyList: () => ["strategies", "list", "fund"] as const,

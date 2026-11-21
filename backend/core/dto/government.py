@@ -951,6 +951,17 @@ class ApprovalDTO(BaseDTO):
     closing: ClosingDTO | None
 
 
+class ApprovalSummaryDTO(BaseDTO):
+    """A aprovação geral sem os grupos: o que o selo do topo mostra e desenha."""
+
+    value: int
+    # Aprovação do fechamento anterior, para a seta
+    previous: int | None
+    floor: int
+    # Do dia da posse ao último fechamento
+    history: list[ApprovalPointDTO]
+
+
 class TaxRowDTO(BaseDTO):
     kind: MeasureKind
     # O valor em vigor hoje: alíquota, teto em reais ou, na renda fixa, a alíquota mínima
@@ -1142,6 +1153,25 @@ class GovernmentPanelDTO(BaseDTO):
     promises: TermPromisesDTO | None
     # Nulo quando a SELIC é do Banco Central autônomo
     monetary: MonetaryDTO | None
+
+
+class GovernmentStatusDTO(BaseDTO):
+    """O resumo do governo para quem vê: o selo do topo e o congelamento do presidente, presentes em toda página."""
+
+    # O governo do computador vale até a primeira posse
+    computer_until_inauguration: bool
+    is_president: bool
+    # Quem governa; nulo até a primeira posse
+    president: PartyCandidateDTO | None
+    # Nulo sem governo em curso ou sem presidente
+    approval: ApprovalSummaryDTO | None
+    # As medidas que esperam o próximo voto do Congresso
+    queued_measures: int
+    next_vote: date
+    # Até quando a carteira do presidente fica congelada; nulo sem presidente
+    frozen_until: date | None
+    # O salário líquido de hoje do cargo, em reais; nulo sem presidente
+    monthly_salary: Decimal | None
 
 
 class PromisesPanelDTO(BaseDTO):

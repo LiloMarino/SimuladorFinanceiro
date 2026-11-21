@@ -18,11 +18,12 @@ const ROUND_BY_PAUSE: Partial<Record<NonNullable<SimulationState["pause_reason"]
 export function PausedRoundResult() {
   const navigate = useNavigate();
   const { data: state } = useSimulationState();
-  const { data: panel } = useElection();
+  const awaited = state?.pause_reason ? ROUND_BY_PAUSE[state.pause_reason] : undefined;
+  // O painel da eleição só é assinado enquanto a pausa espera o resultado de um turno
+  const { data: panel } = useElection({ enabled: awaited !== undefined });
   const [dismissed, setDismissed] = useState<string | null>(null);
 
   const result = panel?.last_result ?? null;
-  const awaited = state?.pause_reason ? ROUND_BY_PAUSE[state.pause_reason] : undefined;
   const key = result ? `${result.round}:${result.date}` : null;
   const open = result !== null && result.round === awaited && key !== dismissed;
 

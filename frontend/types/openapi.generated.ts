@@ -2588,6 +2588,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/government/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Obter o resumo do governo
+         * @description Retorna o que as telas de qualquer página leem do governo: quem governa, a aprovação geral com o histórico, quantas medidas esperam o próximo voto e a data dele, e, para o presidente, até quando a carteira fica congelada e o salário do cargo. Recusa com 409 quando a partida não usa a expansão Governo & Política.
+         */
+        get: operations["get_government_status_api_government_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/government/budget": {
         parameters: {
             query?: never;
@@ -5236,6 +5256,20 @@ export interface components {
             date: string;
             /** Value */
             value: number;
+        };
+        /**
+         * ApprovalSummaryDTO
+         * @description A aprovação geral sem os grupos: o que o selo do topo mostra e desenha.
+         */
+        ApprovalSummaryDTO: {
+            /** Value */
+            value: number;
+            /** Previous */
+            previous: number | null;
+            /** Floor */
+            floor: number;
+            /** History */
+            history: components["schemas"]["ApprovalPointDTO"][];
         };
         /**
          * AssetClass
@@ -9709,6 +9743,29 @@ export interface components {
             monetary: components["schemas"]["MonetaryDTO"] | null;
         };
         /**
+         * GovernmentStatusDTO
+         * @description O resumo do governo para quem vê: o selo do topo e o congelamento do presidente, presentes em toda página.
+         */
+        GovernmentStatusDTO: {
+            /** Computer Until Inauguration */
+            computer_until_inauguration: boolean;
+            /** Is President */
+            is_president: boolean;
+            president: components["schemas"]["PartyCandidateDTO"] | null;
+            approval: components["schemas"]["ApprovalSummaryDTO"] | null;
+            /** Queued Measures */
+            queued_measures: number;
+            /**
+             * Next Vote
+             * Format: date
+             */
+            next_vote: string;
+            /** Frozen Until */
+            frozen_until: string | null;
+            /** Monthly Salary */
+            monthly_salary: string | null;
+        };
+        /**
          * GovernmentUpdateEventDTO
          * @description Um fato do governo ou da eleição: o aviso conta o que houve e carrega o dado que o toast e o diálogo mostram.
          */
@@ -13275,6 +13332,7 @@ export interface components {
             /** Balances Update */
             balances_update: components["schemas"]["BalanceDTO"][];
             government_panel_update: components["schemas"]["GovernmentPanelDTO"];
+            government_status_update: components["schemas"]["GovernmentStatusDTO"];
             snapshot_update: components["schemas"]["SnapshotUpdateEventDTO"];
             portfolio_update: components["schemas"]["PortfolioUpdateEventDTO"];
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];
@@ -22207,6 +22265,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GovernmentPanelDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_government_status_api_government_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GovernmentStatusDTO"];
                 };
             };
             /** @description Unprocessable Content */

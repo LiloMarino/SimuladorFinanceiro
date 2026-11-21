@@ -92,6 +92,10 @@ entregam.
   orçamento) têm cada um o seu evento com o DTO da rota (`GovernmentFeed`), entregue a cada
   assinante com `to=` quando muda com quem olha; o botão da ação não renova nada, e o
   `government_update` carrega só o fato (com o dado do toast e do diálogo).
+- **Situação do governo nos componentes globais** (topbar, banner, trava de operação, congelamento da
+  presidência) vem do `GovernmentStatusDTO`, com rota e evento `government_status_update` próprios e o
+  hook `useGovernmentStatus`: só o que esses componentes leem. O painel inteiro (`useGovernment`) fica
+  nas telas do governo e nos diálogos que o consultam com `enabled`.
 - **Publicação uma vez por operação**: o caixa e as gestoras mudam em vários pontos da mesma
   operação (a compra, a taxa, a oferta). Cada ponto só marca a mudança, e o dado sai uma vez, ao
   fechar a operação mais externa (`synchronized`), já no estado final. O pregão marca todas as

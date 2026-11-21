@@ -33,10 +33,18 @@ type LoanOfferCardProps = {
   annualRate: string;
   /** O campo de valor recebe o foco quando a tela pede "Simular um empréstimo" */
   amountInputRef?: React.Ref<HTMLInputElement>;
+  /** O dia da partida: a simulação vale para ele */
+  currentDate: string;
 };
 
 /** "Novo empréstimo": valor, prazo, juro da nota e o que a parcela pede da carteira. */
-export function LoanOfferCard({ overview, spread, annualRate: annualRateText, amountInputRef }: LoanOfferCardProps) {
+export function LoanOfferCard({
+  overview,
+  spread,
+  annualRate: annualRateText,
+  amountInputRef,
+  currentDate,
+}: LoanOfferCardProps) {
   const { offer } = overview;
   const maxAmount = Number(offer.max_amount);
   const [amountText, setAmountText] = useState(() =>
@@ -54,7 +62,9 @@ export function LoanOfferCard({ overview, spread, annualRate: annualRateText, am
 
   // O cálculo acompanha a digitação sem disparar uma consulta por tecla
   const deferredAmount = useDeferredValue(amount);
-  const { data: quote } = useLoanQuote(String(deferredAmount), termMonths, { enabled: deferredAmount > 0 });
+  const { data: quote } = useLoanQuote(String(deferredAmount), termMonths, currentDate, {
+    enabled: deferredAmount > 0,
+  });
   const quoteReady = quote !== undefined && deferredAmount === amount && quote.term_months === termMonths;
 
   const annualRate = Number(annualRateText);

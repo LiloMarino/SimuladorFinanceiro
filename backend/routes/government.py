@@ -23,6 +23,7 @@ from backend.core.dto.government import (
     FederationPreviewDTO,
     FoundPartyRequest,
     GovernmentPanelDTO,
+    GovernmentStatusDTO,
     GuidanceRequest,
     GuidanceRuleRequest,
     JoinPartyRequest,
@@ -513,6 +514,16 @@ def get_balances(simulation: ActiveSimulation, user: CurrentUser):
 )
 def get_government(simulation: ActiveSimulation, user: CurrentUser):
     return simulation.get_governance(user)
+
+
+@government_router.get(
+    "/status",
+    response_model=GovernmentStatusDTO,
+    summary="Obter o resumo do governo",
+    description="Retorna o que as telas de qualquer página leem do governo: quem governa, a aprovação geral com o histórico, quantas medidas esperam o próximo voto e a data dele, e, para o presidente, até quando a carteira fica congelada e o salário do cargo. Recusa com 409 quando a partida não usa a expansão Governo & Política.",
+)
+def get_government_status(simulation: ActiveSimulation, user: CurrentUser):
+    return simulation.get_government_status(user)
 
 
 @government_router.get(

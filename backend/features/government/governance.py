@@ -10,10 +10,12 @@ from backend.core.dto.government import (
     ApprovalDTO,
     ApprovalFactorDTO,
     ApprovalPointDTO,
+    ApprovalSummaryDTO,
     ClosingDTO,
     FrozenPortfolioDTO,
     FrozenSliceDTO,
     GovernmentPanelDTO,
+    GovernmentStatusDTO,
     GroupApprovalDTO,
     ImpeachmentDTO,
     InterestDTO,
@@ -58,13 +60,14 @@ from backend.features.government import (
 from backend.features.government import measures as rules
 from backend.features.government.budget import TaxRow
 from backend.features.government.government_book import GovernmentBook
-from backend.features.government.panel import build_term
+from backend.features.government.panel import build_term, build_term_president
 from backend.features.government.promise_panel import build_term_promises
 from backend.features.government.state import (
     NEUTRAL_SATISFACTION,
     VIGENCE_DAYS,
     ApprovalPoint,
     Measure,
+    Term,
 )
 from backend.features.simulation.simulation_engine import SimulationEngine
 from backend.features.tax_policy import DEFAULT_TAX_POLICY, TaxPolicy
@@ -239,6 +242,44 @@ def build_governance(
     )
 
 
+def build_government_status(
+    book: GovernmentBook,
+    today: date,
+    viewer: UserDTO,
+    pay_of: Callable[[UserDTO, Decimal, date], Decimal],
+) -> GovernmentStatusDTO:
+    """O resumo do governo que as telas de qualquer página leem: o selo do topo e o congelamento do presidente."""
+    state = book.state
+    term = state.term
+    president = book.president()
+    end = book.term_end()
+    current = book.approval(today)
+    return GovernmentStatusDTO(
+        computer_until_inauguration=term is None,
+        is_president=president is not None and president.id == viewer.id,
+        president=(
+            build_term_president(
+                term, state, {president.id: president} if president else {}
+            )
+            if term is not None
+            else None
+        ),
+        approval=(
+            _approval_summary(current, _approval_series(term, state.approvals))
+            if current is not None and term is not None
+            else None
+        ),
+        queued_measures=sum(
+            m.status is MeasureStatus.QUEUED for m in state.measures.values()
+        ),
+        next_vote=congress.next_vote_date(today),
+        frozen_until=end if president is not None else None,
+        monthly_salary=(
+            _monthly_salary(president, today, pay_of) if president is not None else None
+        ),
+    )
+
+
 # A pesquisa do Focus mais velha que isto deixa de ser a base do que o mercado espera
 FOCUS_MAX_AGE = timedelta(days=30)
 
@@ -354,6 +395,47 @@ def _measure(
     )
 
 
+def _approval_series(
+    term: Term, measured: list[ApprovalPoint]
+) -> list[tuple[date, dict[VoterGroup, Decimal]]]:
+    """A satisfação de cada grupo na posse e, depois, em cada fechamento de mês."""
+    start = {g: term.satisfaction.get(g, NEUTRAL_SATISFACTION) for g in VoterGroup}
+    return [(term.start, start), *((p.day, p.satisfaction) for p in measured)]
+
+
+def _overall_history(
+    series: list[tuple[date, dict[VoterGroup, Decimal]]],
+) -> list[ApprovalPointDTO]:
+    """A aprovação geral da posse ao último fechamento."""
+    return [
+        ApprovalPointDTO(
+            date=day, value=approval_rules.rounded(approval_rules.overall(values))
+        )
+        for day, values in series
+    ]
+
+
+def _overall_previous(
+    series: list[tuple[date, dict[VoterGroup, Decimal]]],
+) -> int | None:
+    """A aprovação geral do fechamento anterior ao último."""
+    if len(series) < 2:
+        return None
+    return approval_rules.rounded(approval_rules.overall(series[-2][1]))
+
+
+def _approval_summary(
+    current: approval_rules.Approval,
+    series: list[tuple[date, dict[VoterGroup, Decimal]]],
+) -> ApprovalSummaryDTO:
+    return ApprovalSummaryDTO(
+        value=current.value,
+        previous=_overall_previous(series),
+        floor=approval_rules.FLOOR,
+        history=_overall_history(series),
+    )
+
+
 def _approval(
     book: GovernmentBook,
     current: approval_rules.Approval | None,
@@ -363,26 +445,12 @@ def _approval(
     term = book.state.term
     if current is None or term is None:
         return None
-    measured = book.state.approvals
-    # A linha parte da posse e segue um ponto por fechamento de mês
-    start = {g: term.satisfaction.get(g, NEUTRAL_SATISFACTION) for g in VoterGroup}
-    series = [(term.start, start), *((p.day, p.satisfaction) for p in measured)]
-    history = [
-        ApprovalPointDTO(
-            date=day, value=approval_rules.rounded(approval_rules.overall(values))
-        )
-        for day, values in series
-    ]
-    before = series[-2][1] if len(series) > 1 else None
+    series = _approval_series(term, book.state.approvals)
     return ApprovalDTO(
         value=current.value,
-        previous=(
-            approval_rules.rounded(approval_rules.overall(before))
-            if before is not None
-            else None
-        ),
+        previous=_overall_previous(series),
         target=current.target,
-        history=history,
+        history=_overall_history(series),
         groups=[
             _group_approval(group, current, series) for group in _groups_by_weight()
         ],
@@ -470,6 +538,15 @@ def _closing(book: GovernmentBook, viewer: UserDTO) -> ClosingDTO | None:
     )
 
 
+def _monthly_salary(
+    president: UserDTO,
+    today: date,
+    pay_of: Callable[[UserDTO, Decimal, date], Decimal],
+) -> Decimal:
+    """O salário líquido de hoje do presidente, em reais."""
+    return pay_of(president, presidency.SALARY_MULTIPLE, today)
+
+
 def _presidency(
     approvals: list[ApprovalPoint],
     president: UserDTO,
@@ -478,7 +555,7 @@ def _presidency(
 ) -> PresidencyDTO:
     salaries = presidency.legacy_salaries(approvals)
     return PresidencyDTO(
-        monthly_salary=pay_of(president, presidency.SALARY_MULTIPLE, today),
+        monthly_salary=_monthly_salary(president, today, pay_of),
         salary_multiple=presidency.SALARY_MULTIPLE,
         legacy_salaries=salaries,
         legacy_amount=pay_of(president, salaries, today),

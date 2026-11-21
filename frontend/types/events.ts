@@ -47,6 +47,7 @@ export type SimulationEvents = {
   promises_update: RealtimeEventCatalog["promises_update"];
   balances_update: RealtimeEventCatalog["balances_update"];
   government_panel_update: RealtimeEventCatalog["government_panel_update"];
+  government_status_update: RealtimeEventCatalog["government_status_update"];
   snapshot_update: RealtimeEventCatalog["snapshot_update"];
   portfolio_update: RealtimeEventCatalog["portfolio_update"];
   statistics_snapshot_update: RealtimeEventCatalog["statistics_snapshot_update"];

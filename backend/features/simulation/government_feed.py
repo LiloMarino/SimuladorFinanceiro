@@ -4,7 +4,7 @@ tem o seu evento, e o servidor entrega o painel pronto a quem o assina.
 
 - Iguais para todos (economia, orçamento, linha do tempo da eleição): montados uma vez e
   enviados a todos os assinantes.
-- Por jogador (eleição, mapa, campanha e o histórico dela, promessas, balanços, governo, base): montados para
+- Por jogador (eleição, mapa, campanha e o histórico dela, promessas, balanços, governo, resumo do governo, base): montados para
   cada assinante e entregues só a ele, porque mudam com quem olha.
 - O payload é o mesmo DTO que a rota devolve; sem assinante nada é montado.
 - O painel igual ao último enviado ao mesmo destinatário não sai de novo.
@@ -73,6 +73,7 @@ class GovernmentFeed:
                 ("promises_update", simulation.get_promises),
                 ("balances_update", simulation.get_balances),
                 ("government_panel_update", simulation.get_governance),
+                ("government_status_update", simulation.get_government_status),
                 ("base_update", simulation.get_base),
             ):
                 guarded(

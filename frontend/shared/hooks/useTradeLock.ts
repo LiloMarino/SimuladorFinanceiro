@@ -1,5 +1,5 @@
 import { useMyStrategy } from "@/shared/hooks/queries/useMyStrategy";
-import { useGovernment } from "@/shared/hooks/queries/useGovernment";
+import { useGovernmentStatus } from "@/shared/hooks/queries/useGovernmentStatus";
 import { useActiveAccount } from "@/shared/hooks/useActiveAccount";
 import { presidencyFreezeEnd } from "@/shared/hooks/usePresidencyFreeze";
 import { useSimulation } from "@/shared/hooks/useSimulation";
@@ -23,7 +23,7 @@ export function useTradeLock(): TradeLock | null {
   const automatic = !!useMyStrategy().data?.active;
   const { simulation } = useSimulation();
   const { fund, accounts } = useActiveAccount();
-  const { data: government } = useGovernment({ enabled: !!simulation?.simulation?.government_enabled });
+  const { data: government } = useGovernmentStatus({ enabled: !!simulation?.simulation?.government_enabled });
 
   // A eliminação vale em qualquer conta: o jogador só assiste
   const eliminatedOn = accounts?.find((account) => account.fund_id === null)?.eliminated_on;
@@ -35,8 +35,8 @@ export function useTradeLock(): TradeLock | null {
     return { reason: "fund-automatic", name: fund.name, until: presidencyFreezeEnd(government) };
   }
   if (fund?.frozen_until) return { reason: "fund", until: fund.frozen_until, name: fund.name };
-  if (!fund && government?.is_president && government.portfolio) {
-    return { reason: "president", until: government.portfolio.frozen_until };
+  if (!fund && government?.is_president && government.frozen_until) {
+    return { reason: "president", until: government.frozen_until };
   }
   return !fund && automatic ? { reason: "automatic" } : null;
 }

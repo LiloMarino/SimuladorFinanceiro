@@ -470,19 +470,26 @@ def _round_party(
     )
 
 
+def build_term_president(
+    term: Term, state: GovernmentState, people: dict[int, UserDTO]
+) -> PartyCandidateDTO | None:
+    """Quem governa: o jogador pelo apelido, ou o candidato do partido do computador."""
+    party = state.parties.get(term.party_id) if term.party_id is not None else None
+    return _candidate(
+        people,
+        term.president_id,
+        party.candidate_name if party and party.is_computer else None,
+    )
+
+
 def build_term(
     term: Term | None, state: GovernmentState, people: dict[int, UserDTO]
 ) -> TermDTO | None:
     if term is None:
         return None
-    party = state.parties.get(term.party_id) if term.party_id is not None else None
     return TermDTO(
         party_id=term.party_id,
-        president=_candidate(
-            people,
-            term.president_id,
-            party.candidate_name if party and party.is_computer else None,
-        ),
+        president=build_term_president(term, state, people),
         vice=_person(people, term.vice_id),
         start=term.start,
         consecutive=term.consecutive,

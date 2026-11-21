@@ -3,21 +3,21 @@ import { Link } from "react-router-dom";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { Badge } from "@/shared/components/ui/badge";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/shared/components/ui/hover-card";
-import { useGovernment } from "@/shared/hooks/queries/useGovernment";
+import { useGovernmentStatus } from "@/shared/hooks/queries/useGovernmentStatus";
 import { cn } from "@/shared/lib/utils";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import { approvalArrow, approvalTone, isComputerGovernment } from "../lib/government";
-import { ApprovalChart } from "./approval-chart";
+import { ApprovalSparkline } from "./approval-sparkline";
 import { PersonMark } from "@/shared/components/party-mark";
 
 const TONES = { success: "text-success", warning: "text-warning", destructive: "text-destructive" } as const;
 
 /** Selo do topo: quem governa e a aprovação, com a fila do Congresso ao passar o mouse. */
 export function TopbarGovernment() {
-  const { data: panel } = useGovernment();
-  if (!panel) return null;
+  const { data: status } = useGovernmentStatus();
+  if (!status) return null;
 
-  if (panel.computer_until_inauguration || !panel.term) {
+  if (status.computer_until_inauguration) {
     return (
       <Badge variant="secondary">
         <ExpansionEmblem expansion="government" size="xs" />
@@ -27,8 +27,7 @@ export function TopbarGovernment() {
     );
   }
 
-  const president = panel.term.president;
-  const approval = panel.approval;
+  const { president, approval } = status;
   if (!president || !approval) {
     return (
       <Badge variant="secondary">
@@ -39,7 +38,7 @@ export function TopbarGovernment() {
   }
 
   const tone = TONES[approvalTone(approval)];
-  const queued = panel.queue.filter((measure) => measure.status === "QUEUED").length;
+  const queued = status.queued_measures;
 
   return (
     <HoverCard>
@@ -62,15 +61,15 @@ export function TopbarGovernment() {
           <b className="text-sm">Governo {president.name}</b>
           <span className={cn("font-mono font-semibold", tone)}>{approval.value}%</span>
         </div>
-        <ApprovalChart approval={approval} height={64} compact />
+        <ApprovalSparkline approval={approval} />
         <span className="text-xs text-muted-foreground">
           Aprovação do governo: de cada 100 eleitores, {approval.value} aprovam.{" "}
           {queued > 0
-            ? `${queued} ${queued === 1 ? "medida" : "medidas"} na fila para ${displayDayMonth(panel.next_vote)}.`
+            ? `${queued} ${queued === 1 ? "medida" : "medidas"} na fila para ${displayDayMonth(status.next_vote)}.`
             : "Nenhuma medida na fila."}
         </span>
         <Link to="/government" className="text-[13px] font-medium text-primary hover:text-primary-hover">
-          {isComputerGovernment(panel.term)
+          {isComputerGovernment(president)
             ? "Ver impostos e a fila do computador"
             : `Ver impostos, fila e a carteira de ${president.name}`}
         </Link>

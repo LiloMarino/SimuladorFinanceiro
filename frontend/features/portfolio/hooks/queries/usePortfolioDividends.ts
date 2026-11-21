@@ -5,7 +5,7 @@ import type { PortfolioDividends } from "@/types";
 
 /**
  * Proventos recebidos na partida pelo jogador: total, últimos 12 meses, barras por mês e por ano
- * e quem mais pagou. Renovado quando a carteira é invalidada (aviso de provento).
+ * e quem mais pagou. O aviso de provento (`corporate_actions`) relê a consulta.
  */
 export function usePortfolioDividends() {
   return useQuery({

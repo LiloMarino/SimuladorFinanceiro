@@ -244,3 +244,58 @@ def test_the_political_cash_of_the_personal_account_sends_the_new_portfolio(
     ]
     assert [to for _payload, to in portfolios] == [ana.client_id]
     assert portfolios[0][0]["portfolio"] == sim.get_portfolio(ana.client_id).to_json()
+
+
+def test_the_government_status_goes_only_to_the_player_who_listens(radio: Radio):
+    sim, ana, bruno = government_match()
+    radio.listen("government_status_update", bruno)
+
+    sim.next_tick()
+
+    statuses = [
+        (payload, to)
+        for event, payload, to in radio.sent
+        if event == "government_status_update"
+    ]
+    assert len(statuses) == 1
+    payload, to = statuses[0]
+    assert to == bruno.client_id
+    assert payload == sim.get_government_status(bruno).to_json()
+    assert payload["is_president"] is False
+    assert sim.get_government_status(ana).to_json() == payload
+
+
+def test_the_government_status_equal_to_the_last_one_sent_is_not_sent_again(
+    radio: Radio,
+):
+    sim, ana, _bruno = government_match()
+    radio.listen("government_status_update", ana)
+    sim._government_feed.publish()
+    sent = len(radio.sent)
+
+    sim._government_feed.publish()
+
+    assert len(radio.sent) == sent
+
+
+def test_the_government_status_is_a_slice_of_the_government_panel(radio: Radio):
+    sim, ana, _bruno = government_match()
+
+    status = sim.get_government_status(ana)
+    panel = sim.get_governance(ana)
+
+    assert status.computer_until_inauguration == panel.computer_until_inauguration
+    assert status.is_president == panel.is_president
+    assert status.next_vote == panel.next_vote
+    assert status.queued_measures == len(
+        [m for m in panel.queue if m.status == "QUEUED"]
+    )
+    assert (status.approval is None) == (panel.approval is None)
+    if status.approval is not None and panel.approval is not None:
+        assert status.approval.value == panel.approval.value
+        assert status.approval.previous == panel.approval.previous
+        assert status.approval.floor == panel.approval.floor
+        assert status.approval.history == panel.approval.history
+    assert (status.president is None) == (
+        panel.term is None or panel.term.president is None
+    )
