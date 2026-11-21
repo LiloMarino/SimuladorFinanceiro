@@ -83,7 +83,6 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
-| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | Baixo | Bom | ⏳ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -105,7 +104,7 @@
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (23 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (24 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -132,6 +131,7 @@
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
 | **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334) | — | — | ✅ |
 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
+| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
 
 </details>
 
@@ -147,12 +147,12 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 1/22 concluídos
+> **Progresso:** 2/22 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | — | ✅ Concluído |
-| 2 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | ⏳ Pendente |
+| 2 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | — | ✅ Concluído |
 | 3 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | — | ⏳ Pendente |
 | 4 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ⏳ Pendente |
 | 5 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | — | ⏳ Pendente |
@@ -267,7 +267,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 · 2º | 0 | Médio | Bom | ⏳ |
 | [**F318**](#f318) | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | M29 · 4.3 · 3º | 0 | Baixo | Bom | ⏳ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 · 4º | 0 | Médio | Bom | ⏳ |
 | [**F320**](#f320) | Performance | Ações do jogador sem espera em velocidade alta | M29 · 4.3 · 5º | 0 | Médio | Bom | ⏳ |
@@ -335,7 +334,6 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
-| **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 | — | Médio | Baixo | Alto | Bom |
 | **F318** | Feature | Bots cotistas votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
 | **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F320** | Performance | Ações do jogador sem espera em velocidade alta | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
@@ -567,16 +565,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 **Aceite:** a página mostra card e séries para toda profissão; a troca no meio da partida tem teste; `pnpm run check` verde.
 
-<a id="f317"></a>
-**F317 — Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos fora das telas da gestora:
-
-- **Tipo de partida sem trava de expansão no lobby:** o tipo Aquisição hostil deixa de travar a expansão Gestoras, e o tipo Político deixa de travar a expansão Governo, pela mesma regra. Sai o selo "expansão ligada e travada" e a nota `ExpansionLockNote`. Desligar a expansão com o tipo que depende dela escolhido volta o tipo para o clássico. Com a expansão desligada, o cartão do tipo fica só com a cara de desabilitado, mais escuro, sem o selo "Ligue a expansão" (`game-type-fields.tsx`, `funds-card.tsx`, `expansion-fields.tsx`).
-- **Fundar gestora mais enxuto na preparação:** comparada a criar partido, a aba tem blocos que não pedem decisão. Sai "Como a sala vai ver" (repete o nome três vezes); a linha do tempo "Como ela nasce" vira uma frase curta sob a identidade. Ficam Identidade, Co-gestores, Taxas e Nesta sala (`fund-found-tab.tsx`).
-- **Aporte no Fundo Soberano recusado:** o aporte de 100 bi volta "O campo value é inválido.". O `value` de `ProposeMeasureRequest` (`core/dto/government.py`) tem `max_digits=14, decimal_places=4`, então não passa de R$ 9.999.999.999,9999, e os quatro atalhos do diálogo (10, 25, 50 e 100 bi) passam desse teto. O campo passa a aceitar o maior valor que uma medida pode ter (conferir obras e estatal fundada), e o erro `decimal_max_digits` ganha frase própria em `validation_messages.py`. Sem aporte o caixa do Fundo é zero, e por isso ele não comprava nada: confirmar na salva que, com o aporte aprovado, a compra pela conta do Fundo sai. A boleta na conta do Fundo mostra o caixa e, sem caixa, o caminho do aporte.
-- **Dicas ⓘ que não abrem:** as dicas de "Faixa de hoje", "Preço de ranking" e de outras telas não abrem. O app não monta `TooltipProvider` desde a troca do Radix pelo Base UI (`App.tsx`), e o `InfoHint` só abre por hover. Toda ⓘ abre no hover e no clique, conferido no navegador. Dentro de boleta travada (`inert`), a dica continua acessível.
-- **Estatísticas da aquisição hostil:** o layout das estatísticas do fim de partida em aquisição hostil quebra. Sem print: reproduzir na salva da partida e consertar o que passar da borda ou desalinhar.
-- **Vencedor da aquisição hostil:** o título diz "Thales venceu: restou uma gestora", enquanto o pódio e o "Você venceu." põem em 1º quem tem mais patrimônio, eliminado ou não (`match-hero.tsx` usa `survivor_nickname`; o pódio usa a `position` de `ranking.py`, que ignora eliminação). Na aquisição hostil, quem restou fica em 1º e os eliminados vêm depois, de quem caiu por último para quem caiu primeiro; título, pódio e "Você venceu." usam a mesma ordem.
-
 <a id="f318"></a>
 **F318 — Bots cotistas votam o aumento de taxa pelo desempenho.** Do playtest de 20/11. Hoje as cotas do gestor e dos co-gestores não votam o aumento de taxa, e bots e o formador de mercado também não. Com os outros cotistas todos bots, ninguém vota, e empate ou zero votos mantém a taxa: o gestor nunca sobe a taxa, mesmo com 90% das cotas. Decidido: o bot cotista vota, com o peso das cotas dele, a favor quando a gestora bateu o CDI nos últimos 6 meses (126 pregões, a janela de desempenho de `performance.py`, rendimentos incluídos, a mesma que dá o prêmio que o bot paga pela cota) e contra quando não bateu; o formador de mercado segue fora. A aba Assembleia mostra o voto dos bots no placar e a regra numa dica.
 
@@ -717,6 +705,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 |
+| **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 |
 
 <a id="f316"></a>
 **F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
@@ -728,6 +717,16 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 - **Rendimentos na renda variável:** o cartão de rendimentos da cota no detalhe da renda variável (`fund-distributions-card.tsx`) lista todos os meses. Ganha a paginação da aba Rendimentos da gestora (`HistoryCard` em `income-tab.tsx`), que sobe para `shared` com os dois consumidores.
 - **Comprar a própria cota na emissão:** teste que reproduz o gestor comprando na preferência e na sobra pública e confere que a participação dele depois fica acima da que teria sem comprar. O cartão mostra quantas cotas mantêm a participação de hoje.
 - **Gestora comprando cota de outra gestora:** o backend recusa ("A gestora não compra cota de gestora.", em `create_order`), mas a boleta não diz nada antes. Com uma gestora ativa no topo, a boleta de uma cota fica desabilitada com o motivo.
+
+<a id="f317"></a>
+**F317 — Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos fora das telas da gestora:
+
+- **Tipo de partida sem trava de expansão no lobby:** o tipo Aquisição hostil deixa de travar a expansão Gestoras, e o tipo Político deixa de travar a expansão Governo, pela mesma regra. Sai o selo "expansão ligada e travada" e a nota `ExpansionLockNote`. Desligar a expansão com o tipo que depende dela escolhido volta o tipo para o clássico. Com a expansão desligada, o cartão do tipo fica só com a cara de desabilitado, mais escuro, sem o selo "Ligue a expansão" (`game-type-fields.tsx`, `funds-card.tsx`, `expansion-fields.tsx`).
+- **Fundar gestora mais enxuto na preparação:** comparada a criar partido, a aba tem blocos que não pedem decisão. Sai "Como a sala vai ver" (repete o nome três vezes); a linha do tempo "Como ela nasce" vira uma frase curta sob a identidade. Ficam Identidade, Co-gestores, Taxas e Nesta sala (`fund-found-tab.tsx`).
+- **Aporte no Fundo Soberano recusado:** o aporte de 100 bi volta "O campo value é inválido.". O `value` de `ProposeMeasureRequest` (`core/dto/government.py`) tem `max_digits=14, decimal_places=4`, então não passa de R$ 9.999.999.999,9999, e os quatro atalhos do diálogo (10, 25, 50 e 100 bi) passam desse teto. O campo passa a aceitar o maior valor que uma medida pode ter (conferir obras e estatal fundada), e o erro `decimal_max_digits` ganha frase própria em `validation_messages.py`. Sem aporte o caixa do Fundo é zero, e por isso ele não comprava nada: confirmar na salva que, com o aporte aprovado, a compra pela conta do Fundo sai. A boleta na conta do Fundo mostra o caixa e, sem caixa, o caminho do aporte.
+- **Dicas ⓘ que não abrem:** as dicas de "Faixa de hoje", "Preço de ranking" e de outras telas não abrem. O app não monta `TooltipProvider` desde a troca do Radix pelo Base UI (`App.tsx`), e o `InfoHint` só abre por hover. Toda ⓘ abre no hover e no clique, conferido no navegador. Dentro de boleta travada (`inert`), a dica continua acessível.
+- **Estatísticas da aquisição hostil:** o layout das estatísticas do fim de partida em aquisição hostil quebra. Sem print: reproduzir na salva da partida e consertar o que passar da borda ou desalinhar.
+- **Vencedor da aquisição hostil:** o título diz "Thales venceu: restou uma gestora", enquanto o pódio e o "Você venceu." põem em 1º quem tem mais patrimônio, eliminado ou não (`match-hero.tsx` usa `survivor_nickname`; o pódio usa a `position` de `ranking.py`, que ignora eliminação). Na aquisição hostil, quem restou fica em 1º e os eliminados vêm depois, de quem caiu por último para quem caiu primeiro; título, pódio e "Você venceu." usam a mesma ordem.
 
 ---
 
