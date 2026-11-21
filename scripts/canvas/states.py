@@ -1582,14 +1582,36 @@ def tab_settings(page: Page) -> None:
 
 
 def settings_automatic(page: Page) -> None:
-    """A aba Configurações no modo Automático: a lista de estratégias da gestora e a escolhida em detalhe."""
+    """A aba Configurações com a gestora no manual: o resumo do automático e o link para a página Estratégias."""
     fund_match(page, stage="offer-closed")
     turn_off_fund_strategy(page)
     open_funds_page(page)
-    open_fund_tab(page, "Configurações", "Automático da carteira")
-    page.get_by_role("button", name="Automático", exact=True).click()
-    page.get_by_role("button", name=re.compile(r"^Rebalanceamento por meta")).click()
-    page.get_by_role("button", name="Ligar esta estratégia").wait_for()
+    open_fund_tab(page, "Configurações", "A carteira está no manual")
+    expect(page.get_by_role("button", name="Abrir em Estratégias")).to_be_visible()
+    page.wait_for_load_state("networkidle")
+
+
+def settings_automatic_summary(page: Page) -> None:
+    """A aba Configurações com uma estratégia operando a gestora: o resumo diz qual e desde quando, e o link leva a Estratégias."""
+    fund_match(page, stage="offer-closed")
+    fund_id = api_json(page, "/api/funds")[0]["id"]
+    name = turn_on_fund_strategy(page, fund_id)
+    open_funds_page(page)
+    open_fund_tab(page, "Configurações", f"{name} opera a carteira")
+    expect(page.get_by_role("button", name="Abrir em Estratégias")).to_be_visible()
+    page.wait_for_load_state("networkidle")
+
+
+def strategies_fund_account(page: Page) -> None:
+    """A página Estratégias com a gestora no topo: o link da aba Configurações troca a conta e o cabeçalho diz qual é."""
+    fund_match(page, stage="offer-closed")
+    turn_off_fund_strategy(page)
+    open_funds_page(page)
+    open_fund_tab(page, "Configurações", "A carteira está no manual")
+    page.get_by_role("button", name="Abrir em Estratégias").click()
+    page.wait_for_url(re.compile(r"/strategies$"))
+    page.get_by_text("a estratégia opera a carteira dela, não a sua").wait_for()
+    expect(page.get_by_text(f"A {FUND_NAME} está no manual")).to_be_visible()
     page.wait_for_load_state("networkidle")
 
 
@@ -1611,62 +1633,19 @@ def turn_on_fund_strategy(page: Page, fund_id: int) -> str:
     raise RuntimeError("Nenhuma estratégia aceitou os parâmetros padrão.")
 
 
-def forged_strategy_log(name: str) -> dict:
-    """O registro de ordens que a estratégia teria mandado pela gestora: uma venda e duas compras no mesmo dia."""
-
-    def order(
-        row_id: int,
-        action: str,
-        ticker: str | None,
-        quantity: str,
-        price: str,
-        reason: str,
-    ) -> dict:
-        return {
-            "id": row_id,
-            "event_date": FORGED_DATE,
-            "kind": "order",
-            "strategy_key": None,
-            "strategy_name": name,
-            "action": action,
-            "ticker": ticker,
-            "asset_name": None if ticker else "Tesouro Selic 2029",
-            "quantity": quantity,
-            "price": price,
-            "order_type": "market",
-            "reason": reason,
-            "status": "executed",
-            "detail": None,
-        }
-
-    return {
-        "total": 3,
-        "items": [
-            order(3, "buy", None, "100", "2884.30", "Renda fixa abaixo da meta"),
-            order(2, "buy", "VALE3", "2500", "62.10", "Ações abaixo da meta"),
-            order(1, "sell", "PETR4", "4000", "37.90", "Ações acima da meta"),
-        ],
-    }
-
-
 def fund_automatic_presidency(page: Page) -> None:
-    """Dado forjado sobre a estratégia real da gestora: o gestor governa, a carteira segue o automático e Suas ações mostra o que ele fez."""
+    """Dado forjado sobre a estratégia real da gestora: o gestor governa e a carteira segue o automático, que o aviso do topo anuncia."""
     fund_match(page, stage="offer-closed")
     fund_id = api_json(page, "/api/funds")[0]["id"]
-    name = turn_on_fund_strategy(page, fund_id)
+    turn_on_fund_strategy(page, fund_id)
 
     def change(body: dict | list) -> None:
         assert isinstance(body, dict)
         body["frozen_until"] = FROZEN_UNTIL
 
     patch_get(page, FUND_DETAIL_PATTERN, change)
-    fulfill_get(
-        page,
-        re.compile(r"/api/funds/\d+/strategy/log"),
-        json.dumps(forged_strategy_log(name)),
-    )
     open_funds_page(page)
-    page.get_by_text("O que o automático fez").wait_for()
+    page.get_by_text("No automático até").first.wait_for()
     page.wait_for_load_state("networkidle")
 
 
@@ -3230,6 +3209,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "gestoras/aba-relatorio": tab_report,
     "gestoras/aba-config": tab_settings,
     "gestoras/config-automatico": settings_automatic,
+    "gestora/configuracoes-resumo-automatico": settings_automatic_summary,
+    "estrategias/conta-gestora": strategies_fund_account,
     "gestoras/carteira-automatico": fund_automatic_presidency,
     "gestoras/aba-assembleia": tab_assembly,
     "gestoras/aba-assembleia-taxa": tab_assembly_fee,
