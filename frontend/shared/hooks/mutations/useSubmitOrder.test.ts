@@ -26,4 +26,9 @@ describe("aviso depois da compra a mercado", () => {
     notifyExecution("PETR4", { type: "market", action: "buy", amount: "18420.35" }, response("567", "18411.00"));
     expect(lastMessage()).toContain("Comprou 567 PETR4 por R$ 18.411,00 · sobraram R$ 9,35");
   });
+
+  it("no Máx, avisa o que o servidor contou e gastou", () => {
+    notifyExecution("PETR4", { type: "market", action: "buy", max_size: true }, response("567", "18411.00"));
+    expect(lastMessage()).toContain("Comprou 567 PETR4 por R$ 18.411,00.");
+  });
 });

@@ -11,7 +11,7 @@ export function useConveneAssembly(fundId: number) {
   return useMutation({
     mutationFn: (request: FundAssemblyConveneRequest) =>
       apiFetch<void>(`/api/funds/${fundId}/assembly`, { method: "POST", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

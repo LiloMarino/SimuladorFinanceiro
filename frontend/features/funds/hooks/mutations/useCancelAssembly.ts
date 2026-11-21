@@ -9,7 +9,7 @@ export function useCancelAssembly(fundId: number) {
 
   return useMutation({
     mutationFn: () => apiFetch<void>(`/api/funds/${fundId}/assembly`, { method: "DELETE" }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

@@ -15,7 +15,7 @@ export function useSetMyStrategy() {
   return useMutation({
     mutationFn: (body: SetStrategyRequest) => apiFetch(strategyPaths(fundId).mine, { method: "PUT", body }),
     onSuccess: () =>
-      Promise.all([
+      void Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.strategies() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.variableIncome() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() }),

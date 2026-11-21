@@ -11,7 +11,7 @@ export function useSetFundDistribution(fundId: number) {
   return useMutation({
     mutationFn: (request: FundDistributionRequest) =>
       apiFetch<FundSummary>(`/api/funds/${fundId}/distribution`, { method: "PUT", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

@@ -6,7 +6,7 @@ import { displayMoney, displayQuantity } from "@/shared/lib/utils/display";
 import { toastApiError } from "@/shared/notifications/toast-api-error";
 import type { SubmitOrderRequest, SubmitOrderResponse } from "@/types";
 
-/** Compra a mercado: por valor o aviso vem sempre; por quantidade, só quando saiu menos que o pedido. */
+/** Compra a mercado: por valor e no Máx o aviso vem sempre; por quantidade, só quando saiu menos que o pedido. */
 export function notifyExecution(ticker: string, order: SubmitOrderRequest, response: SubmitOrderResponse) {
   const executed = Number(response.quantity);
   const total = Number(response.total);
@@ -14,6 +14,10 @@ export function notifyExecution(ticker: string, order: SubmitOrderRequest, respo
     toast.info(
       `Comprou ${displayQuantity(response.quantity)} ${ticker} por ${displayMoney(total)} · sobraram ${displayMoney(Number(order.amount) - total)}.`,
     );
+    return;
+  }
+  if (order.max_size) {
+    toast.info(`Comprou ${displayQuantity(response.quantity)} ${ticker} por ${displayMoney(total)}.`);
     return;
   }
   if (order.quantity != null && executed < Number(order.quantity)) {
@@ -36,7 +40,7 @@ export function useSubmitOrder(ticker: string) {
     onSuccess: (response, order) => {
       if (order.type === "market" && order.action === "buy") notifyExecution(ticker, order, response);
     },
-    onSettled: () => revalidateOrder(queryClient, ticker),
+    onSettled: () => void revalidateOrder(queryClient, ticker),
     onError: (err) => toastApiError(err),
   });
 }

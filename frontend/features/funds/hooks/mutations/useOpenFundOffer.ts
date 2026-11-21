@@ -11,7 +11,7 @@ export function useOpenFundOffer(fundId: number) {
   return useMutation({
     mutationFn: (request: FundOfferRequest) =>
       apiFetch<FundSummary>(`/api/funds/${fundId}/offer`, { method: "POST", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

@@ -14,6 +14,6 @@ export function useCancelOrder(ticker: string) {
         activeAccount: true,
       }),
     onError: (err) => toastApiError(err),
-    onSettled: () => revalidateOrder(queryClient, ticker),
+    onSettled: () => void revalidateOrder(queryClient, ticker),
   });
 }

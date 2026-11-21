@@ -11573,6 +11573,8 @@ export interface components {
             quantity?: number | string | null;
             /** Amount */
             amount?: number | string | null;
+            /** Max Size */
+            max_size?: boolean | null;
             /** Limit Price */
             limit_price?: number | null;
         };
@@ -15188,6 +15190,8 @@ export interface components {
             quantity?: number | string | null;
             /** Amount */
             amount?: number | string | null;
+            /** Max Size */
+            max_size?: boolean | null;
             /** Type */
             type: string;
             /** Action */

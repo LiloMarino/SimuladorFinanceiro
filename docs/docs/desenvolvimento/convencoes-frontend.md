@@ -82,7 +82,7 @@ export function useSubmitOrder(ticker: string) {
   return useMutation({
     mutationFn: (order: SubmitOrderRequest) =>
       apiFetch<SubmitOrderResponse>(`/api/variable-income/${ticker}/orders`, { method: "POST", body: order }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.portfolioPosition(ticker) }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: queryKeys.portfolioPosition(ticker) }),
     onError: (err) => toastApiError(err),
   });
 }
@@ -93,6 +93,11 @@ submit.mutate(
   { onSuccess: () => setQuantityText("") },
 );
 ```
+
+O `isPending` da mutation solta quando o servidor confirma: a releitura do cache roda em segundo
+plano, com `void` na frente do `invalidateQueries`. O callback que devolve a promessa da
+releitura segura o botão até a leitura terminar, e com a partida andando essa leitura disputa a
+fila com o próprio jogo. Aguardar a releitura só cabe quando o passo seguinte depende do dado novo.
 
 ---
 

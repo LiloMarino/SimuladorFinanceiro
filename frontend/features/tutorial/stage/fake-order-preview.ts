@@ -10,7 +10,8 @@ const money = (cents: number) => (cents / 100).toFixed(2);
 export function fakeOrderPreview(request: OrderPreviewRequest): OrderPreview {
   const limitCents = request.limit_price != null ? Math.round(request.limit_price * 100) : null;
   const priceCents = limitCents ?? STAGE_PRICE_CENTS;
-  const quantity = Math.max(0, Math.floor(Number(request.quantity ?? 0)) || 0);
+  const maxQuantity = Math.floor(STAGE_CASH_CENTS / priceCents);
+  const quantity = request.max_size ? maxQuantity : Math.max(0, Math.floor(Number(request.quantity ?? 0)) || 0);
   const totalCents = quantity * priceCents;
 
   return {
@@ -19,7 +20,7 @@ export function fakeOrderPreview(request: OrderPreviewRequest): OrderPreview {
     total: money(totalCents),
     cash_before: money(STAGE_CASH_CENTS),
     cash_after: money(STAGE_CASH_CENTS - totalCents),
-    max_quantity: String(Math.floor(STAGE_CASH_CENTS / priceCents)),
+    max_quantity: String(maxQuantity),
     held: "0",
     reserved: "0",
     held_after: String(quantity),

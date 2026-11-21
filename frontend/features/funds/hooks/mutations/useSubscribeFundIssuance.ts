@@ -11,7 +11,7 @@ export function useSubscribeFundIssuance(fundId: number) {
   return useMutation({
     mutationFn: (request: FundIssuanceSubscriptionRequest) =>
       apiFetch<void>(`/api/funds/${fundId}/issuance/subscriptions`, { method: "POST", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

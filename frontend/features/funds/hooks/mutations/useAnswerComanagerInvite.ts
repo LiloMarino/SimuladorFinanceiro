@@ -10,7 +10,7 @@ export function useAnswerComanagerInvite(fundId: number) {
   return useMutation({
     mutationFn: (accept: boolean) =>
       apiFetch<void>(`/api/funds/${fundId}/comanagers/${accept ? "acceptance" : "refusal"}`, { method: "POST" }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

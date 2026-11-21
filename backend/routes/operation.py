@@ -55,17 +55,26 @@ operation_router = APIRouter(prefix="/api", tags=["Operations"])
 
 
 class SubmitOrderRequest(BaseModel):
-    # Uma das duas: a quantidade, ou o valor que a compra a mercado pode gastar
+    # Exatamente um tamanho: a quantidade, o valor que a compra a mercado pode gastar, ou o
+    # limite inteiro (todo o caixa na compra, toda a posição livre na venda), contado no servidor
     quantity: Decimal | None = Field(default=None, gt=0, decimal_places=8)
     amount: Decimal | None = Field(default=None, gt=0, decimal_places=2)
+    max_size: bool | None = None
     type: str
     action: str
     limit_price: float | None = None
 
     @model_validator(mode="after")
     def exactly_one_size(self):
-        if (self.quantity is None) == (self.amount is None):
-            raise ValueError("Informe a quantidade ou o valor da ordem")
+        sizes = (
+            (self.quantity is not None)
+            + (self.amount is not None)
+            + bool(self.max_size)
+        )
+        if sizes != 1:
+            raise ValueError(
+                "Informe exatamente um tamanho: a quantidade, o valor ou o máximo"
+            )
         return self
 
 
@@ -262,7 +271,7 @@ def submit_order(
         asset,
         client_id,
     )
-    simulation.create_order(order)
+    simulation.create_order(order, fill_max=bool(payload.max_size))
     return SubmitOrderResponse(
         order_id=order.id,
         status=order.status.name,
@@ -296,15 +305,23 @@ def cancel_order(
 
 class OrderPreviewRequest(BaseModel):
     action: OrderAction
-    # Uma das duas: a quantidade, ou o valor da compra a mercado
+    # Exatamente um tamanho: a quantidade, o valor da compra a mercado, ou o limite inteiro
     quantity: Decimal | None = Field(default=None, ge=0, decimal_places=8)
     amount: Decimal | None = Field(default=None, ge=0, decimal_places=2)
+    max_size: bool | None = None
     limit_price: float | None = Field(default=None, gt=0)
 
     @model_validator(mode="after")
     def exactly_one_size(self):
-        if (self.quantity is None) == (self.amount is None):
-            raise ValueError("Informe a quantidade ou o valor da ordem")
+        sizes = (
+            (self.quantity is not None)
+            + (self.amount is not None)
+            + bool(self.max_size)
+        )
+        if sizes != 1:
+            raise ValueError(
+                "Informe exatamente um tamanho: a quantidade, o valor ou o máximo"
+            )
         if self.amount is not None and (
             self.action != OrderAction.BUY or self.limit_price is not None
         ):
@@ -331,6 +348,7 @@ def preview_order(
         payload.quantity,
         payload.limit_price,
         payload.amount,
+        bool(payload.max_size),
     )
 
 

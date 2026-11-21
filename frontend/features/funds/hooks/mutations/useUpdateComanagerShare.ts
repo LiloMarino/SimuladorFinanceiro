@@ -13,7 +13,7 @@ export function useUpdateComanagerShare(fundId: number) {
   return useMutation({
     mutationFn: ({ userId, ...request }: UpdateComanagerShare) =>
       apiFetch<void>(`/api/funds/${fundId}/comanagers/${userId}/share`, { method: "PUT", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

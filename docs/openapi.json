@@ -34562,6 +34562,17 @@
             ],
             "title": "Amount"
           },
+          "max_size": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Size"
+          },
           "limit_price": {
             "anyOf": [
               {
@@ -44959,6 +44970,17 @@
               }
             ],
             "title": "Amount"
+          },
+          "max_size": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Size"
           },
           "type": {
             "type": "string",

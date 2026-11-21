@@ -8,6 +8,6 @@ export function useMarkStrategyErrorSeen() {
 
   return useMutation({
     mutationFn: () => apiFetch("/api/strategies/me/error-seen", { method: "POST" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.myStrategy() }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: queryKeys.myStrategy() }),
   });
 }

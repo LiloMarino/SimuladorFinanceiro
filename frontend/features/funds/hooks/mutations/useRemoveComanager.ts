@@ -9,7 +9,7 @@ export function useRemoveComanager(fundId: number) {
 
   return useMutation({
     mutationFn: (userId: number) => apiFetch<void>(`/api/funds/${fundId}/comanagers/${userId}`, { method: "DELETE" }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

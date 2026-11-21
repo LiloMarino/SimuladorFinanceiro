@@ -13,7 +13,7 @@ export function useContributeToFund() {
     mutationFn: ({ fundId, request }: { fundId: number; request: FundContributionRequest }) =>
       apiFetch<FundContributionResponse>(`/api/funds/${fundId}/contributions`, { method: "POST", body: request }),
     onSettled: () =>
-      Promise.all([
+      void Promise.all([
         queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.variableIncome() }),

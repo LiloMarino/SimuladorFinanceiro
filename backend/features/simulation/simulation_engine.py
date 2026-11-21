@@ -56,7 +56,11 @@ from backend.features.variable_income.dividends import (
     yield_on_cost,
 )
 from backend.features.variable_income.entities.candle import Candle
-from backend.features.variable_income.entities.order import MarketOrder
+from backend.features.variable_income.entities.order import (
+    LimitOrder,
+    MarketOrder,
+    Order,
+)
 from backend.features.variable_income.entities.position import Position
 from backend.features.variable_income.income_tax import (
     MonthlyTax,
@@ -565,6 +569,24 @@ class SimulationEngine:
         if order.size <= 0:
             raise UnprocessableEntityError("O valor não paga uma unidade")
 
+    def size_max_order(self, order: Order) -> None:
+        """Dá à ordem o limite inteiro de agora: o que o caixa paga na compra, o que está livre na venda."""
+        if order.action == OrderAction.SELL:
+            size = self.broker.get_available_position(order.client_id, order.ticker)
+            if size <= 0:
+                raise UnprocessableEntityError("Não há quantidade livre para vender")
+            order.size = order.remaining = size
+            return
+        cash = self.get_cash(order.client_id)
+        # A compra a mercado gasta no máximo o caixa de agora, como a compra por valor
+        if isinstance(order, MarketOrder):
+            order.budget = cash
+        limit = order.price if isinstance(order, LimitOrder) else None
+        price = self.estimated_price(order.ticker, order.action, limit)
+        order.size = order.remaining = self.affordable(order.ticker, cash, price)
+        if order.size <= 0:
+            raise UnprocessableEntityError("O caixa não paga uma unidade")
+
     def preview_order(
         self,
         client_id: UUID,
@@ -573,6 +595,7 @@ class SimulationEngine:
         quantity: Decimal | None,
         limit_price: float | None,
         amount: Decimal | None = None,
+        max_size: bool = False,
     ) -> OrderPreviewDTO:
         position = self.broker.get_positions(client_id).get(ticker)
         held = position.size if position else Decimal(0)
@@ -582,13 +605,18 @@ class SimulationEngine:
         asset_class = self.asset_class(ticker)
 
         price = self.estimated_price(ticker, action, limit_price)
-        # Por valor, a quantidade é a que o valor paga ao preço estimado
-        if quantity is None:
+        buying = action == OrderAction.BUY
+        max_quantity = (
+            self.affordable(ticker, cash, price) if buying else held - reserved
+        )
+        # No Máx a quantidade é o limite inteiro; por valor, a que o valor paga ao preço estimado
+        if max_size:
+            quantity = max_quantity
+        elif quantity is None:
             quantity = self.affordable(ticker, required(amount), price)
         self.check_quantity(ticker, quantity)
 
         total = (price or Decimal(0)) * quantity
-        buying = action == OrderAction.BUY
         cash_after = cash - total if buying else cash + total
         held_after = held + quantity if buying else max(held - quantity, Decimal(0))
         # Sem posição, o preço estimado é a melhor marcação do que a ordem compra
@@ -606,9 +634,7 @@ class SimulationEngine:
             total=total,
             cash_before=cash,
             cash_after=cash_after,
-            max_quantity=self.affordable(ticker, cash, price)
-            if buying
-            else held - reserved,
+            max_quantity=max_quantity,
             held=held,
             reserved=reserved,
             held_after=held_after,

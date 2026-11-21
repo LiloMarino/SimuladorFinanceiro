@@ -11,7 +11,7 @@ export function useOpenFundBuyback(fundId: number) {
   return useMutation({
     mutationFn: (request: FundBuybackRequest) =>
       apiFetch<void>(`/api/funds/${fundId}/buyback`, { method: "POST", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

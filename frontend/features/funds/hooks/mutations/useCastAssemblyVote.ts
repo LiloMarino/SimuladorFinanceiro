@@ -11,7 +11,7 @@ export function useCastAssemblyVote(fundId: number) {
   return useMutation({
     mutationFn: (request: FundAssemblyVoteRequest) =>
       apiFetch<void>(`/api/funds/${fundId}/assembly/vote`, { method: "PUT", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }

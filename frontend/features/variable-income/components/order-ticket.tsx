@@ -23,8 +23,9 @@ import { quantityOfShare } from "@/shared/lib/quantity-shortcuts";
 import { displayDate, displayMoney, displayQuantity, parseLocalDate, toCentsString } from "@/shared/lib/utils/display";
 import { EXEMPT_SALES_LABEL, INCOME_TAX_RATE, salesMonthName } from "@/shared/lib/income-tax";
 import { displayPercent } from "@/shared/lib/utils/display";
-import type { AssetClass, FundDetails, OrderPreview, OrderPreviewRequest } from "@/types";
+import type { AssetClass, FundDetails, OrderPreview } from "@/types";
 import { useOrderPreview } from "../hooks/queries/useOrderPreview";
+import { orderSizeOf } from "../lib/order-size";
 import { ticketAccountHeading, ticketAccountSubmitLabel } from "../lib/order-ticket-account";
 import { FundQuotaBlock } from "./fund-quota-block";
 import { SovereignCashNotice } from "./sovereign-cash-notice";
@@ -69,12 +70,15 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   const [quantityText, setQuantityText] = useState("");
   const [amountText, setAmountText] = useState("");
   const [limitText, setLimitText] = useState("");
+  // O Máx vai ao servidor como intenção: a quantidade final é contada na hora em que a ordem chega
+  const [maxChosen, setMaxChosen] = useState(false);
   const [appliedPrefill, setAppliedPrefill] = useState(prefill?.id);
   const [pickSource, setPickSource] = useState<string | null>(null);
 
   // Cada clique no livro preenche uma vez; a quantidade já digitada fica como está
   if (prefill && prefill.id !== appliedPrefill) {
     setAppliedPrefill(prefill.id);
+    if (prefill.action !== action) setMaxChosen(false);
     setAction(prefill.action);
     setKind("limit");
     setLimitText(String(prefill.limitPrice).replace(".", ","));
@@ -84,15 +88,13 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   // Só a cripto aceita fração; a API recebe a quantidade como string decimal
   const fractional = assetClass === "CRYPTO";
   const quantity = quantityText.replace(",", ".").replace(/\.$/, "") || "0";
-  const quantityNumber = Number(quantity);
   const amount = normalizeNumberString(amountText) || "0";
-  const amountNumber = Number(amount);
   const limitPrice = kind === "limit" ? Number(normalizeNumberString(limitText)) || null : null;
 
   // O valor em reais só existe na compra a mercado; venda e Limitada medem a ordem em quantidade
   const buyingAtMarket = action === "buy" && kind === "market";
   const byAmount = buyingAtMarket && mode === "amount";
-  const size: Pick<OrderPreviewRequest, "quantity" | "amount"> = byAmount ? { amount } : { quantity };
+  const size = orderSizeOf({ maxChosen, byAmount, quantity, amount });
   const [request] = useDebounce({ action, ...size, limit_price: limitPrice }, 250);
 
   const { data: preview, error, isLoading, refetch } = useOrderPreview(ticker, request);
@@ -100,6 +102,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
     request.action === action &&
     request.quantity === size.quantity &&
     request.amount === size.amount &&
+    request.max_size === size.max_size &&
     request.limit_price === limitPrice;
 
   const submit = useSubmitOrder(ticker);
@@ -122,7 +125,15 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   const shareAfter = preview ? `${displayPercent(preview.networth_share_after, 1)} do patrimônio` : "—";
   const maxQuantity = preview?.max_quantity ?? "0";
   const cash = Number(preview?.cash_before ?? 0);
-  const overMax = !byAmount && quantityNumber > Number(maxQuantity);
+  // No Máx o valor é o caixa inteiro e a quantidade, a estimada pela prévia
+  const amountNumber = maxChosen ? cash : Number(amount);
+  // No Máx a quantidade do campo é a estimada pela prévia; o servidor conta a final no envio
+  const estimatedQuantity = maxChosen && requestMatches && preview ? preview.quantity : null;
+  const quantityNumber = estimatedQuantity !== null ? Number(estimatedQuantity) : Number(quantity);
+  const quantityShown =
+    estimatedQuantity !== null ? quantityOfShare(estimatedQuantity, 1, fractional) : maxChosen ? "" : quantityText;
+  const amountShown = maxChosen ? (preview ? formatMoney(toCentsString(preview.cash_before)) : "") : amountText;
+  const overMax = !byAmount && !maxChosen && quantityNumber > Number(maxQuantity);
   const overCash = byAmount && preview !== undefined && amountNumber > cash;
   // Por valor, o preço estimado não paga nem uma unidade
   const belowUnit =
@@ -132,9 +143,10 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
     amountNumber > 0 &&
     !overCash &&
     Number(preview.quantity) === 0;
-  const invalidSize = overMax || overCash || belowUnit;
+  const emptyMax = maxChosen && requestMatches && preview !== undefined && Number(preview.quantity) === 0;
+  const invalidSize = overMax || overCash || belowUnit || emptyMax;
   const noPosition = selling && requestMatches && preview !== undefined && Number(preview.held) === 0;
-  const hasSize = byAmount ? amountNumber > 0 : quantityNumber > 0;
+  const hasSize = maxChosen || (byAmount ? amountNumber > 0 : quantityNumber > 0);
   const canSubmit =
     !locked &&
     !quotaOnFundAccount &&
@@ -146,15 +158,19 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
     !!preview?.price &&
     (kind === "market" || !!limitPrice);
 
-  const quantityHint = selling
-    ? preview && Number(preview.reserved) > 0
-      ? `Máx = ${displayQuantity(maxQuantity)}: ${displayQuantity(preview.reserved)} das suas ${displayQuantity(preview.held)} já estão em ordens abertas.`
-      : `Máx = ${displayQuantity(maxQuantity)}, tudo o que você tem.`
-    : buyingAtMarket
-      ? `O caixa paga até ${displayQuantity(maxQuantity)}. Se o preço subir antes da execução, compra até onde o caixa pagar.`
-      : `Máx = ${displayQuantity(maxQuantity)} com o caixa de hoje.`;
-  const amountHint =
-    amountNumber === 0 || error
+  const maxHint = `${selling ? "Máx: tudo o que está livre" : byAmount ? "Tudo: o caixa inteiro" : "Máx: tudo o que o caixa paga"}. A quantidade final é contada no envio.`;
+  const quantityHint = maxChosen
+    ? maxHint
+    : selling
+      ? preview && Number(preview.reserved) > 0
+        ? `Máx = ${displayQuantity(maxQuantity)}: ${displayQuantity(preview.reserved)} das suas ${displayQuantity(preview.held)} já estão em ordens abertas.`
+        : `Máx = ${displayQuantity(maxQuantity)}, tudo o que você tem.`
+      : buyingAtMarket
+        ? `O caixa paga até ${displayQuantity(maxQuantity)}. Se o preço subir antes da execução, compra até onde o caixa pagar.`
+        : `Máx = ${displayQuantity(maxQuantity)} com o caixa de hoje.`;
+  const amountHint = maxChosen
+    ? maxHint
+    : amountNumber === 0 || error
       ? null
       : requestMatches && preview
         ? `≈ ${displayQuantity(preview.quantity)} ${ticker} (estimado) ao melhor preço de venda, ${displayMoney(preview.price ?? 0)}.`
@@ -192,13 +208,16 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                     ? "Não há preço de mercado agora."
                     : null;
 
-  // Tudo gasta o caixa inteiro, em reais; as frações valem na unidade do modo ativo
+  // Tudo e Máx são intenção, contada pelo servidor no envio; as frações viram o número na unidade do modo ativo
   const fillShortcut = (share: number) => {
     if (!preview) return;
-    if (buyingAtMarket && share === 1) {
-      setMode("amount");
-      setAmountText(formatMoney(toCentsString(preview.cash_before)));
-    } else if (byAmount) {
+    if (share === 1) {
+      if (buyingAtMarket) setMode("amount");
+      setMaxChosen(true);
+      return;
+    }
+    setMaxChosen(false);
+    if (byAmount) {
       setAmountText(formatMoney(toCentsString(String(cash * share))));
     } else {
       setQuantityText(quantityOfShare(maxQuantity, share, fractional));
@@ -208,13 +227,14 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
   // `quantityOverride` vende outra quantidade pelo mesmo tipo de ordem (o "Vender só N" da cota)
   const sendOrder = (quantityOverride?: string) =>
     submit.mutate(
-      byAmount && quantityOverride === undefined
-        ? { action, type: kind, amount }
-        : { action, type: kind, quantity: quantityOverride ?? quantity, limit_price: limitPrice },
+      quantityOverride !== undefined
+        ? { action, type: kind, quantity: quantityOverride, limit_price: limitPrice }
+        : { action, type: kind, ...size, limit_price: limitPrice },
       {
         onSuccess: () => {
           setQuantityText("");
           setAmountText("");
+          setMaxChosen(false);
         },
       },
     );
@@ -249,6 +269,7 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
             onValueChange={(values) => {
               if (!values[0]) return;
               setAction(values[0] as Action);
+              setMaxChosen(false);
               setPickSource(null);
             }}
             className="w-full *:flex-1"
@@ -305,7 +326,11 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                         size="xs"
                         aria-label="Medir a ordem por"
                         value={[mode]}
-                        onValueChange={(values) => values[0] && setMode(values[0] as SizeMode)}
+                        onValueChange={(values) => {
+                          if (!values[0]) return;
+                          setMode(values[0] as SizeMode);
+                          setMaxChosen(false);
+                        }}
                       >
                         <ToggleGroupItem value="quantity">Quantidade</ToggleGroupItem>
                         <ToggleGroupItem value="amount">Valor</ToggleGroupItem>
@@ -318,13 +343,13 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                       autoFocus
                       numeric
                       inputMode={byAmount || !fractional ? "numeric" : "decimal"}
-                      value={byAmount ? amountText : quantityText}
+                      value={byAmount ? amountShown : quantityShown}
                       aria-invalid={invalidSize}
-                      onChange={(e) =>
-                        byAmount
-                          ? setAmountText(formatMoney(e.target.value))
-                          : setQuantityText(formatQuantityInput(e.target.value, fractional))
-                      }
+                      onChange={(e) => {
+                        setMaxChosen(false);
+                        if (byAmount) setAmountText(formatMoney(e.target.value));
+                        else setQuantityText(formatQuantityInput(e.target.value, fractional));
+                      }}
                     />
                     <QuantityShortcuts maxLabel={buyingAtMarket ? "Tudo" : "Máx"} onPick={fillShortcut} />
                   </div>
@@ -471,9 +496,9 @@ export function OrderTicket({ ticker, assetClass, todayPrice, prefill, fund: quo
                       {selling ? "Vender" : "Comprar"}{" "}
                       {byAmount
                         ? amountNumber > 0
-                          ? `${amountText} em ${ticker}`
+                          ? `${amountShown} em ${ticker}`
                           : ticker
-                        : `${quantityText} ${ticker}`}
+                        : `${maxChosen ? "≈ " : ""}${quantityShown} ${ticker}`}
                       {!byAmount && preview?.price && quantityNumber > 0
                         ? kind === "limit"
                           ? ` a ${displayMoney(preview.price)}`

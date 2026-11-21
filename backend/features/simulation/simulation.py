@@ -596,7 +596,7 @@ class Simulation:
         return self._engine.fixed_broker.get_fixed_positions(client_id)
 
     @synchronized
-    def create_order(self, order: Order) -> None:
+    def create_order(self, order: Order, *, fill_max: bool = False) -> None:
         self._ensure_can_operate(order.client_id)
         if self._funds is not None and self._funds.is_merged(order.ticker):
             raise ConflictError("A gestora foi incorporada e a cota deixou o mercado.")
@@ -607,8 +607,11 @@ class Simulation:
             and self._engine.asset_class(order.ticker) is AssetClass.FUND
         ):
             raise ConflictError("A gestora não compra cota de gestora.")
-        # A compra por valor ganha a quantidade com o book de agora, no mesmo lock da execução
-        if isinstance(order, MarketOrder) and order.budget is not None:
+        # O limite inteiro (a intenção Máx) e a compra por valor ganham a quantidade com o caixa,
+        # a posição e o book de agora, no mesmo lock da execução
+        if fill_max:
+            self._engine.size_max_order(order)
+        elif isinstance(order, MarketOrder) and order.budget is not None:
             self._engine.size_budget_order(order)
         self._ensure_sovereign_order(order)
         self._engine.check_quantity(order.ticker, order.size)
@@ -3381,9 +3384,10 @@ class Simulation:
         quantity: Decimal | None,
         limit_price: float | None,
         amount: Decimal | None = None,
+        max_size: bool = False,
     ) -> OrderPreviewDTO:
         preview = self._engine.preview_order(
-            client_id, ticker, action, quantity, limit_price, amount
+            client_id, ticker, action, quantity, limit_price, amount, max_size
         )
         if action is not OrderAction.BUY:
             return preview

@@ -289,3 +289,124 @@ def test_treasury_is_bought_quoted_and_sold_over_http_apart_from_the_bank_offers
     assert sim.get_cash(player.client_id) == pytest.approx(cash, abs=Decimal("5"))
     other = next(t for t in titles if t["asset_uuid"] != asset_id)["asset_uuid"]
     assert client.post(f"/api/treasury/{other}/sell", json={}).status_code == 404
+
+
+def _preview(client: TestClient, body: dict) -> dict:
+    response = client.post("/api/variable-income/BANK_A/order-preview", json=body)
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
+def _submit(client: TestClient, body: dict):
+    return client.post("/api/variable-income/BANK_A/orders", json=body)
+
+
+def test_max_limit_buy_is_sized_with_the_cash_when_the_order_arrives(paused_match):
+    _, users, client = paused_match
+    client.cookies.set("client_id", str(users[0].client_id))
+    limit = float(_preview(client, {"action": "buy", "quantity": 1})["price"]) / 2
+    stale = Decimal(
+        _preview(client, {"action": "buy", "quantity": 1, "limit_price": limit})[
+            "max_quantity"
+        ]
+    )
+
+    # Outra compra gasta caixa depois da prévia: o Máx conta com o que sobrou
+    assert (
+        _submit(client, {"action": "buy", "type": "market", "quantity": 5}).status_code
+        == 200
+    )
+    fresh = Decimal(
+        _preview(client, {"action": "buy", "quantity": 1, "limit_price": limit})[
+            "max_quantity"
+        ]
+    )
+    assert fresh < stale
+
+    result = _submit(
+        client,
+        {
+            "action": "buy",
+            "type": "limit",
+            "max_size": True,
+            "limit_price": limit,
+        },
+    )
+
+    assert result.status_code == 200, result.text
+    assert result.json()["status"] == "PENDING"
+    assert Decimal(result.json()["quantity"]) == fresh
+
+
+def test_max_sell_is_the_position_minus_the_reserved(paused_match):
+    _, users, client = paused_match
+    client.cookies.set("client_id", str(users[0].client_id))
+    assert (
+        _submit(client, {"action": "buy", "type": "market", "quantity": 4}).status_code
+        == 200
+    )
+    high = float(_preview(client, {"action": "sell", "quantity": 1})["price"]) * 100
+    assert (
+        _submit(
+            client,
+            {"action": "sell", "type": "limit", "quantity": 1, "limit_price": high},
+        ).status_code
+        == 200
+    )
+
+    result = _submit(
+        client,
+        {"action": "sell", "type": "limit", "max_size": True, "limit_price": high},
+    )
+
+    assert result.status_code == 200, result.text
+    assert Decimal(result.json()["quantity"]) == 3
+    # Sem nada livre, o Máx a mercado é recusado
+    nothing = _submit(client, {"action": "sell", "type": "market", "max_size": True})
+    assert nothing.status_code == 422
+    assert "livre" in nothing.json()["detail"]
+
+
+def test_max_market_buy_spends_what_the_whole_amount_buys(paused_match):
+    _, users, client = paused_match
+    client.cookies.set("client_id", str(users[0].client_id))
+    cash = Decimal(client.get("/api/portfolio/cash").json()["cash"])
+    expected = Decimal(
+        _preview(client, {"action": "buy", "amount": str(cash)})["quantity"]
+    )
+
+    result = _submit(client, {"action": "buy", "type": "market", "max_size": True})
+
+    assert result.status_code == 200, result.text
+    assert Decimal(result.json()["quantity"]) == expected
+    left = Decimal(client.get("/api/portfolio/cash").json()["cash"])
+    assert 0 <= left < cash
+
+
+def test_max_with_nothing_to_size_is_refused(paused_match):
+    _, users, client = paused_match
+    client.cookies.set("client_id", str(users[0].client_id))
+    sell = _submit(client, {"action": "sell", "type": "market", "max_size": True})
+    assert sell.status_code == 422
+
+    # Sem caixa, a compra de limite inteiro não paga uma unidade
+    assert (
+        _submit(
+            client, {"action": "buy", "type": "market", "max_size": True}
+        ).status_code
+        == 200
+    )
+    broke = _submit(client, {"action": "buy", "type": "market", "max_size": True})
+    assert broke.status_code == 422
+    assert "não paga uma unidade" in broke.json()["detail"]
+
+
+def test_max_preview_shows_what_the_max_order_would_buy(paused_match):
+    _, users, client = paused_match
+    client.cookies.set("client_id", str(users[0].client_id))
+
+    preview = _preview(client, {"action": "buy", "max_size": True})
+    result = _submit(client, {"action": "buy", "type": "market", "max_size": True})
+
+    assert Decimal(preview["quantity"]) == Decimal(preview["max_quantity"]) > 0
+    assert Decimal(result.json()["quantity"]) == Decimal(preview["quantity"])

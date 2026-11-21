@@ -13,7 +13,7 @@ export function useFoundFund() {
     mutationFn: (request: FundFoundRequest) => apiFetch<FundSummary>("/api/funds", { method: "POST", body: request }),
     // A conta da gestora nasce junto: o menu e o caixa dela passam a listá-la
     onSettled: () =>
-      Promise.all([
+      void Promise.all([
         queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.fundAccounts() }),
       ]),

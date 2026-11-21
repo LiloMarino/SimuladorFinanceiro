@@ -11,7 +11,7 @@ export function useProposeFeeIncrease(fundId: number) {
   return useMutation({
     mutationFn: (request: FundAssemblyFeeProposalRequest) =>
       apiFetch<void>(`/api/funds/${fundId}/assembly/fee-increase`, { method: "POST", body: request }),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: fundKeys.all() }),
     onError: (err) => toastApiError(err),
   });
 }
