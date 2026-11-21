@@ -83,7 +83,6 @@
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
-| [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -103,7 +102,7 @@
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (28 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | — | — | ✅ |
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | — | — | ✅ |
+| [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | M29 · 4.3 | — | — | — | ✅ |
 
@@ -150,7 +150,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 6/25 concluídos
+> **Progresso:** 7/25 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -159,7 +159,7 @@
 | 3 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | — | ✅ Concluído |
 | 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ✅ Concluído |
 | 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ✅ Concluído |
-| 6 | [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | — | ⏳ Pendente |
+| 6 | [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | — | ✅ Concluído |
 | 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | — | ⏳ Pendente |
 | 8 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ⏳ Pendente |
 | 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | [F315](#f315), [F321](#f321) | ⏳ Pendente |
@@ -273,7 +273,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | M29 · 4.3 · 6º | 0 | Médio | Bom | ⏳ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 · 7º | 13 | Alto | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 8º | 3 | Médio | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 21º | 0 | Baixo | Bom | ⏳ |
@@ -339,7 +338,6 @@
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
 | **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
-| **F320** | Correção | Ações do jogador respondem com o jogo andando | N40 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
 | **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Médio | Baixo | Alto | Bom |
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
@@ -569,9 +567,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 **Aceite:** a página mostra card e séries para toda profissão; a troca no meio da partida tem teste; `pnpm run check` verde.
 
-<a id="f320"></a>
-**F320 — Ações do jogador respondem com o jogo andando.** Do playtest de 20/11: com o jogo andando, a boleta e os diálogos (os do presidente, por exemplo) ficam com o botão desabilitado por vários dias de jogo, como se a ação não tivesse ido, e o Máx da boleta dá "caixa não cobre". Na medição pela CLI (salva 10 do banco de teste, 100x, 396 ordens), criar a ordem levou 2 ms na metade dos casos: quem prende o botão é a tela. `useSubmitOrder` devolve no `onSettled` a promessa do `revalidateOrder`, e o TanStack Query mantém a ação pendente até as 8 leituras que ela afeta voltarem, cada uma esperando o dia em andamento (0,5 s típico, 1 s em 95% dos casos). Passos: (1) reproduzir no app de teste a 100x com o modo debug, pela aba Network do DevTools, a boleta (compra a mercado, limitada com Máx, cancelamento) e os diálogos do presidente, e anotar em cada um se o pedido fica pendente no servidor ou volta e a tela não destrava; (2) o botão libera quando o servidor confirma, e as releituras seguem em segundo plano, com o estado novo chegando pelo aviso de dia do websocket, em toda ação que hoje espera releitura; (3) o Máx da ordem limitada vai ao servidor como intenção (todo o caixa, tudo o que tenho), e o servidor calcula a quantidade no preço do dia, como a compra a mercado por valor já faz; (4) conferir se a fila de threads do FastAPI (40 por padrão, e 301 das 303 rotas são síncronas) enche de pedidos parados na trava da partida e segura até rota que não precisa dela. Se encher, a saída se decide com o usuário. O dia lento é a F338.
-
 <a id="f321"></a>
 **F321 — Séries do preço de imóvel, do IGP-M e da TR.** Serve N39; segue a D23. Três séries novas em `IndicatorSeries`, do cliente do Banco Central que o jogo já usa (`bcb_sgs.py`, entradas em `INDICATOR_SOURCES` de `indicators.py`): o IVG-R (índice de valores de garantia dos imóveis residenciais financiados, mensal desde março de 2001), o IGP-M (o índice que reajusta os contratos de aluguel) e a TR (a Taxa Referencial, que rende o FGTS); os códigos SGS se conferem na importação. O futuro se gera em `synthetic.py`/`future.py` como nas outras séries mensais, e o IVG-R antes de março de 2001 recebe preenchimento sintético pelo IPCA. As três entram na Central como séries da economia, com uma linha dizendo o que medem. Testes do importador com resposta gravada.
 
@@ -709,6 +704,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 |
 | **F318** | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 |
 | **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 |
+| **F320** | Correção | Ações do jogador respondem com o jogo andando | N40 | — | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
 
@@ -738,6 +734,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f319"></a>
 **F319 — Página Estratégias segue a conta ativa.** Do playtest de 20/11. O automático da gestora mora na aba Configurações e não tem o que a página Estratégias tem: gráfico de sinais, prévia antes de salvar, confirmação ao desligar ou trocar, registro completo, painel de resultado e parâmetros salvos no perfil. A página Estratégias opera só a conta pessoal (`useMyStrategy` busca `/api/strategies/me`) e não diz isso, e quem gere a gestora acha que ela mexe no automático da gestora. Decidido: a página Estratégias opera a conta escolhida no topo, como a boleta, e diz no cabeçalho qual conta é; a aba Configurações da gestora fica com um resumo do automático e o link para a página. O aviso de boleta travada (`trade-lock-notice.tsx`) desliga o automático de qualquer conta, não só da pessoal.
+
+<a id="f320"></a>
+**F320 — Ações do jogador respondem com o jogo andando.** Do playtest de 20/11: com o jogo andando, a boleta e os diálogos (os do presidente, por exemplo) ficam com o botão desabilitado por vários dias de jogo, como se a ação não tivesse ido, e o Máx da boleta dá "caixa não cobre". Na medição pela CLI (salva 10 do banco de teste, 100x, 396 ordens), criar a ordem levou 2 ms na metade dos casos: quem prende o botão é a tela. `useSubmitOrder` devolve no `onSettled` a promessa do `revalidateOrder`, e o TanStack Query mantém a ação pendente até as 8 leituras que ela afeta voltarem, cada uma esperando o dia em andamento (0,5 s típico, 1 s em 95% dos casos). Passos: (1) reproduzir no app de teste a 100x com o modo debug, pela aba Network do DevTools, a boleta (compra a mercado, limitada com Máx, cancelamento) e os diálogos do presidente, e anotar em cada um se o pedido fica pendente no servidor ou volta e a tela não destrava; (2) o botão libera quando o servidor confirma, e as releituras seguem em segundo plano, com o estado novo chegando pelo aviso de dia do websocket, em toda ação que hoje espera releitura; (3) o Máx da ordem limitada vai ao servidor como intenção (todo o caixa, tudo o que tenho), e o servidor calcula a quantidade no preço do dia, como a compra a mercado por valor já faz; (4) conferir se a fila de threads do FastAPI (40 por padrão, e 301 das 303 rotas são síncronas) enche de pedidos parados na trava da partida e segura até rota que não precisa dela. Se encher, a saída se decide com o usuário. O dia lento é a F338.
 
 <a id="f337"></a>
 **F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
