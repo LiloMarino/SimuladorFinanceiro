@@ -572,6 +572,8 @@ class CreditBook:
         rate = selic + tier.spread + self._engine.premium_gap_on(day)
         if best is not None:
             rate = max(rate, best + FIXED_INCOME_MARGIN)
+        # O juro tem a precisão que o evento grava: contrato, cotação e retomada leem a mesma taxa
+        rate = rate.quantize(RATE_STEP)
         return Offer(
             selic, tier, score, rate, best, max(limit_amount - debt, ZERO), limit_amount
         )

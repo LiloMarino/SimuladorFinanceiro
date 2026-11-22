@@ -11,6 +11,7 @@ from fastapi.testclient import TestClient
 
 from backend.core import repository
 from backend.core.enum import CreditEventType
+from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.features.realtime.schemas import CreditInstallmentPaidEventDTO
 from backend.features.simulation import feed_support
@@ -145,3 +146,24 @@ def test_every_credit_notice_marks_the_account_for_the_overview(
     )
 
     assert changed == [ana.client_id]
+
+
+def test_the_loan_read_back_from_the_database_has_the_state_of_the_live_one(
+    paused_match,  # noqa: F811
+):
+    sim, users, _ = paused_match
+    ana = users[0]
+    book = sim._engine.credit_book
+    live = book.contract(ana.client_id, Decimal(5000), 24)
+    EventManager.flush()
+
+    # Sem o estado em memória, o livro refaz o empréstimo dos eventos gravados
+    book.forget(ana.client_id)
+    [back] = book.loans(ana.client_id)
+
+    assert back.annual_rate == live.annual_rate
+    assert back.state.installment == live.state.installment
+    live_state, back_state = live.state, back.state
+    for _ in range(12):
+        live_state, back_state = live_state.advance(), back_state.advance()
+    assert back_state.cycle_balance == live_state.cycle_balance
