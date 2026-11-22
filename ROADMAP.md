@@ -82,7 +82,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -99,7 +98,7 @@
 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (33 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | — | — | ✅ |
 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | — | — | ✅ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | — | — | ✅ |
+| [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | M29 · 4.3 | — | — | — | ✅ |
 
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 11/26 concluídos
+> **Progresso:** 12/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -165,7 +165,7 @@
 | 8 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ✅ Concluído |
 | 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | — | ✅ Concluído |
 | 10 | [**F323**](#f323) | Feature | Consignado do Servidor | — | ✅ Concluído |
-| 11 | [**F324**](#f324) | Feature | CDB da casa do Bancário | [F315](#f315) | ⏳ Pendente |
+| 11 | [**F324**](#f324) | Feature | CDB da casa do Bancário | — | ✅ Concluído |
 | 12 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | [F315](#f315), [F322](#f322), [F323](#f323), [F324](#f324) | ⏳ Pendente |
 | 13 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | [F315](#f315) | ⏳ Pendente |
 | 14 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | [F315](#f315) | ⏳ Pendente |
@@ -275,7 +275,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 · 11º | 2 | Médio | Bom | ⏳ |
+| [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 · 12º | 0 | Alto | Bom | ⏳ |
 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 · 13º | 1 | Médio | Bom | ⏳ |
 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 · 14º | 1 | Médio | Bom | ⏳ |
 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | M29 · 4.3 · 15º | 1 | Médio | Bom | ⏳ |
@@ -347,7 +347,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F324** | Feature | CDB da casa do Bancário | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
 | **F325** | Feature | Trava de câmbio e mix de exportação do Exportador | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Médio | Alto | Bom |
 | **F326** | Feature | Tabela de preços do Autônomo | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
 | **F327** | Feature | Reinvestimento do Empreendedor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Médio | Alto | Bom |
@@ -563,9 +562,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f324"></a>
-**F324 — CDB da casa do Bancário.** Serve N39; segue a D23. Todo primeiro dia do mês o banco oferece ao Bancário um CDB prefixado de 1, 2 ou 3 anos, com taxa igual à do prefixado do Tesouro do jogo no mesmo prazo mais 1 ponto e teto de aplicação de 1 salário por mês, sem resgate antes do vencimento. Como o salário dele cai quando a SELIC cai, travar com juro alto protege a renda. Aparece na Renda fixa com o selo "da sua profissão" (variante nova do `Badge`, que nasce aqui); o bloco da página Profissão vem no card da página. Reaproveita o `fixed_broker` e o CDB prefixado que já existe, com a oferta criada por jogador em vez da fábrica de ofertas raras. Política razoável: aplica o teto quando a SELIC está acima da média de 24 meses.
-
 <a id="f325"></a>
 **F325 — Trava de câmbio e mix de exportação do Exportador.** Serve N39; segue a D23. **Trava:** na página Profissão o Exportador contrata um câmbio futuro para até 100% da receita de 6 ou 12 meses, ao dólar do dia corrigido pela diferença de juros (dólar x (1 + CDI) / (1 + Fed Funds) no prazo, com as séries que já existem); enquanto vale, a parte travada da renda usa o dólar travado no lugar do fator do dólar. Uma trava por vez. **Mix:** escolhe a fração exportada (0 a 100%, mudança no máximo uma vez por trimestre); a parte exportada segue o dólar e a vendida no Brasil segue o PIB, pelas curvas que já existem em `DRIVER_CURVES`, somadas pelo peso. Política razoável: trava 50% por 12 meses com o dólar acima da média de 12 meses; mix 50/50, puxado para o lado cujo indicador está acima do neutro.
 
@@ -701,6 +697,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 |
 | **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 |
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 |
+| **F324** | Feature | CDB da casa do Bancário | N39 | D23 | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
 
@@ -751,6 +748,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f323"></a>
 **F323 — Consignado do Servidor.** Serve N39; segue a D23. Um produto Consignado só para o Servidor: juro de SELIC + 2% ao ano (abaixo da nota AAA), prazo até 60 meses e parcela descontada do salário antes de entrar no caixa, sem atraso possível. O limite é a margem consignável (soma das parcelas até 35% do salário líquido), independente da nota e do patrimônio: dá crédito no começo da partida, quando o patrimônio é pequeno. Reaproveita `credit_book.py` e a tabela Price de `loan.py`, com a regra nova em `rules.py`; o consignado conta como dívida na nota de risco. Aqui entram o motor e as rotas; o cartão na tela Crédito, com o selo da profissão, e o bloco da página Profissão vêm no card da página. Política razoável: toma metade da margem pelo motor quando o Ibovespa está 20% abaixo do topo de 12 meses; o dinheiro cai no caixa e a estratégia do bot o investe; quando o índice recupera, quita, vendendo o que faltar.
+
+<a id="f324"></a>
+**F324 — CDB da casa do Bancário.** Serve N39; segue a D23. Todo primeiro dia do mês o banco oferece ao Bancário um CDB prefixado de 1, 2 ou 3 anos, com taxa igual à do prefixado do Tesouro do jogo no mesmo prazo mais 1 ponto e teto de aplicação de 1 salário por mês, sem resgate antes do vencimento. Como o salário dele cai quando a SELIC cai, travar com juro alto protege a renda. Aparece na Renda fixa com o selo "da sua profissão" (variante nova do `Badge`, que nasce aqui); o bloco da página Profissão vem no card da página. Reaproveita o `fixed_broker` e o CDB prefixado que já existe, com a oferta criada por jogador em vez da fábrica de ofertas raras. Política razoável: aplica o teto quando a SELIC está acima da média de 24 meses.
 
 <a id="f337"></a>
 **F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
