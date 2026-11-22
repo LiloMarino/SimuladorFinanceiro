@@ -82,7 +82,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -103,7 +102,7 @@
 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (30 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -129,6 +128,7 @@
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
 | **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334), [F340](#f340) | — | — | ✅ |
+| [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | M29 · 4.3 | — | — | — | ✅ |
 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | — | — | ✅ |
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 7/26 concluídos
+> **Progresso:** 8/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -161,7 +161,7 @@
 | 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ✅ Concluído |
 | 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ✅ Concluído |
 | 6 | [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | — | ✅ Concluído |
-| 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | — | ⏳ Pendente |
+| 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | — | ✅ Concluído |
 | 8 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ⏳ Pendente |
 | 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | [F315](#f315), [F321](#f321) | ⏳ Pendente |
 | 10 | [**F323**](#f323) | Feature | Consignado do Servidor | [F315](#f315) | ⏳ Pendente |
@@ -275,8 +275,17 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | M29 · 4.3 · 7º | 14 | Alto | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 8º | 4 | Médio | Bom | ⏳ |
+| [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 · 10º | 2 | Médio | Bom | ⏳ |
+| [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 · 11º | 2 | Médio | Bom | ⏳ |
+| [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 · 13º | 1 | Médio | Bom | ⏳ |
+| [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 · 14º | 1 | Médio | Bom | ⏳ |
+| [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | M29 · 4.3 · 15º | 1 | Médio | Bom | ⏳ |
+| [**F328**](#f328) | Feature | Previdência do Aposentado | M29 · 4.3 · 16º | 1 | Médio | Bom | ⏳ |
+| [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | M29 · 4.3 · 17º | 1 | Médio | Bom | ⏳ |
+| [**F330**](#f330) | Feature | Relatório da casa do Corretor | M29 · 4.3 · 18º | 1 | Médio | Bom | ⏳ |
+| [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | M29 · 4.3 · 19º | 1 | Médio | Bom | ⏳ |
+| [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | M29 · 4.3 · 21º | 1 | Alto | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 22º | 0 | Baixo | Bom | ⏳ |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 23º | 0 | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 25º | 0 | Médio | Bom | ⏳ |
@@ -339,7 +348,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F315** | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
 | **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Médio | Baixo | Alto | Bom |
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
@@ -559,15 +567,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f315"></a>
-**F315 — Base das mecânicas de profissão.** Serve N39; segue a D23. A fundação onde cada profissão pendura a mecânica dela, só no motor: a página Profissão e os blocos das mecânicas moram no card "Página Profissão e os blocos das mecânicas", desenhados antes no canvas.
-- **Estado da mecânica por jogador** em `backend/features/profession/`: tabela com o estado tipado de cada profissão (migração própria), rota de leitura e uma rota de ação por mecânica; o `LifeBudget` lê o estado ao calcular a renda; cada uso vira evento no histórico de vida.
-- **Política razoável**: uma função pura por mecânica que, dado o estado, o dia e a macro, devolve a ação de um jogador razoável. O motor a chama todo mês para os bots (junto do pagamento em `_live`, em `simulation.py`), pelo mesmo serviço da rota de ação, e o `calibrate.py` importa a mesma função.
-- **Troca de profissão no meio da partida**: a troca que hoje só vale no lobby ganha uma via interna, chamada pelas mecânicas (curso técnico do Auxílio, Administrador), que registra a data no histórico e mantém o capital inicial do jogador; o histórico de vida lê a profissão por período.
-- **Calibração** (`calibrate.py`, fora do git): o poupador da sala como régua e a coluna "sem a mecânica".
-
-**Aceite:** a troca no meio da partida tem teste; o estado volta ao carregar a partida; a política roda só para os bots, na virada do mês; `pnpm run check` verde.
-
 <a id="f321"></a>
 **F321 — Séries do preço de imóvel, do IGP-M e da TR.** Serve N39; segue a D23. Três séries novas em `IndicatorSeries`, do cliente do Banco Central que o jogo já usa (`bcb_sgs.py`, entradas em `INDICATOR_SOURCES` de `indicators.py`): o IVG-R (índice de valores de garantia dos imóveis residenciais financiados, mensal desde março de 2001), o IGP-M (o índice que reajusta os contratos de aluguel) e a TR (a Taxa Referencial, que rende o FGTS); os códigos SGS se conferem na importação. O futuro se gera em `synthetic.py`/`future.py` como nas outras séries mensais. O IVG-R não ganha preenchimento antes de março de 2001: o Locador, que passa a usá-lo, fica só nas salas que começam a partir dessa data. As três entram na Central como séries da economia, com uma linha dizendo o que medem. Testes do importador com resposta gravada.
 
@@ -706,6 +705,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
+| **F315** | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 |
 | **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 |
 | **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 |
 | **F318** | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | N23 | — | M29 · 4.3 |
@@ -713,6 +713,15 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F320** | Correção | Ações do jogador respondem com o jogo andando | N40 | — | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
+
+<a id="f315"></a>
+**F315 — Base das mecânicas de profissão.** Serve N39; segue a D23. A fundação onde cada profissão pendura a mecânica dela, só no motor: a página Profissão e os blocos das mecânicas moram no card "Página Profissão e os blocos das mecânicas", desenhados antes no canvas.
+- **Estado da mecânica por jogador** em `backend/features/profession/`: tabela com o estado tipado de cada profissão (migração própria), rota de leitura e uma rota de ação por mecânica; o `LifeBudget` lê o estado ao calcular a renda; cada uso vira evento no histórico de vida.
+- **Política razoável**: uma função pura por mecânica que, dado o estado, o dia e a macro, devolve a ação de um jogador razoável. O motor a chama todo mês para os bots (junto do pagamento em `_live`, em `simulation.py`), pelo mesmo serviço da rota de ação, e o `calibrate.py` importa a mesma função.
+- **Troca de profissão no meio da partida**: a troca que hoje só vale no lobby ganha uma via interna, chamada pelas mecânicas (curso técnico do Auxílio, Administrador), que registra a data no histórico e mantém o capital inicial do jogador; o histórico de vida lê a profissão por período.
+- **Calibração** (`calibrate.py`, fora do git): o poupador da sala como régua e a coluna "sem a mecânica".
+
+**Aceite:** a troca no meio da partida tem teste; o estado volta ao carregar a partida; a política roda só para os bots, na virada do mês; `pnpm run check` verde.
 
 <a id="f316"></a>
 **F316 — Correções do playtest: gestoras e cotas.** Do playtest de 20/11 (partida de aquisição hostil). Sete consertos nas telas e regras da gestora:
