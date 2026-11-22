@@ -82,7 +82,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -101,7 +100,7 @@
 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (31 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (32 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,6 +133,7 @@
 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | M29 · 4.3 | — | — | — | ✅ |
 | [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | M29 · 4.3 | — | — | — | ✅ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | — | — | ✅ |
+| [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | M29 · 4.3 | — | — | — | ✅ |
 
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 9/26 concluídos
+> **Progresso:** 10/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -163,7 +163,7 @@
 | 6 | [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | — | ✅ Concluído |
 | 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | — | ✅ Concluído |
 | 8 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ✅ Concluído |
-| 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | [F315](#f315), [F321](#f321) | ⏳ Pendente |
+| 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | — | ✅ Concluído |
 | 10 | [**F323**](#f323) | Feature | Consignado do Servidor | [F315](#f315) | ⏳ Pendente |
 | 11 | [**F324**](#f324) | Feature | CDB da casa do Bancário | [F315](#f315) | ⏳ Pendente |
 | 12 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | [F315](#f315), [F322](#f322), [F323](#f323), [F324](#f324) | ⏳ Pendente |
@@ -275,7 +275,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 · 9º | 2 | Médio | Bom | ⏳ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 · 10º | 2 | Médio | Bom | ⏳ |
 | [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 · 11º | 2 | Médio | Bom | ⏳ |
 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 · 13º | 1 | Médio | Bom | ⏳ |
@@ -349,7 +348,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Médio | Baixo | Alto | Bom |
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
 | **F324** | Feature | CDB da casa do Bancário | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
 | **F325** | Feature | Trava de câmbio e mix de exportação do Exportador | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Médio | Alto | Bom |
@@ -567,9 +565,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f322"></a>
-**F322 — FGTS e hora extra do CLT.** Serve N39; segue a D23. **FGTS** (passivo, só do CLT): todo mês 8% do salário bruto entram numa conta travada do jogador, sem sair do salário, rendendo 3% ao ano mais a TR; na demissão sorteada o saldo e a multa de 40% sobre ele caem no caixa e a conta recomeça. O saldo conta no patrimônio e aparece na carteira; o bloco do CLT na página Profissão vem no card da página. É o que separa o CLT do Autônomo na demissão. **Hora extra** (ativa): o jogador liga ou desliga por uma rota de ação, e o botão mora no bloco do CLT da página Profissão; ligada, a renda sobe 25% (no salário bruto, e portanto na base do FGTS) e o imprevisto de saúde custa o dobro, pelo mesmo multiplicador da saúde do Aposentado; a oferta de hora extra segue o PIB de 12 meses: só existe com ele a partir de zero, e desliga sozinha na recessão. Campos novos na `ProfessionRule`, aplicados pelo `LifeBudget`; só no modo profissões. Política razoável: liga a hora extra com o PIB acima do neutro e reserva que cubra um imprevisto.
-
 <a id="f323"></a>
 **F323 — Consignado do Servidor.** Serve N39; segue a D23. Um produto Consignado só para o Servidor: juro de SELIC + 2% ao ano (abaixo da nota AAA), prazo até 60 meses e parcela descontada do salário antes de entrar no caixa, sem atraso possível. O limite é a margem consignável (soma das parcelas até 35% do salário líquido), independente da nota e do patrimônio: dá crédito no começo da partida, quando o patrimônio é pequeno. Reaproveita `credit_book.py` e a tabela Price de `loan.py`, com a regra nova em `rules.py`; o consignado conta como dívida na nota de risco. Aqui entram o motor e as rotas; o cartão na tela Crédito, com o selo da profissão, e o bloco da página Profissão vêm no card da página. Política razoável: toma metade da margem pelo motor quando o Ibovespa está 20% abaixo do topo de 12 meses; o dinheiro cai no caixa e a estratégia do bot o investe; quando o índice recupera, quita, vendendo o que faltar.
 
@@ -709,6 +704,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F319** | Melhoria | Página Estratégias segue a conta ativa | N4, N23 | — | M29 · 4.3 |
 | **F320** | Correção | Ações do jogador respondem com o jogo andando | N40 | — | M29 · 4.3 |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 |
+| **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
 
@@ -753,6 +749,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f321"></a>
 **F321 — Séries do preço de imóvel, do IGP-M e da TR.** Serve N39; segue a D23. Três séries novas em `IndicatorSeries`, do cliente do Banco Central que o jogo já usa (`bcb_sgs.py`, entradas em `INDICATOR_SOURCES` de `indicators.py`): o IVG-R (índice de valores de garantia dos imóveis residenciais financiados, mensal desde março de 2001), o IGP-M (o índice que reajusta os contratos de aluguel) e a TR (a Taxa Referencial, que rende o FGTS); os códigos SGS se conferem na importação. O futuro se gera em `synthetic.py`/`future.py` como nas outras séries mensais. O IVG-R não ganha preenchimento antes de março de 2001: o Locador, que passa a usá-lo, fica só nas salas que começam a partir dessa data. As três entram na Central como séries da economia, com uma linha dizendo o que medem. Testes do importador com resposta gravada.
+
+<a id="f322"></a>
+**F322 — FGTS e hora extra do CLT.** Serve N39; segue a D23. **FGTS** (passivo, só do CLT): todo mês 8% do salário bruto entram numa conta travada do jogador, sem sair do salário, rendendo 3% ao ano mais a TR; na demissão sorteada o saldo e a multa de 40% sobre ele caem no caixa e a conta recomeça. O saldo conta no patrimônio e aparece na carteira; o bloco do CLT na página Profissão vem no card da página. É o que separa o CLT do Autônomo na demissão. **Hora extra** (ativa): o jogador liga ou desliga por uma rota de ação, e o botão mora no bloco do CLT da página Profissão; ligada, a renda sobe 25% (no salário bruto, e portanto na base do FGTS) e o imprevisto de saúde custa o dobro, pelo mesmo multiplicador da saúde do Aposentado; a oferta de hora extra segue o PIB de 12 meses: só existe com ele a partir de zero, e desliga sozinha na recessão. Campos novos na `ProfessionRule`, aplicados pelo `LifeBudget`; só no modo profissões. Política razoável: liga a hora extra com o PIB acima do neutro e reserva que cubra um imprevisto.
 
 <a id="f337"></a>
 **F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
