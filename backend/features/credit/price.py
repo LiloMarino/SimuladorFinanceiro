@@ -21,8 +21,6 @@ from backend.features.credit.rules import (
 )
 
 CENT = Decimal("0.01")
-# A casa decimal do juro anual que o evento de crédito grava
-RATE_STEP = Decimal("0.000001")
 ZERO = Decimal(0)
 
 

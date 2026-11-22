@@ -84,7 +84,7 @@ class FakeSimulation:
         self._current_date = date(2026, 3, 2)
         self._engine = SimpleNamespace(credit_book=object())
 
-    def get_fixed_asset(self, asset_id: str) -> Any:
+    def get_fixed_asset(self, _acting: UUID, asset_id: str) -> Any:
         return object() if self.has_asset else None
 
     def acting_client(self, requester: UUID, account: int | None) -> UUID:

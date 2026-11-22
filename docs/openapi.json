@@ -726,40 +726,65 @@
         "summary": "Listar ativos de renda fixa",
         "description": "Retorna os títulos de renda fixa disponíveis com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.",
         "operationId": "get_fixed_income_api_fixed_income_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
+                  "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/FixedIncomeOfferDTO"
                   },
-                  "type": "array",
                   "title": "Response Get Fixed Income Api Fixed Income Get"
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Content",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Unprocessable Content"
           },
           "500": {
-            "description": "Internal Server Error",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
-            }
+            },
+            "description": "Internal Server Error"
           }
         }
       }
@@ -772,6 +797,11 @@
         "summary": "Obter detalhes de renda fixa",
         "description": "Retorna o título com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.",
         "operationId": "get_fixed_income_details_api_fixed_income__asset_uuid__get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
         "parameters": [
           {
             "name": "asset_uuid",
@@ -781,6 +811,24 @@
               "type": "string",
               "title": "Asset Uuid"
             }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
           }
         ],
         "responses": {
@@ -23438,6 +23486,11 @@
               }
             ],
             "title": "Fx Iof Rate"
+          },
+          "profession_offer": {
+            "type": "boolean",
+            "title": "Profession Offer",
+            "default": false
           }
         },
         "additionalProperties": false,
@@ -23459,7 +23512,8 @@
           "tax_exempt",
           "income_tax_rate_at_maturity",
           "fx_rate",
-          "fx_iof_rate"
+          "fx_iof_rate",
+          "profession_offer"
         ],
         "title": "FixedIncomeOfferDTO",
         "description": "O título com o que ele rende hoje e o IR que paga se levado ao vencimento."

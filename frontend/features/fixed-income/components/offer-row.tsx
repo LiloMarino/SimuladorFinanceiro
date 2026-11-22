@@ -43,6 +43,11 @@ export function OfferRow({ offer, position, showApplied, showRate, topRate, toda
         <div className="grid">
           <span className="flex items-center gap-2 font-semibold">
             <span className="max-w-[300px] truncate">{offer.name}</span>
+            {offer.profession_offer && (
+              <Badge variant="profession" size="sm">
+                da sua profissão
+              </Badge>
+            )}
             {position && <HeldBadge />}
           </span>
           {showApplied && <AppliedAmount position={position} />}

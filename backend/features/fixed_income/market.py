@@ -2,10 +2,11 @@ import logging
 from collections.abc import Callable
 from datetime import date
 from decimal import Decimal
+from uuid import UUID
 
 from backend.core import repository
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.features.fixed_income import treasury
+from backend.features.fixed_income import house_cdb, treasury
 from backend.features.fixed_income.factory import FixedIncomeFactory
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import FixedAssetsUpdateEventDTO
@@ -21,6 +22,7 @@ class FixedIncomeMarket:
     - Gerar novos ativos mensalmente usando FixedIncomeFactory, com o CDB de liquidez
       diária e a conta em dólar fixos e, de vez em quando, a oferta rara
     - Emitir todo mês os seis títulos do catálogo do Tesouro, com a taxa travada do mês
+    - Emitir todo mês os três CDBs da casa de cada Bancário, que só o dono vê e compra
     - Manter catálogo de ativos disponíveis por UUID
     - Notificar players sobre atualizações do hall via realtime
     - Fornecer consultas de ativos disponíveis e busca por UUID
@@ -45,12 +47,26 @@ class FixedIncomeMarket:
         self._current_month: tuple[int, int] | None = None
         self._assets: dict[str, FixedIncomeAssetDTO] = {}
         self._issued_assets: dict[str, FixedIncomeAssetDTO] = {}
+        # Os CDBs da casa do mês, por dono e prazo em anos; fora do catálogo público
+        self._house: dict[UUID, dict[int, FixedIncomeAssetDTO]] = {}
+        # O dono de cada CDB da casa emitido enquanto o título não vence
+        self._house_owners: dict[str, UUID] = {}
+        self._house_caps_on: Callable[[date], dict[UUID, Decimal]] = lambda _day: {}
+
+    def use_house_cdb(self, caps_on: Callable[[date], dict[UUID, Decimal]]) -> None:
+        """`caps_on` devolve, para o dia 1º do mês, o teto de cada Bancário da partida; quem não está nele não recebe o CDB."""
+        self._house_caps_on = caps_on
 
     def refresh_assets(self, current_date: date):
         self._issued_assets = {
             uuid: asset
             for uuid, asset in self._issued_assets.items()
             if asset.maturity_date > current_date
+        }
+        self._house_owners = {
+            uuid: owner
+            for uuid, owner in self._house_owners.items()
+            if uuid in self._issued_assets
         }
         current_month = (current_date.year, current_date.month)
         if self._current_month == current_month:
@@ -60,9 +76,35 @@ class FixedIncomeMarket:
         self._generate_assets()
 
     def get_available_assets(self) -> list[FixedIncomeAssetDTO]:
+        """O catálogo público, igual para todos; o CDB da casa não entra."""
         return list(self._assets.values())
 
-    def get_asset(self, uuid: str) -> FixedIncomeAssetDTO | None:
+    def get_house_assets(self, client_id: UUID) -> list[FixedIncomeAssetDTO]:
+        """Os CDBs da casa do mês que `client_id` recebeu, do prazo mais curto ao mais longo."""
+        return list(self._house.get(client_id, {}).values())
+
+    def get_house_asset(
+        self, client_id: UUID, years: int
+    ) -> FixedIncomeAssetDTO | None:
+        return self._house.get(client_id, {}).get(years)
+
+    def house_catalog(self) -> list[tuple[UUID, FixedIncomeAssetDTO]]:
+        """Cada CDB da casa do mês com o dono dele."""
+        return [
+            (owner, asset)
+            for owner, assets in self._house.items()
+            for asset in assets.values()
+        ]
+
+    def is_house_asset(self, uuid: str) -> bool:
+        return uuid in self._house_owners
+
+    def get_asset(self, client_id: UUID, uuid: str) -> FixedIncomeAssetDTO | None:
+        """O ativo de `uuid` como `client_id` o enxerga: o CDB da casa de outro jogador não existe para ele."""
+        owner = self._house_owners.get(uuid)
+        if owner is not None and owner != client_id:
+            return None
+
         asset = self._issued_assets.get(uuid)
         if asset:
             return asset
@@ -98,8 +140,16 @@ class FixedIncomeMarket:
                 self._risk_premium_on(current_date),
             )
         )
+        self._house = {
+            owner: house_cdb.issue(self._simulation_id, owner, current_date, cap)
+            for owner, cap in self._house_caps_on(current_date).items()
+        }
         # A renovação da vitrine não invalida uma oferta ainda aberta no navegador.
         self._issued_assets.update(self._assets)
+        for owner, assets in self._house.items():
+            for asset in assets.values():
+                self._issued_assets[str(asset.asset_uuid)] = asset
+                self._house_owners[str(asset.asset_uuid)] = owner
         notify(
             "fixed_assets_update",
             FixedAssetsUpdateEventDTO(assets=self.get_available_assets()).to_json(),

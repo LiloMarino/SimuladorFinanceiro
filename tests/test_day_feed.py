@@ -61,9 +61,12 @@ class FakeSimulation:
     def get_fixed_assets(self) -> list[Any]:
         return [SimpleNamespace(asset_uuid=self.asset_id)]
 
-    def get_fixed_offer(self, _asset_id: str) -> Payload:
+    def offer_of(self, _asset: Any) -> Payload:
         self.offer_calls += 1
         return Payload({"rate": "0.1"})
+
+    def get_house_offers(self) -> list[Any]:
+        return []
 
     def get_sovereign_fund(self, user: Any) -> Payload:
         self.sovereign_calls.append(user.client_id)

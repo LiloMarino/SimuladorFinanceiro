@@ -13,6 +13,9 @@ from typing import NewType
 # Valor como o BCB publica: 0,0551 = 0,0551%, e não a fração 0,0551
 Percent = NewType("Percent", Decimal)
 
+# A precisão das colunas de taxa: a taxa em memória é a mesma que volta do banco
+STORED_RATE_STEP = Decimal("0.000001")
+
 
 def from_percent(value: Percent) -> Decimal:
     """A fração de um percentual: 0,0551 (%) vira 0,000551."""

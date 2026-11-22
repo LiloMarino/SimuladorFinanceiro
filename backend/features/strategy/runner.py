@@ -642,7 +642,9 @@ class StrategyRunner:
             case StrategyAction.INVEST:
                 if not intent.asset_uuid or not intent.value:
                     raise ValueError("Aplicação e resgate precisam de título e valor")
-                asset = engine.fixed_income_market.get_asset(str(intent.asset_uuid))
+                asset = engine.fixed_income_market.get_asset(
+                    account.client_id, str(intent.asset_uuid)
+                )
                 if asset is None:
                     raise ConflictError("O título não está mais disponível")
                 engine.fixed_broker.buy(account.client_id, asset, intent.value)
@@ -659,7 +661,9 @@ class StrategyRunner:
             case StrategyAction.REDEEM:
                 if not intent.asset_uuid or not intent.value:
                     raise ValueError("Aplicação e resgate precisam de título e valor")
-                asset = engine.fixed_income_market.get_asset(str(intent.asset_uuid))
+                asset = engine.fixed_income_market.get_asset(
+                    account.client_id, str(intent.asset_uuid)
+                )
                 if asset is None:
                     raise ConflictError("O título não está mais disponível")
                 net = intent.value.quantize(Decimal("0.01"))

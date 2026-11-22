@@ -43,6 +43,8 @@ export const badgeVariants = cva(
         "owner-neutral": "min-w-[34px] rounded-md bg-sidebar-muted font-bold tracking-wide text-white",
         // Contagem do que espera resposta do jogador ("1" convite): vermelho cheio
         count: "bg-destructive font-bold text-white",
+        // Selo da oferta que só a profissão do jogador recebe: o tom suave da cor primária
+        profession: "bg-primary/10 text-primary",
         // Nota neutra de uma frase, como o motivo de uma opção travada
         note: "bg-muted text-muted-foreground",
       },

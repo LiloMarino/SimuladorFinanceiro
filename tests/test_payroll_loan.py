@@ -21,6 +21,7 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.indicators import annual_index_rate
+from backend.core.rates import STORED_RATE_STEP
 from backend.core.repository.economic import IndicatorHistory
 from backend.core.utils import last_month_turn, next_month_turn
 from backend.features.credit.credit_book import PayrollLoan
@@ -29,7 +30,7 @@ from backend.features.credit.overview import (
     build_payroll_loan,
     build_payroll_quote,
 )
-from backend.features.credit.price import RATE_STEP, installment
+from backend.features.credit.price import installment
 from backend.features.credit.rules import (
     MAX_TERM_MONTHS,
     MIN_TERM_MONTHS,
@@ -104,7 +105,7 @@ def test_the_contract_has_selic_plus_two_fixed_and_the_price_installment(
 
     expected_rate = (
         annual_index_rate(IndicatorSeries.SELIC, START) + PAYROLL_SPREAD
-    ).quantize(RATE_STEP)
+    ).quantize(STORED_RATE_STEP)
     assert loan.annual_rate == expected_rate
     assert loan.state.installment == installment(Decimal(10000), expected_rate, 24)
     assert loan.term_months == 24 and loan.total_installments == 24

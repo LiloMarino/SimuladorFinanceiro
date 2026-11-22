@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import ROUND_DOWN, Decimal
 from typing import cast
+from uuid import uuid4
 
 import pytest
 
@@ -403,7 +404,7 @@ def test_an_old_issue_stays_resolvable_until_it_matures(market: FixedIncomeMarke
     market.refresh_assets(date(2030, 11, 1))
 
     assert old.asset_uuid not in {a.asset_uuid for a in market.get_available_assets()}
-    assert market.get_asset(str(old.asset_uuid)) == old
+    assert market.get_asset(uuid4(), str(old.asset_uuid)) == old
 
 
 # ---------------------------------------------------------------- preço a mercado

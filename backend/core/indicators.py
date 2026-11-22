@@ -7,7 +7,7 @@ um valor por dia corrido. O IGP-M e a TR também são % ao mês, datados no dia 
 guarda a variação de cada mês sobre o anterior, em %, e não o número-índice.
 """
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core import repository
@@ -15,7 +15,7 @@ from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.core.periods import BUSINESS_DAYS_PER_YEAR
 from backend.core.rates import Percent, compose, compound, from_percent, period_rate
-from backend.core.utils import business_days_in_month
+from backend.core.utils import business_days_in_month, next_month_turn
 
 IPCA_WINDOW_MONTHS = 12
 
@@ -218,6 +218,27 @@ def annual_index_rate(
     if series is IndicatorSeries.FED_FUNDS:
         return from_percent(value)
     return annualize_daily(value)
+
+
+def monthly_average_rate(
+    series: IndicatorSeries, on: date, months: int, *, stored: bool = False
+) -> Decimal | None:
+    """
+    Média da taxa anual de CDI/SELIC nos `months` meses até o de `on`, com uma amostra por
+    mês: a taxa do primeiro pregão. Mês sem série ainda não entra na conta; nulo quando
+    nenhum mês tem amostra.
+    """
+    samples: list[Decimal] = []
+    for back in range(months):
+        index = on.year * 12 + on.month - 1 - back
+        first = date(index // 12, index % 12 + 1, 1)
+        turn = next_month_turn(first - timedelta(days=1))
+        if turn > on:
+            continue
+        value = last_known_rate(series, turn, stored=stored)
+        if value is not None:
+            samples.append(annualize_daily(value))
+    return Decimal(sum(samples)) / len(samples) if samples else None
 
 
 def inflation_target(day: date) -> Decimal:

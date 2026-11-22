@@ -76,9 +76,12 @@ class DayFeed:
             event = f"{FIXED_INCOME_OFFER_EVENT}:{asset.asset_uuid}"
             if not subscribed_clients(event):
                 continue
-            offer = self._simulation.get_fixed_offer(str(asset.asset_uuid))
-            if offer is not None:
-                notify(event, offer.to_json())
+            notify(event, self._simulation.offer_of(asset).to_json())
+        # O CDB da casa chega só ao dono
+        for owner, house_offer in self._simulation.get_house_offers():
+            event = f"{FIXED_INCOME_OFFER_EVENT}:{house_offer.asset_uuid}"
+            if owner in subscribed_clients(event):
+                notify(event, house_offer.to_json(), to=owner)
 
     def _publish_sovereign_fund(self) -> None:
         if self._simulation._government is None:

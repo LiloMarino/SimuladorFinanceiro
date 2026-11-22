@@ -30,6 +30,7 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.indicators import annual_index_rate
+from backend.core.rates import STORED_RATE_STEP
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
@@ -37,7 +38,6 @@ from backend.core.utils import format_money, next_business_day, required
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
-    RATE_STEP,
     ZERO,
     OverdueCharges,
     money,
@@ -500,7 +500,7 @@ class CreditBook:
         """O juro do consignado: a SELIC do dia mais o spread fixo, sem nota nem piso da renda fixa."""
         rate = annual_index_rate(IndicatorSeries.SELIC, day) + PAYROLL_SPREAD
         # O juro tem a precisão que o evento grava: a retomada refaz o mesmo contrato
-        return rate.quantize(RATE_STEP)
+        return rate.quantize(STORED_RATE_STEP)
 
     def payroll_used(self, client_id: UUID) -> Decimal:
         """A parte da margem consignável que as parcelas dos consignados ativos ocupam."""
@@ -573,7 +573,7 @@ class CreditBook:
         if best is not None:
             rate = max(rate, best + FIXED_INCOME_MARGIN)
         # O juro tem a precisão que o evento grava: contrato, cotação e retomada leem a mesma taxa
-        rate = rate.quantize(RATE_STEP)
+        rate = rate.quantize(STORED_RATE_STEP)
         return Offer(
             selic, tier, score, rate, best, max(limit_amount - debt, ZERO), limit_amount
         )

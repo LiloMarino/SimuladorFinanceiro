@@ -128,10 +128,10 @@ class CashFeed:
         self, requester: UUID, account: int | None, asset_id: str, amount: Decimal
     ) -> FixedIncomeQuoteDTO:
         simulation = self._simulation
-        asset = simulation.get_fixed_asset(asset_id)
+        acting = simulation.acting_client(requester, account)
+        asset = simulation.get_fixed_asset(acting, asset_id)
         if asset is None:
             raise NotFoundError("Ativo de renda fixa não encontrado")
-        acting = simulation.acting_client(requester, account)
         return simulation.quote_fixed_income(acting, asset, amount)
 
     # Publicação ao fechar a operação

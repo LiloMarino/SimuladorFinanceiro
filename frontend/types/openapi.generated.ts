@@ -7879,6 +7879,11 @@ export interface components {
             fx_rate: string | null;
             /** Fx Iof Rate */
             fx_iof_rate: string | null;
+            /**
+             * Profession Offer
+             * @default false
+             */
+            profession_offer: boolean;
         };
         /** FixedIncomePositionDTO */
         FixedIncomePositionDTO: {
@@ -17238,7 +17243,10 @@ export interface operations {
     get_fixed_income_api_fixed_income_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path?: never;
             cookie?: never;
         };
@@ -17276,7 +17284,10 @@ export interface operations {
     get_fixed_income_details_api_fixed_income__asset_uuid__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
             path: {
                 asset_uuid: string;
             };

@@ -176,7 +176,11 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.fund_reference import FundReference
-from backend.core.indicators import annual_index_rate, last_known_rate
+from backend.core.indicators import (
+    annual_index_rate,
+    last_known_rate,
+    monthly_average_rate,
+)
 from backend.core.life_budget import LifeBudget
 from backend.core.life_events import life_event_label
 from backend.core.metrics import (
@@ -294,6 +298,11 @@ from backend.features.government.promise_panel import (
 )
 from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
+from backend.features.profession.banker import (
+    BOT_HOUSE_CDB_YEARS,
+    SELIC_AVERAGE_MONTHS,
+    house_cdb_amount,
+)
 from backend.features.profession.clt import (
     after_layoff,
     after_month,
@@ -599,6 +608,8 @@ class Simulation:
         # O caixa da gestora chega, pelo tempo real, ao gestor que a gere; o do Fundo Soberano, ao presidente
         self._engine.use_account_route(self._account_route)
         self._engine.on_cash_moved = self._cash_moved
+        # A casa emite o CDB de cada Bancário com o teto que a renda dele no mês pede
+        self._engine.fixed_income_market.use_house_cdb(self._house_cdb_caps)
         if self._government is not None:
             self._government.use_fund_lookup(self._fund_quotas_of)
         if self._funds is not None:
@@ -666,8 +677,11 @@ class Simulation:
         return self._engine.fixed_income_market.get_available_assets()
 
     @synchronized
-    def get_fixed_asset(self, asset_uuid: str) -> FixedIncomeAssetDTO | None:
-        return self._engine.fixed_income_market.get_asset(asset_uuid)
+    def get_fixed_asset(
+        self, client_id: UUID, asset_uuid: str
+    ) -> FixedIncomeAssetDTO | None:
+        """O título como `client_id` o enxerga: o CDB da casa de outro jogador não existe para ele."""
+        return self._engine.fixed_income_market.get_asset(client_id, asset_uuid)
 
     @synchronized
     def get_portfolio(self, client_id: UUID):
@@ -728,6 +742,12 @@ class Simulation:
         self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
     ) -> None:
         self._ensure_can_operate(client_id)
+        self._buy_fixed_income(client_id, asset, value)
+
+    def _buy_fixed_income(
+        self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal
+    ) -> None:
+        """A compra de renda fixa das rotas dos jogadores e da política do bot, com as mesmas travas de conta e de teto."""
         self._ensure_not_sovereign(client_id)
         self._engine.fixed_broker.buy(client_id, asset, value)
         EventManager.flush()
@@ -2510,27 +2530,27 @@ class Simulation:
             self._notify_funds_update()
 
     @synchronized
-    def get_fixed_offers(self) -> list[FixedIncomeOfferDTO]:
+    def get_fixed_offers(self, client_id: UUID) -> list[FixedIncomeOfferDTO]:
+        """As ofertas do catálogo público e, para o Bancário, os CDBs da casa dele."""
+        market = self._engine.fixed_income_market
         return [
-            apply_offer_assistance(
-                offer(
-                    a,
-                    self._current_date,
-                    self._tax_policy(),
-                    self._engine.dollar_today(),
-                ),
-                self.settings,
-            )
-            for a in self.get_fixed_assets()
+            self.offer_of(a)
+            for a in [*self.get_fixed_assets(), *market.get_house_assets(client_id)]
             if a.investment_type is not FixedIncomeType.TESOURO_DIRETO
         ]
 
     @synchronized
-    def get_fixed_offer(self, asset_uuid: str) -> FixedIncomeOfferDTO | None:
-        asset = self.get_fixed_asset(asset_uuid)
+    def get_fixed_offer(
+        self, client_id: UUID, asset_uuid: str
+    ) -> FixedIncomeOfferDTO | None:
+        asset = self.get_fixed_asset(client_id, asset_uuid)
         if not asset:
             return None
-        return apply_offer_assistance(
+        return self.offer_of(asset)
+
+    @synchronized
+    def offer_of(self, asset: FixedIncomeAssetDTO) -> FixedIncomeOfferDTO:
+        dto = apply_offer_assistance(
             offer(
                 asset,
                 self._current_date,
@@ -2539,6 +2559,22 @@ class Simulation:
             ),
             self.settings,
         )
+        # O selo da profissão marca o CDB da casa, que o jogador só recebe pela profissão dele
+        return dto.model_copy(
+            update={
+                "profession_offer": self._engine.fixed_income_market.is_house_asset(
+                    str(asset.asset_uuid)
+                )
+            }
+        )
+
+    @synchronized
+    def get_house_offers(self) -> list[tuple[UUID, FixedIncomeOfferDTO]]:
+        """Cada CDB da casa do mês com o cliente que o recebeu, para o aviso ir só a ele."""
+        return [
+            (owner, self.offer_of(asset))
+            for owner, asset in self._engine.fixed_income_market.house_catalog()
+        ]
 
     @synchronized
     def quote_fixed_income(
@@ -3403,6 +3439,43 @@ class Simulation:
             if action is not None:
                 self.apply_profession_action(user, action)
             self._run_payroll_policy(user, budgets[user.client_id], day)
+            self._run_house_cdb_policy(user, budgets[user.client_id], reserve, day)
+
+    def _run_house_cdb_policy(
+        self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
+    ) -> None:
+        """O Bancário-bot aplica no CDB da casa de 3 anos com a SELIC acima da média, pelo mesmo serviço da compra dos jogadores."""
+        if self._profession_of(user.id) is not Profession.BANKER:
+            return
+        asset = self._engine.fixed_income_market.get_house_asset(
+            user.client_id, BOT_HOUSE_CDB_YEARS
+        )
+        if asset is None or asset.player_cap is None:
+            return
+        amount = house_cdb_amount(
+            annual_index_rate(IndicatorSeries.SELIC, day),
+            monthly_average_rate(IndicatorSeries.SELIC, day, SELIC_AVERAGE_MONTHS),
+            asset.player_cap - self._applied(user.client_id, asset),
+            reserve,
+        )
+        # O caixa que a reserva enxerga é o que um débito alcança; a compra sai do caixa de fato
+        amount = min(amount, self.get_cash(user.client_id)).quantize(Decimal("0.01"))
+        if amount <= 0:
+            return
+        self._buy_fixed_income(user.client_id, asset, amount)
+
+    def _house_cdb_caps(self, day: date) -> dict[UUID, Decimal]:
+        """O teto do CDB da casa de cada Bancário da partida: um salário líquido do mês de `day`."""
+        if self._life is None or not self.settings.uses_professions:
+            return {}
+        caps: dict[UUID, Decimal] = {}
+        for user in repository.simulation_player.participants(self.settings.id):
+            if self._profession_of(user.id) is not Profession.BANKER:
+                continue
+            salary = self._life_budget(self._life, user.id).net_salary_on(day)
+            if salary > 0:
+                caps[user.client_id] = salary
+        return caps
 
     def _run_payroll_policy(self, user: UserDTO, budget: LifeBudget, day: date) -> None:
         """O Servidor-bot contrata o consignado com o Ibovespa fundo e o quita na volta ao topo, pelo mesmo serviço das rotas dos jogadores."""

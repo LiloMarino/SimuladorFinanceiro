@@ -358,11 +358,11 @@ def list_order_book(simulation: ActiveSimulation, asset: str):
     summary="Listar ativos de renda fixa",
     description="Retorna os títulos de renda fixa disponíveis com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.",
 )
-def get_fixed_income(simulation: ActiveSimulation):
+def get_fixed_income(simulation: ActiveSimulation, client_id: ActingClient):
     """
-    Lista todos os ativos de renda fixa.
+    Lista os ativos de renda fixa à venda, com o CDB da casa de quem é Bancário.
     """
-    return simulation.get_fixed_offers()
+    return simulation.get_fixed_offers(client_id)
 
 
 @operation_router.get(
@@ -371,11 +371,13 @@ def get_fixed_income(simulation: ActiveSimulation):
     summary="Obter detalhes de renda fixa",
     description="Retorna o título com a taxa equivalente do dia, a isenção e a alíquota de IR no vencimento.",
 )
-def get_fixed_income_details(simulation: ActiveSimulation, asset_uuid: str):
+def get_fixed_income_details(
+    simulation: ActiveSimulation, client_id: ActingClient, asset_uuid: str
+):
     """
     Retorna os detalhes de um ativo de renda fixa.
     """
-    fixed = simulation.get_fixed_offer(asset_uuid)
+    fixed = simulation.get_fixed_offer(client_id, asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo não encontrado.")
     return fixed
@@ -417,7 +419,7 @@ def buy_fixed_income(
     """
     Compra um ativo de renda fixa.
     """
-    fixed = simulation.get_fixed_asset(asset_uuid)
+    fixed = simulation.get_fixed_asset(client_id, asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo de renda fixa não encontrado")
 
@@ -441,7 +443,7 @@ def get_fixed_income_redemption(
     """
     Cota o resgate de uma posição de liquidez diária.
     """
-    fixed = simulation.get_fixed_asset(asset_uuid)
+    fixed = simulation.get_fixed_asset(client_id, asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo de renda fixa não encontrado")
     return simulation.quote_fixed_redemption(client_id, fixed, amount)
@@ -462,7 +464,7 @@ def redeem_fixed_income(
     """
     Resgata um ativo de renda fixa de liquidez diária.
     """
-    fixed = simulation.get_fixed_asset(asset_uuid)
+    fixed = simulation.get_fixed_asset(client_id, asset_uuid)
     if not fixed:
         raise NotFoundError("Ativo de renda fixa não encontrado")
 

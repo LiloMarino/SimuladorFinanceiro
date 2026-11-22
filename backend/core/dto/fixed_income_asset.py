@@ -39,3 +39,5 @@ class FixedIncomeOfferDTO(FixedIncomeAssetDTO):
     # Só a conta em dólar: o dólar de hoje em reais e o IOF do câmbio cobrado na entrada
     fx_rate: Decimal | None = None
     fx_iof_rate: Decimal | None = None
+    # A oferta é da profissão de quem a vê (o CDB da casa do Bancário), e só ele a recebe
+    profession_offer: bool = False
