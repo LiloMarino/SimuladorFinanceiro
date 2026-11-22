@@ -6,6 +6,7 @@ const series = (patch: Partial<SeriesCoverage>): SeriesCoverage => ({
   kind: "INDICATOR",
   key: "CDI",
   name: "CDI",
+  provider: "Banco Central",
   start: "1986-03-06",
   real_end: "2026-11-09",
   generated_end: null,

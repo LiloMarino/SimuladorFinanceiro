@@ -10352,7 +10352,7 @@ export interface components {
          * IndicatorSeries
          * @enum {string}
          */
-        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT" | "PTAX" | "FOCUS_SELIC" | "FOCUS_IPCA" | "FOCUS_GDP" | "FOCUS_FX" | "FED_FUNDS";
+        IndicatorSeries: "CDI" | "SELIC" | "IPCA" | "IBOV" | "GDP_GROWTH" | "UNEMPLOYMENT" | "PTAX" | "FOCUS_SELIC" | "FOCUS_IPCA" | "FOCUS_GDP" | "FOCUS_FX" | "FED_FUNDS" | "IVG_R" | "IGP_M" | "TR";
         /**
          * IndicatorSeriesDTO
          * @description Só os pedidos vêm preenchidos; cada série começa no primeiro pregão com valor.
@@ -13944,6 +13944,8 @@ export interface components {
             key: string;
             /** Name */
             name: string;
+            /** Provider */
+            provider: string | null;
             /** Start */
             start: string | null;
             /** Real End */

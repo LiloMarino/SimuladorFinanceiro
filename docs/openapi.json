@@ -31287,7 +31287,10 @@
           "FOCUS_IPCA",
           "FOCUS_GDP",
           "FOCUS_FX",
-          "FED_FUNDS"
+          "FED_FUNDS",
+          "IVG_R",
+          "IGP_M",
+          "TR"
         ],
         "title": "IndicatorSeries"
       },
@@ -41768,6 +41771,17 @@
             "type": "string",
             "title": "Name"
           },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
           "start": {
             "anyOf": [
               {
@@ -41849,6 +41863,7 @@
           "kind",
           "key",
           "name",
+          "provider",
           "start",
           "real_end",
           "generated_end",

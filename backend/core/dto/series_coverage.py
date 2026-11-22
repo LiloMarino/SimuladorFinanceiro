@@ -10,7 +10,8 @@ class SeriesKind(Enum):
     STOCK = "STOCK"
     # Indicadores do mercado: limitam o período da partida
     INDICATOR = "INDICATOR"
-    # Séries da economia do país (PIB, desemprego e dólar): não limitam a partida
+    # Séries da economia do país e do exterior (PIB, desemprego, dólar, juro americano, preço
+    # dos imóveis, IGP-M e TR): não limitam a partida
     MACRO = "MACRO"
     # Projeções do mercado (Focus): não limitam a partida
     EXPECTATION = "EXPECTATION"
@@ -31,6 +32,8 @@ class SeriesCoverageDTO(BaseDTO):
     kind: SeriesKind
     key: str
     name: str
+    # Quem publica a série; só os indicadores têm, as ações não
+    provider: str | None
     start: date | None
     real_end: date | None
     generated_end: date | None

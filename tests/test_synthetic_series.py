@@ -1,6 +1,7 @@
 """Gerador de séries sintéticas sobre um histórico pequeno montado no teste."""
 
 from datetime import date
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -18,6 +19,8 @@ from backend.features.import_data.synthetic import (
 
 LAST_REAL = date(2004, 12, 31)
 UNTIL = date(2006, 12, 29)
+IVG_R_FIRST_MONTH = date(2001, 4, 1)
+FOLLOWERS = (IndicatorSeries.IVG_R, IndicatorSeries.IGP_M, IndicatorSeries.TR)
 
 
 def business_days(start: date, end: date) -> list[date]:
@@ -83,11 +86,20 @@ def build_history() -> MarketHistory:
     cdi = ((1 + selic_annual - 0.001) ** (1 / 252) - 1) * 100
     months = pd.date_range(synthetic.POOL_START, LAST_REAL, freq="MS")
     ipca = np.round(rng.uniform(0.1, 1.2, len(months)), 2)
+    # IGP-M e TR trazem um valor único por mês, que diz de que mês histórico o futuro
+    # gerado saiu; o IVG-R só existe desde abril de 2001
+    igp_m = np.round(0.01 * np.arange(1, len(months) + 1), 2)
+    tr = np.round(0.0001 * np.arange(1, len(months) + 1), 4)
+    ivg_r_months = [m.date() for m in months if m.date() >= IVG_R_FIRST_MONTH]
+    ivg_r = np.round(rng.uniform(0.0, 0.9, len(ivg_r_months)), 6)
     indicators = {
         IndicatorSeries.IBOV: pd.Series(10_000 * np.exp(np.cumsum(market)), index=days),
         IndicatorSeries.SELIC: pd.Series(selic, index=days),
         IndicatorSeries.CDI: pd.Series(cdi, index=days),
         IndicatorSeries.IPCA: pd.Series(ipca, index=[m.date() for m in months]),
+        IndicatorSeries.IGP_M: pd.Series(igp_m, index=[m.date() for m in months]),
+        IndicatorSeries.TR: pd.Series(tr, index=[m.date() for m in months]),
+        IndicatorSeries.IVG_R: pd.Series(ivg_r, index=ivg_r_months),
         # Fed Funds em % ao ano, parado em 6%
         IndicatorSeries.FED_FUNDS: pd.Series(np.full(len(days), 6.0), index=days),
     }
@@ -197,6 +209,88 @@ def test_ipca_repeats_a_historical_month(generator, history):
 
     assert generated.index[0] == date(2005, 1, 1)
     assert set(generated.to_numpy()) <= set(real.to_numpy())
+
+
+def drawn_months(generated: pd.Series, history: MarketHistory) -> list[date]:
+    """O mês histórico de que cada mês gerado saiu, lido pelo valor único do IGP-M."""
+    igp_m = history.indicators[IndicatorSeries.IGP_M]
+    month_of = {float(value): cast("date", month) for month, value in igp_m.items()}
+    return [month_of[float(value)] for value in generated]
+
+
+def test_housing_series_show_up_in_the_future(generator):
+    generated = generator.generate(UNTIL, seed=2).indicators
+
+    for series in FOLLOWERS:
+        assert generated[series].index[0] == date(2005, 1, 1)
+        assert generated[series].index[-1] == date(2006, 12, 1)
+
+
+def test_housing_series_carry_the_value_of_the_drawn_historical_month(
+    generator, history
+):
+    """O IPCA, o IGP-M e a TR do mesmo mês gerado vêm do mesmo mês histórico."""
+    generated = generator.generate(
+        UNTIL, seed=3, inflation_level=0, surge_frequency=0
+    ).indicators
+    months = drawn_months(generated[IndicatorSeries.IGP_M], history)
+
+    for series in (IndicatorSeries.IPCA, IndicatorSeries.TR):
+        real = history.indicators[series]
+        assert list(generated[series]) == [real[m] for m in months]
+
+
+def test_ivg_r_drawn_before_its_first_month_follows_the_ipca_of_that_month(
+    generator, history
+):
+    ivg_r = history.indicators[IndicatorSeries.IVG_R]
+    ipca = history.indicators[IndicatorSeries.IPCA]
+    before_first = 0
+    for seed in range(1, 6):
+        generated = generator.generate(
+            UNTIL, seed=seed, inflation_level=0, surge_frequency=0
+        ).indicators
+        months = drawn_months(generated[IndicatorSeries.IGP_M], history)
+        expected = [ivg_r[m] if m in ivg_r else ipca[m] for m in months]
+        before_first += sum(m < IVG_R_FIRST_MONTH for m in months)
+
+        assert list(generated[IndicatorSeries.IVG_R]) == expected
+    assert before_first > 0
+
+
+def test_series_that_start_late_repeat_the_last_value_when_the_drawn_month_is_missing(
+    history,
+):
+    """Mês sorteado sem valor na TR: vale o último valor, que no começo é o último real."""
+    tr = history.indicators[IndicatorSeries.TR]
+    late_start = date(2003, 1, 1)
+    late_tr = tr[[m for m in tr.index if m >= late_start]]
+    shortened = MarketHistory(
+        history.assets, {**history.indicators, IndicatorSeries.TR: late_tr}
+    )
+    generated = SeriesGenerator(shortened).generate(UNTIL, seed=3).indicators
+
+    months = drawn_months(generated[IndicatorSeries.IGP_M], history)
+    last = float(late_tr.iloc[-1])
+    expected = []
+    for month in months:
+        last = float(late_tr[month]) if month in late_tr else last
+        expected.append(last)
+    assert list(generated[IndicatorSeries.TR]) == expected
+    assert any(month < late_start for month in months)
+
+
+def test_inflation_level_and_surges_leave_the_housing_series_alone(generator):
+    calm = generator.generate(
+        UNTIL, seed=4, inflation_level=0, surge_frequency=0
+    ).indicators
+    raised = generator.generate(
+        UNTIL, seed=4, inflation_level=15, surge_frequency=5, surge_intensity=20
+    ).indicators
+
+    assert not calm[IndicatorSeries.IPCA].equals(raised[IndicatorSeries.IPCA])
+    for series in FOLLOWERS:
+        pd.testing.assert_series_equal(calm[series], raised[series])
 
 
 def test_higher_temperature_means_a_more_agitated_market(generator):

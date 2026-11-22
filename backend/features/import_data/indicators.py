@@ -1,8 +1,9 @@
 """
 Atualização dos indicadores econômicos: CDI, SELIC, IPCA e PTAX (o dólar) pelo SGS
 do Banco Central e o Ibovespa pelo yfinance. O crescimento do PIB e o desemprego são do
-IBGE e chegam pelo mesmo SGS, que os republica. As projeções do mercado vêm do Focus do
-Banco Central e o juro americano (Fed Funds) vem do FRED.
+IBGE, o IGP-M é da FGV e o IVG-R e a TR são do próprio Banco Central; todos chegam pelo
+mesmo SGS, que os republica. As projeções do mercado vêm do Focus do Banco Central e o
+juro americano (Fed Funds) vem do FRED.
 """
 
 import logging
@@ -11,12 +12,14 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from functools import partial
+from itertools import pairwise
 
 import yfinance as yf
 
 from backend.core import repository
 from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.enum import IndicatorSeries
+from backend.core.utils import subtract_months
 from backend.features.import_data.bcb_focus import (
     fetch_focus_annual,
     fetch_focus_ipca,
@@ -57,6 +60,14 @@ QUARTERS_PER_YEAR = 4
 UNEMPLOYMENT_SGS = 24369
 # Dólar comercial (venda), a PTAX; o real nasce em 01/07/1994, antes disso a série é de outras moedas
 PTAX_SGS = 1
+# Número-índice dos valores de garantia dos imóveis residenciais financiados (IVG-R), base
+# 100 em março de 2001, o primeiro mês da série
+IVG_R_SGS = 21340
+IVG_R_START = date(2001, 3, 1)
+# IGP-M da FGV, variação mensal em %: reajusta os contratos de aluguel
+IGP_M_SGS = 189
+# Taxa Referencial mensal em % (a série 226 é a diária): rende o FGTS
+TR_SGS = 7811
 
 
 def gdp_growth(index: list[tuple[date, Decimal]]) -> list[tuple[date, Decimal]]:
@@ -85,53 +96,107 @@ def fetch_gdp_growth(start: date, end: date) -> list[tuple[date, Decimal]]:
     return [(day, value) for day, value in gdp_growth(index) if day >= start]
 
 
+def monthly_change(index: list[tuple[date, Decimal]]) -> list[tuple[date, Decimal]]:
+    """
+    Variação de cada mês sobre o anterior, em %, de um número-índice mensal: a série
+    mensal em % que o jogo guarda. O primeiro mês do índice é a base e não tem variação.
+    """
+    return [
+        (day, ((value / before - 1) * 100).quantize(Decimal("0.000001")))
+        for (_, before), (day, value) in pairwise(index)
+    ]
+
+
+def fetch_ivg_r(start: date, end: date) -> list[tuple[date, Decimal]]:
+    """
+    A variação mensal do IVG-R entre `start` e `end`; o índice vem desde o mês anterior a
+    `start`, porque a variação de um mês pede o valor do mês que o precede.
+    """
+    index = fetch_sgs(IVG_R_SGS, max(subtract_months(start, 1), IVG_R_START), end)
+    return [(day, value) for day, value in monthly_change(index) if day >= start]
+
+
 @dataclass(frozen=True)
 class IndicatorSource:
     name: str
     first_date: date
     fetch: Callable[[date, date], list[tuple[date, Decimal]]]
+    # Quem publica a série, na Central de dados
+    provider: str
 
 
 INDICATOR_SOURCES: dict[IndicatorSeries, IndicatorSource] = {
     IndicatorSeries.CDI: IndicatorSource(
-        "CDI", date(1986, 3, 6), partial(fetch_sgs, 12)
+        "CDI", date(1986, 3, 6), partial(fetch_sgs, 12), "Banco Central"
     ),
     IndicatorSeries.SELIC: IndicatorSource(
-        "SELIC", date(1986, 6, 4), partial(fetch_sgs, 11)
+        "SELIC", date(1986, 6, 4), partial(fetch_sgs, 11), "Banco Central"
     ),
     IndicatorSeries.IPCA: IndicatorSource(
-        "IPCA", date(1980, 1, 1), partial(fetch_sgs, 433)
+        "IPCA", date(1980, 1, 1), partial(fetch_sgs, 433), "IBGE via Banco Central"
     ),
-    IndicatorSeries.IBOV: IndicatorSource("Ibovespa", date(1993, 4, 27), fetch_ibov),
+    IndicatorSeries.IBOV: IndicatorSource(
+        "Ibovespa", date(1993, 4, 27), fetch_ibov, "B3"
+    ),
     IndicatorSeries.GDP_GROWTH: IndicatorSource(
-        "PIB (crescimento em 4 trimestres)", date(1997, 10, 1), fetch_gdp_growth
+        "PIB (crescimento em 4 trimestres)",
+        date(1997, 10, 1),
+        fetch_gdp_growth,
+        "IBGE via Banco Central",
     ),
     IndicatorSeries.UNEMPLOYMENT: IndicatorSource(
         "Desemprego (PNAD Contínua)",
         date(2012, 3, 1),
         partial(fetch_sgs, UNEMPLOYMENT_SGS),
+        "IBGE via Banco Central",
     ),
     IndicatorSeries.PTAX: IndicatorSource(
-        "PTAX (dólar)", date(1994, 7, 1), partial(fetch_sgs, PTAX_SGS)
+        "PTAX (dólar)", date(1994, 7, 1), partial(fetch_sgs, PTAX_SGS), "Banco Central"
     ),
     IndicatorSeries.FOCUS_SELIC: IndicatorSource(
-        "Focus: SELIC da próxima reunião", date(2004, 11, 18), fetch_focus_selic
+        "Focus: SELIC da próxima reunião",
+        date(2004, 11, 18),
+        fetch_focus_selic,
+        "Focus do Banco Central",
     ),
     IndicatorSeries.FOCUS_IPCA: IndicatorSource(
-        "Focus: IPCA dos próximos 12 meses", date(2001, 11, 7), fetch_focus_ipca
+        "Focus: IPCA dos próximos 12 meses",
+        date(2001, 11, 7),
+        fetch_focus_ipca,
+        "Focus do Banco Central",
     ),
     IndicatorSeries.FOCUS_GDP: IndicatorSource(
         "Focus: PIB do ano",
         date(1999, 1, 1),
         partial(fetch_focus_annual, "PIB Total"),
+        "Focus do Banco Central",
     ),
     IndicatorSeries.FOCUS_FX: IndicatorSource(
         "Focus: câmbio do fim do ano",
         date(2000, 1, 1),
         partial(fetch_focus_annual, "Câmbio"),
+        "Focus do Banco Central",
     ),
     IndicatorSeries.FED_FUNDS: IndicatorSource(
-        "Fed Funds (juro americano)", date(1994, 7, 1), fetch_fed_funds
+        "Fed Funds (juro americano)",
+        date(1994, 7, 1),
+        fetch_fed_funds,
+        "FRED (Federal Reserve)",
+    ),
+    IndicatorSeries.IVG_R: IndicatorSource(
+        "IVG-R (preço dos imóveis)", IVG_R_START, fetch_ivg_r, "Banco Central"
+    ),
+    IndicatorSeries.IGP_M: IndicatorSource(
+        "IGP-M (reajuste do aluguel)",
+        date(1989, 6, 1),
+        partial(fetch_sgs, IGP_M_SGS),
+        "FGV via Banco Central",
+    ),
+    IndicatorSeries.TR: IndicatorSource(
+        "TR (Taxa Referencial)",
+        date(1991, 3, 1),
+        partial(fetch_sgs, TR_SGS),
+        "Banco Central",
     ),
 }
 

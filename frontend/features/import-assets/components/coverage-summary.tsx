@@ -79,7 +79,7 @@ export function CoverageSummary({ series, future, onGenerate }: CoverageSummaryP
     {
       label: "Na base",
       value: `${indicators} ${indicators === 1 ? "indicador" : "indicadores"} · ${stocks} ${stocks === 1 ? "ativo" : "ativos"}`,
-      detail: "Indicadores do Banco Central e do IBGE e ações da B3",
+      detail: "Indicadores do Banco Central, do IBGE e da FGV e ações da B3",
     },
     ...(future
       ? [

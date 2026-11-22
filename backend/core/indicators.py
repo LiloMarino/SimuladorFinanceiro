@@ -3,7 +3,8 @@ Taxas dos indexadores (CDI, SELIC, IPCA, Fed Funds) lidas das séries histórica
 
 As séries guardam o valor como a fonte publica: CDI e SELIC em % ao dia, um valor por
 dia útil; IPCA em % ao mês, um valor por mês (datado no dia 1); Fed Funds em % ao ano,
-um valor por dia corrido.
+um valor por dia corrido. O IGP-M e a TR também são % ao mês, datados no dia 1; o IVG-R
+guarda a variação de cada mês sobre o anterior, em %, e não o número-índice.
 """
 
 from datetime import date

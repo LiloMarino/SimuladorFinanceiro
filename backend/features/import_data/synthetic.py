@@ -98,6 +98,18 @@ FED_HALF_LIFE_YEARS = 2.0
 
 PRICE_COLUMNS = ["open", "high", "low", "close", "volume"]
 
+# Casas decimais de cada série mensal gerada: as da fonte
+MONTHLY_DECIMALS = {
+    IndicatorSeries.IPCA: 2,
+    IndicatorSeries.IVG_R: 6,
+    IndicatorSeries.IGP_M: 2,
+    IndicatorSeries.TR: 4,
+}
+# O mês sorteado que uma dessas séries não cobre leva o IPCA do mesmo mês: o IVG-R nasce em
+# 2001 e o sorteio começa em 2000. As demais são mais antigas que o sorteio e repetem o
+# último valor
+IPCA_WHERE_MISSING = (IndicatorSeries.IVG_R,)
+
 # Anos reais (de 12 meses completos) que calibram o rendimento do dividendo
 DIVIDEND_YEARS = 5
 # Anos sem dividendo, os mais recentes, a partir dos quais o ativo deixa de pagar
@@ -312,7 +324,15 @@ class SeriesGenerator:
         selic = self.indicators.get(IndicatorSeries.SELIC)
         ipca = self.indicators.get(IndicatorSeries.IPCA)
         self.selic_end = _last_day(selic) if selic is not None else None
-        self.ipca_end = _last_day(ipca) if ipca is not None else None
+        # Cada série mensal tem o próprio último mês real e o valor de cada mês histórico
+        self.monthly_end: dict[IndicatorSeries, date] = {}
+        self.monthly_by_month: dict[IndicatorSeries, dict[date, float]] = {}
+        for series, values in self.indicators.items():
+            if series.is_monthly:
+                self.monthly_end[series] = _last_day(values)
+                self.monthly_by_month[series] = dict(
+                    zip(_dates(values.index), values.to_numpy(), strict=True)
+                )
 
         self.selic_annual = np.full(n, np.nan)
         self.last_selic = np.nan
@@ -326,13 +346,11 @@ class SeriesGenerator:
             self.selic_floor = np.nanmin(self.selic_annual, initial=np.inf)
             self.selic_ceiling = np.nanmax(self.selic_annual, initial=-np.inf)
 
-        self.ipca_by_month: dict[date, float] = {}
         self.last_ipca: list[float] = []
         ipca12 = np.full(n, np.nan)
         trend = np.full(n, np.nan)
         if ipca is not None:
             months = _dates(ipca.index)
-            self.ipca_by_month = dict(zip(months, ipca.to_numpy(), strict=True))
             self.last_ipca = list(ipca.to_numpy()[-12:])
             rolling = (ipca / 100 + 1).rolling(12).apply(np.prod) - 1
             accumulated = dict(zip(months, rolling.to_numpy(), strict=True))
@@ -433,9 +451,13 @@ class SeriesGenerator:
 
         relative = self.block_vol / np.median(self.block_vol)
         heat = relative ** (TEMPERATURE_STEEPNESS * (draw.temperature - 1))
-        path = _Path(last_day)
+        path = _Path(last_day, monthly={series: {} for series in self.monthly_end})
         level = self.last_selic
         recent_ipca = list(self.last_ipca)
+        last_monthly = {
+            series: float(self.indicators[series].iloc[-1])
+            for series in self.monthly_end
+        }
         ipca12 = [_accumulated(recent_ipca)] * 4 if recent_ipca else [np.nan] * 4
         regime = self.current_regime
 
@@ -465,19 +487,21 @@ class SeriesGenerator:
                 path.chain[block] = int(self.starts[members[i]])
             source = path.chain[block] + offset
 
-            # IPCA do mês: o do mês sorteado para o primeiro dia útil dele
+            # Séries mensais: o valor do mês sorteado, no primeiro dia útil do mês
             month = day.replace(day=1)
-            if (
-                self.ipca_end is not None
-                and month > self.ipca_end
-                and day == _first_business_day(month)
-            ):
-                value = self.ipca_by_month.get(
-                    self.calendar_days[source].replace(day=1), recent_ipca[-1]
-                )
-                path.ipca[month] = value
-                recent_ipca = [*recent_ipca[-11:], value]
-                ipca12.append(_accumulated(recent_ipca))
+            if day == _first_business_day(month):
+                source_month = self.calendar_days[source].replace(day=1)
+                for series, end in self.monthly_end.items():
+                    if month <= end:
+                        continue
+                    value = self._monthly_value(
+                        series, source_month, last_monthly[series]
+                    )
+                    path.monthly[series][month] = value
+                    last_monthly[series] = value
+                    if series is IndicatorSeries.IPCA:
+                        recent_ipca = [*recent_ipca[-11:], value]
+                        ipca12.append(_accumulated(recent_ipca))
 
             # SELIC: nível de hoje mais as variações dos trechos, nos limites
             if self.selic_end is not None and day > self.selic_end:
@@ -491,6 +515,19 @@ class SeriesGenerator:
             day = _day_from_number(number)
         self._paths[key] = path
         return path
+
+    def _monthly_value(
+        self, series: IndicatorSeries, source_month: date, last: float
+    ) -> float:
+        """O valor da série no mês histórico sorteado; sem ele, o IPCA do mês ou o último valor."""
+        value = self.monthly_by_month[series].get(source_month)
+        if value is not None:
+            return value
+        if series in IPCA_WHERE_MISSING:
+            return self.monthly_by_month.get(IndicatorSeries.IPCA, {}).get(
+                source_month, last
+            )
+        return last
 
     def _sources(self, draw: "_Draw", days: list[date]) -> np.ndarray:
         """Posição no calendário do sorteio do pregão real que cada dia copia."""
@@ -853,8 +890,7 @@ class SeriesGenerator:
         cdi = self.indicators.get(IndicatorSeries.CDI)
         if selic is not None and cdi is not None:
             self._generate_rates(draw, until, selic, cdi, out)
-        if self.ipca_end is not None:
-            self._generate_ipca(draw, until, out)
+        self._generate_monthly(draw, until, out)
         fed = self.indicators.get(IndicatorSeries.FED_FUNDS)
         if fed is not None:
             self._generate_fed(until, fed, out)
@@ -942,24 +978,30 @@ class SeriesGenerator:
             index=cdi_days,
         )
 
-    def _generate_ipca(
+    def _generate_monthly(
         self, draw: "_Draw", until: date, out: dict[IndicatorSeries, pd.Series]
     ) -> None:
-        """O IPCA do mês sorteado mais o nível e os surtos do mês, em % ao mês."""
-        months = [
-            m for m in self._path(draw, until).ipca if _first_business_day(m) <= until
-        ]
-        if not months:
+        """
+        Cada série mensal no valor do mês sorteado, em % ao mês. Só o IPCA ganha o nível e
+        os surtos do mês: as outras andam com ele pelo mês sorteado e levam o valor que
+        esse mês teve.
+        """
+        if not self.monthly_end:
             return
-        path = self._path(draw, until).ipca
-        push, _ = self._effects(
-            draw, np.array([_day_number(_first_business_day(m)) for m in months])
-        )
-        values = [
-            path[m] + ((1 + added) ** (1 / MONTHS_PER_YEAR) - 1) * 100
-            for m, added in zip(months, push, strict=True)
-        ]
-        out[IndicatorSeries.IPCA] = pd.Series(np.round(values, 2), index=months)
+        for series, by_month in self._path(draw, until).monthly.items():
+            months = [m for m in by_month if _first_business_day(m) <= until]
+            if not months:
+                continue
+            values = np.array([by_month[m] for m in months])
+            if series is IndicatorSeries.IPCA:
+                push, _ = self._effects(
+                    draw,
+                    np.array([_day_number(_first_business_day(m)) for m in months]),
+                )
+                values = values + ((1 + push) ** (1 / MONTHS_PER_YEAR) - 1) * 100
+            out[series] = pd.Series(
+                np.round(values, MONTHLY_DECIMALS[series]), index=months
+            )
 
 
 def _ramp(years: np.ndarray) -> np.ndarray:
@@ -985,9 +1027,9 @@ class _Draw:
 
 @dataclass
 class _Path:
-    """Trecho de cada bloco e os níveis de SELIC (anual) e IPCA (% ao mês) sem nível nem surtos."""
+    """Trecho de cada bloco e os níveis de SELIC (anual) e das séries mensais (% ao mês) sem nível nem surtos."""
 
     last_day: date
     chain: dict[int, int] = field(default_factory=dict)
     selic: dict[date, float] = field(default_factory=dict)
-    ipca: dict[date, float] = field(default_factory=dict)
+    monthly: dict[IndicatorSeries, dict[date, float]] = field(default_factory=dict)

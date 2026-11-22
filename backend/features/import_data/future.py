@@ -107,8 +107,9 @@ def load_market_history() -> MarketHistory:
     values: dict[str, list[tuple[date, Decimal]]] = defaultdict(list)
     for series, day, value in repository.generated_future.get_real_indicators():
         values[series].append((day, value))
-    # O futuro gerado é do mercado e do juro americano; o PIB, o desemprego e o dólar
-    # seguem o modelo da partida e as projeções do Focus não têm futuro
+    # O futuro gerado é do mercado, do juro americano e das séries mensais que seguem o
+    # IPCA; o PIB, o desemprego e o dólar seguem o modelo da partida e as projeções do
+    # Focus não têm futuro
     values = {
         series: rows
         for series, rows in values.items()
@@ -341,7 +342,7 @@ def _series_starts(
     } | {
         series.value: _Line.of(values).days[-1]
         for series, values in generator.indicators.items()
-        if series not in (IndicatorSeries.IPCA, IndicatorSeries.FED_FUNDS)
+        if not series.is_monthly and series is not IndicatorSeries.FED_FUNDS
     }
     key = min(last_days, key=lambda k: last_days[k])
     laggard = SeriesStartDTO(key=key, start=next_business_day(last_days[key]))

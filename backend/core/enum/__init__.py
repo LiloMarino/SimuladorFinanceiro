@@ -603,11 +603,17 @@ class IndicatorSeries(Enum):
     FOCUS_FX = "FOCUS_FX"
     # Fed Funds, o juro básico americano, em % ao ano: rende a conta em dólar
     FED_FUNDS = "FED_FUNDS"
+    # Preço dos imóveis (IVG-R, valores de garantia dos imóveis residenciais financiados),
+    # reajuste do aluguel (IGP-M) e Taxa Referencial (TR, rende o FGTS), todos em % ao mês:
+    # o IVG-R guarda a variação de cada mês sobre o anterior, não o número-índice
+    IVG_R = "IVG_R"
+    IGP_M = "IGP_M"
+    TR = "TR"
 
     @property
     def is_macro(self) -> bool:
         """Série da economia, do país ou do exterior: mostrada na Central, fora do mercado e do período da partida."""
-        return self in (
+        return self.follows_ipca or self in (
             IndicatorSeries.GDP_GROWTH,
             IndicatorSeries.UNEMPLOYMENT,
             IndicatorSeries.PTAX,
@@ -615,10 +621,26 @@ class IndicatorSeries(Enum):
         )
 
     @property
+    def follows_ipca(self) -> bool:
+        """O futuro gerado dela leva o valor do mesmo mês histórico sorteado do IPCA."""
+        return self in (
+            IndicatorSeries.IVG_R,
+            IndicatorSeries.IGP_M,
+            IndicatorSeries.TR,
+        )
+
+    @property
+    def is_monthly(self) -> bool:
+        """Série em % ao mês, um valor por mês datado no dia 1."""
+        return self is IndicatorSeries.IPCA or self.follows_ipca
+
+    @property
     def has_generated_future(self) -> bool:
-        """O gerador cria o futuro dela: o PIB, o desemprego e o dólar seguem o modelo da partida e o Focus não tem futuro."""
-        return self is IndicatorSeries.FED_FUNDS or not (
-            self.is_macro or self.is_expectation
+        """O gerador cria o futuro dela: o PIB, o desemprego e o dólar seguem o modelo da partida e o Focus não tem futuro; o Fed Funds e as que seguem o IPCA são da economia e ganham o futuro mesmo assim."""
+        return (
+            self is IndicatorSeries.FED_FUNDS
+            or self.follows_ipca
+            or not (self.is_macro or self.is_expectation)
         )
 
     @property

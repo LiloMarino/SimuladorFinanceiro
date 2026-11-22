@@ -6,6 +6,7 @@ const series = (start: string, real_end: string, generated_end: string | null = 
   kind: "INDICATOR",
   key: "X",
   name: "X",
+  provider: null,
   start,
   real_end,
   generated_end,

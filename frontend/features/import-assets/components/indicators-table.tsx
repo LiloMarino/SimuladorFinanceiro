@@ -40,18 +40,18 @@ type Group = {
 const GROUPS: Group[] = [
   {
     kind: "INDICATOR",
-    label: "Indicadores · Banco Central e B3",
+    label: "Indicadores do mercado",
     rule: { text: "Ganham futuro gerado. Sem ele, a partida repete o último valor", swatch: "repeat" },
   },
   {
     kind: "MACRO",
-    label: "Economia do país · IBGE via Banco Central",
+    label: "Economia do país e do exterior",
     rule: {
-      text: "Depois do último dado, a partida calcula a partir da SELIC, do IPCA e da bolsa",
+      text: "Sem futuro gerado, a partida calcula a partir da SELIC, do IPCA e da bolsa",
       swatch: "computed",
     },
   },
-  { kind: "EXPECTATION", label: "Expectativas do mercado · Focus do Banco Central" },
+  { kind: "EXPECTATION", label: "Expectativas do mercado" },
 ];
 
 type IndicatorsTableProps = {
@@ -60,10 +60,9 @@ type IndicatorsTableProps = {
   range: TimelineRange;
 };
 
-/** A linha de baixo do nome: o que o indicador é e, na economia do país, a exceção que ganha futuro gerado. */
+/** A linha de baixo do nome: o que o indicador é e quem o publica. */
 function noteOf(item: SeriesCoverage): string | undefined {
-  if (item.kind === "MACRO" && item.has_generated_future) return "exceção do grupo: ganha futuro gerado";
-  return SERIES_DESCRIPTIONS[item.key];
+  return [SERIES_DESCRIPTIONS[item.key], item.provider].filter(Boolean).join(" · ") || undefined;
 }
 
 /** Os indicadores num eixo de tempo comum, em grupos que dizem o que a partida faz depois do último dado. */
@@ -78,7 +77,7 @@ export function IndicatorsTable({ series, range }: IndicatorsTableProps) {
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle>Indicadores e expectativas</CardTitle>
-        <CardDescription>{series.length} séries · baixadas do Banco Central, do IBGE e da B3</CardDescription>
+        <CardDescription>{series.length} séries · baixadas do Banco Central, do IBGE, da FGV e da B3</CardDescription>
         <CardAction>
           <Button size="sm" disabled={busy} onClick={() => downloadAll.mutate()}>
             {downloadAll.isPending ? <Spinner /> : <RefreshCw />}

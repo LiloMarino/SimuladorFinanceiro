@@ -23,6 +23,7 @@ def get_series_coverage() -> list[SeriesCoverageDTO]:
             series.value,
             source.name,
             indicators,
+            provider=source.provider,
             has_generated_future=series.has_generated_future,
         )
         for series, source in INDICATOR_SOURCES.items()
@@ -65,6 +66,7 @@ def _series(
     asset_class: AssetClass | None = None,
     segment: StockSegmentDTO | None = None,
     origin: AssetOrigin | None = None,
+    provider: str | None = None,
     has_generated_future: bool = True,
 ) -> SeriesCoverageDTO:
     origins = coverage.get(key, {})
@@ -75,6 +77,7 @@ def _series(
         kind=kind,
         key=key,
         name=name,
+        provider=provider,
         start=min(starts) if starts else None,
         real_end=real.end if real else None,
         generated_end=generated.end if generated else None,
