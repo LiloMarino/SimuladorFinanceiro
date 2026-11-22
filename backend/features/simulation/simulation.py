@@ -103,6 +103,12 @@ from backend.core.dto.patrimonial_history import (
 )
 from backend.core.dto.pending import PendingDTO
 from backend.core.dto.position import PositionDTO
+from backend.core.dto.profession import (
+    MechanicAction,
+    MechanicState,
+    ProfessionPeriodDTO,
+    ProfessionStateDTO,
+)
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import DayBalanceDTO, SnapshotDTO
@@ -192,6 +198,7 @@ from backend.core.professions import (
     IncomeDriver,
     LifeLevers,
     RealRaise,
+    available_professions,
     is_party_bound,
 )
 from backend.core.rates import period_rate
@@ -278,6 +285,9 @@ from backend.features.government.promise_panel import (
 )
 from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
+from backend.features.profession.mechanics import apply_action
+from backend.features.profession.policy import policy_action
+from backend.features.profession.profession_book import ProfessionBook
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     ComanagerEventDTO,
@@ -313,6 +323,8 @@ from backend.features.simulation.life_events import (
     unexpected_on,
 )
 from backend.features.simulation.life_history import (
+    BudgetChange,
+    HistoryPeriod,
     budget_changes,
 )
 from backend.features.simulation.life_history import (
@@ -459,6 +471,8 @@ class Simulation:
         # da partida na primeira vez e refeitos quando entra jogador
         self._parties: dict[int, str] = {}
         self._offer_bankers: list[UUID] | None = None
+        # O estado da mecânica e os períodos de profissão de cada jogador
+        self._profession_book = ProfessionBook(settings.id)
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._feed = AssetPageFeed(self)
         self._day_feed = DayFeed(self)
@@ -2221,8 +2235,11 @@ class Simulation:
         # O salário do 1º pregão do mês (`_live`) sai antes de `GovernmentBook.on_tick` do mesmo
         # dia, e o governo só passa a valer a partir do dia seguinte à posse: a troca de
         # governo muda a renda do Comissionado no mês seguinte
-        budget = self._with_party(
-            life.for_profession(self._profession_of(user_id)), user_id
+        budget = self._with_mechanic(
+            self._with_party(
+                life.for_profession(self._profession_of(user_id)), user_id
+            ),
+            user_id,
         )
         president = self._government.president() if self._government else None
         if president is not None and president.id == user_id:
@@ -3079,6 +3096,8 @@ class Simulation:
             return event_by_weight[weight]
 
         if month_changed:
+            # A política do bot age antes da renda do mês: o estado que ela deixa vale já neste mês
+            self._run_bot_policies(users, day)
             for user in users:
                 budget = budgets[user.client_id]
                 loses_income = budget.income_loss() is not None and skipped_for(budget)
@@ -3213,6 +3232,86 @@ class Simulation:
             return budget
         return budget.with_party(lambda day: government.is_aligned(party, day))
 
+    def _mechanic_state_of(self, user_id: int) -> MechanicState:
+        """O estado da mecânica da profissão que o jogador exerce agora."""
+        return self._profession_book.state_of(user_id, self._profession_of(user_id))
+
+    def _with_mechanic(self, budget: LifeBudget, user_id: int) -> LifeBudget:
+        """A renda de quem tem mecânica acompanha o estado dela, lido a cada cálculo."""
+        return budget.with_mechanic_state(lambda: self._mechanic_state_of(user_id))
+
+    @synchronized
+    def get_profession_state(self, client_id: UUID) -> ProfessionStateDTO:
+        """A profissão de `client_id` e o estado da mecânica dela."""
+        user_id = UserManager.get_user_id(client_id)
+        return ProfessionStateDTO(
+            profession=self._profession_of(user_id),
+            state=self._mechanic_state_of(user_id),
+        )
+
+    @synchronized
+    def apply_profession_action(
+        self, user: UserDTO, action: MechanicAction
+    ) -> MechanicState:
+        """
+        Aplica a ação de `user` na mecânica da profissão dele: valida pela regra da
+        mecânica, guarda o estado novo e lança a ação no histórico da vida. É o único
+        caminho das ações: as rotas dos jogadores e a política dos bots passam por ele.
+        """
+        profession = self._profession_of(user.id)
+        state = apply_action(
+            profession,
+            self._mechanic_state_of(user.id),
+            action,
+            self._current_date,
+        )
+        self._profession_book.save_state(user.id, state)
+        self._engine.record_profession_action(user.client_id, action.kind)
+        return state
+
+    @synchronized
+    def switch_profession(self, user: UserDTO, profession: Profession) -> None:
+        """
+        A troca de profissão no meio da partida: o jogador mantém o caixa e o capital
+        inicial, o período novo abre hoje com o estado inicial da mecânica nova e a
+        troca entra no histórico da vida. A profissão presa a partido não é destino:
+        o partido se escolhe ao entrar.
+        """
+        if not self.settings.uses_professions:
+            raise ConflictError("A partida joga com salário igual: não há profissões.")
+        if profession not in available_professions(
+            inflation_adjusted=self.settings.inflation_adjusted,
+            government_enabled=self.settings.government_enabled,
+            funds_enabled=self.settings.funds_enabled,
+        ):
+            raise ConflictError("Essa profissão não existe nas regras desta partida.")
+        if is_party_bound(profession):
+            raise ConflictError(
+                "A profissão presa a partido só se escolhe ao entrar na partida."
+            )
+        if self._profession_of(user.id) is profession:
+            raise ConflictError("O jogador já exerce essa profissão.")
+        self._profession_book.switch(user.id, profession, self._current_date)
+        self._professions = {**self._professions, user.id: profession}
+        self._offer_bankers = None
+        UserManager.replace_profession(user, profession)
+        self._engine.record_profession_switch(user.client_id, profession)
+
+    def _run_bot_policies(self, users: list[UserDTO], day: date) -> None:
+        """Cada bot toma a ação que a política da profissão dele manda no mês, pelo mesmo caminho das ações dos jogadores."""
+        macro = self._macro.latest(day)
+        for user in users:
+            if not user.is_bot:
+                continue
+            action = policy_action(
+                self._profession_of(user.id),
+                self._mechanic_state_of(user.id),
+                day,
+                macro,
+            )
+            if action is not None:
+                self.apply_profession_action(user, action)
+
     def party_abbrs(self) -> frozenset[str]:
         """As siglas dos partidos da partida; vazio sem o Governo & Política."""
         return (
@@ -3329,18 +3428,46 @@ class Simulation:
         if self._life is None:
             return build_life_history(events, self.settings.life_events)
         user_id = UserManager.get_user_id(client_id)
-        budget = self._with_party(
-            self._life.for_profession(self._profession_of(user_id)), user_id
-        )
-        changes = budget_changes(budget, self._current_date, _overdraft_rate)
+        periods = self._profession_periods(user_id)
+        changes: list[BudgetChange] = []
+        history_periods: list[HistoryPeriod] = []
+        for index, period in enumerate(periods):
+            following = periods[index + 1].start if index + 1 < len(periods) else None
+            # Só o trecho atual tem o estado da mecânica; os anteriores são de outra profissão
+            budget = self._with_party(
+                self._life.for_profession(period.profession), user_id
+            )
+            if following is None:
+                budget = self._with_mechanic(budget, user_id)
+            changes += budget_changes(
+                budget,
+                self._current_date if following is None else following,
+                _overdraft_rate,
+                since=None if index == 0 else period.start,
+            )
+            history_periods.append(
+                HistoryPeriod(
+                    period.start,
+                    period.profession if self.settings.uses_professions else None,
+                    budget.income_loss(),
+                )
+            )
         return build_life_history(
             events,
             self.settings.life_events,
             changes,
             lambda day: self._macro.latest(day).unemployment,
-            budget.income_loss(),
-            budget.profession if self.settings.uses_professions else None,
+            history_periods,
         )
+
+    def _profession_periods(self, user_id: int) -> list[ProfessionPeriodDTO]:
+        """Os períodos de profissão do jogador; sem período gravado, a profissão dele vale desde o início da partida."""
+        return self._profession_book.periods_of(user_id) or [
+            ProfessionPeriodDTO(
+                profession=self._profession_of(user_id),
+                start=self.settings.start_date,
+            )
+        ]
 
     @synchronized
     def get_current_date(self) -> date:
@@ -3745,6 +3872,7 @@ class Simulation:
         dele em `simulation_players`.
         """
         self._offer_bankers = None
+        self._profession_book.forget()
         if cash > 0:
             self._engine.add_cash(user.client_id, cash)
         EventManager.flush()

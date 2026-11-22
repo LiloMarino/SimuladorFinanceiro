@@ -15,6 +15,7 @@ from pydantic import ValidationError
 from backend import config
 from backend.core.dto.events.cashflow import CashflowEventDTO
 from backend.core.dto.life import DEFAULT_LIFE_EVENTS, LifeEventTypeDTO
+from backend.core.dto.profession import initial_state
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
     CASH_SIGN,
@@ -46,6 +47,7 @@ from backend.features.simulation.life_events import (
 )
 from backend.features.simulation.life_history import (
     BudgetChange,
+    HistoryPeriod,
     budget_changes,
     build_history,
     history_page,
@@ -308,12 +310,19 @@ def _living(
         get_cash=lambda _client: engine.cash,
         _professions={},
         _government=SimpleNamespace(president=lambda: president),
+        _profession_book=SimpleNamespace(
+            state_of=lambda _user, profession: initial_state(profession)
+        ),
     )
     living = cast(Simulation, fake)
     fake._layoff_factor = partial(Simulation._layoff_factor, living)
     fake._layoff_factor_for = partial(Simulation._layoff_factor_for, living)
     fake._profession_of = partial(Simulation._profession_of, living)
     fake._with_party = partial(Simulation._with_party, living)
+    fake._mechanic_state_of = partial(Simulation._mechanic_state_of, living)
+    fake._with_mechanic = partial(Simulation._with_mechanic, living)
+    fake._run_bot_policies = partial(Simulation._run_bot_policies, living)
+    fake.apply_profession_action = partial(Simulation.apply_profession_action, living)
     fake._life_budget = partial(Simulation._life_budget, living)
     fake._notify_life_event = partial(Simulation._notify_life_event, living)
     return living, LifeBudget.of(settings)
@@ -574,7 +583,9 @@ def test_a_good_event_is_a_positive_row_with_the_text_of_the_profession():
     good = event(date(2012, 6, 8), T.UNEXPECTED_INCOME, "8000", BOOM_KEY)
 
     rows = build_history(
-        [good], DEFAULT_LIFE_EVENTS, profession=Profession.ENTREPRENEUR
+        [good],
+        DEFAULT_LIFE_EVENTS,
+        periods=[HistoryPeriod(date.min, Profession.ENTREPRENEUR, None)],
     )
 
     assert [r.kind for r in rows] == [LifeHistoryKind.UNEXPECTED_INCOME]
@@ -588,8 +599,7 @@ def test_the_freelancer_layoff_reads_as_a_month_without_clients():
     rows = build_history(
         EVENTS,
         DEFAULT_LIFE_EVENTS,
-        loss=IncomeLoss.NO_CLIENTS,
-        profession=Profession.FREELANCER,
+        periods=[HistoryPeriod(date.min, Profession.FREELANCER, IncomeLoss.NO_CLIENTS)],
     )
 
     layoff = next(r for r in rows if r.kind is LifeHistoryKind.LAYOFF)

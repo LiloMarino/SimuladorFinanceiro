@@ -62,6 +62,20 @@ class SimulationLoader:
             for user_id in user_ids
         }
 
+    @staticmethod
+    def _opening_professions(
+        settings: SimulationSettingsDTO,
+        professions: dict[int, Profession],
+        user_ids: list[int],
+    ) -> dict[int, Profession]:
+        """A profissão com que cada jogador abre o primeiro período; sem profissões, todos são CLT."""
+        return {
+            user_id: professions.get(user_id, Profession.CLT)
+            if settings.uses_professions
+            else Profession.CLT
+            for user_id in user_ids
+        }
+
     @classmethod
     def _ensure_goal_above_room_capital(cls, settings: SimulationSettingsDTO) -> None:
         """A meta passa do maior capital inicial da sala, humanos e bots; abaixo disso alguém vence no primeiro dia."""
@@ -142,6 +156,13 @@ class SimulationLoader:
             else None,
             UserManager.chosen_professions() if settings.uses_professions else None,
             UserManager.chosen_parties() if settings.uses_professions else None,
+        )
+        repository.profession.open(
+            simulation_id,
+            cls._opening_professions(
+                settings, UserManager.chosen_professions(), list(room_colors)
+            ),
+            settings.start_date,
         )
         portfolios = repository.portfolio.open(
             simulation_id,
@@ -293,6 +314,11 @@ class SimulationLoader:
             }
             if summary.uses_professions
             else None,
+        )
+        repository.profession.open(
+            summary.id,
+            cls._opening_professions(summary, room_professions, list(newcomers)),
+            resume_from or summary.start_date,
         )
         repository.portfolio.open(
             summary.id,

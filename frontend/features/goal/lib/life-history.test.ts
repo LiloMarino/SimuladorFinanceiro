@@ -53,6 +53,15 @@ describe("texto do histórico da vida real", () => {
     expect(lifeRowText(row({ category: "OVERDRAFT", kind: "OVERDRAFT_ENDED" }))).toBe("Caixa voltou ao positivo");
     expect(lifeRowText(row({ category: "OVERDRAFT", kind: "OVERDRAFT_INTEREST" }))).toBe("Juros do cheque especial");
   });
+
+  it("a troca de profissão nomeia o destino, ou fica genérica", () => {
+    expect(lifeRowText(row({ category: "PROFESSION", kind: "PROFESSION_SWITCHED", life_event_key: "CLT" }))).toBe(
+      "Mudou de profissão para CLT",
+    );
+    expect(lifeRowText(row({ category: "PROFESSION", kind: "PROFESSION_SWITCHED", life_event_key: null }))).toBe(
+      "Mudou de profissão",
+    );
+  });
 });
 
 describe("ícone do histórico", () => {

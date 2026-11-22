@@ -14,7 +14,7 @@ from backend.core.dto.backtest import (
     BacktestStatusDTO,
 )
 from backend.core.dto.simulation import SimulationDTO
-from backend.core.enum import StrategyLogKind
+from backend.core.enum import Profession, StrategyLogKind
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.indicators import ensure_indicator_coverage
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -52,6 +52,11 @@ def start(config: BacktestConfigDTO) -> BacktestStatusDTO:
         repository.simulation_player.save(
             simulation_id,
             {bot.id: p.color for bot, (p, _) in zip(bots, participants, strict=True)},
+        )
+        repository.profession.open(
+            simulation_id,
+            {bot.id: Profession.CLT for bot in bots},
+            settings.start_date,
         )
         portfolios = repository.portfolio.open(
             simulation_id,

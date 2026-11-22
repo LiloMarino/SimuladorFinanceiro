@@ -321,6 +321,7 @@ class UserManager:
 
         # O capital inicial é um só: o da carteira e o do depósito do dia
         starting_cash = sim.starting_cash_for(profession)
+        joined_on = sim.get_current_date()
 
         with cls._lock:
             colors = repository.simulation_player.colors(simulation_id)
@@ -350,6 +351,16 @@ class UserManager:
                 if uses_professions and profession is not None
                 else None,
                 {user.id: chosen_party} if chosen_party is not None else None,
+            )
+            # O primeiro período de profissão começa no dia da entrada
+            repository.profession.open(
+                simulation_id,
+                {
+                    user.id: profession
+                    if uses_professions and profession is not None
+                    else Profession.CLT
+                },
+                joined_on,
             )
             cls._active_players[client_id] = user
             cls._colors[user.id] = color
@@ -823,6 +834,19 @@ class UserManager:
             cls._professions[player.id] = profession
 
         cls._emit_player_profession(player)
+
+    @classmethod
+    def replace_profession(cls, user: UserDTO, profession: Profession) -> None:
+        """
+        A troca de profissão com a partida em andamento, depois de a partida a gravar:
+        a sala passa a ler a nova profissão do jogador. Vale para quem já está na
+        partida; o caminho do lobby é `set_profession`.
+        """
+        with cls._lock:
+            cls._professions[user.id] = profession
+            if user.id in cls._saved_professions:
+                cls._saved_professions[user.id] = profession
+        cls._emit_player_profession(user)
 
     @classmethod
     def distribute_teams(cls) -> None:

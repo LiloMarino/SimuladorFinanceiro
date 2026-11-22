@@ -23,6 +23,7 @@ from backend.core.enum import (
     CorporateEventKind,
     EquityEventType,
     OrderAction,
+    Profession,
 )
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.fund_reference import FundReference
@@ -493,6 +494,21 @@ class SimulationEngine:
         """Debita um imprevisto, vendendo renda fixa antes se o caixa não cobre; a demissão entra com valor zero, para ficar no histórico."""
         self.cover_before_debit(client_id, amount, CashflowEventType.UNEXPECTED_EXPENSE)
         self._move_cash(client_id, -amount, CashflowEventType.UNEXPECTED_EXPENSE, key)
+
+    def record_profession_switch(self, client_id: UUID, profession: Profession) -> None:
+        """Lança a troca de profissão no histórico da vida, sem dinheiro: a chave do evento é a nova profissão."""
+        self._move_cash(
+            client_id,
+            Decimal(0),
+            CashflowEventType.PROFESSION_SWITCHED,
+            profession.value,
+        )
+
+    def record_profession_action(self, client_id: UUID, kind: str) -> None:
+        """Lança a ação da mecânica da profissão no histórico da vida, sem dinheiro: a chave do evento é o nome da ação."""
+        self._move_cash(
+            client_id, Decimal(0), CashflowEventType.PROFESSION_ACTION, kind
+        )
 
     def receive_unexpected(self, client_id: UUID, amount: Decimal, key: str) -> None:
         """Credita no caixa um imprevisto bom (restituição, herança, bônus...)."""

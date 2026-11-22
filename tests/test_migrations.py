@@ -324,3 +324,71 @@ def test_saved_match_gets_one_portfolio_per_player(scratch_url: URL) -> None:
             ).scalar_one()
             assert wrong_owner == 0
     engine.dispose()
+
+
+BEFORE_PROFESSION_MECHANICS = "e2a9c4b7d531"
+
+
+def test_saved_match_gets_the_profession_state_and_the_first_period_per_player(
+    scratch_url: URL,
+) -> None:
+    """
+    A partida salva antes das mecânicas chega ao head com o estado vazio e um período
+    por jogador, que começa no início da partida e traz a profissão da coluna (CLT
+    quando ela é nula).
+    """
+    url = scratch_url.render_as_string(hide_password=False)
+    command.upgrade(alembic_config(url), BEFORE_PROFESSION_MECHANICS)
+    engine = create_engine(scratch_url, poolclass=NullPool)
+    with engine.begin() as connection:
+        for nickname in ("ana", "bia"):
+            connection.execute(
+                text(
+                    "INSERT INTO users (client_id, nickname, created_at) "
+                    "VALUES (gen_random_uuid(), :nickname, :now)"
+                ),
+                {"nickname": nickname, "now": NOW},
+            )
+        connection.execute(
+            text(
+                "INSERT INTO simulations (name, random_seed, rules, created_at, "
+                "last_simulated_at) VALUES ('Partida', 7, "
+                'CAST(\'{"start_date": "2004-03-29"}\' AS jsonb), :now, :now)'
+            ),
+            {"now": NOW},
+        )
+        for user_id, profession in ((1, "RETIREE"), (2, None)):
+            connection.execute(
+                text(
+                    "INSERT INTO simulation_players (simulation_id, user_id, color, "
+                    "profession) VALUES (1, :user_id, :color, :profession)"
+                ),
+                {
+                    "user_id": user_id,
+                    "color": f"color{user_id}",
+                    "profession": profession,
+                },
+            )
+    engine.dispose()
+
+    migrate_database(url)
+
+    engine = create_engine(scratch_url, poolclass=NullPool)
+    with engine.connect() as connection:
+        states = connection.execute(
+            text("SELECT user_id, state FROM profession_states ORDER BY user_id")
+        ).all()
+        periods = connection.execute(
+            text(
+                "SELECT user_id, profession, start_date::text FROM profession_periods "
+                "ORDER BY user_id"
+            )
+        ).all()
+        assert schema_diff(engine) == []
+    engine.dispose()
+
+    assert [tuple(row) for row in states] == [(1, {}), (2, {})]
+    assert [tuple(row) for row in periods] == [
+        (1, "RETIREE", "2004-03-29"),
+        (2, "CLT", "2004-03-29"),
+    ]

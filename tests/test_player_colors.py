@@ -362,6 +362,11 @@ class FakeRunningSimulation:
         # user_id -> o capital inicial gravado na carteira
         self.opened_with: dict[int, Decimal] = {}
         self.settings = simulation_settings(grouping)
+        # user_id -> a profissão do primeiro período aberto na entrada
+        self.opened_periods: dict[int, Profession] = {}
+
+    def get_current_date(self) -> date:
+        return self.settings.start_date
 
     def starting_cash_for(self, _profession: Profession | None) -> Decimal:
         return self.settings.starting_cash
@@ -397,6 +402,13 @@ def start_match(monkeypatch: pytest.MonkeyPatch, join: Join) -> StartMatch:
             return {u: 100 + u for u in user_ids}
 
         monkeypatch.setattr(repository.portfolio, "create", create)
+        monkeypatch.setattr(
+            repository.profession,
+            "open",
+            lambda _simulation_id, professions, _start: sim.opened_periods.update(
+                professions
+            ),
+        )
         monkeypatch.setattr(repository.simulation_player, "colors", store.colors)
         monkeypatch.setattr(
             repository.simulation_player, "participants", store.participants_of
@@ -448,6 +460,7 @@ def test_join_match_takes_the_free_color_and_the_deposit(start_match: StartMatch
     assert sim.added == [late]
     # O depósito do dia é o mesmo capital inicial que a carteira guarda
     assert sim.opened_with == sim.deposits == {late.id: sim.settings.starting_cash}
+    assert sim.opened_periods == {late.id: Profession.CLT}
     assert color_of(late) == PLAYER_COLORS[3]
     assert not UserManager.is_pending_join(late)
     assert repository.simulation_player.colors(1)[late.id] == PLAYER_COLORS[3]

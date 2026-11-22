@@ -19,6 +19,7 @@ from backend.core.repository.last_simulation_settings import (
 from backend.core.repository.news import NewsRepository
 from backend.core.repository.portfolio import PortfolioRepository
 from backend.core.repository.preset import PresetRepository
+from backend.core.repository.profession import ProfessionRepository
 from backend.core.repository.settings import SettingsRepository
 from backend.core.repository.simulation import SimulationRepository
 from backend.core.repository.simulation_player import SimulationPlayerRepository
@@ -52,6 +53,7 @@ generated_future = GeneratedFutureRepository()
 import_settings = ImportSettingsRepository()
 last_simulation_settings = LastSimulationSettingsRepository()
 preset = PresetRepository()
+profession = ProfessionRepository()
 achievements = AchievementsRepository()
 strategy = StrategyRepository()
 candle_challenge = CandleChallengeRepository()

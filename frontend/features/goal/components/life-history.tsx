@@ -38,6 +38,7 @@ const FILTERS: {
   { value: "LAYOFF", label: "Demissões", count: (c) => c.layoff },
   { value: "OVERDRAFT", label: "Cheque especial", count: (c) => c.overdraft },
   { value: "BUDGET", label: "Orçamento", count: (c) => c.budget },
+  { value: "PROFESSION", label: "Profissão", count: (c) => c.profession },
 ];
 
 const COLUMNS = 5;

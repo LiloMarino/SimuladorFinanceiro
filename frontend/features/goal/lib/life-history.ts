@@ -6,6 +6,7 @@ import {
   Gift,
   HeartPulse,
   Landmark,
+  Repeat,
   Percent,
   ReceiptText,
   TrendingUp,
@@ -13,8 +14,9 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
+import { PROFESSIONS } from "@/shared/lib/professions";
 import { displayMonthName } from "@/shared/lib/utils/display";
-import type { LifeHistoryKind, LifeHistoryRow } from "@/types";
+import type { LifeHistoryKind, LifeHistoryRow, Profession } from "@/types";
 
 type KindInfo = {
   tag: string;
@@ -46,6 +48,8 @@ export const LIFE_HISTORY_KINDS: Record<LifeHistoryKind, KindInfo> = {
   EXPENSE_READJUSTED: { tag: "Despesa", badge: "info", icon: ReceiptText },
   SALARY_TAX_CHANGED: { tag: "Salário", badge: "info", icon: Landmark },
   OVERDRAFT_RATE_CHANGED: { tag: "Cheque especial", badge: "info", icon: Percent },
+  PROFESSION_SWITCHED: { tag: "Profissão", badge: "info", icon: Repeat },
+  PROFESSION_ACTION: { tag: "Profissão", badge: "info", icon: Briefcase },
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia
@@ -77,5 +81,11 @@ export function lifeRowText(row: LifeHistoryRow) {
     case "SALARY_TAX_CHANGED":
     case "OVERDRAFT_RATE_CHANGED":
       return row.label ?? LIFE_HISTORY_KINDS[row.kind].tag;
+    case "PROFESSION_SWITCHED": {
+      const profession = row.life_event_key && PROFESSIONS[row.life_event_key as Profession];
+      return profession ? `Mudou de profissão para ${profession.name}` : "Mudou de profissão";
+    }
+    case "PROFESSION_ACTION":
+      return row.life_event_key ?? LIFE_HISTORY_KINDS[row.kind].tag;
   }
 }

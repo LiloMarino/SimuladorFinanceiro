@@ -2173,3 +2173,47 @@ class SovereignFundFlows(Base):
     amount: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
     # A medida do aporte; nulo na venda e no dividendo
     measure_id: Mapped[int | None] = mapped_column(Integer)
+
+
+class ProfessionStates(Base):
+    """O estado da mecânica da profissão de um jogador numa partida: uma linha por jogador."""
+
+    __tablename__ = "profession_states"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id", "user_id"],
+            ["simulation_players.simulation_id", "simulation_players.user_id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="profession_states_player_fkey",
+        ),
+        PrimaryKeyConstraint("simulation_id", "user_id", name="profession_states_pkey"),
+    )
+
+    simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    # `MechanicState.model_dump(mode="json")` do tipo da profissão atual do jogador
+    state: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
+
+class ProfessionPeriods(Base):
+    """A profissão que o jogador exerce a partir de um dia; o período dura até o início do seguinte."""
+
+    __tablename__ = "profession_periods"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id", "user_id"],
+            ["simulation_players.simulation_id", "simulation_players.user_id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="profession_periods_player_fkey",
+        ),
+        PrimaryKeyConstraint(
+            "simulation_id", "user_id", "start_date", name="profession_periods_pkey"
+        ),
+    )
+
+    simulation_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    start_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
+    profession: Mapped[str] = mapped_column(Text, nullable=False)

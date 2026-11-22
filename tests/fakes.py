@@ -12,6 +12,7 @@ from backend.core.dto.stock import StockDTO
 from backend.core.enum import GameType, PlayerGrouping, VictoryCriterion
 from backend.core.utils import is_business_day, next_business_day
 from backend.features.fixed_income.fixed_broker import CoverSale
+from backend.features.profession.profession_book import ProfessionBook
 from backend.features.simulation.cash_feed import CashFeed
 from backend.features.simulation.day_feed import DayFeed
 from backend.features.simulation.fund_preview_feed import FundPreviewFeed
@@ -32,6 +33,7 @@ def bare_simulation() -> Simulation:
     simulation._cash_feed = CashFeed(simulation)
     simulation._funds_feed = FundsFeed(simulation)
     simulation._fund_preview_feed = FundPreviewFeed(simulation)
+    simulation._profession_book = ProfessionBook(0)
     return simulation
 
 

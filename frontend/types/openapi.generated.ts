@@ -4436,6 +4436,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/profession-state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Estado da mecânica da profissão do jogador
+         * @description A profissão de quem pede na partida e o estado da mecânica dela. A profissão sem mecânica devolve o estado vazio.
+         */
+        get: operations["get_profession_state_api_simulation_profession_state_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/life-history": {
         parameters: {
             query?: never;
@@ -10757,7 +10777,7 @@ export interface components {
          * @description Os filtros do histórico do viver de renda.
          * @enum {string}
          */
-        LifeHistoryCategory: "UNEXPECTED" | "LAYOFF" | "OVERDRAFT" | "BUDGET";
+        LifeHistoryCategory: "UNEXPECTED" | "LAYOFF" | "OVERDRAFT" | "BUDGET" | "PROFESSION";
         /** LifeHistoryCountsDTO */
         LifeHistoryCountsDTO: {
             /** All */
@@ -10770,12 +10790,14 @@ export interface components {
             overdraft: number;
             /** Budget */
             budget: number;
+            /** Profession */
+            profession: number;
         };
         /**
          * LifeHistoryKind
          * @enum {string}
          */
-        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "UNEXPECTED_INCOME" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST" | "SALARY_READJUSTED" | "EXPENSE_READJUSTED" | "SALARY_TAX_CHANGED" | "OVERDRAFT_RATE_CHANGED";
+        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "UNEXPECTED_INCOME" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST" | "SALARY_READJUSTED" | "EXPENSE_READJUSTED" | "SALARY_TAX_CHANGED" | "OVERDRAFT_RATE_CHANGED" | "PROFESSION_SWITCHED" | "PROFESSION_ACTION";
         /** LifeHistoryPageDTO */
         LifeHistoryPageDTO: {
             /** Items */
@@ -11359,6 +11381,13 @@ export interface components {
          * @enum {string}
          */
         MeasureStatus: "QUEUED" | "APPROVED" | "REJECTED" | "WITHDRAWN" | "DROPPED";
+        /**
+         * MechanicState
+         * @description O estado da mecânica de uma profissão para um jogador numa partida. O tipo base é o
+         *     da profissão sem mecânica: não guarda nada e não mexe na renda. Cada mecânica
+         *     herda dele, dá valor inicial a todos os campos e sobrescreve `income_factor`.
+         */
+        MechanicState: Record<string, never>;
         /** MetricItem */
         MetricItem: {
             /**
@@ -12957,6 +12986,14 @@ export interface components {
          * @enum {string}
          */
         Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD" | "EXPORTER" | "BANKER" | "FREELANCER" | "BROKER" | "HEIR" | "NEW_GRADUATE" | "COMMISSIONED" | "OFFERS_BANKER";
+        /**
+         * ProfessionStateDTO
+         * @description A profissão do jogador e o estado da mecânica dela.
+         */
+        ProfessionStateDTO: {
+            profession: components["schemas"]["Profession"];
+            state: components["schemas"]["MechanicState"];
+        };
         /**
          * ProfileMoveDTO
          * @description Uma medida aprovada que moveu o perfil do partido.
@@ -26374,6 +26411,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LifeStatusDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_profession_state_api_simulation_profession_state_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
                 };
             };
             /** @description Unprocessable Content */

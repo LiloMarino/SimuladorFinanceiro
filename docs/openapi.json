@@ -13630,6 +13630,53 @@
         ]
       }
     },
+    "/api/simulation/profession-state": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Estado da mecânica da profissão do jogador",
+        "description": "A profissão de quem pede na partida e o estado da mecânica dela. A profissão sem mecânica devolve o estado vazio.",
+        "operationId": "get_profession_state_api_simulation_profession_state_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/life-history": {
       "get": {
         "tags": [
@@ -32173,7 +32220,8 @@
           "UNEXPECTED",
           "LAYOFF",
           "OVERDRAFT",
-          "BUDGET"
+          "BUDGET",
+          "PROFESSION"
         ],
         "title": "LifeHistoryCategory",
         "description": "Os filtros do histórico do viver de renda."
@@ -32199,6 +32247,10 @@
           "budget": {
             "type": "integer",
             "title": "Budget"
+          },
+          "profession": {
+            "type": "integer",
+            "title": "Profession"
           }
         },
         "additionalProperties": false,
@@ -32208,7 +32260,8 @@
           "unexpected",
           "layoff",
           "overdraft",
-          "budget"
+          "budget",
+          "profession"
         ],
         "title": "LifeHistoryCountsDTO"
       },
@@ -32224,7 +32277,9 @@
           "SALARY_READJUSTED",
           "EXPENSE_READJUSTED",
           "SALARY_TAX_CHANGED",
-          "OVERDRAFT_RATE_CHANGED"
+          "OVERDRAFT_RATE_CHANGED",
+          "PROFESSION_SWITCHED",
+          "PROFESSION_ACTION"
         ],
         "title": "LifeHistoryKind"
       },
@@ -34064,6 +34119,13 @@
           "DROPPED"
         ],
         "title": "MeasureStatus"
+      },
+      "MechanicState": {
+        "properties": {},
+        "additionalProperties": false,
+        "type": "object",
+        "title": "MechanicState",
+        "description": "O estado da mecânica de uma profissão para um jogador numa partida. O tipo base é o\nda profissão sem mecânica: não guarda nada e não mexe na renda. Cada mecânica\nherda dele, dá valor inicial a todos os campos e sobrescreve `income_factor`."
       },
       "MetricItem": {
         "properties": {
@@ -38855,6 +38917,24 @@
         ],
         "title": "Profession",
         "description": "A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado."
+      },
+      "ProfessionStateDTO": {
+        "properties": {
+          "profession": {
+            "$ref": "#/components/schemas/Profession"
+          },
+          "state": {
+            "$ref": "#/components/schemas/MechanicState"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "profession",
+          "state"
+        ],
+        "title": "ProfessionStateDTO",
+        "description": "A profissão do jogador e o estado da mecânica dela."
       },
       "ProfileMoveDTO": {
         "properties": {

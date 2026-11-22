@@ -5,6 +5,7 @@ from dataclasses import dataclass, replace
 from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
 
+from backend.core.dto.profession import MechanicState
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import IncomeLoss, IndicatorSeries, Profession
 from backend.core.indicators import (
@@ -41,6 +42,10 @@ def no_growth(day: date) -> Decimal:
 
 def never_in_government(day: date) -> bool:
     return False
+
+
+def no_mechanic_state() -> MechanicState:
+    return MechanicState()
 
 
 def no_dollar_change(day: date) -> Decimal:
@@ -88,6 +93,8 @@ class LifeBudget:
     # Se o partido escolhido pelo jogador está no governo no dia; lido por quem tem renda
     # presa ao partido (`outside_multiple` da profissão)
     in_government_on: Callable[[date], bool] = never_in_government
+    # O estado da mecânica da profissão do jogador, lido a cada cálculo da renda
+    current_mechanic_state: Callable[[], MechanicState] = no_mechanic_state
 
     @classmethod
     def of(
@@ -119,6 +126,12 @@ class LifeBudget:
         """O orçamento de quem escolheu um partido: a renda acompanha se ele está no governo."""
         return replace(self, in_government_on=in_government_on)
 
+    def with_mechanic_state(
+        self, current_mechanic_state: Callable[[], MechanicState]
+    ) -> "LifeBudget":
+        """O orçamento de quem tem mecânica na profissão: a renda acompanha o estado dela."""
+        return replace(self, current_mechanic_state=current_mechanic_state)
+
     def as_president(self, multiple: Decimal) -> "LifeBudget":
         """O orçamento de quem recebe `multiple` salários do host pela presidência; reajuste e imposto seguem os da profissão."""
         return replace(self, presidency_multiple=multiple)
@@ -135,13 +148,15 @@ class LifeBudget:
             return Decimal(0), cents(
                 self.monthly_salary * self.presidency_multiple * factor
             )
-        exposed = self.monthly_salary * self.multiple_on(day) * factor
+        mechanic = self.current_mechanic_state().income_factor
+        exposed = self.monthly_salary * self.multiple_on(day) * factor * mechanic
         if rule.driver is not None:
             exposed *= self.driver_factor_on(day)
         benefit = (
             self.monthly_salary
             * rule.benefit_multiple
             * factor
+            * mechanic
             * self.levers_on(day).welfare_spending
             / REFERENCE_WELFARE_SPENDING
         )

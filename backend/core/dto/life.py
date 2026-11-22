@@ -191,6 +191,7 @@ class LifeHistoryCountsDTO(BaseDTO):
     layoff: int
     overdraft: int
     budget: int
+    profession: int
 
 
 class LifeHistoryPageDTO(BaseDTO):

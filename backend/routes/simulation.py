@@ -29,6 +29,7 @@ from backend.core.dto.preparation import (
     PreparationViceAnswerRequest,
 )
 from backend.core.dto.preset import AppliedPresetDTO, PresetAppliedEventDTO
+from backend.core.dto.profession import ProfessionStateDTO
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
     PriceImpactPreviewDTO,
@@ -1096,6 +1097,21 @@ def get_life_status(client_id: ClientID):
     if status_ is None:
         raise ConflictError("A partida em andamento não é de viver de renda.")
     return status_
+
+
+@simulation_router.get(
+    "/profession-state",
+    response_model=ProfessionStateDTO,
+    summary="Estado da mecânica da profissão do jogador",
+    description="A profissão de quem pede na partida e o estado da mecânica dela. A profissão sem mecânica devolve o estado vazio.",
+)
+def get_profession_state(client_id: ClientID):
+    """
+    Retorna o estado da mecânica de profissão de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    return SimulationManager.get_active_simulation().get_profession_state(client_id)
 
 
 @simulation_router.get(

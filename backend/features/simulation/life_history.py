@@ -51,6 +51,38 @@ class BudgetChange:
     label: str
 
 
+@dataclass(frozen=True)
+class HistoryPeriod:
+    """O trecho do histórico em que o jogador exerce uma profissão, a partir de `start`."""
+
+    start: date
+    # Nulo na partida sem profissões: o imprevisto leva o nome geral
+    profession: Profession | None
+    # O que o sorteio da demissão é para a profissão do trecho
+    loss: IncomeLoss | None
+
+
+# O trecho único de quem nunca trocou de profissão e sofre a demissão de carteira
+DEFAULT_PERIODS = (HistoryPeriod(date.min, None, IncomeLoss.LAYOFF),)
+
+
+# As linhas sem dinheiro da profissão: o evento guarda a nova profissão ou o nome da ação em `life_event_key`
+PROFESSION_ROWS = {
+    CashflowEventType.PROFESSION_SWITCHED: LifeHistoryKind.PROFESSION_SWITCHED,
+    CashflowEventType.PROFESSION_ACTION: LifeHistoryKind.PROFESSION_ACTION,
+}
+
+
+def period_at(periods: Sequence[HistoryPeriod], day: date) -> HistoryPeriod:
+    """O trecho em vigor em `day`: o último que começou até lá; antes do primeiro, o primeiro."""
+    current = periods[0]
+    for period in periods:
+        if period.start > day:
+            break
+        current = period
+    return current
+
+
 # O que o sorteio da demissão é para quem não é CLT; a demissão mantém o rótulo do tipo
 _LOSS_NAMES = {
     IncomeLoss.GIG_LOSS: "Bico perdido",
@@ -82,12 +114,14 @@ def budget_changes(
     life: LifeBudget,
     until: date,
     overdraft_rate_on: Callable[[date], Decimal],
+    since: date | None = None,
 ) -> list[BudgetChange]:
     """
     Cada reajuste de renda e despesa, cada mudança do imposto que mexe na renda da
     profissão, do auxílio e do PIB que movem a renda dela e cada mudança do juro do
     cheque especial (a taxa mensal mostrada com uma casa) até `until`. O que muda de
-    mês a mês é lido no primeiro dia de cada mês.
+    mês a mês é lido no primeiro dia de cada mês. Com `since`, só as dos dias depois
+    dele: o trecho de uma profissão que veio de outra.
     """
     changes: list[BudgetChange] = []
     for anniversary in life.readjustments(until)[1:]:
@@ -170,7 +204,10 @@ def budget_changes(
                     )
                 )
             shown_driver = round(value * 100, 1)
-    return sorted(changes, key=lambda change: change.day)
+    return sorted(
+        (c for c in changes if since is None or c.day > since),
+        key=lambda change: change.day,
+    )
 
 
 def _raise_origin(
@@ -194,8 +231,7 @@ def build_history(
     life_events: Sequence[LifeEventTypeDTO],
     changes: Sequence[BudgetChange] = (),
     unemployment_on: Callable[[date], Decimal] | None = None,
-    loss: IncomeLoss | None = IncomeLoss.LAYOFF,
-    profession: Profession | None = None,
+    periods: Sequence[HistoryPeriod] = DEFAULT_PERIODS,
 ) -> list[LifeHistoryRowDTO]:
     """
     As linhas do mais antigo ao mais novo, a partir de todos os eventos de caixa do
@@ -203,9 +239,10 @@ def build_history(
     efeito de cada imprevisto vêm dos tipos das regras da partida (`life_events`);
     a chave de um tipo que saiu da lista aparece como está. O juro é
     cobrado por pregão e vira uma linha por mês, datada do último pregão cobrado
-    nele. Com `unemployment_on`, a demissão cita o desemprego do dia; `loss` diz o
-    que o sorteio da demissão é para a profissão do jogador; com `profession`, o
-    imprevisto leva o nome que ela lê.
+    nele. Com `unemployment_on`, a demissão cita o desemprego do dia; `periods`, do
+    mais antigo ao mais novo, dizem a profissão de cada data: o que o sorteio da
+    demissão é para ela e o nome que o imprevisto lê nela. A troca de profissão e a
+    ação da mecânica entram como linhas sem dinheiro.
     """
     kinds = {kind.key: kind for kind in life_events}
     rows: list[LifeHistoryRowDTO] = []
@@ -255,7 +292,24 @@ def build_history(
         ):
             flush_interest()
             rows.append(
-                _unexpected_row(event, kinds, cash, unemployment_on, loss, profession)
+                _unexpected_row(
+                    event,
+                    kinds,
+                    cash,
+                    unemployment_on,
+                    period_at(periods, event.event_date),
+                )
+            )
+
+        if event.event_type in PROFESSION_ROWS:
+            flush_interest()
+            rows.append(
+                _row(
+                    event,
+                    LifeHistoryCategory.PROFESSION,
+                    PROFESSION_ROWS[event.event_type],
+                    cash,
+                )
             )
 
         if before >= 0 > cash:
@@ -307,6 +361,8 @@ def history_page(
         LifeHistoryKind.EXPENSE_READJUSTED: "Despesa",
         LifeHistoryKind.SALARY_TAX_CHANGED: "Salário",
         LifeHistoryKind.OVERDRAFT_RATE_CHANGED: "Cheque especial",
+        LifeHistoryKind.PROFESSION_SWITCHED: "Profissão",
+        LifeHistoryKind.PROFESSION_ACTION: "Profissão",
     }
     getters = {
         LifeHistorySort.DATE: lambda r: r.event_date,
@@ -332,6 +388,7 @@ def history_page(
             layoff=count(LifeHistoryCategory.LAYOFF),
             overdraft=count(LifeHistoryCategory.OVERDRAFT),
             budget=count(LifeHistoryCategory.BUDGET),
+            profession=count(LifeHistoryCategory.PROFESSION),
         ),
         interest_paid=-sum(
             (
@@ -379,6 +436,10 @@ def _description_key(row: LifeHistoryRowDTO) -> str:
             | LifeHistoryKind.OVERDRAFT_RATE_CHANGED
         ):
             return (row.label or "").casefold()
+        case LifeHistoryKind.PROFESSION_SWITCHED:
+            return f"mudou de profissão para {(row.life_event_key or '').casefold()}"
+        case LifeHistoryKind.PROFESSION_ACTION:
+            return (row.life_event_key or "").casefold()
 
 
 def _unexpected_row(
@@ -386,12 +447,11 @@ def _unexpected_row(
     kinds: dict[str, LifeEventTypeDTO],
     cash: Decimal,
     unemployment_on: Callable[[date], Decimal] | None,
-    loss: IncomeLoss | None,
-    profession: Profession | None,
+    period: HistoryPeriod,
 ) -> LifeHistoryRowDTO:
     kind = kinds.get(event.life_event_key or "")
     if kind is not None and kind.effect is LifeEventEffect.SKIP_NEXT_SALARY:
-        name = _LOSS_NAMES.get(loss) if loss is not None else None
+        name = _LOSS_NAMES.get(period.loss) if period.loss is not None else None
         if unemployment_on is None:
             label = name or kind.label
         else:
@@ -412,7 +472,7 @@ def _unexpected_row(
         if income
         else LifeHistoryKind.UNEXPECTED_EXPENSE,
         cash,
-        life_event_label(kind.key, kind.label, profession)
+        life_event_label(kind.key, kind.label, period.profession)
         if kind
         else event.life_event_key,
         amount=event.amount if income else -event.amount,

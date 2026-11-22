@@ -98,6 +98,9 @@ class CashflowEventType(Enum):
     # O caixa da gestora incorporada passa à incorporadora na fusão
     FUND_MERGE_OUT = "FUND_MERGE_OUT"
     FUND_MERGE_IN = "FUND_MERGE_IN"
+    # Lançamentos sem dinheiro da profissão: a troca no meio da partida e a ação da mecânica
+    PROFESSION_SWITCHED = "PROFESSION_SWITCHED"
+    PROFESSION_ACTION = "PROFESSION_ACTION"
 
     @property
     def sign(self) -> int:
@@ -140,6 +143,8 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.FUND_MERGE_EXIT: -1,
     CashflowEventType.FUND_MERGE_OUT: -1,
     CashflowEventType.FUND_MERGE_IN: 1,
+    CashflowEventType.PROFESSION_SWITCHED: 1,
+    CashflowEventType.PROFESSION_ACTION: 1,
 }
 
 # Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
@@ -468,6 +473,8 @@ class LifeHistoryCategory(Enum):
     OVERDRAFT = "OVERDRAFT"
     # Mudanças de salário, despesa e juro com a origem na economia da partida
     BUDGET = "BUDGET"
+    # A troca de profissão e as ações da mecânica dela
+    PROFESSION = "PROFESSION"
 
 
 class LifeHistoryKind(Enum):
@@ -482,6 +489,8 @@ class LifeHistoryKind(Enum):
     EXPENSE_READJUSTED = "EXPENSE_READJUSTED"
     SALARY_TAX_CHANGED = "SALARY_TAX_CHANGED"
     OVERDRAFT_RATE_CHANGED = "OVERDRAFT_RATE_CHANGED"
+    PROFESSION_SWITCHED = "PROFESSION_SWITCHED"
+    PROFESSION_ACTION = "PROFESSION_ACTION"
 
 
 class PlayerGrouping(Enum):
