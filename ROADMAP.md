@@ -42,7 +42,7 @@
 | **N31** | — | Saber o que está movendo o mercado da partida, como quem lê o noticiário | — | [F93](#f93) | — | — | — |
 | **N33** | — | Investir com dinheiro emprestado, pagando o juro do momento | — | [F111](#f111) | — | — | — |
 | **N34** | — | Disputar o poder de mudar as regras da economia da partida | — | [F176](#f176), [F227](#f227), [F284](#f284), [F317](#f317) | — | — | — |
-| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334) | — | — | — |
+| **N39** | — | Chegar ao primeiro dia da partida com as próprias escolhas já feitas | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334), [F340](#f340) | — | — | — |
 | **N40** | — | Jogar partidas longas e na velocidade máxima sem a tela travar | — | [F221](#f221), [F320](#f320), [F338](#f338) | — | — | — |
 | **N41** | — | Aprender como a economia real funciona, jogando | — | [F225](#f225), [F227](#f227) | — | — | — |
 | **N42** | — | Chegar a um estado da partida sem jogar até ele | — | [F286](#f286) | — | — | — |
@@ -82,7 +82,7 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
+| [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | M29 · 4.3 | — | Alto | Bom | ⏳ |
 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -100,6 +100,7 @@
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (29 itens — clique pra expandir)</strong></summary>
@@ -127,7 +128,7 @@
 | **D20** | — | A economia da partida é a história mais o desvio que o governo causa | — | [F227](#f227) | — | — | ✅ |
 | **D21** | — | O jogo ensina a jogar, a docs explica o modelo | — | [F132](#f132), [F133](#f133), [F140](#f140), [F193](#f193), [F225](#f225), [F227](#f227) | — | — | ✅ |
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
-| **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334) | — | — | ✅ |
+| **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334), [F340](#f340) | — | — | ✅ |
 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
 | [**F318**](#f318) | Feature | Bots cotistas e o Mercado votam o aumento de taxa pelo desempenho | M29 · 4.3 | — | — | — | ✅ |
@@ -150,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 7/25 concluídos
+> **Progresso:** 7/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -160,25 +161,26 @@
 | 4 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | — | ✅ Concluído |
 | 5 | [**F319**](#f319) | Melhoria | Página Estratégias segue a conta ativa | — | ✅ Concluído |
 | 6 | [**F320**](#f320) | Correção | Ações do jogador respondem com o jogo andando | — | ✅ Concluído |
-| 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | — | ⏳ Pendente |
+| 7 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | — | ⏳ Pendente |
 | 8 | [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | — | ⏳ Pendente |
 | 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | [F315](#f315), [F321](#f321) | ⏳ Pendente |
 | 10 | [**F323**](#f323) | Feature | Consignado do Servidor | [F315](#f315) | ⏳ Pendente |
 | 11 | [**F324**](#f324) | Feature | CDB da casa do Bancário | [F315](#f315) | ⏳ Pendente |
-| 12 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | [F315](#f315) | ⏳ Pendente |
-| 13 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | [F315](#f315) | ⏳ Pendente |
-| 14 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | [F315](#f315) | ⏳ Pendente |
-| 15 | [**F328**](#f328) | Feature | Previdência do Aposentado | [F315](#f315) | ⏳ Pendente |
-| 16 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | [F315](#f315) | ⏳ Pendente |
-| 17 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | [F315](#f315) | ⏳ Pendente |
-| 18 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | [F315](#f315) | ⏳ Pendente |
-| 19 | [**F332**](#f332) | Feature | Imóveis do Locador | [F315](#f315), [F321](#f321) | ⏳ Pendente |
-| 20 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | [F315](#f315) | ⏳ Pendente |
-| 21 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
-| 22 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
-| 23 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
-| 24 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | — | ⏳ Pendente |
-| 25 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | — | ✅ Concluído |
+| 12 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | [F315](#f315), [F322](#f322), [F323](#f323), [F324](#f324) | ⏳ Pendente |
+| 13 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | [F315](#f315) | ⏳ Pendente |
+| 14 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | [F315](#f315) | ⏳ Pendente |
+| 15 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | [F315](#f315) | ⏳ Pendente |
+| 16 | [**F328**](#f328) | Feature | Previdência do Aposentado | [F315](#f315) | ⏳ Pendente |
+| 17 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | [F315](#f315) | ⏳ Pendente |
+| 18 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | [F315](#f315) | ⏳ Pendente |
+| 19 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | [F315](#f315) | ⏳ Pendente |
+| 20 | [**F332**](#f332) | Feature | Imóveis do Locador | [F315](#f315), [F321](#f321) | ⏳ Pendente |
+| 21 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | [F315](#f315) | ⏳ Pendente |
+| 22 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
+| 23 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
+| 24 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
+| 25 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | — | ⏳ Pendente |
+| 26 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | — | ✅ Concluído |
 
 ### 4.4 — Mesa do trader (M24)
 
@@ -273,11 +275,11 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F315**](#f315) | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | M29 · 4.3 · 7º | 13 | Alto | Bom | ⏳ |
-| [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 8º | 3 | Médio | Bom | ⏳ |
-| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 21º | 0 | Baixo | Bom | ⏳ |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 22º | 0 | Médio | Bom | ⏳ |
-| [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 24º | 0 | Médio | Bom | ⏳ |
+| [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | M29 · 4.3 · 7º | 14 | Alto | Bom | ⏳ |
+| [**F321**](#f321) | Feature | Séries do preço de imóvel, do IGP-M e da TR | M29 · 4.3 · 8º | 4 | Médio | Bom | ⏳ |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 22º | 0 | Baixo | Bom | ⏳ |
+| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 23º | 0 | Médio | Bom | ⏳ |
+| [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.4 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.4 · 3º | 0 | Médio | Bom | ⏳ |
@@ -337,7 +339,7 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F315** | Feature | Base das mecânicas de profissão: página Profissão, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
+| **F315** | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 | — | Alto | Médio | Alto | Bom |
 | **F321** | Feature | Séries do preço de imóvel, do IGP-M e da TR | N39 | D23 | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
 | **F322** | Feature | FGTS e hora extra do CLT | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Médio | Baixo | Alto | Bom |
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
@@ -355,6 +357,7 @@
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
 | **F336** | Feature | Ordem stop e validade na boleta | N43 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
 | **F338** | Performance | Dia da partida mais rápido com gestoras e bots | N40 | — | M29 · 4.3 | — | Médio | Médio | Bom | Bom |
+| **F340** | Feature | Página Profissão e os blocos das mecânicas | N39 | D23 | M29 · 4.3 | [F315](#f315), [F322](#f322), [F323](#f323), [F324](#f324) | Alto | Médio | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -557,27 +560,25 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
 <a id="f315"></a>
-**F315 — Base das mecânicas de profissão.** Serve N39; segue a D23. A fundação onde cada profissão pendura a mecânica dela.
-- **Página Profissão** no grupo Você, ao lado de Meta, só no modo profissões (`frontend/features/profession/pages/profession.tsx`, item em `App.tsx`), desenhada antes no canvas: o card da profissão (o `ProfessionBadge` e as `ProfessionTags` que hoje moram no card de vida da Meta), o bloco da mecânica, as séries que movem a renda (gráfico curto do indicador da profissão) e o histórico de uso. Cada mecânica entra como um bloco da página, seguindo o molde, sem canvas próprio.
-- **Selo "da sua profissão"**, variante nova do `Badge` do design system, para o produto exclusivo que aparece na tela onde mora (consignado na Crédito, CDB da casa na Renda fixa).
+**F315 — Base das mecânicas de profissão.** Serve N39; segue a D23. A fundação onde cada profissão pendura a mecânica dela, só no motor: a página Profissão e os blocos das mecânicas moram no card "Página Profissão e os blocos das mecânicas", desenhados antes no canvas.
 - **Estado da mecânica por jogador** em `backend/features/profession/`: tabela com o estado tipado de cada profissão (migração própria), rota de leitura e uma rota de ação por mecânica; o `LifeBudget` lê o estado ao calcular a renda; cada uso vira evento no histórico de vida.
-- **Política razoável**: uma função pura por mecânica que, dado o estado, o dia e a macro, devolve a ação de um jogador razoável. O motor a chama todo mês para os bots (junto do pagamento em `_live`, em `simulation.py`), e o `calibrate.py` importa a mesma função.
-- **Troca de profissão no meio da partida**: a troca que hoje só vale no lobby ganha uma via interna, chamada pelas mecânicas (curso técnico do Auxílio, Administrador), que registra a data no histórico e mantém o capital inicial do jogador; o histórico de renda e as conquistas leem a profissão por período.
+- **Política razoável**: uma função pura por mecânica que, dado o estado, o dia e a macro, devolve a ação de um jogador razoável. O motor a chama todo mês para os bots (junto do pagamento em `_live`, em `simulation.py`), pelo mesmo serviço da rota de ação, e o `calibrate.py` importa a mesma função.
+- **Troca de profissão no meio da partida**: a troca que hoje só vale no lobby ganha uma via interna, chamada pelas mecânicas (curso técnico do Auxílio, Administrador), que registra a data no histórico e mantém o capital inicial do jogador; o histórico de vida lê a profissão por período.
 - **Calibração** (`calibrate.py`, fora do git): o poupador da sala como régua e a coluna "sem a mecânica".
 
-**Aceite:** a página mostra card e séries para toda profissão; a troca no meio da partida tem teste; `pnpm run check` verde.
+**Aceite:** a troca no meio da partida tem teste; o estado volta ao carregar a partida; a política roda só para os bots, na virada do mês; `pnpm run check` verde.
 
 <a id="f321"></a>
-**F321 — Séries do preço de imóvel, do IGP-M e da TR.** Serve N39; segue a D23. Três séries novas em `IndicatorSeries`, do cliente do Banco Central que o jogo já usa (`bcb_sgs.py`, entradas em `INDICATOR_SOURCES` de `indicators.py`): o IVG-R (índice de valores de garantia dos imóveis residenciais financiados, mensal desde março de 2001), o IGP-M (o índice que reajusta os contratos de aluguel) e a TR (a Taxa Referencial, que rende o FGTS); os códigos SGS se conferem na importação. O futuro se gera em `synthetic.py`/`future.py` como nas outras séries mensais, e o IVG-R antes de março de 2001 recebe preenchimento sintético pelo IPCA. As três entram na Central como séries da economia, com uma linha dizendo o que medem. Testes do importador com resposta gravada.
+**F321 — Séries do preço de imóvel, do IGP-M e da TR.** Serve N39; segue a D23. Três séries novas em `IndicatorSeries`, do cliente do Banco Central que o jogo já usa (`bcb_sgs.py`, entradas em `INDICATOR_SOURCES` de `indicators.py`): o IVG-R (índice de valores de garantia dos imóveis residenciais financiados, mensal desde março de 2001), o IGP-M (o índice que reajusta os contratos de aluguel) e a TR (a Taxa Referencial, que rende o FGTS); os códigos SGS se conferem na importação. O futuro se gera em `synthetic.py`/`future.py` como nas outras séries mensais. O IVG-R não ganha preenchimento antes de março de 2001: o Locador, que passa a usá-lo, fica só nas salas que começam a partir dessa data. As três entram na Central como séries da economia, com uma linha dizendo o que medem. Testes do importador com resposta gravada.
 
 <a id="f322"></a>
-**F322 — FGTS e hora extra do CLT.** Serve N39; segue a D23. **FGTS** (passivo): todo mês 8% do salário bruto entram numa conta travada do jogador, sem sair do salário, rendendo 3% ao ano mais a TR; na demissão sorteada o saldo e a multa de 40% sobre ele caem no caixa e a conta recomeça. O saldo conta no patrimônio e aparece na carteira e na página Profissão. É o que separa o CLT do Autônomo na demissão. **Hora extra** (ativa): o jogador liga ou desliga na página Profissão; ligada, a renda sobe 25% e o imprevisto de saúde pesa o dobro; a oferta de hora extra segue o PIB de 12 meses (na recessão não há). Campos novos na `ProfessionRule`, aplicados pelo `LifeBudget`; só no modo profissões. Política razoável: liga a hora extra com o PIB acima do neutro e reserva que cubra um imprevisto.
+**F322 — FGTS e hora extra do CLT.** Serve N39; segue a D23. **FGTS** (passivo, só do CLT): todo mês 8% do salário bruto entram numa conta travada do jogador, sem sair do salário, rendendo 3% ao ano mais a TR; na demissão sorteada o saldo e a multa de 40% sobre ele caem no caixa e a conta recomeça. O saldo conta no patrimônio e aparece na carteira; o bloco do CLT na página Profissão vem no card da página. É o que separa o CLT do Autônomo na demissão. **Hora extra** (ativa): o jogador liga ou desliga por uma rota de ação, e o botão mora no bloco do CLT da página Profissão; ligada, a renda sobe 25% (no salário bruto, e portanto na base do FGTS) e o imprevisto de saúde custa o dobro, pelo mesmo multiplicador da saúde do Aposentado; a oferta de hora extra segue o PIB de 12 meses: só existe com ele a partir de zero, e desliga sozinha na recessão. Campos novos na `ProfessionRule`, aplicados pelo `LifeBudget`; só no modo profissões. Política razoável: liga a hora extra com o PIB acima do neutro e reserva que cubra um imprevisto.
 
 <a id="f323"></a>
-**F323 — Consignado do Servidor.** Serve N39; segue a D23. Na tela Crédito, um produto Consignado com o selo da profissão, só para o Servidor: juro de SELIC + 2% ao ano (abaixo da nota AAA), prazo até 60 meses e parcela descontada do salário antes de entrar no caixa, sem atraso possível. O limite é a margem consignável (soma das parcelas até 35% do salário líquido), independente da nota e do patrimônio: dá crédito no começo da partida, quando o patrimônio é pequeno. Reaproveita `credit_book.py` e a tabela Price de `loan.py`, com a regra nova em `rules.py`; o consignado conta como dívida na nota de risco. Aparece também no bloco da página Profissão. Política razoável: toma metade da margem quando o Ibovespa está 20% abaixo do topo de 12 meses, compra ações e quita quando o índice recupera.
+**F323 — Consignado do Servidor.** Serve N39; segue a D23. Um produto Consignado só para o Servidor: juro de SELIC + 2% ao ano (abaixo da nota AAA), prazo até 60 meses e parcela descontada do salário antes de entrar no caixa, sem atraso possível. O limite é a margem consignável (soma das parcelas até 35% do salário líquido), independente da nota e do patrimônio: dá crédito no começo da partida, quando o patrimônio é pequeno. Reaproveita `credit_book.py` e a tabela Price de `loan.py`, com a regra nova em `rules.py`; o consignado conta como dívida na nota de risco. Aqui entram o motor e as rotas; o cartão na tela Crédito, com o selo da profissão, e o bloco da página Profissão vêm no card da página. Política razoável: toma metade da margem pelo motor quando o Ibovespa está 20% abaixo do topo de 12 meses; o dinheiro cai no caixa e a estratégia do bot o investe; quando o índice recupera, quita, vendendo o que faltar.
 
 <a id="f324"></a>
-**F324 — CDB da casa do Bancário.** Serve N39; segue a D23. Todo primeiro dia do mês o banco oferece ao Bancário um CDB prefixado de 1, 2 ou 3 anos, com taxa igual à SELIC esperada pelo Focus para o prazo mais 1 ponto e teto de aplicação de 1 salário por mês, sem resgate antes do vencimento. Como o salário dele cai quando a SELIC cai, travar com juro alto protege a renda. Aparece na Renda fixa com o selo da profissão e no bloco da página Profissão. Reaproveita o `fixed_broker` (cria a taxa prefixada se o CDB hoje só for pós-fixado), com a oferta criada por jogador em vez da fábrica de ofertas raras. Política razoável: aplica o teto quando a SELIC está acima da média de 24 meses.
+**F324 — CDB da casa do Bancário.** Serve N39; segue a D23. Todo primeiro dia do mês o banco oferece ao Bancário um CDB prefixado de 1, 2 ou 3 anos, com taxa igual à do prefixado do Tesouro do jogo no mesmo prazo mais 1 ponto e teto de aplicação de 1 salário por mês, sem resgate antes do vencimento. Como o salário dele cai quando a SELIC cai, travar com juro alto protege a renda. Aparece na Renda fixa com o selo "da sua profissão" (variante nova do `Badge`, que nasce aqui); o bloco da página Profissão vem no card da página. Reaproveita o `fixed_broker` e o CDB prefixado que já existe, com a oferta criada por jogador em vez da fábrica de ofertas raras. Política razoável: aplica o teto quando a SELIC está acima da média de 24 meses.
 
 <a id="f325"></a>
 **F325 — Trava de câmbio e mix de exportação do Exportador.** Serve N39; segue a D23. **Trava:** na página Profissão o Exportador contrata um câmbio futuro para até 100% da receita de 6 ou 12 meses, ao dólar do dia corrigido pela diferença de juros (dólar x (1 + CDI) / (1 + Fed Funds) no prazo, com as séries que já existem); enquanto vale, a parte travada da renda usa o dólar travado no lugar do fator do dólar. Uma trava por vez. **Mix:** escolhe a fração exportada (0 a 100%, mudança no máximo uma vez por trimestre); a parte exportada segue o dólar e a vendida no Brasil segue o PIB, pelas curvas que já existem em `DRIVER_CURVES`, somadas pelo peso. Política razoável: trava 50% por 12 meses com o dólar acima da média de 12 meses; mix 50/50, puxado para o lado cujo indicador está acima do neutro.
@@ -601,7 +602,7 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 **F331 — Escada acadêmica do Recém-formado.** Serve N39; segue a D23. A classe de maior escala da partida, fraca no começo e com o maior salário numa partida longa. Degraus em ordem: especialização (1 ano, mensalidade, trabalha junto), mestrado (2 anos, renda da bolsa no lugar do salário) e doutorado (4 anos, bolsa). Cada degrau concluído sobe o múltiplo final da carreira (ex.: 1,3x, depois 1,6x, 2,2x e 3,0x) e estica a curva (`CareerCurve` por degrau). Matricular com o desemprego acima do neutro dá desconto na mensalidade e bolsa maior. **Mora com os pais:** despesa 40% menor nos 3 primeiros anos, ou até sair de casa por um botão na página. Sem teto de calibração: os alarmes só conferem que ele não é o primeiro em todos os horizontes. Política razoável: sobe um degrau só quando os anos que faltam pagam o degrau (valor presente simples) e sai de casa no prazo.
 
 <a id="f332"></a>
-**F332 — Imóveis do Locador.** Serve N39; segue a D23. A renda do Locador passa a ser o aluguel dos imóveis dele: começa com imóveis cujo aluguel soma o múltiplo de hoje, no lugar do 1,1x do salário. Cada imóvel tem preço pelo IVG-R e aluguel de 0,5% do preço ao mês na assinatura, reajustado pelo IGP-M a cada 12 meses do contrato. A vacância é sorteada por imóvel todo mês, com chance que sobe com o desemprego e a queda do PIB, e substitui a vacância de hoje; vago, o imóvel volta ao mercado com aluguel pelo preço do dia. Compra e venda no bloco Imóveis da página Profissão, com custo de transação de cerca de 5% (ITBI e corretagem) e venda concluída em até 1 mês. O valor dos imóveis conta no patrimônio e aparece na carteira. Tabela nova de imóveis por jogador, com migração. Política razoável: compra quando o aluguel do dia rende mais que o CDI menos 2 pontos e vende quando rende menos que o CDI menos 5.
+**F332 — Imóveis do Locador.** Serve N39; segue a D23. A renda do Locador passa a ser o aluguel dos imóveis dele: começa com imóveis cujo aluguel soma o múltiplo de hoje, no lugar do 1,1x do salário. Cada imóvel tem preço pelo IVG-R e aluguel de 0,5% do preço ao mês na assinatura, reajustado pelo IGP-M a cada 12 meses do contrato. A vacância é sorteada por imóvel todo mês, com chance que sobe com o desemprego e a queda do PIB, e substitui a vacância de hoje; vago, o imóvel volta ao mercado com aluguel pelo preço do dia. Compra e venda no bloco Imóveis da página Profissão, com custo de transação de cerca de 5% (ITBI e corretagem) e venda concluída em até 1 mês. O valor dos imóveis conta no patrimônio e aparece na carteira. Tabela nova de imóveis por jogador, com migração. Como o IVG-R começa em março de 2001, o Locador só existe nas salas que começam a partir dessa data: a regra ganha a data mínima e `available_professions` filtra pelo início da sala. Política razoável: compra quando o aluguel do dia rende mais que o CDI menos 2 pontos e vende quando rende menos que o CDI menos 5.
 
 <a id="f333"></a>
 **F333 — Administrador, a profissão que troca de setor.** Serve N39; segue a D23. Profissão nova (enum, regra, card e textos em `professions.ts`, elegível para bots). Setores: CLT, Empreendedor, Exportador, Bancário, Autônomo e Corretor; ele leva só a renda do setor (múltiplo, indicador e demissão), não a mecânica. **Experiência por setor:** entra júnior (0,85x a renda do setor) e chega a sênior (1,0x) em 12 meses no setor; sair não apaga a experiência, e voltar retoma o nível. Trocar toda hora o deixa júnior em tudo; trocar de vez em quando o deixa sênior nos setores onde mais ficou. A troca leva 1 mês, com a renda do mês pela metade, pela troca de profissão da base. **Servidor por concurso:** edital aberto algumas vezes por ano (mais com o gasto do governo alto), inscrição com meses de estudo e renda menor, e chance de aprovação; aprovado, vira Servidor com estabilidade e a perde se sair. A página Profissão mostra a experiência em cada setor e a renda que cada um daria hoje. Política razoável: troca para o setor de maior renda esperada quando a diferença passa de 20% e o setor atual já está sênior.
@@ -617,6 +618,11 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 <a id="f338"></a>
 **F338 — Dia da partida mais rápido com gestoras e bots.** Do playtest de 20/11 e da medição pela CLI. Na partida com gestoras e bots (salva 10 do banco de teste, 200 dias a 100x), um dia leva 0,34 s na metade dos casos, 0,95 s em 95% deles (as viradas de mês) e chega a 1,5 s. A 100x o jogo entrega cerca de 1 dia por segundo, e toda leitura e ação do jogador espera o dia em andamento, porque o loop segura a trava da partida o dia inteiro. Ceder a vez entre um dia e outro foi medido e descartado: só baixa os picos. Medir com o modo debug (`backend/core/metrics.py`, `GET /api/debug/metrics`) onde o dia gasta o tempo, por etapa (gestoras, bots, estratégias, idas ao banco), comparar com uma partida sem gestoras e otimizar o que pesa mais. O alvo sai da medição; a régua é a 100x passar de 1 dia por segundo nessa partida. O script da medição de espera e de duração do dia está em `.claude/trabalho/medicao-dia/`.
+
+<a id="f340"></a>
+**F340 — Página Profissão e os blocos das mecânicas.** Serve N39; segue a D23. Implementada a partir dos boards do canvas, desenhados numa sessão de criação antes do card. A página Profissão fica no grupo Você, ao lado de Meta, só no modo profissões (`frontend/features/profession/pages/profession.tsx`, item em `App.tsx`): o card da profissão (o `ProfessionBadge` e as `ProfessionTags` que hoje moram no card de vida da Meta), as séries que movem a renda (gráfico curto do indicador da profissão), o histórico de uso e o molde do bloco da mecânica. Entram os blocos das mecânicas que já têm motor: o do CLT (saldo do FGTS e o botão da hora extra), o do Servidor (consignado) e o do Bancário (CDB da casa), mais o cartão do Consignado com o selo "da sua profissão" na tela Crédito. As mecânicas seguintes chegam com o board pronto e fazem o motor e o bloco no próprio card.
+
+**Aceite:** a página mostra o card e as séries para toda profissão; os três blocos e o cartão do Consignado seguem os boards; `pnpm run check` verde.
 
 ---
 
