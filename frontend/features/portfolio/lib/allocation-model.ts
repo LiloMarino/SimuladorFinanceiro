@@ -1,11 +1,12 @@
 import type { PortfolioState } from "@/types";
 
-export type ClassKey = "variable" | "fixed" | "cash";
+export type ClassKey = "variable" | "fixed" | "cash" | "locked";
 
 const CLASS_META: Record<ClassKey, { label: string; color: string }> = {
   variable: { label: "Renda variável", color: "var(--chart-1)" },
   fixed: { label: "Renda fixa", color: "var(--chart-2)" },
   cash: { label: "Caixa", color: "var(--input)" },
+  locked: { label: "FGTS", color: "var(--chart-7)" },
 };
 
 /** Quantos ativos a lista mostra antes de juntar o resto em "Outros". */
@@ -16,7 +17,7 @@ export type ClassSlice = {
   label: string;
   color: string;
   value: number;
-  /** Parte do que o jogador tem (caixa + investido), de 0 a 1 */
+  /** Parte do que o jogador tem (caixa, investido e conta travada), de 0 a 1 */
   fraction: number;
 };
 
@@ -31,13 +32,14 @@ export type AssetRow = {
 
 const fractionOf = (value: number, total: number) => (total > 0 ? value / total : 0);
 
-/** As classes com dinheiro, na ordem renda variável, renda fixa e caixa. */
+/** As classes com dinheiro, na ordem renda variável, renda fixa, caixa e conta travada (o FGTS). */
 export function classSlices(portfolio: PortfolioState): ClassSlice[] {
   const total = Number(portfolio.assets_value);
   const values: Record<ClassKey, number> = {
     variable: Number(portfolio.variable_income_value),
     fixed: Number(portfolio.fixed_income_value),
     cash: Number(portfolio.cash),
+    locked: Number(portfolio.locked_value),
   };
   return (Object.keys(CLASS_META) as ClassKey[])
     .filter((key) => values[key] > 0)

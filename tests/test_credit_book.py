@@ -61,6 +61,9 @@ class CreditEngine(FakeSimulationEngine):
     def assets_value(self, client_id: uuid.UUID) -> Decimal:
         return self.cash[client_id]
 
+    def networth(self, client_id: uuid.UUID, debt: Decimal) -> Decimal:
+        return self.cash[client_id] - debt
+
 
 @pytest.fixture
 def stored_events(monkeypatch: pytest.MonkeyPatch) -> list[CreditEventDTO]:

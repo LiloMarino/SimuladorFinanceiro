@@ -435,6 +435,10 @@ class CreditBook:
     def assets_value(self, client_id: UUID) -> Decimal:
         return self._engine.assets_value(client_id)
 
+    def networth(self, client_id: UUID, debt: Decimal) -> Decimal:
+        """O patrimônio líquido da conta, pela definição única do patrimônio."""
+        return self._engine.networth(client_id, debt)
+
     def cash(self, client_id: UUID) -> Decimal:
         return self._engine.get_cash(client_id)
 
@@ -460,7 +464,7 @@ class CreditBook:
         selic = annual_index_rate(IndicatorSeries.SELIC, day)
         best = self.best_fixed_income_rate(day)
         debt = self.debt(client_id, day)
-        networth = self._engine.assets_value(client_id) - debt
+        networth = self.networth(client_id, debt)
         limit_amount = max(tier.debt_limit * networth, ZERO)
         if tier.spread is None:
             return Offer(selic, tier, score, None, best, ZERO, limit_amount)

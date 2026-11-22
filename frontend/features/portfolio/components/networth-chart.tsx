@@ -24,7 +24,7 @@ import {
   type NetworthPoint,
   type Period,
 } from "../lib/networth-model";
-import { CLASS_PANELS, typePanels } from "../lib/networth-panels";
+import { classPanels, typePanels } from "../lib/networth-panels";
 import { NetworthPanels } from "./networth-panels";
 import { NetworthGainChart } from "./networth-gain-chart";
 
@@ -54,7 +54,8 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
           <div className="grid gap-2 text-left text-xs leading-snug">
             <b className="text-[13px]">Como ler este gráfico</b>
             <span>
-              <b>Patrimônio</b> é o que você tem (caixa, renda fixa e ações) menos o que deve no Crédito.
+              <b>Patrimônio</b> é o que você tem (caixa, renda fixa, ações e o FGTS, se você for CLT) menos o que deve
+              no Crédito.
             </span>
             <span>
               <b>Aportado</b> é o que saiu do seu bolso: o dinheiro inicial mais os aportes.
@@ -205,7 +206,7 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
                     <GainLegend points={points} showGoal={showGoal} />
                   </>
                 ) : shownMode === "class" ? (
-                  <NetworthPanels panels={CLASS_PANELS} points={points} width={width} />
+                  <NetworthPanels panels={classPanels(points)} points={points} width={width} />
                 ) : (
                   <NetworthPanels panels={panelsByType} points={typePoints} width={width} />
                 ))}

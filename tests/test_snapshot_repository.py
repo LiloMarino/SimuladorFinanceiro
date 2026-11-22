@@ -30,10 +30,10 @@ def match(database: Engine, monkeypatch: pytest.MonkeyPatch) -> int:
 def test_history_returns_the_equity_by_class_that_was_recorded(match: int):
     by_class = {AssetClass.STOCK: Decimal("120.5"), AssetClass.FII: Decimal("190")}
     repository.snapshot.create_snapshot(
-        match, DAY, Decimal("310.5"), Decimal(0), Decimal(0), by_class
+        match, DAY, Decimal("310.5"), Decimal(0), Decimal(0), by_class, Decimal(0)
     )
     repository.snapshot.create_snapshot(
-        match, NEXT_DAY, Decimal(0), Decimal(0), Decimal(0), {}
+        match, NEXT_DAY, Decimal(0), Decimal(0), Decimal(0), {}, Decimal(0)
     )
 
     history = repository.portfolio.get_patrimonial_history(match)

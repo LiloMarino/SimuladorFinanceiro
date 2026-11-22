@@ -58,6 +58,7 @@ def snapshot(
         total_equity=Decimal(equity),
         total_fixed=Decimal(0),
         total_debt=Decimal(0),
+        total_locked=Decimal(0),
         total_cash=Decimal(cash if cash is not None else networth),
         total_contribution=Decimal(contribution),
         total_networth=Decimal(networth),

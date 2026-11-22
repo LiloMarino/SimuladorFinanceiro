@@ -29,7 +29,12 @@ from backend.core.dto.preparation import (
     PreparationViceAnswerRequest,
 )
 from backend.core.dto.preset import AppliedPresetDTO, PresetAppliedEventDTO
-from backend.core.dto.profession import ProfessionStateDTO
+from backend.core.dto.profession import (
+    OVERTIME_OFF,
+    OVERTIME_ON,
+    ProfessionStateDTO,
+    SetOvertime,
+)
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
     PriceImpactPreviewDTO,
@@ -216,6 +221,10 @@ class PlayerColorRequest(BaseModel):
 
 class PlayerTeamRequest(BaseModel):
     team: int
+
+
+class OvertimeRequest(BaseModel):
+    enabled: bool
 
 
 class PlayerProfessionRequest(BaseModel):
@@ -1112,6 +1121,28 @@ def get_profession_state(client_id: ClientID):
     if not SimulationManager.has_active_simulation():
         raise ConflictError("Não há partida em andamento.")
     return SimulationManager.get_active_simulation().get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/overtime",
+    response_model=ProfessionStateDTO,
+    summary="Ligar ou desligar a hora extra do CLT",
+    description="Liga (`enabled: true`) ou desliga a hora extra de quem é CLT na partida com profissões: ligada, a renda bruta sobe 25% e o imprevisto de saúde custa o dobro. Só existe com o PIB de 12 meses a partir de zero: ligar com PIB negativo responde 409, e a hora extra ligada desliga sozinha na virada do mês em que o PIB fica negativo. Responde 409 para outra profissão e para o estado que já é o pedido.",
+)
+def set_overtime(payload: OvertimeRequest, client_id: ClientID):
+    """
+    Liga ou desliga a hora extra de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.apply_profession_action(
+        user, SetOvertime(kind=OVERTIME_ON if payload.enabled else OVERTIME_OFF)
+    )
+    return simulation.get_profession_state(client_id)
 
 
 @simulation_router.get(

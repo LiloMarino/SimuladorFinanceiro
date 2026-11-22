@@ -31,7 +31,14 @@ const SERIES = [
   { key: "total_cash", label: "Caixa", color: "var(--chart-3)" },
   { key: "total_equity", label: "Renda variável", color: "var(--chart-1)" },
   { key: "total_fixed", label: "Renda fixa", color: "var(--chart-2)" },
+  { key: "total_locked", label: "FGTS", color: "var(--chart-7)" },
 ] as const;
+
+/** As camadas da pilha: o FGTS entra só quando algum dia do histórico teve saldo. */
+function seriesFor(history: { total_locked: string }[]) {
+  const withLocked = history.some((h) => Number(h.total_locked) > 0);
+  return SERIES.filter((s) => s.key !== "total_locked" || withLocked);
+}
 
 const NO_SECTOR = "Sem setor";
 
@@ -89,7 +96,7 @@ export function CompositionTab({ simulationIds, currentPlayerName, onlyPlayer }:
         <CardContent>
           <div className="grid gap-4">
             <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-              {SERIES.map((s) => (
+              {seriesFor(data.players.flatMap((p) => p.history)).map((s) => (
                 <span key={s.key} className="flex items-center gap-1.5">
                   <span className="size-2.5 rounded-sm" style={{ backgroundColor: s.color }} aria-hidden="true" />
                   {s.label}
@@ -172,6 +179,12 @@ function TeamGroupHeader({
           média: <span className="text-chart-3">{share(composition.cash_share)} caixa</span> ·{" "}
           <span className="text-chart-1">{share(composition.equity_share)} RV</span> ·{" "}
           <span className="text-chart-2">{share(composition.fixed_share)} RF</span>
+          {Number(composition.locked_share) > 0 && (
+            <>
+              {" "}
+              · <span className="text-chart-7">{share(composition.locked_share)} FGTS</span>
+            </>
+          )}
         </span>
       )}
     </div>
@@ -196,10 +209,12 @@ function SmallMultiple({
     total_cash: Number(h.total_cash),
     total_equity: Number(h.total_equity),
     total_fixed: Number(h.total_fixed),
+    total_locked: Number(h.total_locked),
   }));
+  const series = seriesFor(player.history);
   const first = rows[0];
   const last = rows.at(-1);
-  const total = last ? last.total_cash + last.total_equity + last.total_fixed : 0;
+  const total = last ? last.total_cash + last.total_equity + last.total_fixed + last.total_locked : 0;
   const share = (value: number) => displayPercent(total > 0 ? value / total : 0, 0);
 
   return (
@@ -227,7 +242,7 @@ function SmallMultiple({
                   labelFormatter={(d) => (typeof d === "string" ? displayMonthSlashYear(d) : d)}
                   formatter={(v, name) => [displayMoney(Number(v)), SERIES.find((s) => s.key === name)?.label ?? name]}
                 />
-                {SERIES.map((s) => (
+                {series.map((s) => (
                   <Area
                     key={s.key}
                     type="monotone"
@@ -252,6 +267,12 @@ function SmallMultiple({
             <span className="text-chart-1">{share(last.total_equity)} RV</span>
             {" · "}
             <span className="text-chart-2">{share(last.total_fixed)} RF</span>
+            {series.some((s) => s.key === "total_locked") && (
+              <>
+                {" · "}
+                <span className="text-chart-7">{share(last.total_locked)} FGTS</span>
+              </>
+            )}
           </span>
         </>
       )}

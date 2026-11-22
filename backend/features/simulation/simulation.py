@@ -104,6 +104,8 @@ from backend.core.dto.patrimonial_history import (
 from backend.core.dto.pending import PendingDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.profession import (
+    OVERTIME_ENDED,
+    CltState,
     MechanicAction,
     MechanicState,
     ProfessionPeriodDTO,
@@ -171,7 +173,7 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.fund_reference import FundReference
-from backend.core.indicators import annual_index_rate
+from backend.core.indicators import annual_index_rate, last_known_rate
 from backend.core.life_budget import LifeBudget
 from backend.core.life_events import life_event_label
 from backend.core.metrics import (
@@ -191,6 +193,7 @@ from backend.core.metrics import (
     ENGINE_TAXES,
     metrics,
 )
+from backend.core.networth import networth
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.professions import (
     DRIVER_CURVES,
@@ -201,7 +204,7 @@ from backend.core.professions import (
     available_professions,
     is_party_bound,
 )
-from backend.core.rates import period_rate
+from backend.core.rates import from_percent, period_rate
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -285,9 +288,16 @@ from backend.features.government.promise_panel import (
 )
 from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
+from backend.features.profession.clt import (
+    after_layoff,
+    after_month,
+    end_overtime,
+    overtime_ends_with_recession,
+)
 from backend.features.profession.mechanics import apply_action
 from backend.features.profession.policy import policy_action
 from backend.features.profession.profession_book import ProfessionBook
+from backend.features.profession.reserve import Reserve
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     ComanagerEventDTO,
@@ -492,6 +502,7 @@ class Simulation:
                 UserManager.get_user_id(client_id)
             )
         )
+        self._engine.use_locked_value(self._locked_value_of)
         self._price_impact = PriceImpact(
             settings.id,
             settings.price_impact_enabled,
@@ -2940,10 +2951,14 @@ class Simulation:
             total_cash=balance.total_cash,
             total_contribution=self._contributed,
             total_debt=balance.total_debt,
-            total_networth=balance.total_cash
-            + balance.total_equity
-            + balance.total_fixed
-            - balance.total_debt,
+            total_locked=balance.total_locked,
+            total_networth=networth(
+                cash=balance.total_cash,
+                equity=balance.total_equity,
+                fixed=balance.total_fixed,
+                locked=balance.total_locked,
+                debt=balance.total_debt,
+            ),
             equity_by_class=balance.equity_by_class,
             created_at=datetime.now(UTC),
         )
@@ -3096,8 +3111,9 @@ class Simulation:
             return event_by_weight[weight]
 
         if month_changed:
-            # A política do bot age antes da renda do mês: o estado que ela deixa vale já neste mês
-            self._run_bot_policies(users, day)
+            # A recessão desliga a hora extra e a política do bot age antes da renda do mês: o estado que ficam vale já neste mês
+            self._end_overtime_in_recession(users, day)
+            self._run_bot_policies(users, day, budgets)
             for user in users:
                 budget = budgets[user.client_id]
                 loses_income = budget.income_loss() is not None and skipped_for(budget)
@@ -3105,6 +3121,7 @@ class Simulation:
                 if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
                 self._engine.pay_expense(user.client_id, budget.expense_on(day))
+                self._run_fgts_month(user, budget, day, salary_paid=salary > 0)
 
         for user in users:
             budget = budgets[user.client_id]
@@ -3116,12 +3133,14 @@ class Simulation:
             # A profissão que não sente a demissão sorteada não a registra
             if is_layoff and budget.income_loss() is None:
                 continue
-            health = budget.rule.health_multiple if event.key == HEALTH_EVENT_KEY else 1
+            health = budget.health_multiple if event.key == HEALTH_EVENT_KEY else 1
             amount = event.expense_multiple * budget.expense_on(day) * health
             if is_income:
                 self._engine.receive_unexpected(user.client_id, amount, event.key)
             else:
                 self._engine.charge_unexpected(user.client_id, amount, event.key)
+            if is_layoff:
+                self._pay_out_fgts(user)
             if self.settings.uses_professions and not user.is_bot:
                 self._notify_life_event(event, amount, budget, user)
         if not self.settings.uses_professions:
@@ -3258,12 +3277,15 @@ class Simulation:
         mecânica, guarda o estado novo e lança a ação no histórico da vida. É o único
         caminho das ações: as rotas dos jogadores e a política dos bots passam por ele.
         """
+        if not self.settings.uses_professions:
+            raise ConflictError("A partida joga com salário igual: não há profissões.")
         profession = self._profession_of(user.id)
         state = apply_action(
             profession,
             self._mechanic_state_of(user.id),
             action,
             self._current_date,
+            self._macro.latest(self._current_date),
         )
         self._profession_book.save_state(user.id, state)
         self._engine.record_profession_action(user.client_id, action.kind)
@@ -3297,20 +3319,90 @@ class Simulation:
         UserManager.replace_profession(user, profession)
         self._engine.record_profession_switch(user.client_id, profession)
 
-    def _run_bot_policies(self, users: list[UserDTO], day: date) -> None:
+    def _run_bot_policies(
+        self, users: list[UserDTO], day: date, budgets: dict[UUID, LifeBudget]
+    ) -> None:
         """Cada bot toma a ação que a política da profissão dele manda no mês, pelo mesmo caminho das ações dos jogadores."""
+        if not self.settings.uses_professions:
+            return
         macro = self._macro.latest(day)
+        health = next(
+            event
+            for event in self.settings.life_events
+            if event.key == HEALTH_EVENT_KEY
+        )
         for user in users:
             if not user.is_bot:
                 continue
+            reserve = Reserve(
+                cash=self._engine.coverable_cash(user.client_id),
+                health_cost=health.expense_multiple
+                * budgets[user.client_id].expense_on(day),
+            )
             action = policy_action(
                 self._profession_of(user.id),
                 self._mechanic_state_of(user.id),
                 day,
                 macro,
+                reserve,
             )
             if action is not None:
                 self.apply_profession_action(user, action)
+
+    def _clt_state_of(self, user_id: int) -> CltState | None:
+        """O estado do CLT de quem exerce a profissão na partida com profissões; nulo para as demais."""
+        if not self.settings.uses_professions:
+            return None
+        state = self._mechanic_state_of(user_id)
+        return state if isinstance(state, CltState) else None
+
+    def _locked_value_of(self, client_id: UUID) -> Decimal:
+        """O saldo das contas travadas da conta `client_id`, que entra no patrimônio dela; só o jogador com mecânica tem."""
+        user = UserManager.get_user(client_id)
+        if user is None or not self.settings.uses_professions:
+            return Decimal(0)
+        return self._mechanic_state_of(user.id).locked_value
+
+    def _end_overtime_in_recession(self, users: list[UserDTO], day: date) -> None:
+        """Na virada do mês, a hora extra ligada acaba sozinha se o PIB de 12 meses ficou negativo, e a recessão entra no histórico."""
+        macro = self._macro.latest(day)
+        for user in users:
+            state = self._clt_state_of(user.id)
+            if state is None or not overtime_ends_with_recession(state, macro):
+                continue
+            self._profession_book.save_state(user.id, end_overtime(state))
+            self._engine.record_profession_action(user.client_id, OVERTIME_ENDED)
+
+    def _run_fgts_month(
+        self, user: UserDTO, budget: LifeBudget, day: date, salary_paid: bool
+    ) -> None:
+        """O FGTS do mês: o saldo rende com a TR e, com o salário pago, recebe o depósito sobre o bruto da renda de CLT."""
+        state = self._clt_state_of(user.id)
+        if state is None:
+            return
+        tr = last_known_rate(IndicatorSeries.TR, day)
+        gross = (
+            budget.salary_on(day) if budget.presidency_multiple is None else Decimal(0)
+        )
+        self._profession_book.save_state(
+            user.id,
+            after_month(
+                state,
+                gross,
+                Decimal(0) if tr is None else from_percent(tr),
+                salary_paid,
+            ),
+        )
+
+    def _pay_out_fgts(self, user: UserDTO) -> None:
+        """Na demissão sorteada o saldo do FGTS e a multa caem no caixa, a conta recomeça do zero e a hora extra desliga."""
+        state = self._clt_state_of(user.id)
+        if state is None:
+            return
+        reset, payout = after_layoff(state)
+        self._profession_book.save_state(user.id, reset)
+        if payout > 0:
+            self._engine.withdraw_fgts(user.client_id, payout)
 
     def party_abbrs(self) -> frozenset[str]:
         """As siglas dos partidos da partida; vazio sem o Governo & Política."""
@@ -3407,7 +3499,7 @@ class Simulation:
         return {
             "profession": budget.profession,
             "income_loss": rule.loss,
-            "health_multiple": rule.health_multiple,
+            "health_multiple": budget.health_multiple,
             "tax": rule.tax,
             "tax_rate": budget.tax_rate_on(day),
             "tax_reference": budget.tax_reference(),
@@ -3827,6 +3919,7 @@ class Simulation:
                 balance.total_fixed,
                 balance.total_debt,
                 balance.equity_by_class,
+                balance.total_locked,
             )
         snapshots = repository.snapshot.create_snapshots(self._current_date, balances)
 

@@ -8,9 +8,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 
-from backend.core.dto.profession import MechanicAction, MechanicState
+from backend.core.dto.profession import MechanicAction, MechanicState, SetOvertime
 from backend.core.enum import Profession
 from backend.core.exceptions.http_exceptions import ConflictError
+from backend.features.economy.growth import MacroMonth
+from backend.features.profession.clt import set_overtime
 
 
 @dataclass(frozen=True)
@@ -19,10 +21,12 @@ class Mechanic:
 
     action_type: type[MechanicAction]
     # Recusa a ação que o estado ou o dia não permitem levantando um erro de requisição
-    apply: Callable[[MechanicState, MechanicAction, date], MechanicState]
+    apply: Callable[[MechanicState, MechanicAction, date, MacroMonth], MechanicState]
 
 
-MECHANICS: dict[Profession, Mechanic] = {}
+MECHANICS: dict[Profession, Mechanic] = {
+    Profession.CLT: Mechanic(SetOvertime, set_overtime),
+}
 
 
 def apply_action(
@@ -30,6 +34,7 @@ def apply_action(
     state: MechanicState,
     action: MechanicAction,
     day: date,
+    macro: MacroMonth,
 ) -> MechanicState:
     """O estado depois da ação, ou o erro de quem a pediu: a profissão sem mecânica e a ação de outra mecânica não passam."""
     mechanic = MECHANICS.get(profession)
@@ -37,4 +42,4 @@ def apply_action(
         raise ConflictError("Esta profissão não tem mecânica.")
     if not isinstance(action, mechanic.action_type):
         raise ConflictError("Esta ação não é da mecânica da profissão.")
-    return mechanic.apply(state, action, day)
+    return mechanic.apply(state, action, day, macro)

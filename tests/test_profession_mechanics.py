@@ -14,6 +14,7 @@ from backend.core import repository
 from backend.core.dto.life import DEFAULT_LIFE_EVENTS
 from backend.core.dto.profession import (
     STATE_TYPES,
+    CltState,
     MechanicAction,
     MechanicState,
     ProfessionPeriodDTO,
@@ -33,17 +34,19 @@ from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
 from backend.core.runtime.user_manager import UserManager
+from backend.features.economy.growth import MacroMonth
 from backend.features.profession import mechanics, policy
 from backend.features.profession.mechanics import MECHANICS, Mechanic, apply_action
 from backend.features.profession.policy import POLICIES
 from backend.features.profession.profession_book import ProfessionBook
+from backend.features.profession.reserve import Reserve
 from backend.features.simulation.life_history import HistoryPeriod, build_history
 from backend.features.simulation.simulation import Simulation
 from backend.features.simulation.simulation_loader import SimulationLoader
 from backend.features.strategy.bots import resolve_bot
 from backend.routes.dependencies import get_client_id
 from backend.routes.simulation import simulation_router
-from tests.fakes import simulation_settings
+from tests.fakes import macro_month, simulation_settings
 from tests.test_bots import (  # noqa: F401
     person,
     professions_rules,
@@ -54,15 +57,10 @@ from tests.test_bots import (  # noqa: F401
 from tests.test_life_history import event
 from tests.test_simulation_loader import new_user
 
-pytestmark = pytest.mark.usefixtures("room", "empty_profession_caches")
+pytestmark = pytest.mark.usefixtures("room")
 
 
-@pytest.fixture
-def empty_profession_caches(monkeypatch: pytest.MonkeyPatch) -> None:
-    """A sala começa sem profissão, partido nem evento na fila lembrados de outro teste."""
-    monkeypatch.setattr(EventManager, "_events", [])
-    for cache in ("_professions", "_saved_professions", "_parties", "_saved_parties"):
-        monkeypatch.setattr(UserManager, cache, {})
+MACRO = macro_month()
 
 
 class Bonus(MechanicState):
@@ -83,7 +81,9 @@ class Other(MechanicAction):
     kind: str = "other"
 
 
-def bump(state: MechanicState, action: MechanicAction, day: date) -> MechanicState:
+def bump(
+    state: MechanicState, action: MechanicAction, day: date, macro: MacroMonth
+) -> MechanicState:
     assert isinstance(state, Bonus)
     if state.count >= 3:
         raise ConflictError("O contador já está no limite.")
@@ -117,7 +117,7 @@ def test_every_mechanic_has_a_state_type_and_every_policy_a_mechanic():
 
 
 def test_a_profession_without_mechanic_starts_with_the_empty_base_state():
-    state = initial_state(Profession.CLT)
+    state = initial_state(Profession.RETIREE)
 
     assert type(state) is MechanicState
     assert state.model_dump() == {}
@@ -126,12 +126,14 @@ def test_a_profession_without_mechanic_starts_with_the_empty_base_state():
 
 def test_a_profession_without_mechanic_refuses_actions():
     with pytest.raises(ConflictError, match="não tem mecânica"):
-        apply_action(Profession.CLT, MechanicState(), Bump(), date(2004, 3, 29))
+        apply_action(
+            Profession.RETIREE, MechanicState(), Bump(), date(2004, 3, 29), MACRO
+        )
 
 
 def test_an_action_of_another_mechanic_is_refused(bonus_for_clt):
     with pytest.raises(ConflictError, match="não é da mecânica"):
-        apply_action(Profession.CLT, Bonus(), Other(), date(2004, 3, 29))
+        apply_action(Profession.CLT, Bonus(), Other(), date(2004, 3, 29), MACRO)
 
 
 def test_the_life_budget_reads_the_state_through_the_injected_callable():
@@ -152,7 +154,9 @@ def test_joining_the_match_opens_the_state_and_the_first_period(monkeypatch):
     states = repository.profession.states(sim.settings.id)
     periods = repository.profession.periods(sim.settings.id)
 
-    assert type(states[ana.id]) is MechanicState
+    state = states[ana.id]
+    assert isinstance(state, CltState)
+    assert not state.overtime
     assert periods[ana.id] == [
         ProfessionPeriodDTO(profession=Profession.CLT, start=sim.settings.start_date)
     ]
@@ -214,7 +218,9 @@ def test_the_policy_acts_only_for_bots_and_only_on_the_month_turn(
     bot = UserManager.add_bot(
         "Robô", resolve_bot("cdi_100", {}, profession=Profession.CLT)
     )
-    monkeypatch.setitem(POLICIES, Profession.CLT, lambda state, day, macro: Bump())
+    monkeypatch.setitem(
+        POLICIES, Profession.CLT, lambda state, day, macro, reserve: Bump()
+    )
     sim = match(monkeypatch)
     months: set[tuple[int, int]] = set()
 
@@ -231,25 +237,27 @@ def test_the_policy_acts_only_for_bots_and_only_on_the_month_turn(
     assert robot.count == min(len(months), 3)
 
 
-def test_the_policy_gets_the_state_the_day_and_the_macro_of_the_month(
+def test_the_policy_gets_the_state_the_day_the_macro_and_the_reserve_of_the_month(
     bonus_for_clt, monkeypatch
 ):
     person("Ana")
     UserManager.add_bot("Robô", resolve_bot("cdi_100", {}, profession=Profession.CLT))
-    seen: list[tuple[MechanicState, date, object]] = []
+    seen: list[tuple[MechanicState, date, object, Reserve]] = []
 
-    def record(state, day, macro):
-        seen.append((state, day, macro))
+    def record(state, day, macro, reserve):
+        seen.append((state, day, macro, reserve))
 
     monkeypatch.setitem(POLICIES, Profession.CLT, record)
     sim = match(monkeypatch)
     sim.next_tick()
 
     assert seen
-    state, day, macro = seen[0]
+    state, day, macro, reserve = seen[0]
     assert state == Bonus()
     assert day == sim.settings.start_date
     assert hasattr(macro, "unemployment")
+    assert reserve.cash > 0
+    assert reserve.health_cost == 2 * sim.settings.monthly_expense
 
 
 def test_switching_in_the_middle_keeps_cash_and_starting_capital(monkeypatch):

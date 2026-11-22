@@ -4,11 +4,13 @@ import {
   displaySignedThousands,
   displayThousands,
   goalOnScale,
+  hasLocked,
   heldTypes,
   isPeriodAvailable,
   pointsInPeriod,
   pointsWithTypes,
   splitGainLoss,
+  toNetworthPoints,
   valueScale,
   type NetworthPoint,
 } from "./networth-model";
@@ -21,6 +23,7 @@ const point = (date: string, networth = 0): NetworthPoint => ({
   equity: 0,
   fixed: 0,
   cash: 0,
+  locked: 0,
   equityByClass: undefined,
   goal: undefined,
 });
@@ -201,5 +204,40 @@ describe("formatação", () => {
     expect(displaySignedThousands(19_040)).toBe("+19,0 mil");
     expect(displaySignedThousands(-1_000)).toBe("−1,0 mil");
     expect(displaySignedThousands(1_234_000)).toBe("+1,2 mi");
+  });
+});
+
+describe("hasLocked", () => {
+  it("existe quando algum dia teve saldo travado", () => {
+    expect(hasLocked([point("2024-01-02"), { ...point("2024-01-03"), locked: 1500 }])).toBe(true);
+  });
+
+  it("some quando nenhum dia teve saldo", () => {
+    expect(hasLocked([point("2024-01-02"), point("2024-01-03")])).toBe(false);
+    expect(hasLocked([])).toBe(false);
+  });
+});
+
+describe("toNetworthPoints", () => {
+  it("lê o saldo travado do histórico como número", () => {
+    const [first] = toNetworthPoints(
+      [
+        {
+          snapshot_date: "2024-01-02",
+          total_networth: "12500",
+          total_equity: "0",
+          total_fixed: "0",
+          total_cash: "10000",
+          total_contribution: "0",
+          total_debt: "0",
+          total_locked: "2500",
+          equity_by_class: null,
+          total_provided: "10000",
+        },
+      ],
+      undefined,
+    );
+
+    expect(first?.locked).toBe(2500);
   });
 });

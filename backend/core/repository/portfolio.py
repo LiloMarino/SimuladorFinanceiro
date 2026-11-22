@@ -169,6 +169,7 @@ class PortfolioRepository:
                 total_cash=row.total_cash,
                 total_contribution=row.total_contribution,
                 total_debt=row.total_debt,
+                total_locked=row.total_locked,
                 equity_by_class=row.equity_by_class,
             )
             for row in rows

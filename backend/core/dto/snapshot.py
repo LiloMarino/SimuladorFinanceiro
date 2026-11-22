@@ -22,6 +22,8 @@ class DayBalanceDTO(NamedTuple):
     total_fixed: Decimal
     total_debt: Decimal
     equity_by_class: dict[AssetClass, Decimal]
+    # O saldo das contas travadas (o FGTS): entra no patrimônio do dia
+    total_locked: Decimal
 
 
 class SnapshotDTO(BaseDTO):
@@ -33,6 +35,7 @@ class SnapshotDTO(BaseDTO):
     total_contribution: Decimal
     total_debt: Decimal
     total_networth: Decimal
+    total_locked: Decimal
     equity_by_class: dict[AssetClass, Decimal]
     created_at: datetime
 
@@ -57,6 +60,7 @@ class SnapshotDTO(BaseDTO):
             total_contribution=m.total_contribution,
             total_debt=m.total_debt,
             total_networth=m.total_networth,
+            total_locked=m.total_locked,
             equity_by_class=m.equity_by_class,
             created_at=m.created_at,
         )

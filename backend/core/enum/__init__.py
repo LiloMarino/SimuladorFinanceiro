@@ -101,6 +101,8 @@ class CashflowEventType(Enum):
     # Lançamentos sem dinheiro da profissão: a troca no meio da partida e a ação da mecânica
     PROFESSION_SWITCHED = "PROFESSION_SWITCHED"
     PROFESSION_ACTION = "PROFESSION_ACTION"
+    # O saldo do FGTS e a multa de 40% que caem no caixa na demissão sorteada do CLT
+    FGTS_WITHDRAWAL = "FGTS_WITHDRAWAL"
 
     @property
     def sign(self) -> int:
@@ -145,6 +147,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.FUND_MERGE_IN: 1,
     CashflowEventType.PROFESSION_SWITCHED: 1,
     CashflowEventType.PROFESSION_ACTION: 1,
+    CashflowEventType.FGTS_WITHDRAWAL: 1,
 }
 
 # Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
@@ -491,6 +494,7 @@ class LifeHistoryKind(Enum):
     OVERDRAFT_RATE_CHANGED = "OVERDRAFT_RATE_CHANGED"
     PROFESSION_SWITCHED = "PROFESSION_SWITCHED"
     PROFESSION_ACTION = "PROFESSION_ACTION"
+    FGTS_WITHDRAWAL = "FGTS_WITHDRAWAL"
 
 
 class PlayerGrouping(Enum):

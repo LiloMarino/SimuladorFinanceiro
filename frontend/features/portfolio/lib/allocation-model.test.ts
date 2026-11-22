@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import type { PortfolioState } from "@/types";
 import { assetCount, classSlices, ringArc, sliceAngles, topAssets } from "./allocation-model";
 
-function portfolio(partial: { cash: string; equity?: [string, string][]; fixed?: [string, string][] }): PortfolioState {
+function portfolio(partial: {
+  cash: string;
+  equity?: [string, string][];
+  fixed?: [string, string][];
+  locked?: string;
+}): PortfolioState {
   const equity = partial.equity ?? [];
   const fixed = partial.fixed ?? [];
   const sum = (items: [string, string][]) => items.reduce((total, [, value]) => total + Number(value), 0);
@@ -12,7 +17,8 @@ function portfolio(partial: { cash: string; equity?: [string, string][]; fixed?:
     cash: partial.cash,
     variable_income_value: String(variable),
     fixed_income_value: String(fixedTotal),
-    assets_value: String(Number(partial.cash) + variable + fixedTotal),
+    locked_value: partial.locked ?? "0",
+    assets_value: String(Number(partial.cash) + variable + fixedTotal + Number(partial.locked ?? 0)),
     variable_income: equity.map(([ticker, value]) => ({ ticker, current_value: value })),
     fixed_income: fixed.map(([name, value]) => ({ asset: { name }, current_value: value })),
   } as unknown as PortfolioState;
@@ -26,6 +32,16 @@ describe("classSlices", () => {
       ["variable", 0.6],
       ["fixed", 0.3],
       ["cash", 0.1],
+    ]);
+  });
+
+  it("põe o saldo travado do FGTS como a última classe", () => {
+    // 50 em ações + 40 de caixa + 10 travados no FGTS = 100: o FGTS é 10% e vem depois do caixa
+    const slices = classSlices(portfolio({ cash: "40", equity: [["PETR4", "50"]], locked: "10" }));
+    expect(slices.map((s) => [s.key, s.fraction])).toEqual([
+      ["variable", 0.5],
+      ["cash", 0.4],
+      ["locked", 0.1],
     ]);
   });
 

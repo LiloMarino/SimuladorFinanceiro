@@ -16,6 +16,7 @@ from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.user import UserDTO
 from backend.core.enum import CashflowEventType, EquityEventType
 from backend.core.player_colors import PLAYER_COLORS
+from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.realtime_broker_manager import RealtimeBrokerManager
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -88,6 +89,11 @@ def started(market: Engine, monkeypatch: pytest.MonkeyPatch) -> list[str]:
     monkeypatch.setattr(UserManager, "_saved_colors", {})
     monkeypatch.setattr(UserManager, "_teams", {})
     monkeypatch.setattr(UserManager, "_saved_teams", {})
+    monkeypatch.setattr(EventManager, "_events", [])
+    monkeypatch.setattr(UserManager, "_parties", {})
+    monkeypatch.setattr(UserManager, "_saved_parties", {})
+    monkeypatch.setattr(UserManager, "_professions", {})
+    monkeypatch.setattr(UserManager, "_saved_professions", {})
     monkeypatch.setattr(UserManager, "_bots", {})
     monkeypatch.setattr(UserManager, "_parked_bots", {})
     monkeypatch.setattr(SimulationManager, "_active_simulation", None)

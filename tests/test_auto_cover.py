@@ -313,6 +313,7 @@ def test_loan_installment_is_covered_before_it_becomes_late(
     engine.receive_loan = lambda client_id, amount: engine.add_cash(client_id, amount)
     engine.pay_loan = lambda client_id, amount: engine.add_cash(client_id, -amount)
     engine.assets_value = lambda client_id: engine.cash[client_id]
+    engine.networth = lambda client_id, debt: engine.cash[client_id] - debt
     engine.cash[owner] = Decimal(10000)
     loan = engine.credit_book.contract(owner, Decimal(5000), 12)
     installment = loan.state.due_amount()

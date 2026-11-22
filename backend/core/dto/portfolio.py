@@ -24,11 +24,14 @@ class PortfolioDTO(BaseDTO):
     capital_provided: Decimal
     total_return_value: Decimal
     total_return_pct: Decimal
-    # Frações dos ativos em renda variável, renda fixa e caixa (somam 1)
+    # Frações dos ativos em renda variável, renda fixa, caixa e saldo travado (somam 1)
     variable_income_networth_pct: Decimal
     fixed_income_networth_pct: Decimal
     cash_pct: Decimal
-    # Patrimônio é sempre o líquido: caixa, ações e renda fixa menos a dívida
+    locked_networth_pct: Decimal
+    # O saldo das contas travadas do jogador (o FGTS); zero sem profissões ou fora do CLT
+    locked_value: Decimal
+    # Patrimônio é sempre o líquido: caixa, ações, renda fixa e saldo travado menos a dívida
     assets_value: Decimal
     debt: Decimal
     # Parcela em atraso ou prestes a vencer sem caixa para cobri-la

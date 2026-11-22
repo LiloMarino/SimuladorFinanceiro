@@ -1,6 +1,6 @@
 import { ASSET_CLASS_LABELS } from "@/shared/lib/asset-class";
 import type { AssetClass } from "@/types";
-import type { NetworthPoint } from "./networth-model";
+import { hasLocked, type NetworthPoint } from "./networth-model";
 
 export type PanelConfig = {
   key: string;
@@ -14,7 +14,7 @@ export type PanelConfig = {
 
 type PanelStyle = Pick<PanelConfig, "color" | "lineClass" | "areaClass" | "dotClass">;
 
-export const CLASS_PANELS: PanelConfig[] = [
+const BASE_CLASS_PANELS: PanelConfig[] = [
   {
     key: "equity",
     label: "Renda variável",
@@ -43,6 +43,21 @@ export const CLASS_PANELS: PanelConfig[] = [
     valueOf: (p) => p.cash,
   },
 ];
+
+const LOCKED_PANEL: PanelConfig = {
+  key: "locked",
+  label: "FGTS",
+  color: "var(--chart-7)",
+  lineClass: "stroke-chart-7",
+  areaClass: "fill-chart-7/12",
+  dotClass: "stroke-chart-7",
+  valueOf: (p) => p.locked,
+};
+
+/** Um painel por classe; o FGTS ganha o dele quando algum dia teve saldo. */
+export function classPanels(points: NetworthPoint[]): PanelConfig[] {
+  return hasLocked(points) ? [...BASE_CLASS_PANELS, LOCKED_PANEL] : BASE_CLASS_PANELS;
+}
 
 const TYPE_STYLES: Record<AssetClass, PanelStyle> = {
   STOCK: {

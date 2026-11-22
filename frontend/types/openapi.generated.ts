@@ -4456,6 +4456,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/overtime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Ligar ou desligar a hora extra do CLT
+         * @description Liga (`enabled: true`) ou desliga a hora extra de quem é CLT na partida com profissões: ligada, a renda bruta sobe 25% e o imprevisto de saúde custa o dobro. Só existe com o PIB de 12 meses a partir de zero: ligar com PIB negativo responde 409, e a hora extra ligada desliga sozinha na virada do mês em que o PIB fica negativo. Responde 409 para outra profissão e para o estado que já é o pedido.
+         */
+        post: operations["set_overtime_api_simulation_overtime_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/life-history": {
         parameters: {
             query?: never;
@@ -10797,7 +10817,7 @@ export interface components {
          * LifeHistoryKind
          * @enum {string}
          */
-        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "UNEXPECTED_INCOME" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST" | "SALARY_READJUSTED" | "EXPENSE_READJUSTED" | "SALARY_TAX_CHANGED" | "OVERDRAFT_RATE_CHANGED" | "PROFESSION_SWITCHED" | "PROFESSION_ACTION";
+        LifeHistoryKind: "UNEXPECTED_EXPENSE" | "UNEXPECTED_INCOME" | "LAYOFF" | "OVERDRAFT_STARTED" | "OVERDRAFT_ENDED" | "OVERDRAFT_INTEREST" | "SALARY_READJUSTED" | "EXPENSE_READJUSTED" | "SALARY_TAX_CHANGED" | "OVERDRAFT_RATE_CHANGED" | "PROFESSION_SWITCHED" | "PROFESSION_ACTION" | "FGTS_WITHDRAWAL";
         /** LifeHistoryPageDTO */
         LifeHistoryPageDTO: {
             /** Items */
@@ -11912,6 +11932,11 @@ export interface components {
             /** Total */
             total: string;
         };
+        /** OvertimeRequest */
+        OvertimeRequest: {
+            /** Enabled */
+            enabled: boolean;
+        };
         /** OverviewReportDTO */
         OverviewReportDTO: {
             player_grouping: components["schemas"]["PlayerGrouping"];
@@ -12132,6 +12157,11 @@ export interface components {
              * @default 0
              */
             total_debt: string;
+            /**
+             * Total Locked
+             * @default 0
+             */
+            total_locked: string;
             /** Equity By Class */
             equity_by_class: {
                 [key: string]: string;
@@ -12603,6 +12633,10 @@ export interface components {
             fixed_income_networth_pct: string;
             /** Cash Pct */
             cash_pct: string;
+            /** Locked Networth Pct */
+            locked_networth_pct: string;
+            /** Locked Value */
+            locked_value: string;
             /** Assets Value */
             assets_value: string;
             /** Debt */
@@ -12682,6 +12716,11 @@ export interface components {
              * @default 0
              */
             total_debt: string;
+            /**
+             * Total Locked
+             * @default 0
+             */
+            total_locked: string;
             /** Equity By Class */
             equity_by_class: {
                 [key: string]: string;
@@ -14604,6 +14643,8 @@ export interface components {
             total_debt: string;
             /** Total Networth */
             total_networth: string;
+            /** Total Locked */
+            total_locked: string;
             /** Equity By Class */
             equity_by_class: {
                 [key: string]: string;
@@ -15658,6 +15699,8 @@ export interface components {
             equity_share: string | null;
             /** Fixed Share */
             fixed_share: string | null;
+            /** Locked Share */
+            locked_share: string | null;
         };
         /**
          * TeamNaming
@@ -26443,6 +26486,48 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_overtime_api_simulation_overtime_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OvertimeRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

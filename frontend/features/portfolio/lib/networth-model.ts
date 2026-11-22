@@ -20,6 +20,8 @@ export type NetworthPoint = {
   equity: number;
   fixed: number;
   cash: number;
+  /** Saldo das contas travadas (o FGTS); já está somado em `networth` */
+  locked: number;
   /** Renda variável por tipo; ausente nos dias gravados antes de o snapshot guardá-la */
   equityByClass: Partial<Record<AssetClass, number>> | undefined;
   /** Meta vigente no dia; ausente fora da corrida */
@@ -36,6 +38,7 @@ export function toNetworthPoints(history: PortfolioHistoryPoint[], goalSteps: Se
     equity: Number(p.total_equity),
     fixed: Number(p.total_fixed),
     cash: Number(p.total_cash),
+    locked: Number(p.total_locked),
     equityByClass: p.equity_by_class ? toEquityByClass(p.equity_by_class) : undefined,
     goal: goalAt(goalSteps ?? [], p.snapshot_date),
   }));
@@ -43,6 +46,11 @@ export function toNetworthPoints(history: PortfolioHistoryPoint[], goalSteps: Se
 
 function toEquityByClass(split: Record<string, string>): Partial<Record<AssetClass, number>> {
   return Object.fromEntries(ASSET_CLASSES.filter((c) => c in split).map((c) => [c, Number(split[c])]));
+}
+
+/** O FGTS vira camada nos gráficos só quando algum dos `points` teve saldo. */
+export function hasLocked(points: NetworthPoint[]) {
+  return points.some((p) => p.locked > 0);
 }
 
 /** Os dias com a renda variável por tipo gravada: a visão por tipo desenha só eles. */

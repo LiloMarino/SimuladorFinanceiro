@@ -11,6 +11,7 @@ from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import GameType, PlayerGrouping, VictoryCriterion
 from backend.core.utils import is_business_day, next_business_day
+from backend.features.economy.growth import MacroMonth, aim_from
 from backend.features.fixed_income.fixed_broker import CoverSale
 from backend.features.profession.profession_book import ProfessionBook
 from backend.features.simulation.cash_feed import CashFeed
@@ -84,6 +85,20 @@ def simulation_settings(
         withdrawal_rate=Decimal("0.04"),
         inflation_adjusted=False,
         player_grouping=grouping,
+    )
+
+
+def macro_month(growth: str = "0.03") -> MacroMonth:
+    """Um mês da economia com o PIB de 12 meses dado, em fração, e o resto neutro."""
+    aim = aim_from(Decimal("0.1"), Decimal("0.04"), None)
+    return MacroMonth(
+        month_end=date(2004, 3, 31),
+        growth=Decimal(growth),
+        unemployment=Decimal("0.1"),
+        aim=aim,
+        base_growth=Decimal(growth),
+        base_unemployment=Decimal("0.1"),
+        base_aim=aim,
     )
 
 

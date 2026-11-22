@@ -13677,6 +13677,63 @@
         ]
       }
     },
+    "/api/simulation/overtime": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Ligar ou desligar a hora extra do CLT",
+        "description": "Liga (`enabled: true`) ou desliga a hora extra de quem é CLT na partida com profissões: ligada, a renda bruta sobe 25% e o imprevisto de saúde custa o dobro. Só existe com o PIB de 12 meses a partir de zero: ligar com PIB negativo responde 409, e a hora extra ligada desliga sozinha na virada do mês em que o PIB fica negativo. Responde 409 para outra profissão e para o estado que já é o pedido.",
+        "operationId": "set_overtime_api_simulation_overtime_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OvertimeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/life-history": {
       "get": {
         "tags": [
@@ -32282,7 +32339,8 @@
           "SALARY_TAX_CHANGED",
           "OVERDRAFT_RATE_CHANGED",
           "PROFESSION_SWITCHED",
-          "PROFESSION_ACTION"
+          "PROFESSION_ACTION",
+          "FGTS_WITHDRAWAL"
         ],
         "title": "LifeHistoryKind"
       },
@@ -35641,6 +35699,19 @@
         ],
         "title": "OverdueDTO"
       },
+      "OvertimeRequest": {
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "OvertimeRequest"
+      },
       "OverviewReportDTO": {
         "properties": {
           "player_grouping": {
@@ -36282,6 +36353,11 @@
             "title": "Total Debt",
             "default": "0"
           },
+          "total_locked": {
+            "type": "string",
+            "title": "Total Locked",
+            "default": "0"
+          },
           "equity_by_class": {
             "anyOf": [
               {
@@ -36310,6 +36386,7 @@
           "total_cash",
           "total_contribution",
           "total_debt",
+          "total_locked",
           "equity_by_class"
         ],
         "title": "PatrimonialHistoryDTO"
@@ -37812,6 +37889,14 @@
             "type": "string",
             "title": "Cash Pct"
           },
+          "locked_networth_pct": {
+            "type": "string",
+            "title": "Locked Networth Pct"
+          },
+          "locked_value": {
+            "type": "string",
+            "title": "Locked Value"
+          },
           "assets_value": {
             "type": "string",
             "title": "Assets Value"
@@ -37920,6 +38005,8 @@
           "variable_income_networth_pct",
           "fixed_income_networth_pct",
           "cash_pct",
+          "locked_networth_pct",
+          "locked_value",
           "assets_value",
           "debt",
           "credit_alert",
@@ -38046,6 +38133,11 @@
             "title": "Total Debt",
             "default": "0"
           },
+          "total_locked": {
+            "type": "string",
+            "title": "Total Locked",
+            "default": "0"
+          },
           "equity_by_class": {
             "anyOf": [
               {
@@ -38078,6 +38170,7 @@
           "total_cash",
           "total_contribution",
           "total_debt",
+          "total_locked",
           "equity_by_class",
           "total_provided"
         ],
@@ -43237,6 +43330,10 @@
             "type": "string",
             "title": "Total Networth"
           },
+          "total_locked": {
+            "type": "string",
+            "title": "Total Locked"
+          },
           "equity_by_class": {
             "additionalProperties": {
               "type": "string"
@@ -43261,6 +43358,7 @@
           "total_contribution",
           "total_debt",
           "total_networth",
+          "total_locked",
           "equity_by_class",
           "created_at"
         ],
@@ -46525,6 +46623,17 @@
               }
             ],
             "title": "Fixed Share"
+          },
+          "locked_share": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locked Share"
           }
         },
         "additionalProperties": false,
@@ -46536,7 +46645,8 @@
           "members",
           "cash_share",
           "equity_share",
-          "fixed_share"
+          "fixed_share",
+          "locked_share"
         ],
         "title": "TeamCompositionDTO",
         "description": "Como a equipe dividiu o dinheiro no último dia: média das frações dos membros."

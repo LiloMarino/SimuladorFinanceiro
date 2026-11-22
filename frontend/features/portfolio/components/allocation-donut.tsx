@@ -42,8 +42,8 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
             <InfoHint label="Como ler a distribuição">
               <div className="grid gap-1 text-left text-xs leading-snug">
                 <span>
-                  Os ativos são o que você tem hoje (caixa, renda fixa e ações), sem descontar a dívida. Cada % é a
-                  fatia sobre esse total.
+                  Os ativos são o que você tem hoje (caixa, renda fixa, ações e o saldo do FGTS), sem descontar a
+                  dívida. Cada % é a fatia sobre esse total.
                 </span>
                 <span>Ex.: R$ 50.000 em ações, de R$ 200.000 em ativos, são 25%.</span>
               </div>
@@ -136,8 +136,14 @@ function Ring({
   const angles = sliceAngles(slices.map((s) => s.fraction));
   const count = assetCount(portfolio);
   const holdsCash = Number(portfolio.cash) > 0;
-  const caption =
-    count === 0 ? "tudo em caixa" : `${count} ${count === 1 ? "ativo" : "ativos"}${holdsCash ? " + caixa" : ""}`;
+  const holdsLocked = Number(portfolio.locked_value) > 0;
+  const caption = [
+    count > 0 ? `${count} ${count === 1 ? "ativo" : "ativos"}` : null,
+    holdsCash ? "caixa" : null,
+    holdsLocked ? "FGTS" : null,
+  ]
+    .filter(Boolean)
+    .join(" + ");
 
   return (
     <div className="relative" style={{ width: SIZE, height: SIZE }}>
@@ -161,7 +167,7 @@ function Ring({
       <div className="pointer-events-none absolute inset-0 grid place-content-center text-center">
         <span className="text-xs text-muted-foreground">Você tem</span>
         <span className="text-[15px] font-semibold tabular-nums">{displayMoneyCompact(portfolio.assets_value)}</span>
-        <span className="text-xs text-muted-foreground">{caption}</span>
+        <span className="text-xs text-muted-foreground">{caption || "tudo em caixa"}</span>
       </div>
     </div>
   );
@@ -186,6 +192,9 @@ function ClassRow({
       <span className="min-w-0 flex-1 truncate">
         {slice.label}
         {slice.key === "cash" && <span className="text-xs font-normal text-muted-foreground"> · não rende</span>}
+        {slice.key === "locked" && (
+          <span className="text-xs font-normal text-muted-foreground"> · só sai na demissão</span>
+        )}
       </span>
       <span className="text-xs font-medium tabular-nums">{displayMoneyWhole(slice.value)}</span>
       <span className="w-11.5 text-right tabular-nums">{displayPercent(slice.fraction, 1)}</span>

@@ -62,6 +62,19 @@ describe("texto do histórico da vida real", () => {
       "Mudou de profissão",
     );
   });
+
+  it("a hora extra liga, desliga e acaba com a recessão", () => {
+    const action = (key: string) => row({ category: "PROFESSION", kind: "PROFESSION_ACTION", life_event_key: key });
+    expect(lifeRowText(action("overtime_on"))).toBe("Ligou a hora extra");
+    expect(lifeRowText(action("overtime_off"))).toBe("Desligou a hora extra");
+    expect(lifeRowText(action("overtime_ended"))).toBe("A hora extra acabou com a recessão");
+  });
+
+  it("o saque do FGTS na demissão diz que veio com a multa", () => {
+    expect(lifeRowText(row({ category: "PROFESSION", kind: "FGTS_WITHDRAWAL" }))).toBe(
+      "Saque do FGTS com a multa de 40%",
+    );
+  });
 });
 
 describe("ícone do histórico", () => {

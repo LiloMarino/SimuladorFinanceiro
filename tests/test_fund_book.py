@@ -98,6 +98,7 @@ class FundEngine(FakeSimulationEngine):
             self.cash[client_id],
             self.fund_fee_payable.get(client_id, Decimal(0)),
             {},
+            Decimal(0),
         )
 
     def add_created_stock(self, stock: StockDTO) -> None:

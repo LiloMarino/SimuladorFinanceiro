@@ -312,6 +312,7 @@ class FundRepository:
                     total_cash=Decimal(0),
                     total_contribution=contribution,
                     total_debt=row.loan_debt + row.fee_payable,
+                    total_locked=Decimal(0),
                 )
             )
         return history

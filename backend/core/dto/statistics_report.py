@@ -374,6 +374,7 @@ class TeamCompositionDTO(BaseDTO):
     cash_share: Decimal | None
     equity_share: Decimal | None
     fixed_share: Decimal | None
+    locked_share: Decimal | None
 
 
 class CompositionReportDTO(TeamReportDTO):

@@ -322,6 +322,12 @@ def _living(
     fake._mechanic_state_of = partial(Simulation._mechanic_state_of, living)
     fake._with_mechanic = partial(Simulation._with_mechanic, living)
     fake._run_bot_policies = partial(Simulation._run_bot_policies, living)
+    fake._clt_state_of = partial(Simulation._clt_state_of, living)
+    fake._end_overtime_in_recession = partial(
+        Simulation._end_overtime_in_recession, living
+    )
+    fake._run_fgts_month = partial(Simulation._run_fgts_month, living)
+    fake._pay_out_fgts = partial(Simulation._pay_out_fgts, living)
     fake.apply_profession_action = partial(Simulation.apply_profession_action, living)
     fake._life_budget = partial(Simulation._life_budget, living)
     fake._notify_life_event = partial(Simulation._notify_life_event, living)

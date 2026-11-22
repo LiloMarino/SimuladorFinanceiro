@@ -140,6 +140,11 @@ class LifeBudget:
     def rule(self) -> ProfessionRule:
         return PROFESSIONS[self.profession]
 
+    @property
+    def health_multiple(self) -> Decimal:
+        """Quantas vezes o imprevisto de saúde pesa: o da profissão vezes o do estado da mecânica."""
+        return self.rule.health_multiple * self.current_mechanic_state().health_factor
+
     def income_parts(self, day: date) -> tuple[Decimal, Decimal]:
         """A renda bruta do mês em duas partes: a que a demissão sorteada tira e a que fica."""
         rule = self.rule

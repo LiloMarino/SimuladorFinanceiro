@@ -12,6 +12,7 @@ from backend.core.models.models import (
     EventCashflow,
     Snapshots,
 )
+from backend.core.networth import networth
 from backend.core.repository.cashflow import cash_delta
 from backend.core.runtime.simulation_manager import SimulationManager
 
@@ -25,9 +26,12 @@ class SnapshotRepository:
         total_fixed: Decimal,
         total_debt: Decimal,
         equity_by_class: dict[AssetClass, Decimal],
+        total_locked: Decimal,
     ) -> SnapshotDTO:
         """O snapshot de uma carteira só, pelo mesmo caminho do dia de todos."""
-        balance = DayBalanceDTO(total_equity, total_fixed, total_debt, equity_by_class)
+        balance = DayBalanceDTO(
+            total_equity, total_fixed, total_debt, equity_by_class, total_locked
+        )
         return self.create_snapshots(snapshot_date, {portfolio_id: balance})[
             portfolio_id
         ]
@@ -74,10 +78,14 @@ class SnapshotRepository:
                 total_cash=cash,
                 total_debt=balance.total_debt,
                 total_contribution=contribution,
-                total_networth=cash
-                + balance.total_equity
-                + balance.total_fixed
-                - balance.total_debt,
+                total_locked=balance.total_locked,
+                total_networth=networth(
+                    cash=cash,
+                    equity=balance.total_equity,
+                    fixed=balance.total_fixed,
+                    locked=balance.total_locked,
+                    debt=balance.total_debt,
+                ),
                 equity_by_class=balance.equity_by_class,
                 created_at=created_at,
             )

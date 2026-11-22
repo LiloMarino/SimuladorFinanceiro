@@ -40,6 +40,7 @@ export function NetworthTooltip({ point, left }: { point: NetworthPoint; left: n
       <Row swatch="var(--chart-1)" label="Renda variável" value={displayMoney(point.equity)} />
       <Row swatch="var(--chart-2)" label="Renda fixa" value={displayMoney(point.fixed)} />
       <Row swatch="var(--input)" label="Caixa" value={displayMoney(point.cash)} />
+      {point.locked > 0 && <Row swatch="var(--chart-7)" label="FGTS" value={displayMoney(point.locked)} />}
       {point.debt > 0 && (
         <Row
           swatch="color-mix(in srgb, var(--destructive) 40%, var(--card))"

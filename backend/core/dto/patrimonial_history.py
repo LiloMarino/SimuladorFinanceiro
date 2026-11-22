@@ -13,6 +13,8 @@ class PatrimonialHistoryDTO(BaseDTO):
     total_cash: Decimal
     total_contribution: Decimal
     total_debt: Decimal = Decimal(0)
+    # O saldo das contas travadas (o FGTS), já somado em `total_networth`
+    total_locked: Decimal = Decimal(0)
     # A renda variável por tipo; nula na leitura que não a carrega
     equity_by_class: dict[AssetClass, Decimal] | None = None
 

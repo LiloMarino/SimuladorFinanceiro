@@ -70,6 +70,7 @@ DEFAULT_PERIODS = (HistoryPeriod(date.min, None, IncomeLoss.LAYOFF),)
 PROFESSION_ROWS = {
     CashflowEventType.PROFESSION_SWITCHED: LifeHistoryKind.PROFESSION_SWITCHED,
     CashflowEventType.PROFESSION_ACTION: LifeHistoryKind.PROFESSION_ACTION,
+    CashflowEventType.FGTS_WITHDRAWAL: LifeHistoryKind.FGTS_WITHDRAWAL,
 }
 
 
@@ -309,6 +310,9 @@ def build_history(
                     LifeHistoryCategory.PROFESSION,
                     PROFESSION_ROWS[event.event_type],
                     cash,
+                    amount=event.event_type.sign * event.amount
+                    if event.amount
+                    else None,
                 )
             )
 
@@ -363,6 +367,7 @@ def history_page(
         LifeHistoryKind.OVERDRAFT_RATE_CHANGED: "Cheque especial",
         LifeHistoryKind.PROFESSION_SWITCHED: "Profissão",
         LifeHistoryKind.PROFESSION_ACTION: "Profissão",
+        LifeHistoryKind.FGTS_WITHDRAWAL: "Profissão",
     }
     getters = {
         LifeHistorySort.DATE: lambda r: r.event_date,
@@ -440,6 +445,8 @@ def _description_key(row: LifeHistoryRowDTO) -> str:
             return f"mudou de profissão para {(row.life_event_key or '').casefold()}"
         case LifeHistoryKind.PROFESSION_ACTION:
             return (row.life_event_key or "").casefold()
+        case LifeHistoryKind.FGTS_WITHDRAWAL:
+            return "saque do fgts"
 
 
 def _unexpected_row(

@@ -50,6 +50,14 @@ export const LIFE_HISTORY_KINDS: Record<LifeHistoryKind, KindInfo> = {
   OVERDRAFT_RATE_CHANGED: { tag: "Cheque especial", badge: "info", icon: Percent },
   PROFESSION_SWITCHED: { tag: "Profissão", badge: "info", icon: Repeat },
   PROFESSION_ACTION: { tag: "Profissão", badge: "info", icon: Briefcase },
+  FGTS_WITHDRAWAL: { tag: "Profissão", badge: "success", icon: Landmark },
+};
+
+// O que cada ação da profissão diz no histórico, pela chave que o servidor grava
+const PROFESSION_ACTION_TEXTS: Record<string, string> = {
+  overtime_on: "Ligou a hora extra",
+  overtime_off: "Desligou a hora extra",
+  overtime_ended: "A hora extra acabou com a recessão",
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia
@@ -86,6 +94,8 @@ export function lifeRowText(row: LifeHistoryRow) {
       return profession ? `Mudou de profissão para ${profession.name}` : "Mudou de profissão";
     }
     case "PROFESSION_ACTION":
-      return row.life_event_key ?? LIFE_HISTORY_KINDS[row.kind].tag;
+      return (row.life_event_key && PROFESSION_ACTION_TEXTS[row.life_event_key]) || LIFE_HISTORY_KINDS[row.kind].tag;
+    case "FGTS_WITHDRAWAL":
+      return "Saque do FGTS com a multa de 40%";
   }
 }

@@ -269,7 +269,7 @@ def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOvervi
     fee_payable = book.fee_payable(client_id)
     debt = loan_debt + fee_payable
     assets = book.assets_value(client_id)
-    networth = assets - debt
+    networth = book.networth(client_id, debt)
     offer = book.offer(client_id, day)
     cash = book.cash(client_id)
 
@@ -346,7 +346,7 @@ def build_quote(
     rows = state.schedule()
     interest = total_interest(rows, amount)
     debt = book.debt(client_id, day)
-    networth = book.assets_value(client_id) - debt
+    networth = book.networth(client_id, debt)
     cash = book.cash(client_id)
     # O empréstimo cai no caixa da gestora e a taxa a pagar sai primeiro dele
     settled = _fee_settled(book.fee_payable(client_id), cash, amount)

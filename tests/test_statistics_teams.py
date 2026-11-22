@@ -11,6 +11,7 @@ from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.dto.player_history import PlayerHistoryDTO
 from backend.core.dto.statistics_report import (
     MonthlyVolumeDTO,
+    PlayerCompositionDTO,
     PlayerOperationsDTO,
     PlayerReturnsDTO,
     PlayerScoreHistoryDTO,
@@ -23,6 +24,7 @@ from backend.features.statistics.score import MIN_SCORE_DAYS, score_history
 from backend.features.statistics.teams import (
     mean,
     mean_series,
+    team_composition,
     team_operations,
     team_returns,
     team_score_history,
@@ -65,6 +67,50 @@ def member(
         goal_net_worth=Decimal("100000"),
         history=history(days or [networth]),
     )
+
+
+def composition_of(
+    nickname: str, team: int, cash: str, locked: str
+) -> PlayerCompositionDTO:
+    """Um dia só: `cash` livre e `locked` de FGTS somam o patrimônio."""
+    networth = Decimal(cash) + Decimal(locked)
+    base = member(nickname, team)
+    return PlayerCompositionDTO(
+        player_nickname=base.player_nickname,
+        color=base.color,
+        simulation_id=base.simulation_id,
+        simulation_name=base.simulation_name,
+        team=team,
+        is_bot=False,
+        history=[
+            PatrimonialHistoryDTO(
+                snapshot_date=date(2020, 1, 1),
+                total_networth=networth,
+                total_equity=Decimal(0),
+                total_fixed=Decimal(0),
+                total_cash=Decimal(cash),
+                total_locked=Decimal(locked),
+                total_contribution=Decimal(0),
+            )
+        ],
+        sectors=[],
+        effective_sectors=None,
+        sector_profit=[],
+    )
+
+
+def test_team_composition_averages_the_locked_share_of_its_members():
+    """Ana tem 20% do patrimônio no FGTS e Bia nada: a equipe mostra 10% travado e 90% em caixa."""
+    [team] = team_composition(
+        [
+            composition_of("Ana", 1, "8000", "2000"),
+            composition_of("Bia", 1, "10000", "0"),
+        ]
+    )
+
+    assert team.locked_share == Decimal("0.1")
+    assert team.cash_share == Decimal("0.9")
+    assert team.equity_share == team.fixed_share == 0
 
 
 def teams_of(report):

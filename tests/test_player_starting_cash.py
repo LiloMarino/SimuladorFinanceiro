@@ -48,7 +48,7 @@ def room(database: Engine, monkeypatch: pytest.MonkeyPatch) -> int:
 
 
 def _balance(equity: Decimal):
-    return DayBalanceDTO(equity, Decimal(0), Decimal(0), {})
+    return DayBalanceDTO(equity, Decimal(0), Decimal(0), {}, Decimal(0))
 
 
 def test_portfolio_keeps_the_starting_cash_of_each_player(room: int):

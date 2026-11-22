@@ -64,6 +64,7 @@ class StatisticsRepository:
                 Snapshots.total_networth,
                 Snapshots.total_contribution,
                 Snapshots.total_debt,
+                Snapshots.total_locked,
             )
             .join(Portfolios, Portfolios.id == Snapshots.portfolio_id)
             .where(Snapshots.simulation_id.in_(simulation_ids))
@@ -86,6 +87,7 @@ class StatisticsRepository:
                     total_networth=row.total_networth,
                     total_contribution=row.total_contribution,
                     total_debt=row.total_debt,
+                    total_locked=row.total_locked,
                 )
             )
 

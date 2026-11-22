@@ -123,8 +123,10 @@ def team_risk(
     ]
 
 
-def _shares(player: PlayerCompositionDTO) -> tuple[Decimal, Decimal, Decimal] | None:
-    """Fração de caixa, renda variável e renda fixa no último dia."""
+def _shares(
+    player: PlayerCompositionDTO,
+) -> tuple[Decimal, Decimal, Decimal, Decimal] | None:
+    """Fração de caixa, renda variável, renda fixa e saldo travado (FGTS) no último dia."""
     if not player.history:
         return None
     last = player.history[-1]
@@ -134,6 +136,7 @@ def _shares(player: PlayerCompositionDTO) -> tuple[Decimal, Decimal, Decimal] | 
         last.total_cash / last.total_networth,
         last.total_equity / last.total_networth,
         last.total_fixed / last.total_networth,
+        last.total_locked / last.total_networth,
     )
 
 
@@ -152,6 +155,7 @@ def team_composition(
                 cash_share=mean(s[0] for s in shares),
                 equity_share=mean(s[1] for s in shares),
                 fixed_share=mean(s[2] for s in shares),
+                locked_share=mean(s[3] for s in shares),
             )
         )
     return result

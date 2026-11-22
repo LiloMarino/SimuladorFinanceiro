@@ -46,6 +46,9 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
       color: "bg-chart-2",
     },
     { label: "Caixa", value: portfolio.cash, pct: portfolio.cash_pct, color: "bg-input" },
+    ...(Number(portfolio.locked_value) > 0
+      ? [{ label: "FGTS", value: portfolio.locked_value, pct: portfolio.locked_networth_pct, color: "bg-chart-7" }]
+      : []),
   ];
   const allInCash = Number(portfolio.invested_value) === 0;
   const indebted = Number(portfolio.debt) > 0;
@@ -97,7 +100,7 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
               Alocação · investido {displayMoney(portfolio.invested_value)} · {displayPercent(portfolio.invested_pct)}
             </span>
             <StackedBar segments={allocation.map((a) => ({ key: a.label, fraction: Number(a.pct), color: a.color }))} />
-            <ul className="grid grid-cols-3 gap-3">
+            <ul className={`grid gap-3 ${allocation.length > 3 ? "grid-cols-4" : "grid-cols-3"}`}>
               {allocation.map((a) => (
                 <li key={a.label} className="grid gap-0.5">
                   <span className="flex items-center gap-1.5 text-xs text-muted-foreground">

@@ -28,6 +28,8 @@ from backend.core.enum import (
 from backend.core.exceptions.http_exceptions import UnprocessableEntityError
 from backend.core.fund_reference import FundReference
 from backend.core.life_budget import cents
+from backend.core.networth import assets_value as assets_of
+from backend.core.networth import networth as networth_of
 from backend.core.repository.portfolio import DividendTotal
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.user_manager import UserManager
@@ -82,6 +84,8 @@ class BalanceSheet(NamedTuple):
     total_debt: Decimal
     # Só os tipos de renda variável com posição no dia; a soma é o total_equity
     equity_by_class: dict[AssetClass, Decimal]
+    # O saldo das contas travadas do jogador (o FGTS)
+    total_locked: Decimal
 
 
 # O que o toast do resgate automático diz que foi coberto
@@ -510,6 +514,10 @@ class SimulationEngine:
             client_id, Decimal(0), CashflowEventType.PROFESSION_ACTION, kind
         )
 
+    def withdraw_fgts(self, client_id: UUID, amount: Decimal) -> None:
+        """Credita no caixa o saldo do FGTS e a multa da demissão; a conta travada some do patrimônio no mesmo instante em que o caixa sobe."""
+        self._move_cash(client_id, amount, CashflowEventType.FGTS_WITHDRAWAL)
+
     def receive_unexpected(self, client_id: UUID, amount: Decimal, key: str) -> None:
         """Credita no caixa um imprevisto bom (restituição, herança, bônus...)."""
         self._move_cash(client_id, amount, CashflowEventType.UNEXPECTED_INCOME, key)
@@ -646,7 +654,7 @@ class SimulationEngine:
         mark = self.get_current_price(position) if position else (price or Decimal(0))
         # Só a posição no ativo e o caixa mudam: o patrimônio depois troca uma pela outra
         assets_after = (
-            self._assets_value(client_id)
+            self.assets_value(client_id)
             - cash
             + cash_after
             + (held_after - held) * mark
@@ -765,15 +773,6 @@ class SimulationEngine:
         """As posições de renda variável abertas da conta, a preço de agora."""
         return self._holdings(client_id)[0]
 
-    def _assets_value(self, client_id: UUID) -> Decimal:
-        """Ações a preço de mercado, renda fixa e caixa do jogador: o denominador das frações do patrimônio."""
-        equity, fixed, cash = self._holdings(client_id)
-        return (
-            sum((p.current_value for p in equity), Decimal(0))
-            + self.fixed_market_value(fixed)
-            + cash
-        )
-
     def fixed_market_value(self, positions: Iterable[FixedIncomePosition]) -> Decimal:
         """O que a renda fixa vale vendida hoje: o Tesouro entra pelo preço de mercado."""
         quotes = self.fixed_quotes()
@@ -796,15 +795,39 @@ class SimulationEngine:
             total_cash=cash,
             total_debt=self.credit_book.debt(client_id, self.current_date),
             equity_by_class=equity_by_class,
+            total_locked=self.locked_value(client_id),
         )
 
+    _locked_value_source: Callable[[UUID], Decimal] | None = None
+
+    def use_locked_value(self, source: Callable[[UUID], Decimal]) -> None:
+        """O saldo das contas travadas de cada jogador (o FGTS) vem de quem guarda o estado da profissão."""
+        self._locked_value_source = source
+
+    def locked_value(self, client_id: UUID) -> Decimal:
+        """O saldo travado do jogador, que conta no patrimônio; conta sem profissão não tem."""
+        source = self._locked_value_source
+        return Decimal(0) if source is None else source(client_id)
+
     def assets_value(self, client_id: UUID) -> Decimal:
-        """Caixa, ações e renda fixa, sem descontar a dívida."""
+        """Caixa, ações, renda fixa e saldo travado, sem descontar a dívida."""
         equity, fixed, cash = self._holdings(client_id)
-        return (
-            sum((p.current_value for p in equity), Decimal(0))
-            + self.fixed_market_value(fixed)
-            + cash
+        return assets_of(
+            cash=cash,
+            equity=sum((p.current_value for p in equity), Decimal(0)),
+            fixed=self.fixed_market_value(fixed),
+            locked=self.locked_value(client_id),
+        )
+
+    def networth(self, client_id: UUID, debt: Decimal) -> Decimal:
+        """O patrimônio líquido de `debt` reais de dívida, pela definição única do patrimônio."""
+        equity, fixed, cash = self._holdings(client_id)
+        return networth_of(
+            cash=cash,
+            equity=sum((p.current_value for p in equity), Decimal(0)),
+            fixed=self.fixed_market_value(fixed),
+            locked=self.locked_value(client_id),
+            debt=debt,
         )
 
     def get_portfolio(self, client_id: UUID) -> PortfolioDTO:
@@ -816,9 +839,21 @@ class SimulationEngine:
         fixed_income_value = self.fixed_market_value(fixed)
         invested_value = variable_income_value + fixed_income_value
         # Os percentuais de alocação são sobre os ativos; o patrimônio é o líquido da dívida
-        assets_value = invested_value + cash
+        locked_value = self.locked_value(client_id)
+        total_assets = assets_of(
+            cash=cash,
+            equity=variable_income_value,
+            fixed=fixed_income_value,
+            locked=locked_value,
+        )
         debt = self.credit_book.debt(client_id, self.current_date)
-        total_networth = assets_value - debt
+        total_networth = networth_of(
+            cash=cash,
+            equity=variable_income_value,
+            fixed=fixed_income_value,
+            locked=locked_value,
+            debt=debt,
+        )
 
         # O capital colocado é o inicial do jogador mais os aportes: aporte não é rendimento
         portfolio_id = UserManager.get_portfolio_id(client_id)
@@ -864,16 +899,18 @@ class SimulationEngine:
             fixed_income_redeemable=total_redeemable(
                 fixed, self.current_date, policy, quotes
             ),
-            invested_pct=ratio(invested_value, assets_value),
+            invested_pct=ratio(invested_value, total_assets),
             variable_income_pct=ratio(variable_income_value, invested_value),
             fixed_income_pct=ratio(fixed_income_value, invested_value),
             capital_provided=capital_provided,
             total_return_value=total_networth - capital_provided,
             total_return_pct=ratio(total_networth - capital_provided, capital_provided),
-            variable_income_networth_pct=ratio(variable_income_value, assets_value),
-            fixed_income_networth_pct=ratio(fixed_income_value, assets_value),
-            cash_pct=ratio(cash, assets_value),
-            assets_value=assets_value,
+            variable_income_networth_pct=ratio(variable_income_value, total_assets),
+            fixed_income_networth_pct=ratio(fixed_income_value, total_assets),
+            cash_pct=ratio(cash, total_assets),
+            locked_value=locked_value,
+            locked_networth_pct=ratio(locked_value, total_assets),
+            assets_value=total_assets,
             debt=debt,
             credit_alert=self.credit_book.alert(client_id, self.current_date),
             income_tax_paid=income_tax_paid,

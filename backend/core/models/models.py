@@ -1031,6 +1031,10 @@ class Snapshots(Base):
     total_networth: Mapped[decimal.Decimal] = mapped_column(
         Numeric(20, 6), nullable=False
     )
+    # O saldo das contas travadas (o FGTS); já está somado no patrimônio
+    total_locked: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False, server_default=text("0")
+    )
     # {tipo: valor} da renda variável
     equity_by_class: Mapped[dict] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[datetime.datetime] = mapped_column(
