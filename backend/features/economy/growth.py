@@ -214,6 +214,15 @@ def stocks_return(day: date, *, stored: bool = False) -> Decimal | None:
     return now / before - 1 if now is not None and before else None
 
 
+def stocks_drawdown(day: date, *, stored: bool = False) -> Decimal | None:
+    """Quanto o Ibovespa de `day` está abaixo do topo dos 365 dias corridos até ele (0,20 = 20% abaixo); nulo onde a série não cobre."""
+    now = last_known_value(IndicatorSeries.IBOV, day, stored=stored)
+    high = repository.economic.get_history(
+        IndicatorSeries.IBOV, stored=stored
+    ).high_between(day - timedelta(days=STOCKS_WINDOW_DAYS), day)
+    return 1 - now / high if now is not None and high else None
+
+
 def growth_aim(
     day: date,
     spending: Decimal = ZERO,

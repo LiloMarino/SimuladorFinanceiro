@@ -10,7 +10,7 @@ Price clássica nas datas das parcelas.
 import calendar
 from dataclasses import dataclass
 from datetime import date
-from decimal import ROUND_HALF_EVEN, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_EVEN, Decimal
 
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.rates import compound, period_rate
@@ -21,6 +21,8 @@ from backend.features.credit.rules import (
 )
 
 CENT = Decimal("0.01")
+# A casa decimal do juro anual que o evento de crédito grava
+RATE_STEP = Decimal("0.000001")
 ZERO = Decimal(0)
 
 
@@ -43,6 +45,14 @@ def installment(principal: Decimal, annual_rate: Decimal, months: int) -> Decima
     """Parcela fixa da Price: P·i / (1 - (1+i)^-n)."""
     rate = monthly_rate(annual_rate)
     return money(principal * rate / (1 - (1 + rate) ** -months))
+
+
+def affordable_principal(
+    payment: Decimal, annual_rate: Decimal, months: int
+) -> Decimal:
+    """O maior principal, em centavos inteiros, cuja parcela da Price em `months` meses cabe em `payment`: a inversa de `installment`."""
+    rate = monthly_rate(annual_rate)
+    return (payment * (1 - (1 + rate) ** -months) / rate).quantize(CENT, ROUND_DOWN)
 
 
 def grown_balance(

@@ -269,6 +269,8 @@ class _RecordingEngine:
     def __init__(self, cash: Decimal = Decimal(0)) -> None:
         self.calls: list[tuple[str, Decimal]] = []
         self.cash = cash
+        # A partida sem consignado: a virada do mês não cobra parcela
+        self.credit_book = SimpleNamespace(collect_payroll=lambda _client: None)
 
     def tax_policy_on(self, _day: date):
         return DEFAULT_TAX_POLICY

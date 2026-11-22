@@ -94,6 +94,7 @@ COVER_REASONS: dict[CashflowEventType, str] = {
     CashflowEventType.UNEXPECTED_EXPENSE: "o imprevisto",
     CashflowEventType.TAX: "o imposto de renda",
     CashflowEventType.LOAN_PAYMENT: "a parcela do empréstimo",
+    CashflowEventType.PAYROLL_PAYMENT: "a parcela do consignado",
     CashflowEventType.CAMPAIGN_CONTRIBUTION: "a contribuição ao partido",
     CashflowEventType.FUND_MANAGEMENT_FEE: "a taxa de administração",
     CashflowEventType.FUND_PERFORMANCE_FEE: "a taxa de performance",
@@ -531,6 +532,11 @@ class SimulationEngine:
     def pay_loan(self, client_id: UUID, amount: Decimal) -> None:
         """Debita parcela, amortização, quitação ou atraso; o caixa pode passar do saldo só quando quem chama já o conferiu."""
         self._move_cash(client_id, -amount, CashflowEventType.LOAN_PAYMENT)
+
+    def pay_payroll_installment(self, client_id: UUID, amount: Decimal) -> None:
+        """Debita a parcela do consignado na virada do mês, vendendo renda fixa antes se o salário e o caixa não cobrem; o que faltar cai no cheque especial."""
+        self.cover_before_debit(client_id, amount, CashflowEventType.PAYROLL_PAYMENT)
+        self._move_cash(client_id, -amount, CashflowEventType.PAYROLL_PAYMENT)
 
     def pay_campaign(
         self, client_id: UUID, amount: Decimal, event_type: CashflowEventType

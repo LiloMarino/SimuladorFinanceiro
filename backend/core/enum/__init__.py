@@ -73,6 +73,8 @@ class CashflowEventType(Enum):
     OVERDRAFT_INTEREST = "OVERDRAFT_INTEREST"
     LOAN_PROCEEDS = "LOAN_PROCEEDS"
     LOAN_PAYMENT = "LOAN_PAYMENT"
+    # A parcela do consignado do Servidor, descontada do salário na virada do mês
+    PAYROLL_PAYMENT = "PAYROLL_PAYMENT"
     CAMPAIGN_CONTRIBUTION = "CAMPAIGN_CONTRIBUTION"
     CAMPAIGN_DONATION = "CAMPAIGN_DONATION"
     CAMPAIGN_ACTION = "CAMPAIGN_ACTION"
@@ -128,6 +130,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.OVERDRAFT_INTEREST: -1,
     CashflowEventType.LOAN_PROCEEDS: 1,
     CashflowEventType.LOAN_PAYMENT: -1,
+    CashflowEventType.PAYROLL_PAYMENT: -1,
     CashflowEventType.CAMPAIGN_CONTRIBUTION: -1,
     CashflowEventType.CAMPAIGN_DONATION: -1,
     CashflowEventType.CAMPAIGN_ACTION: -1,
@@ -565,6 +568,9 @@ class CreditEventType(Enum):
     OVERDUE_PAID = "OVERDUE_PAID"
     PREPAYMENT = "PREPAYMENT"
     PAYOFF = "PAYOFF"
+    # O consignado do Servidor: a contratação e a parcela que sai do salário
+    PAYROLL_CONTRACT = "PAYROLL_CONTRACT"
+    PAYROLL_INSTALLMENT = "PAYROLL_INSTALLMENT"
 
 
 class PrepaymentMode(Enum):

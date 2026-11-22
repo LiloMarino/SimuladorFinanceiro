@@ -17,6 +17,8 @@ from backend.core.dto.credit import (
     LoanQuoteDTO,
     MonthPaymentsDTO,
     OverdueDTO,
+    PayrollLoanDTO,
+    PayrollQuoteDTO,
     PrepaymentOptionDTO,
     PrepaymentPreviewDTO,
     RatingDTO,
@@ -32,11 +34,17 @@ from backend.core.exceptions.http_exceptions import (
     ConflictError,
     UnprocessableEntityError,
 )
-from backend.features.credit.credit_book import ClientCredit, CreditBook, Loan
+from backend.features.credit.credit_book import (
+    ClientCredit,
+    CreditBook,
+    Loan,
+    PayrollLoan,
+)
 from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
     ZERO,
     add_months,
+    affordable_principal,
     monthly_rate,
     total_interest,
 )
@@ -55,6 +63,7 @@ from backend.features.credit.rules import (
     MAX_TERM_MONTHS,
     MIN_TERM_MONTHS,
     PAYMENT_MAX_POINTS,
+    PAYROLL_MARGIN,
     VOLATILITY_MAX_POINTS,
     next_tier,
 )
@@ -404,10 +413,60 @@ def _fee_settled(fee_payable: Decimal, cash: Decimal, amount: Decimal) -> Decima
     return min(fee_payable, base + amount) - min(fee_payable, base)
 
 
+def build_payroll_quote(
+    book: CreditBook,
+    client_id: UUID,
+    day: date,
+    amount: Decimal,
+    term_months: int,
+    net_salary: Decimal,
+) -> PayrollQuoteDTO:
+    """A simulação do consignado sobre o salário líquido do mês: parcela, juro, margem livre e o maior valor do prazo."""
+    if not MIN_TERM_MONTHS <= term_months <= MAX_TERM_MONTHS:
+        raise UnprocessableEntityError(
+            f"O prazo vai de {MIN_TERM_MONTHS} a {MAX_TERM_MONTHS} meses."
+        )
+    if amount <= 0:
+        raise UnprocessableEntityError("O valor do empréstimo deve ser maior que zero.")
+    rate = book.payroll_rate(day)
+    state = LoanState.sign(day, amount, rate, term_months)
+    interest = total_interest(state.schedule(), amount)
+    free = book.payroll_margin(client_id, net_salary)
+    return PayrollQuoteDTO(
+        amount=amount,
+        term_months=term_months,
+        annual_rate=rate,
+        monthly_rate=monthly_rate(rate),
+        installment=state.installment,
+        total_interest=interest,
+        total_paid=amount + interest,
+        net_salary=net_salary,
+        margin=net_salary * PAYROLL_MARGIN,
+        margin_used=book.payroll_used(client_id),
+        margin_free=free,
+        max_amount=affordable_principal(free, rate, term_months),
+        fits_margin=state.installment <= free,
+    )
+
+
+def build_payroll_loan(loan: PayrollLoan, day: date) -> PayrollLoanDTO:
+    return PayrollLoanDTO(
+        id=loan.loan_id,
+        principal=loan.principal,
+        term_months=loan.term_months,
+        annual_rate=loan.annual_rate,
+        contract_date=loan.contract_date,
+        installment=loan.state.installment,
+        paid_installments=loan.paid_installments,
+        total_installments=loan.total_installments,
+        balance=loan.balance_on(day),
+    )
+
+
 def build_prepayment_preview(
     book: CreditBook, client_id: UUID, loan_id: UUID, day: date, amount: Decimal
 ) -> PrepaymentPreviewDTO:
-    loan = book.loan(client_id, loan_id)
+    loan = book.loan_contract(client_id, loan_id)
     state = loan.state
     balance = state.balance_on(day)
     options: dict[PrepaymentMode, PrepaymentOptionDTO | None] = {}

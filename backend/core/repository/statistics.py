@@ -293,6 +293,7 @@ _CASHFLOW_FLOW_FIELDS: dict[CashflowEventType, str] = {
     CashflowEventType.OVERDRAFT_INTEREST: "overdraft_interest",
     CashflowEventType.LOAN_PROCEEDS: "loan_proceeds",
     CashflowEventType.LOAN_PAYMENT: "loan_payment",
+    CashflowEventType.PAYROLL_PAYMENT: "loan_payment",
     CashflowEventType.CAMPAIGN_CONTRIBUTION: "campaign",
     CashflowEventType.CAMPAIGN_DONATION: "campaign",
     CashflowEventType.CAMPAIGN_ACTION: "campaign",

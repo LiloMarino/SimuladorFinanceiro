@@ -37,6 +37,7 @@ from backend.core.utils import format_money, next_business_day, required
 from backend.core.utils.lazy_dict import LazyDict
 from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
+    RATE_STEP,
     ZERO,
     OverdueCharges,
     money,
@@ -54,8 +55,11 @@ from backend.features.credit.rules import (
     FIXED_INCOME_MARGIN,
     MAX_TERM_MONTHS,
     MIN_TERM_MONTHS,
+    PAYROLL_MARGIN,
+    PAYROLL_SPREAD,
     WARNING_DAYS,
     GradeTier,
+    payroll_first_collection,
     tier_of,
 )
 from backend.features.fixed_income.accrual import offer as fixed_income_offer
@@ -100,15 +104,13 @@ class Overdue:
 
 
 @dataclass
-class Loan:
+class LoanContract:
+    """O que todo contrato de empréstimo tem: o valor, o prazo e o estado da tabela Price."""
+
     loan_id: UUID
-    # "Empréstimo N": a ordem em que o jogador contratou
-    number: int
     principal: Decimal
     term_months: int
-    grade: CreditGrade
     state: LoanState
-    overdue: list[Overdue] = field(default_factory=list)
 
     @property
     def contract_date(self) -> date:
@@ -121,6 +123,39 @@ class Loan:
     @property
     def total_installments(self) -> int:
         return self.state.cycles_done + self.state.remaining
+
+    @property
+    def paid_installments(self) -> int:
+        return self.state.cycles_done
+
+    @property
+    def is_settled(self) -> bool:
+        return self.state.is_closed
+
+    def balance_on(self, day: date) -> Decimal:
+        """Saldo devedor do dia: o que quitaria o contrato agora."""
+        return self.state.balance_on(day)
+
+    def charges_on(self, day: date) -> Decimal:
+        """Multa e mora das parcelas em atraso; o contrato sem atraso não tem."""
+        return ZERO
+
+    def debt_on(self, day: date) -> Decimal:
+        return self.balance_on(day) + self.charges_on(day)
+
+    def payoff_on(self, day: date) -> Decimal:
+        """O que zera o contrato hoje: o saldo do dia e o atraso com multa e mora."""
+        return money(self.debt_on(day))
+
+
+@dataclass
+class Loan(LoanContract):
+    """O empréstimo comum: tem a nota do dia da contratação e a parcela vence, e atrasa, no vencimento."""
+
+    # "Empréstimo N": a ordem em que o jogador contratou
+    number: int
+    grade: CreditGrade
+    overdue: list[Overdue] = field(default_factory=list)
 
     @property
     def paid_installments(self) -> int:
@@ -142,12 +177,18 @@ class Loan:
             total += charges.fee + charges.interest
         return total
 
-    def debt_on(self, day: date) -> Decimal:
-        return self.balance_on(day) + self.charges_on(day)
 
-    def payoff_on(self, day: date) -> Decimal:
-        """O que zera o empréstimo hoje: o saldo do dia e o atraso com multa e mora."""
-        return money(self.debt_on(day))
+@dataclass
+class PayrollLoan(LoanContract):
+    """O consignado do Servidor: sem nota, a parcela sai do salário na virada do mês e nunca atrasa."""
+
+    def due_for_collection(self, day: date) -> bool:
+        """A primeira parcela cai na virada que fecha a carência; dali em diante, uma por virada de mês."""
+        if self.state.is_closed:
+            return False
+        if self.state.cycles_done > 0:
+            return True
+        return day >= payroll_first_collection(self.contract_date)
 
 
 @dataclass
@@ -164,6 +205,8 @@ class ClosedRating:
 @dataclass
 class ClientCredit:
     loans: dict[UUID, Loan] = field(default_factory=dict)
+    # Os consignados ativos: ficam fora de `loans`, que reúne o que vence e atrasa
+    payroll: dict[UUID, PayrollLoan] = field(default_factory=dict)
     # Todos os eventos do jogador, na ordem em que aconteceram
     events: list[CreditEventDTO] = field(default_factory=list)
     contracts: int = 0
@@ -177,6 +220,13 @@ class ClientCredit:
     @property
     def closed_loans(self) -> int:
         return self.contracts - len(self.loans)
+
+    def open_contracts(self) -> list[LoanContract]:
+        """Todos os contratos em aberto: os empréstimos comuns e os consignados."""
+        return [*self.loans.values(), *self.payroll.values()]
+
+    def contract_of(self, loan_id: UUID) -> LoanContract | None:
+        return self.loans.get(loan_id) or self.payroll.get(loan_id)
 
     def late_dates(self) -> list[date]:
         return [
@@ -199,6 +249,7 @@ class ClientCredit:
         """
         self.events.append(event)
         loan = self.loans.get(event.loan_id)
+        payroll = self.payroll.get(event.loan_id)
         match event.event_type:
             case CreditEventType.CONTRACT:
                 annual_rate = required(event.annual_rate)
@@ -218,8 +269,23 @@ class ClientCredit:
                         term_months,
                     ),
                 )
+            case CreditEventType.PAYROLL_CONTRACT:
+                term_months = required(event.term_months)
+                self.payroll[event.loan_id] = PayrollLoan(
+                    loan_id=event.loan_id,
+                    principal=event.amount,
+                    term_months=term_months,
+                    state=LoanState.sign(
+                        event.event_date,
+                        event.amount,
+                        required(event.annual_rate),
+                        term_months,
+                    ),
+                )
             case CreditEventType.INSTALLMENT_PAID if loan:
                 loan.state = loan.state.advance()
+            case CreditEventType.PAYROLL_INSTALLMENT if payroll:
+                payroll.state = payroll.state.advance()
             case CreditEventType.INSTALLMENT_LATE if loan:
                 number = loan.state.next_number
                 due = loan.state.next_due
@@ -229,15 +295,18 @@ class ClientCredit:
                 loan.overdue = [
                     o for o in loan.overdue if o.number != event.installment_number
                 ]
-            case CreditEventType.PREPAYMENT if loan:
-                loan.state = loan.state.prepay(
+            case CreditEventType.PREPAYMENT if contract := loan or payroll:
+                contract.state = contract.state.prepay(
                     event.amount, event.event_date, required(event.prepayment_mode)
                 )
-            case CreditEventType.PAYOFF if loan:
-                loan.state = loan.state.close()
-                loan.overdue = []
+            case CreditEventType.PAYOFF if contract := loan or payroll:
+                contract.state = contract.state.close()
+                if loan:
+                    loan.overdue = []
         if loan and loan.is_settled:
             del self.loans[loan.loan_id]
+        if payroll and payroll.is_settled:
+            del self.payroll[payroll.loan_id]
 
 
 @dataclass(frozen=True)
@@ -394,9 +463,9 @@ class CreditBook:
     # ------------------------------------------------------------------ leitura
 
     def loan_debt(self, client_id: UUID, day: date) -> Decimal:
-        """Saldo devedor dos empréstimos da conta no dia, com multa e mora."""
+        """Saldo devedor dos empréstimos e do consignado da conta no dia, com multa e mora."""
         client = self.client(client_id)
-        return sum((loan.debt_on(day) for loan in client.loans.values()), ZERO)
+        return sum((loan.debt_on(day) for loan in client.open_contracts()), ZERO)
 
     def fee_payable(self, client_id: UUID) -> Decimal:
         """A taxa a pagar da gestora: dívida da conta dela, fora dos empréstimos; zero nas demais contas."""
@@ -414,6 +483,38 @@ class CreditBook:
         if loan is None:
             raise NotFoundError("Esse empréstimo não existe ou já foi quitado.")
         return loan
+
+    def loan_contract(self, client_id: UUID, loan_id: UUID) -> LoanContract:
+        """O contrato em aberto, empréstimo comum ou consignado; amortizar e quitar servem aos dois."""
+        contract = self.client(client_id).contract_of(loan_id)
+        if contract is None:
+            raise NotFoundError("Esse empréstimo não existe ou já foi quitado.")
+        return contract
+
+    def payroll_loans(self, client_id: UUID) -> list[PayrollLoan]:
+        return sorted(
+            self.client(client_id).payroll.values(), key=lambda x: x.contract_date
+        )
+
+    def payroll_rate(self, day: date) -> Decimal:
+        """O juro do consignado: a SELIC do dia mais o spread fixo, sem nota nem piso da renda fixa."""
+        rate = annual_index_rate(IndicatorSeries.SELIC, day) + PAYROLL_SPREAD
+        # O juro tem a precisão que o evento grava: a retomada refaz o mesmo contrato
+        return rate.quantize(RATE_STEP)
+
+    def payroll_used(self, client_id: UUID) -> Decimal:
+        """A parte da margem consignável que as parcelas dos consignados ativos ocupam."""
+        return sum(
+            (
+                loan.state.installment
+                for loan in self.client(client_id).payroll.values()
+            ),
+            ZERO,
+        )
+
+    def payroll_margin(self, client_id: UUID, net_salary: Decimal) -> Decimal:
+        """A margem consignável livre: a fração do salário líquido que as parcelas dos consignados ativos ainda deixam."""
+        return max(net_salary * PAYROLL_MARGIN - self.payroll_used(client_id), ZERO)
 
     def score(self, client_id: UUID, day: date) -> RatingScore:
         return self._score(self.client(client_id), day)
@@ -752,12 +853,74 @@ class CreditBook:
             )
             return loan
 
-    def prepay(
-        self, client_id: UUID, loan_id: UUID, amount: Decimal, mode: PrepaymentMode
-    ) -> Loan:
+    def contract_payroll(
+        self, client_id: UUID, amount: Decimal, term_months: int, net_salary: Decimal
+    ) -> PayrollLoan:
+        """Contrata o consignado: a parcela precisa caber na margem livre sobre `net_salary`, o salário líquido do mês."""
+        if not MIN_TERM_MONTHS <= term_months <= MAX_TERM_MONTHS:
+            raise UnprocessableEntityError(
+                f"O prazo vai de {MIN_TERM_MONTHS} a {MAX_TERM_MONTHS} meses."
+            )
+        if amount <= 0:
+            raise UnprocessableEntityError(
+                "O valor do empréstimo deve ser maior que zero."
+            )
         amount = money(amount)
         with self._lock:
-            loan = self.loan(client_id, loan_id)
+            day = self._engine.current_date
+            rate = self.payroll_rate(day)
+            state = LoanState.sign(day, amount, rate, term_months)
+            if state.installment > self.payroll_margin(client_id, net_salary):
+                raise ConflictError("A parcela passa da sua margem consignável.")
+            client = self._clients[client_id]
+            loan = PayrollLoan(
+                loan_id=uuid4(),
+                principal=amount,
+                term_months=term_months,
+                state=state,
+            )
+            client.payroll[loan.loan_id] = loan
+            self._engine.receive_loan(client_id, amount)
+            self._record(
+                client,
+                client_id,
+                loan,
+                CreditEventType.PAYROLL_CONTRACT,
+                amount,
+                annual_rate=rate,
+                term_months=term_months,
+            )
+            return loan
+
+    def collect_payroll(self, client_id: UUID) -> None:
+        """Cobra a parcela de cada consignado devida na virada do mês: ela sai do caixa, do salário que acabou de entrar, e nunca atrasa."""
+        with self._lock:
+            client = self._clients[client_id]
+            day = self._engine.current_date
+            for loan in self.payroll_loans(client_id):
+                if not loan.due_for_collection(day):
+                    continue
+                amount = loan.state.due_amount()
+                number = loan.state.next_number
+                self._engine.pay_payroll_installment(client_id, amount)
+                loan.state = loan.state.advance()
+                self._record(
+                    client,
+                    client_id,
+                    loan,
+                    CreditEventType.PAYROLL_INSTALLMENT,
+                    amount,
+                    number,
+                )
+                if loan.is_settled:
+                    del client.payroll[loan.loan_id]
+
+    def prepay(
+        self, client_id: UUID, loan_id: UUID, amount: Decimal, mode: PrepaymentMode
+    ) -> LoanContract:
+        amount = money(amount)
+        with self._lock:
+            loan = self.loan_contract(client_id, loan_id)
             day = self._engine.current_date
             if amount <= 0:
                 raise UnprocessableEntityError(
@@ -780,7 +943,7 @@ class CreditBook:
 
     def payoff(self, client_id: UUID, loan_id: UUID) -> Decimal:
         with self._lock:
-            loan = self.loan(client_id, loan_id)
+            loan = self.loan_contract(client_id, loan_id)
             day = self._engine.current_date
             amount = loan.payoff_on(day)
             self._require_cash(client_id, amount)
@@ -789,14 +952,17 @@ class CreditBook:
             client = self._clients[client_id]
             self._engine.pay_loan(client_id, amount)
             self._record(client, client_id, loan, CreditEventType.PAYOFF, amount)
-            del client.loans[loan_id]
-            self._notify(
-                "credit_loan_paid_off",
-                CreditLoanPaidOffEventDTO(
-                    loan_number=loan.number, amount=amount, interest_saved=saved
-                ),
-                client_id,
-            )
+            if isinstance(loan, Loan):
+                del client.loans[loan_id]
+                self._notify(
+                    "credit_loan_paid_off",
+                    CreditLoanPaidOffEventDTO(
+                        loan_number=loan.number, amount=amount, interest_saved=saved
+                    ),
+                    client_id,
+                )
+            else:
+                del client.payroll[loan_id]
             self._announce_grade(client_id, client, day)
             return amount
 
@@ -833,7 +999,7 @@ class CreditBook:
         self,
         client: ClientCredit,
         client_id: UUID,
-        loan: Loan,
+        loan: LoanContract,
         event_type: CreditEventType,
         amount: Decimal,
         installment_number: int | None = None,

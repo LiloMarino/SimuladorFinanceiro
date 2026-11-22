@@ -8,6 +8,8 @@ from backend.core.dto.credit import (
     ContractLoanRequestDTO,
     CreditOverviewDTO,
     LoanQuoteDTO,
+    PayrollLoanDTO,
+    PayrollQuoteDTO,
     PrepayLoanRequestDTO,
     PrepaymentPreviewDTO,
 )
@@ -55,6 +57,39 @@ def contract_loan(
     payload: ContractLoanRequestDTO,
 ):
     simulation.contract_loan(user, acting, payload.amount, payload.term_months)
+
+
+@credit_router.get(
+    "/payroll/quote",
+    response_model=PayrollQuoteDTO,
+    summary="Simular um consignado",
+    description="Só para o Servidor, na conta pessoal. Calcula parcela, juro no prazo, a margem consignável (35% do salário líquido do mês) livre e o maior valor que ela sustenta no prazo.",
+)
+def quote_payroll(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    acting: ActingClient,
+    amount: Annotated[Decimal, Query(gt=0)],
+    term_months: Annotated[int, Query()],
+):
+    return simulation.quote_payroll(user, acting, amount, term_months)
+
+
+@credit_router.post(
+    "/payroll",
+    response_model=PayrollLoanDTO,
+    summary="Contratar um consignado",
+    description="Assina o consignado com a SELIC do dia mais 2 pontos ao ano, travados até o fim, e credita o valor no caixa. A parcela sai do salário na virada do mês, a partir da primeira virada que vem 30 dias ou mais depois do contrato. Quitar e amortizar usam as rotas dos empréstimos, com o id devolvido.",
+)
+def contract_payroll(
+    simulation: ActiveSimulation,
+    user: CurrentUser,
+    acting: ActingClient,
+    payload: ContractLoanRequestDTO,
+):
+    return simulation.contract_payroll(
+        user, acting, payload.amount, payload.term_months
+    )
 
 
 @credit_router.get(

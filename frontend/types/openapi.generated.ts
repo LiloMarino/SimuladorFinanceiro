@@ -1772,6 +1772,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/credit/payroll/quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Simular um consignado
+         * @description Só para o Servidor, na conta pessoal. Calcula parcela, juro no prazo, a margem consignável (35% do salário líquido do mês) livre e o maior valor que ela sustenta no prazo.
+         */
+        get: operations["quote_payroll_api_credit_payroll_quote_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/credit/payroll": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contratar um consignado
+         * @description Assina o consignado com a SELIC do dia mais 2 pontos ao ano, travados até o fim, e credita o valor no caixa. A parcela sai do salário na virada do mês, a partir da primeira virada que vem 30 dias ou mais depois do contrato. Quitar e amortizar usam as rotas dos empréstimos, com o id devolvido.
+         */
+        post: operations["contract_payroll_api_credit_payroll_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/credit/loans/{loan_id}/prepayment": {
         parameters: {
             query?: never;
@@ -12193,6 +12233,62 @@ export interface components {
             /** Amount */
             amount: string;
         };
+        /** PayrollLoanDTO */
+        PayrollLoanDTO: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Principal */
+            principal: string;
+            /** Term Months */
+            term_months: number;
+            /** Annual Rate */
+            annual_rate: string;
+            /**
+             * Contract Date
+             * Format: date
+             */
+            contract_date: string;
+            /** Installment */
+            installment: string;
+            /** Paid Installments */
+            paid_installments: number;
+            /** Total Installments */
+            total_installments: number;
+            /** Balance */
+            balance: string;
+        };
+        /** PayrollQuoteDTO */
+        PayrollQuoteDTO: {
+            /** Amount */
+            amount: string;
+            /** Term Months */
+            term_months: number;
+            /** Annual Rate */
+            annual_rate: string;
+            /** Monthly Rate */
+            monthly_rate: string;
+            /** Installment */
+            installment: string;
+            /** Total Interest */
+            total_interest: string;
+            /** Total Paid */
+            total_paid: string;
+            /** Net Salary */
+            net_salary: string;
+            /** Margin */
+            margin: string;
+            /** Margin Used */
+            margin_used: string;
+            /** Margin Free */
+            margin_free: string;
+            /** Max Amount */
+            max_amount: string;
+            /** Fits Margin */
+            fits_margin: boolean;
+        };
         /** PeakDTO */
         PeakDTO: {
             /** Value */
@@ -20610,6 +20706,95 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    quote_payroll_api_credit_payroll_quote_get: {
+        parameters: {
+            query: {
+                amount: number | string;
+                term_months: number;
+            };
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollQuoteDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    contract_payroll_api_credit_payroll_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador. */
+                "x-account"?: number | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractLoanRequestDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollLoanDTO"];
+                };
             };
             /** @description Unprocessable Content */
             422: {

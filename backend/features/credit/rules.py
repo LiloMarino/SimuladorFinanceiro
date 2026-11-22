@@ -7,9 +7,11 @@ oferta, as sugestões e os textos da tela.
 """
 
 from dataclasses import dataclass
+from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core.enum import CreditGrade
+from backend.core.utils import next_month_turn
 
 MIN_TERM_MONTHS = 6
 MAX_TERM_MONTHS = 60
@@ -21,6 +23,30 @@ MONTH_DAYS = Decimal(30)
 
 # Dias de antecedência do aviso de parcela sem caixa
 WARNING_DAYS = 7
+
+# O consignado do Servidor: juro da SELIC mais 2 pontos ao ano e parcelas que somam até 35% do salário líquido
+PAYROLL_SPREAD = Decimal("0.02")
+PAYROLL_MARGIN = Decimal("0.35")
+# Carência da primeira parcela, em dias corridos depois do contrato
+PAYROLL_GRACE_DAYS = 30
+
+
+def _turn_on_or_after(day: date) -> date:
+    """A primeira virada de mês no dia `day` ou depois dele."""
+    turn = next_month_turn(day.replace(day=1) - timedelta(days=1))
+    return turn if turn >= day else next_month_turn(day)
+
+
+def payroll_first_collection(signed: date) -> date:
+    """
+    A virada de mês em que cai a primeira parcela do consignado: a primeira com pelo
+    menos `PAYROLL_GRACE_DAYS` dias depois do contrato. O contrato feito na própria
+    virada de mês paga na virada seguinte.
+    """
+    if signed == _turn_on_or_after(signed):
+        return next_month_turn(signed)
+    return _turn_on_or_after(signed + timedelta(days=PAYROLL_GRACE_DAYS))
+
 
 # O juro nunca fica abaixo da renda fixa mais cara do dia mais esta margem
 FIXED_INCOME_MARGIN = Decimal("0.005")

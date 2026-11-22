@@ -1,4 +1,4 @@
-from bisect import bisect_right
+from bisect import bisect_left, bisect_right
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
@@ -53,6 +53,12 @@ class IndicatorHistory:
         """O último dia da série até `day`, inclusive."""
         index = bisect_right(self.dates, day)
         return self.dates[index - 1] if index else None
+
+    def high_between(self, start: date, end: date) -> Decimal | None:
+        """O maior valor da série entre `start` e `end`, inclusive; nulo sem nenhum dia nesse intervalo."""
+        low = bisect_left(self.dates, start)
+        high = bisect_right(self.dates, end)
+        return max((self.values[d] for d in self.dates[low:high]), default=None)
 
     def values_until(self, day: date, count: int) -> list[Decimal]:
         """Os últimos `count` valores da série até `day`, inclusive."""

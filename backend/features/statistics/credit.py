@@ -9,13 +9,21 @@ from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.patrimonial_history import PatrimonialHistoryDTO
 from backend.core.enum import CreditEventType, CreditGrade
 from backend.core.utils import required
-from backend.features.credit.credit_book import ClientCredit, Loan, close_rating
+from backend.features.credit.credit_book import (
+    ClientCredit,
+    Loan,
+    LoanContract,
+    close_rating,
+)
 from backend.features.credit.price import ZERO
 from backend.features.credit.rating import (
     RatingScore,
     leverage,
     payment_points,
 )
+
+# Os eventos que assinam um contrato: o empréstimo comum e o consignado
+CONTRACT_EVENTS = (CreditEventType.CONTRACT, CreditEventType.PAYROLL_CONTRACT)
 
 
 @dataclass(frozen=True)
@@ -45,7 +53,7 @@ def credit_standing(
     # Parte de principal de cada parcela atrasada, que sai do saldo quando ela é paga
     late_principal: dict[tuple[UUID, int], Decimal] = {}
     for event in events:
-        loan = client.loans.get(event.loan_id)
+        loan = client.contract_of(event.loan_id)
         if loan is not None:
             interest_paid += _interest_of(event, loan, late_principal)
         client.apply(event)
@@ -58,19 +66,23 @@ def credit_standing(
         volatility_points=closed.volatility_points,
         payment_points=payment_points(late),
     )
-    debt = sum((loan.debt_on(day) for loan in client.loans.values()), ZERO)
+    debt = sum((loan.debt_on(day) for loan in client.open_contracts()), ZERO)
     return CreditStanding(
         debt=debt,
         leverage=leverage(debt, last.total_networth),
         grade=score.grade,
         delinquent=any(loan.overdue for loan in client.loans.values()),
-        has_borrowed=client.contracts > 0,
+        has_borrowed=any(e.event_type in CONTRACT_EVENTS for e in events),
         interest_paid=interest_paid,
         paid_installments=sum(
             1
             for e in events
             if e.event_type
-            in (CreditEventType.INSTALLMENT_PAID, CreditEventType.OVERDUE_PAID)
+            in (
+                CreditEventType.INSTALLMENT_PAID,
+                CreditEventType.PAYROLL_INSTALLMENT,
+                CreditEventType.OVERDUE_PAID,
+            )
         ),
         late_installments=len(client.late_dates()),
         cost_of_debt=_cost_of_debt(events, client, day),
@@ -78,7 +90,9 @@ def credit_standing(
 
 
 def _interest_of(
-    event: CreditEventDTO, loan: Loan, late_principal: dict[tuple[UUID, int], Decimal]
+    event: CreditEventDTO,
+    loan: LoanContract,
+    late_principal: dict[tuple[UUID, int], Decimal],
 ) -> Decimal:
     """
     Juro (e multa) que o pagamento carrega: o valor pago menos o principal que ele
@@ -86,7 +100,7 @@ def _interest_of(
     """
     state = loan.state
     match event.event_type:
-        case CreditEventType.INSTALLMENT_PAID:
+        case CreditEventType.INSTALLMENT_PAID | CreditEventType.PAYROLL_INSTALLMENT:
             return event.amount - (state.cycle_balance - state.advance().cycle_balance)
         case CreditEventType.PREPAYMENT:
             after = state.prepay(
@@ -101,11 +115,9 @@ def _interest_of(
             key = (loan.loan_id, event.installment_number or 0)
             return event.amount - late_principal.get(key, ZERO)
         case CreditEventType.PAYOFF:
+            overdue = loan.overdue if isinstance(loan, Loan) else []
             principal = state.cycle_balance + sum(
-                (
-                    late_principal.get((loan.loan_id, o.number), ZERO)
-                    for o in loan.overdue
-                ),
+                (late_principal.get((loan.loan_id, o.number), ZERO) for o in overdue),
                 ZERO,
             )
             return event.amount - principal
@@ -115,14 +127,14 @@ def _interest_of(
 def _cost_of_debt(
     events: list[CreditEventDTO], client: ClientCredit, day: date
 ) -> Decimal | None:
-    open_loans = list(client.loans.values())
+    open_loans = client.open_contracts()
     if open_loans:
         weighted = [(loan.annual_rate, loan.debt_on(day)) for loan in open_loans]
     else:
         weighted = [
             (e.annual_rate, e.amount)
             for e in events
-            if e.event_type is CreditEventType.CONTRACT and e.annual_rate is not None
+            if e.event_type in CONTRACT_EVENTS and e.annual_rate is not None
         ]
     total = sum((weight for _, weight in weighted), ZERO)
     if total <= 0:

@@ -5600,6 +5600,176 @@
         }
       }
     },
+    "/api/credit/payroll/quote": {
+      "get": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Simular um consignado",
+        "description": "Só para o Servidor, na conta pessoal. Calcula parcela, juro no prazo, a margem consignável (35% do salário líquido do mês) livre e o maior valor que ela sustenta no prazo.",
+        "operationId": "quote_payroll_api_credit_payroll_quote_get",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "amount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "exclusiveMinimum": 0.0
+                },
+                {
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          {
+            "name": "term_months",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Term Months"
+            }
+          },
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollQuoteDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/credit/payroll": {
+      "post": {
+        "tags": [
+          "Credit"
+        ],
+        "summary": "Contratar um consignado",
+        "description": "Assina o consignado com a SELIC do dia mais 2 pontos ao ano, travados até o fim, e credita o valor no caixa. A parcela sai do salário na virada do mês, a partir da primeira virada que vem 30 dias ou mais depois do contrato. Quitar e amortizar usam as rotas dos empréstimos, com o id devolvido.",
+        "operationId": "contract_payroll_api_credit_payroll_post",
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "x-account",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador.",
+              "title": "X-Account"
+            },
+            "description": "Id da gestora cuja conta opera o mercado (0 é o Fundo Soberano, só do presidente); ausente, opera a conta do jogador."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContractLoanRequestDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollLoanDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/credit/loans/{loan_id}/prepayment": {
       "get": {
         "tags": [
@@ -36461,6 +36631,136 @@
           "amount"
         ],
         "title": "PayerAmountDTO"
+      },
+      "PayrollLoanDTO": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "principal": {
+            "type": "string",
+            "title": "Principal"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "annual_rate": {
+            "type": "string",
+            "title": "Annual Rate"
+          },
+          "contract_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Contract Date"
+          },
+          "installment": {
+            "type": "string",
+            "title": "Installment"
+          },
+          "paid_installments": {
+            "type": "integer",
+            "title": "Paid Installments"
+          },
+          "total_installments": {
+            "type": "integer",
+            "title": "Total Installments"
+          },
+          "balance": {
+            "type": "string",
+            "title": "Balance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "principal",
+          "term_months",
+          "annual_rate",
+          "contract_date",
+          "installment",
+          "paid_installments",
+          "total_installments",
+          "balance"
+        ],
+        "title": "PayrollLoanDTO"
+      },
+      "PayrollQuoteDTO": {
+        "properties": {
+          "amount": {
+            "type": "string",
+            "title": "Amount"
+          },
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "annual_rate": {
+            "type": "string",
+            "title": "Annual Rate"
+          },
+          "monthly_rate": {
+            "type": "string",
+            "title": "Monthly Rate"
+          },
+          "installment": {
+            "type": "string",
+            "title": "Installment"
+          },
+          "total_interest": {
+            "type": "string",
+            "title": "Total Interest"
+          },
+          "total_paid": {
+            "type": "string",
+            "title": "Total Paid"
+          },
+          "net_salary": {
+            "type": "string",
+            "title": "Net Salary"
+          },
+          "margin": {
+            "type": "string",
+            "title": "Margin"
+          },
+          "margin_used": {
+            "type": "string",
+            "title": "Margin Used"
+          },
+          "margin_free": {
+            "type": "string",
+            "title": "Margin Free"
+          },
+          "max_amount": {
+            "type": "string",
+            "title": "Max Amount"
+          },
+          "fits_margin": {
+            "type": "boolean",
+            "title": "Fits Margin"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "amount",
+          "term_months",
+          "annual_rate",
+          "monthly_rate",
+          "installment",
+          "total_interest",
+          "total_paid",
+          "net_salary",
+          "margin",
+          "margin_used",
+          "margin_free",
+          "max_amount",
+          "fits_margin"
+        ],
+        "title": "PayrollQuoteDTO"
       },
       "PeakDTO": {
         "properties": {

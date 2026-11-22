@@ -25,6 +25,8 @@ from backend.core.dto.candle import CandleDTO, MarketQuoteDTO
 from backend.core.dto.credit import (
     CreditOverviewDTO,
     LoanQuoteDTO,
+    PayrollLoanDTO,
+    PayrollQuoteDTO,
     PrepaymentPreviewDTO,
 )
 from backend.core.dto.dividends import AssetCorporateEventsDTO, PortfolioDividendsDTO
@@ -166,6 +168,7 @@ from backend.core.enum import (
     Profession,
     VoterValue,
 )
+from backend.core.exceptions import InsufficentCashError
 from backend.core.exceptions.http_exceptions import (
     ConflictError,
     ForbiddenError,
@@ -226,6 +229,8 @@ from backend.features.achievements.evaluator import (
 from backend.features.backtest.progress import BacktestProgress
 from backend.features.credit.overview import (
     build_overview,
+    build_payroll_loan,
+    build_payroll_quote,
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
@@ -233,6 +238,7 @@ from backend.features.credit.price import add_months
 from backend.features.economy.growth import (
     MacroCourse,
     history_dollar,
+    stocks_drawdown,
     stocks_return,
 )
 from backend.features.economy.panel import build_economy_panel
@@ -297,6 +303,12 @@ from backend.features.profession.clt import (
 from backend.features.profession.mechanics import apply_action
 from backend.features.profession.policy import policy_action
 from backend.features.profession.profession_book import ProfessionBook
+from backend.features.profession.public_servant import (
+    PAYROLL_TERM_MONTHS,
+    PayrollMove,
+    payroll_amount,
+    payroll_policy,
+)
 from backend.features.profession.reserve import Reserve
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
@@ -2436,6 +2448,46 @@ class Simulation:
         finally:
             EventManager.flush()
 
+    def _payroll_salary(self, user: UserDTO, acting: UUID) -> Decimal:
+        """O salário líquido do mês de quem pode tomar o consignado: o Servidor, na conta pessoal e na partida com profissões."""
+        if acting != user.client_id:
+            raise ConflictError("O consignado é da conta pessoal, não da gestora.")
+        if (
+            self._life is None
+            or not self.settings.uses_professions
+            or self._profession_of(user.id) is not Profession.PUBLIC_SERVANT
+        ):
+            raise ConflictError("O consignado é exclusivo do Servidor Público.")
+        budget = self._life_budget(self._life, user.id)
+        return budget.net_salary_on(self._current_date)
+
+    @synchronized
+    def quote_payroll(
+        self, user: UserDTO, acting: UUID, amount: Decimal, term_months: int
+    ) -> PayrollQuoteDTO:
+        net_salary = self._payroll_salary(user, acting)
+        return build_payroll_quote(
+            self._engine.credit_book,
+            user.client_id,
+            self._current_date,
+            amount,
+            term_months,
+            net_salary,
+        )
+
+    @synchronized
+    def contract_payroll(
+        self, user: UserDTO, acting: UUID, amount: Decimal, term_months: int
+    ) -> PayrollLoanDTO:
+        net_salary = self._payroll_salary(user, acting)
+        try:
+            loan = self._engine.credit_book.contract_payroll(
+                user.client_id, amount, term_months, net_salary
+            )
+            return build_payroll_loan(loan, self._current_date)
+        finally:
+            EventManager.flush()
+
     @synchronized
     def pay_overdue(self, user: UserDTO, acting: UUID, loan_id: UUID) -> None:
         account, fund = self._credit_account(user, acting)
@@ -3120,6 +3172,8 @@ class Simulation:
                 salary = budget.net_salary_on(day, income_lost=loses_income)
                 if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
+                # A parcela do consignado sai do salário que acabou de entrar
+                self._engine.credit_book.collect_payroll(user.client_id)
                 self._engine.pay_expense(user.client_id, budget.expense_on(day))
                 self._run_fgts_month(user, budget, day, salary_paid=salary > 0)
 
@@ -3348,6 +3402,30 @@ class Simulation:
             )
             if action is not None:
                 self.apply_profession_action(user, action)
+            self._run_payroll_policy(user, budgets[user.client_id], day)
+
+    def _run_payroll_policy(self, user: UserDTO, budget: LifeBudget, day: date) -> None:
+        """O Servidor-bot contrata o consignado com o Ibovespa fundo e o quita na volta ao topo, pelo mesmo serviço das rotas dos jogadores."""
+        if self._profession_of(user.id) is not Profession.PUBLIC_SERVANT:
+            return
+        book = self._engine.credit_book
+        loans = book.payroll_loans(user.client_id)
+        move = payroll_policy(stocks_drawdown(day), bool(loans))
+        if move is PayrollMove.TAKE:
+            margin = book.payroll_margin(user.client_id, budget.net_salary_on(day))
+            amount = payroll_amount(margin, book.payroll_rate(day))
+            if amount > 0:
+                self.contract_payroll(user, user.client_id, amount, PAYROLL_TERM_MONTHS)
+        elif move is PayrollMove.PAY_OFF:
+            for loan in loans:
+                self._engine.cover_before_debit(
+                    user.client_id, loan.payoff_on(day), CashflowEventType.LOAN_PAYMENT
+                )
+                try:
+                    self.payoff_loan(user, user.client_id, loan.loan_id)
+                except InsufficentCashError:
+                    # Sem caixa nem renda fixa para vender, a quitação fica para o mês seguinte
+                    return
 
     def _clt_state_of(self, user_id: int) -> CltState | None:
         """O estado do CLT de quem exerce a profissão na partida com profissões; nulo para as demais."""

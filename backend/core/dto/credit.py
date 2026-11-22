@@ -198,6 +198,37 @@ class LoanQuoteDTO(BaseDTO):
     networth_after: Decimal | None = None
 
 
+class PayrollQuoteDTO(BaseDTO):
+    amount: Decimal
+    term_months: int
+    annual_rate: Decimal
+    monthly_rate: Decimal
+    installment: Decimal
+    total_interest: Decimal
+    total_paid: Decimal
+    # O salário líquido do mês, a margem que as parcelas podem ocupar, a que os consignados
+    # ativos já usam e a que sobra
+    net_salary: Decimal
+    margin: Decimal
+    margin_used: Decimal
+    margin_free: Decimal
+    # O maior valor que a margem livre sustenta no prazo pedido, e se a parcela cabe nela
+    max_amount: Decimal
+    fits_margin: bool
+
+
+class PayrollLoanDTO(BaseDTO):
+    id: UUID
+    principal: Decimal
+    term_months: int
+    annual_rate: Decimal
+    contract_date: date
+    installment: Decimal
+    paid_installments: int
+    total_installments: int
+    balance: Decimal
+
+
 class PrepaymentOptionDTO(BaseDTO):
     mode: PrepaymentMode
     installments_remaining: int
