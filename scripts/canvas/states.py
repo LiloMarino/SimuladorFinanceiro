@@ -3128,6 +3128,34 @@ def offers_window(page: Page) -> None:
     page.get_by_role("dialog", name="Edição extra do jornal").wait_for()
 
 
+def fixed_income_with_profession(page: Page, profession: str) -> None:
+    """Lobby com profissões, a profissão `profession` escolhida, partida iniciada e a página Renda fixa aberta."""
+    lobby_with_professions(page)
+    api_send(
+        page, "PUT", "/api/simulation/players/me/profession", {"profession": profession}
+    )
+    page.get_by_role("button", name="Iniciar nova simulação").click()
+    page.get_by_role("heading", name="Carteira").wait_for()
+    page.goto("/fixed-income")
+    page.get_by_role("heading", name="Renda fixa").first.wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def fixed_income_house_cdb(page: Page) -> None:
+    """Renda fixa do Bancário no primeiro mês: as três linhas "CDB da casa" (1, 2 e 3 anos) com a etiqueta "da sua profissão"."""
+    fixed_income_with_profession(page, "BANKER")
+    expect(page.get_by_text("CDB da casa", exact=False)).to_have_count(3)
+    expect(page.get_by_text("da sua profissão")).to_have_count(3)
+
+
+def fixed_income_without_house_cdb(page: Page) -> None:
+    """Renda fixa de um CLT no primeiro mês: nenhuma linha "CDB da casa" e nenhuma etiqueta "da sua profissão"."""
+    fixed_income_with_profession(page, "CLT")
+    expect(page.get_by_text("CDB da casa", exact=False)).to_have_count(0)
+    expect(page.get_by_text("da sua profissão")).to_have_count(0)
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
@@ -3145,6 +3173,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "preparacao/profissao-sem-inflacao": preparation_profession_no_inflation,
     "preparacao/profissao-partida-salva": preparation_profession_saved_match,
     "preparacao/profissao-recusa": preparation_profession_refused,
+    "renda-fixa/cdb-da-casa": fixed_income_house_cdb,
+    "renda-fixa/sem-cdb-da-casa": fixed_income_without_house_cdb,
     "renda-variavel/livro-ordem-parcial": book_partial_order,
     "renda-variavel/livro-automatico": book_automatic,
     "renda-variavel/livro-clique-preenche": book_click_fills,
