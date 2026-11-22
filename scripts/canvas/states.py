@@ -3156,7 +3156,46 @@ def fixed_income_without_house_cdb(page: Page) -> None:
     expect(page.get_by_text("da sua profissão")).to_have_count(0)
 
 
+def page_with_profession(page: Page, profession: str, path: str) -> None:
+    """Lobby com profissões, a profissão `profession` escolhida, partida iniciada e a página `path` aberta."""
+    lobby_with_professions(page)
+    api_send(
+        page, "PUT", "/api/simulation/players/me/profession", {"profession": profession}
+    )
+    page.get_by_role("button", name="Iniciar nova simulação").click()
+    page.get_by_role("heading", name="Carteira").wait_for()
+    page.goto(path)
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def goal_clt(page: Page) -> None:
+    """Meta de um CLT no primeiro mês: o card de vida com o selo e as etiquetas da profissão."""
+    page_with_profession(page, "CLT", "/goal")
+    expect(page.get_by_text("CLT").first).to_be_visible()
+
+
+def credit_public_servant_payroll(page: Page) -> None:
+    """Crédito de um Servidor com um consignado de 10 mil em 24 meses: fora da tabela "Seus empréstimos", dentro do total de dívida."""
+    page_with_profession(page, "PUBLIC_SERVANT", "/credit")
+    api_send(
+        page, "POST", "/api/credit/payroll", {"amount": "10000", "term_months": 24}
+    )
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+
+
+def portfolio_clt(page: Page) -> None:
+    """Carteira de um CLT no primeiro mês, com a linha do FGTS no patrimônio."""
+    page_with_profession(page, "CLT", "/portfolio")
+    page.get_by_role("heading", name="Carteira").first.wait_for()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
+    "meta/clt": goal_clt,
+    "credito/servidor-consignado": credit_public_servant_payroll,
+    "carteira/clt": portfolio_clt,
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
     "renda-variavel/livro-com-ordem": stock_detail_with_order,
