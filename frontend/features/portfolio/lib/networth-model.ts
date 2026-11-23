@@ -20,7 +20,7 @@ export type NetworthPoint = {
   equity: number;
   fixed: number;
   cash: number;
-  /** Saldo das contas travadas (o FGTS); já está somado em `networth` */
+  /** Saldo das contas travadas (o patrimônio travado da profissão); já está somado em `networth` */
   locked: number;
   /** Renda variável por tipo; ausente nos dias gravados antes de o snapshot guardá-la */
   equityByClass: Partial<Record<AssetClass, number>> | undefined;
@@ -48,7 +48,7 @@ function toEquityByClass(split: Record<string, string>): Partial<Record<AssetCla
   return Object.fromEntries(ASSET_CLASSES.filter((c) => c in split).map((c) => [c, Number(split[c])]));
 }
 
-/** O FGTS vira camada nos gráficos só quando algum dos `points` teve saldo. */
+/** O patrimônio travado vira camada nos gráficos só quando algum dos `points` teve saldo. */
 export function hasLocked(points: NetworthPoint[]) {
   return points.some((p) => p.locked > 0);
 }

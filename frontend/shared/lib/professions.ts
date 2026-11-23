@@ -106,14 +106,18 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     name: "Empreendedor",
     icon: Store,
     description:
-      "Negócio próprio: renda maior que a do CLT, que sobe quando o PIB cresce bem e cai quando ele fica fraco.",
+      "Negócio próprio: o lucro é maior que o salário do CLT e segue o PIB. Parte dele pode voltar para a empresa e virar capital, que rende com o PIB.",
     incomeMultiple: 1.1,
     gains: [
       { text: "Ganha 10% mais que o CLT" },
       { text: "Não é demitido" },
       { text: "A renda sobe quando o PIB passa de 2% ao ano" },
+      { text: "Reinveste parte do lucro e o capital da empresa rende com o PIB" },
     ],
-    losses: [{ text: "A renda cai quando o PIB fica abaixo de 2%, até a metade" }],
+    losses: [
+      { text: "A renda cai quando o PIB fica abaixo de 2%, até a metade" },
+      { text: "O capital encolhe com o PIB negativo e só vira caixa vendendo, com 20% de desconto" },
+    ],
     tags: [{ key: "gdp" }, { key: "corporateTax", requires: GOVERNMENT }],
   },
   RETIREE: {

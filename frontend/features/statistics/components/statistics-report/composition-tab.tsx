@@ -8,6 +8,7 @@ import { sortNumber, type SortColumns } from "@/shared/lib/table-sort";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { TeamBadge } from "@/shared/components/team-badge";
+import { GENERIC_LOCKED_LABEL } from "@/shared/lib/locked-assets";
 import { teamColor } from "@/shared/lib/teams";
 import {
   displayMoney,
@@ -31,10 +32,10 @@ const SERIES = [
   { key: "total_cash", label: "Caixa", color: "var(--chart-3)" },
   { key: "total_equity", label: "Renda variável", color: "var(--chart-1)" },
   { key: "total_fixed", label: "Renda fixa", color: "var(--chart-2)" },
-  { key: "total_locked", label: "FGTS", color: "var(--chart-7)" },
+  { key: "total_locked", label: GENERIC_LOCKED_LABEL, color: "var(--chart-7)" },
 ] as const;
 
-/** As camadas da pilha: o FGTS entra só quando algum dia do histórico teve saldo. */
+/** As camadas da pilha: o patrimônio travado entra só quando algum dia do histórico teve saldo. */
 function seriesFor(history: { total_locked: string }[]) {
   const withLocked = history.some((h) => Number(h.total_locked) > 0);
   return SERIES.filter((s) => s.key !== "total_locked" || withLocked);
@@ -182,7 +183,10 @@ function TeamGroupHeader({
           {Number(composition.locked_share) > 0 && (
             <>
               {" "}
-              · <span className="text-chart-7">{share(composition.locked_share)} FGTS</span>
+              ·{" "}
+              <span className="text-chart-7">
+                {share(composition.locked_share)} {GENERIC_LOCKED_LABEL}
+              </span>
             </>
           )}
         </span>
@@ -270,7 +274,9 @@ function SmallMultiple({
             {series.some((s) => s.key === "total_locked") && (
               <>
                 {" · "}
-                <span className="text-chart-7">{share(last.total_locked)} FGTS</span>
+                <span className="text-chart-7">
+                  {share(last.total_locked)} {GENERIC_LOCKED_LABEL}
+                </span>
               </>
             )}
           </span>

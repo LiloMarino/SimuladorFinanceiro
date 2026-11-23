@@ -7,6 +7,7 @@ function portfolio(partial: {
   equity?: [string, string][];
   fixed?: [string, string][];
   locked?: string;
+  lockedKind?: "FGTS" | "COMPANY_CAPITAL";
 }): PortfolioState {
   const equity = partial.equity ?? [];
   const fixed = partial.fixed ?? [];
@@ -18,6 +19,7 @@ function portfolio(partial: {
     variable_income_value: String(variable),
     fixed_income_value: String(fixedTotal),
     locked_value: partial.locked ?? "0",
+    locked_assets: partial.locked ? [{ kind: partial.lockedKind ?? "FGTS", value: partial.locked }] : [],
     assets_value: String(Number(partial.cash) + variable + fixedTotal + Number(partial.locked ?? 0)),
     variable_income: equity.map(([ticker, value]) => ({ ticker, current_value: value })),
     fixed_income: fixed.map(([name, value]) => ({ asset: { name }, current_value: value })),
@@ -43,6 +45,12 @@ describe("classSlices", () => {
       ["cash", 0.4],
       ["locked", 0.1],
     ]);
+  });
+
+  it("nomeia a classe travada pelo tipo que o jogador tem", () => {
+    const fgts = classSlices(portfolio({ cash: "40", locked: "10" })).at(-1);
+    const capital = classSlices(portfolio({ cash: "40", locked: "10", lockedKind: "COMPANY_CAPITAL" })).at(-1);
+    expect([fgts?.label, capital?.label]).toEqual(["FGTS", "Capital da empresa"]);
   });
 
   it("deixa de fora a classe sem dinheiro", () => {

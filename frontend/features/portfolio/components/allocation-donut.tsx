@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia } from "@/shared/components/ui/empty";
 import { displayMoneyCompact, displayMoneyWhole, displayPercent, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
+import { lockedExits, lockedLabels } from "@/shared/lib/locked-assets";
 import {
   assetCount,
   classSlices,
@@ -42,8 +43,8 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
             <InfoHint label="Como ler a distribuição">
               <div className="grid gap-1 text-left text-xs leading-snug">
                 <span>
-                  Os ativos são o que você tem hoje (caixa, renda fixa, ações e o saldo do FGTS), sem descontar a
-                  dívida. Cada % é a fatia sobre esse total.
+                  Os ativos são o que você tem hoje (caixa, renda fixa, ações e o patrimônio travado da profissão, como
+                  o FGTS), sem descontar a dívida. Cada % é a fatia sobre esse total.
                 </span>
                 <span>Ex.: R$ 50.000 em ações, de R$ 200.000 em ativos, são 25%.</span>
               </div>
@@ -78,7 +79,13 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
                 <span className="text-xs text-muted-foreground">% dos ativos</span>
               </div>
               {slices.map((slice) => (
-                <ClassRow key={slice.key} slice={slice} active={hovered === slice.key} onHover={setHovered} />
+                <ClassRow
+                  key={slice.key}
+                  slice={slice}
+                  exit={lockedExits(portfolio)}
+                  active={hovered === slice.key}
+                  onHover={setHovered}
+                />
               ))}
 
               {onlyCash && (
@@ -140,7 +147,7 @@ function Ring({
   const caption = [
     count > 0 ? `${count} ${count === 1 ? "ativo" : "ativos"}` : null,
     holdsCash ? "caixa" : null,
-    holdsLocked ? "FGTS" : null,
+    holdsLocked ? lockedLabels(portfolio) : null,
   ]
     .filter(Boolean)
     .join(" + ");
@@ -175,10 +182,13 @@ function Ring({
 
 function ClassRow({
   slice,
+  exit,
   active,
   onHover,
 }: {
   slice: ClassSlice;
+  /** Como o patrimônio travado vira caixa, em poucas palavras */
+  exit: string;
   active: boolean;
   onHover: (key: ClassKey | null) => void;
 }) {
@@ -192,9 +202,7 @@ function ClassRow({
       <span className="min-w-0 flex-1 truncate">
         {slice.label}
         {slice.key === "cash" && <span className="text-xs font-normal text-muted-foreground"> · não rende</span>}
-        {slice.key === "locked" && (
-          <span className="text-xs font-normal text-muted-foreground"> · só sai na demissão</span>
-        )}
+        {slice.key === "locked" && <span className="text-xs font-normal text-muted-foreground"> · {exit}</span>}
       </span>
       <span className="text-xs font-medium tabular-nums">{displayMoneyWhole(slice.value)}</span>
       <span className="w-11.5 text-right tabular-nums">{displayPercent(slice.fraction, 1)}</span>

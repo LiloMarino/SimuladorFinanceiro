@@ -501,20 +501,30 @@ class SimulationEngine:
         self.cover_before_debit(client_id, amount, CashflowEventType.UNEXPECTED_EXPENSE)
         self._move_cash(client_id, -amount, CashflowEventType.UNEXPECTED_EXPENSE, key)
 
-    def record_profession_switch(self, client_id: UUID, profession: Profession) -> None:
-        """Lança a troca de profissão no histórico da vida, sem dinheiro: a chave do evento é a nova profissão."""
+    def record_profession_switch(
+        self, client_id: UUID, profession: Profession, payout: Decimal = Decimal(0)
+    ) -> None:
+        """Lança a troca de profissão no histórico da vida: a chave do evento é a nova profissão e o valor é o que os patrimônios travados da antiga deixaram no caixa."""
         self._move_cash(
             client_id,
-            Decimal(0),
+            payout,
             CashflowEventType.PROFESSION_SWITCHED,
             profession.value,
         )
 
-    def record_profession_action(self, client_id: UUID, kind: str) -> None:
-        """Lança a ação da mecânica da profissão no histórico da vida, sem dinheiro: a chave do evento é o nome da ação."""
-        self._move_cash(
-            client_id, Decimal(0), CashflowEventType.PROFESSION_ACTION, kind
-        )
+    def record_profession_action(
+        self, client_id: UUID, kind: str, payout: Decimal = Decimal(0)
+    ) -> None:
+        """Lança a ação da mecânica da profissão no histórico da vida: a chave do evento é o nome da ação e o valor é o que ela deixou no caixa, zero na ação sem dinheiro."""
+        self._move_cash(client_id, payout, CashflowEventType.PROFESSION_ACTION, kind)
+
+    def pay_capital_income(self, client_id: UUID, amount: Decimal) -> None:
+        """Credita no caixa o rendimento positivo do capital da empresa, separado do lucro."""
+        self._move_cash(client_id, amount, CashflowEventType.CAPITAL_INCOME)
+
+    def reinvest_profit(self, client_id: UUID, amount: Decimal) -> None:
+        """Tira do caixa a parte do lucro que vira capital da empresa; o capital entra no patrimônio no mesmo instante."""
+        self._move_cash(client_id, -amount, CashflowEventType.CAPITAL_REINVESTMENT)
 
     def withdraw_fgts(self, client_id: UUID, amount: Decimal) -> None:
         """Credita no caixa o saldo do FGTS e a multa da demissão; a conta travada some do patrimônio no mesmo instante em que o caixa sobe."""

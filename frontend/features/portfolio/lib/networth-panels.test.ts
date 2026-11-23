@@ -17,7 +17,7 @@ const point = (locked: number): NetworthPoint => ({
 
 describe("classPanels", () => {
   it("abre o painel do FGTS quando algum dia teve saldo", () => {
-    const panels = classPanels([point(0), point(2_500)]);
+    const panels = classPanels([point(0), point(2_500)], "FGTS");
 
     expect(panels.map((p) => p.label)).toEqual(["Renda variável", "Renda fixa", "Caixa", "FGTS"]);
     const fgts = panels.at(-1);
@@ -26,7 +26,7 @@ describe("classPanels", () => {
   });
 
   it("some quando nenhum dia teve saldo", () => {
-    const panels = classPanels([point(0), point(0)]);
+    const panels = classPanels([point(0), point(0)], "FGTS");
 
     expect(panels.map((p) => p.label)).toEqual(["Renda variável", "Renda fixa", "Caixa"]);
   });

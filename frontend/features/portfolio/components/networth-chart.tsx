@@ -24,6 +24,7 @@ import {
   type NetworthPoint,
   type Period,
 } from "../lib/networth-model";
+import { lockedLabels } from "@/shared/lib/locked-assets";
 import { classPanels, typePanels } from "../lib/networth-panels";
 import { NetworthPanels } from "./networth-panels";
 import { NetworthGainChart } from "./networth-gain-chart";
@@ -54,8 +55,8 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
           <div className="grid gap-2 text-left text-xs leading-snug">
             <b className="text-[13px]">Como ler este gráfico</b>
             <span>
-              <b>Patrimônio</b> é o que você tem (caixa, renda fixa, ações e o FGTS, se você for CLT) menos o que deve
-              no Crédito.
+              <b>Patrimônio</b> é o que você tem (caixa, renda fixa, ações e o patrimônio travado da profissão, como o
+              FGTS do CLT) menos o que deve no Crédito.
             </span>
             <span>
               <b>Aportado</b> é o que saiu do seu bolso: o dinheiro inicial mais os aportes.
@@ -202,11 +203,16 @@ export function NetworthChart({ portfolio }: { portfolio: PortfolioState }) {
               {width > 0 &&
                 (shownMode === "gain" ? (
                   <>
-                    <NetworthGainChart points={points} width={width} showGoal={showGoal} />
+                    <NetworthGainChart
+                      points={points}
+                      width={width}
+                      showGoal={showGoal}
+                      lockedLabel={lockedLabels(portfolio)}
+                    />
                     <GainLegend points={points} showGoal={showGoal} />
                   </>
                 ) : shownMode === "class" ? (
-                  <NetworthPanels panels={classPanels(points)} points={points} width={width} />
+                  <NetworthPanels panels={classPanels(points, lockedLabels(portfolio))} points={points} width={width} />
                 ) : (
                   <NetworthPanels panels={panelsByType} points={typePoints} width={width} />
                 ))}

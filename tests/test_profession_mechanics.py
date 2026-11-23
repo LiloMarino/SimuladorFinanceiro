@@ -266,12 +266,15 @@ def test_switching_in_the_middle_keeps_cash_and_starting_capital(monkeypatch):
     for _ in range(4):
         sim.next_tick()
     cash = sim.get_cash(ana.client_id)
+    locked = sim.get_portfolio(ana.client_id).locked_value
     portfolio = repository.portfolio.ids(sim.settings.id)[ana.id]
     capital = repository.portfolio.starting_cash([portfolio])
 
     sim.switch_profession(ana, Profession.RETIREE)
 
-    assert sim.get_cash(ana.client_id) == cash
+    # O FGTS acumulado cai no caixa pela regra de saída; o resto do caixa fica
+    assert locked > 0
+    assert sim.get_cash(ana.client_id) == cash + locked
     assert repository.portfolio.starting_cash([portfolio]) == capital
     assert UserManager.get_profession(ana.id) is Profession.RETIREE
     assert sim.get_profession_state(ana.client_id).profession is Profession.RETIREE

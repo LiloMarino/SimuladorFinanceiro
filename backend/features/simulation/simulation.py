@@ -14,7 +14,7 @@ from uuid import UUID
 
 from backend import config
 from backend.core import repository
-from backend.core.dates import add_months
+from backend.core.dates import MONTHS_PER_QUARTER, add_months
 from backend.core.dto.budget import BudgetDTO
 from backend.core.dto.campaign import (
     CampaignActionRequest,
@@ -111,6 +111,7 @@ from backend.core.dto.profession import (
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
     CltState,
+    EntrepreneurState,
     ExporterState,
     FreelancerState,
     LockedAssetDTO,
@@ -119,8 +120,10 @@ from backend.core.dto.profession import (
     MechanicState,
     ProfessionPeriodDTO,
     ProfessionStateDTO,
+    SellCapital,
     SetExportMix,
     SetPrice,
+    SetReinvestShare,
 )
 from backend.core.dto.profession_page import MechanicBlockDTO, ProfessionPageDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
@@ -160,6 +163,7 @@ from backend.core.dto.treasury import (
     TreasurySaleQuoteDTO,
 )
 from backend.core.dto.user import UserDTO
+from backend.core.entrepreneur import BOT_SELL_SHARE, negative_quarters
 from backend.core.enum import (
     AssetClass,
     CashflowEventType,
@@ -199,8 +203,9 @@ from backend.core.indicators import (
     month_turns,
     monthly_average_rate,
 )
-from backend.core.life_budget import LifeBudget
+from backend.core.life_budget import LifeBudget, cents
 from backend.core.life_events import life_event_label
+from backend.core.locked_assets import LOCKED_EXITS
 from backend.core.metrics import (
     ENGINE_ACHIEVEMENTS,
     ENGINE_BACKTEST_DAY,
@@ -332,6 +337,13 @@ from backend.features.profession.clt import (
     overtime_ends_with_recession,
     overtime_returns,
 )
+from backend.features.profession.entrepreneur import (
+    pay_month,
+    policy_recession_flag,
+    policy_reinvest_share,
+    policy_sale_due,
+    sale_payout,
+)
 from backend.features.profession.exporter import (
     after_payment,
     lock_wanted,
@@ -346,6 +358,7 @@ from backend.features.profession.page import (
     build_header,
     build_series,
     clt_block,
+    entrepreneur_block,
     exporter_block,
     freelancer_block,
     heir_block,
@@ -3261,6 +3274,7 @@ class Simulation:
                 salary = budget.net_salary_on(day, income_lost=loses_income)
                 if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
+                self._run_capital_month(user, budget, day, profit=salary)
                 # A parcela do consignado sai do salário que acabou de entrar
                 self._engine.credit_book.collect_payroll(user.client_id, self._speed)
                 self._engine.pay_expense(user.client_id, budget.expense_on(day))
@@ -3460,6 +3474,16 @@ class Simulation:
                     Decimal(0) if tr is None else from_percent(tr),
                     budget.growth_on(day),
                 )
+            case Profession.ENTREPRENEUR:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, EntrepreneurState):
+                    return no_block()
+                return entrepreneur_block(
+                    state,
+                    budget,
+                    day,
+                    negative_quarters(self._gdp_quarters(day)),
+                )
             case Profession.EXPORTER:
                 state = self._mechanic_state_of(user_id)
                 if not isinstance(state, ExporterState):
@@ -3525,12 +3549,13 @@ class Simulation:
 
     @synchronized
     def apply_profession_action(
-        self, user: UserDTO, action: MechanicAction
+        self, user: UserDTO, action: MechanicAction, payout: Decimal = Decimal(0)
     ) -> MechanicState:
         """
         Aplica a ação de `user` na mecânica da profissão dele: valida pela regra da
-        mecânica, guarda o estado novo e lança a ação no histórico da vida. É o único
-        caminho das ações: as rotas dos jogadores e a política dos bots passam por ele.
+        mecânica, guarda o estado novo e lança a ação no histórico da vida, com o
+        `payout` que a ação deixa no caixa. É o único caminho das ações: as rotas dos
+        jogadores e a política dos bots passam por ele.
         """
         if not self.settings.uses_professions:
             raise ConflictError("A partida joga com salário igual: não há profissões.")
@@ -3543,7 +3568,7 @@ class Simulation:
             self._macro.latest(self._current_date),
         )
         self._profession_book.save_state(user.id, state)
-        self._engine.record_profession_action(user.client_id, action.kind)
+        self._engine.record_profession_action(user.client_id, action.kind, payout)
         return state
 
     def _exchange_quotes(self, day: date) -> dict[int, Decimal]:
@@ -3595,12 +3620,33 @@ class Simulation:
         )
 
     @synchronized
+    def set_reinvest_share(self, user: UserDTO, share: Decimal) -> MechanicState:
+        """Salva a fração do lucro que o Empreendedor reinveste, pelo mesmo caminho das ações da mecânica."""
+        if self._profession_of(user.id) is not Profession.ENTREPRENEUR:
+            raise ConflictError("Só o Empreendedor reinveste o lucro na empresa.")
+        return self.apply_profession_action(user, SetReinvestShare(share=share))
+
+    @synchronized
+    def sell_capital(self, user: UserDTO, share: Decimal) -> MechanicState:
+        """Vende a fração do capital da empresa do Empreendedor: a parte vendida sai do capital e entra no caixa com o desconto, na linha do histórico da venda."""
+        if self._profession_of(user.id) is not Profession.ENTREPRENEUR:
+            raise ConflictError("Só o Empreendedor vende parte da empresa.")
+        state = self._mechanic_state_of(user.id)
+        payout = (
+            sale_payout(state, share)
+            if isinstance(state, EntrepreneurState)
+            else Decimal(0)
+        )
+        return self.apply_profession_action(user, SellCapital(share=share), payout)
+
+    @synchronized
     def switch_profession(self, user: UserDTO, profession: Profession) -> None:
         """
         A troca de profissão no meio da partida: o jogador mantém o caixa e o capital
         inicial, o período novo abre hoje com o estado inicial da mecânica nova e a
-        troca entra no histórico da vida. A profissão presa a partido não é destino:
-        o partido se escolhe ao entrar.
+        troca entra no histórico da vida. Antes da troca cada patrimônio travado da
+        profissão antiga vira caixa pela regra de saída do tipo. A profissão presa a
+        partido não é destino: o partido se escolhe ao entrar.
         """
         if not self.settings.uses_professions:
             raise ConflictError("A partida joga com salário igual: não há profissões.")
@@ -3616,11 +3662,22 @@ class Simulation:
             )
         if self._profession_of(user.id) is profession:
             raise ConflictError("O jogador já exerce essa profissão.")
+        payout = self._locked_exit_payout(user)
         self._profession_book.switch(user.id, profession, self._current_date)
         self._professions = {**self._professions, user.id: profession}
         self._offer_bankers = None
         UserManager.replace_profession(user, profession)
-        self._engine.record_profession_switch(user.client_id, profession)
+        self._engine.record_profession_switch(user.client_id, profession, payout)
+
+    def _locked_exit_payout(self, user: UserDTO) -> Decimal:
+        """O que os patrimônios travados da profissão atual deixam no caixa na troca de profissão: cada saldo pela taxa de saída do tipo."""
+        return sum(
+            (
+                cents(asset.value * LOCKED_EXITS[asset.kind].switch_rate)
+                for asset in self._mechanic_state_of(user.id).locked_assets
+            ),
+            Decimal(0),
+        )
 
     def _run_bot_policies(
         self, users: list[UserDTO], day: date, budgets: dict[UUID, LifeBudget]
@@ -3655,6 +3712,7 @@ class Simulation:
             self._run_house_cdb_policy(user, budgets[user.client_id], reserve, day)
             self._run_exporter_policy(user, day, macro)
             self._run_freelancer_policy(user, budgets[user.client_id], day, macro)
+            self._run_entrepreneur_policy(user, budgets[user.client_id], day)
 
     def _run_house_cdb_policy(
         self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
@@ -3698,6 +3756,57 @@ class Simulation:
         )
         low, high = budget.price_range_on(day)
         self.set_price(user, min(max(target, low), high))
+
+    def _gdp_quarters(self, day: date) -> list[Decimal]:
+        """O PIB de 12 meses de cada trimestre fechado até `day`, em ordem: o do último mês de cada trimestre, que o jogador vê no indicador."""
+        return [
+            month.growth
+            for month in self._macro.months_until(day)
+            if month.month_end.month % MONTHS_PER_QUARTER == 0
+        ]
+
+    def _run_entrepreneur_policy(
+        self, user: UserDTO, budget: LifeBudget, day: date
+    ) -> None:
+        """O Empreendedor-bot reinveste 30% com o PIB de 12 meses acima do neutro e nada abaixo, e vende 25% do capital uma vez por recessão de dois trimestres negativos, pelas mesmas ações dos jogadores."""
+        if self._profession_of(user.id) is not Profession.ENTREPRENEUR:
+            return
+        state = self._mechanic_state_of(user.id)
+        if not isinstance(state, EntrepreneurState):
+            return
+        share = policy_reinvest_share(
+            budget.growth_on(day), DRIVER_CURVES[IncomeDriver.GDP].neutral
+        )
+        if share != state.reinvest_share:
+            state = self.set_reinvest_share(user, share)
+        quarters = self._gdp_quarters(day)
+        sold = isinstance(state, EntrepreneurState) and policy_sale_due(state, quarters)
+        if sold:
+            state = self.sell_capital(user, BOT_SELL_SHARE)
+        if isinstance(state, EntrepreneurState):
+            marked = policy_recession_flag(state, quarters, sold)
+            if marked is not state:
+                self._profession_book.save_state(user.id, marked)
+
+    def _run_capital_month(
+        self, user: UserDTO, budget: LifeBudget, day: date, profit: Decimal
+    ) -> None:
+        """
+        O capital da empresa no pagamento do mês: o rendimento sobre o capital do dia
+        (positivo no caixa, negativo no capital) e a fração do lucro `profit` que sai do
+        caixa para o capital.
+        """
+        state = (
+            self._mechanic_state_of(user.id) if self.settings.uses_professions else None
+        )
+        if not isinstance(state, EntrepreneurState):
+            return
+        paid, reinvested, income = pay_month(state, budget.growth_on(day), profit)
+        self._profession_book.save_state(user.id, paid)
+        if income > 0:
+            self._engine.pay_capital_income(user.client_id, income)
+        if reinvested > 0:
+            self._engine.reinvest_profit(user.client_id, reinvested)
 
     def _run_exporter_policy(self, user: UserDTO, day: date, macro: MacroMonth) -> None:
         """O Exportador-bot ajusta o mix pelo dólar e pelo PIB de 12 meses e trava o dólar acima da média, pelas mesmas ações dos jogadores."""

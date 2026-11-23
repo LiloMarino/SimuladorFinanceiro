@@ -105,6 +105,10 @@ class CashflowEventType(Enum):
     PROFESSION_ACTION = "PROFESSION_ACTION"
     # O saldo do FGTS e a multa de 40% que caem no caixa na demissão sorteada do CLT
     FGTS_WITHDRAWAL = "FGTS_WITHDRAWAL"
+    # O rendimento do capital da empresa do Empreendedor, que cai no caixa como renda extra
+    CAPITAL_INCOME = "CAPITAL_INCOME"
+    # A parte do lucro que o Empreendedor reinveste: sai do caixa e vira capital da empresa
+    CAPITAL_REINVESTMENT = "CAPITAL_REINVESTMENT"
 
     @property
     def sign(self) -> int:
@@ -151,6 +155,8 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.PROFESSION_SWITCHED: 1,
     CashflowEventType.PROFESSION_ACTION: 1,
     CashflowEventType.FGTS_WITHDRAWAL: 1,
+    CashflowEventType.CAPITAL_INCOME: 1,
+    CashflowEventType.CAPITAL_REINVESTMENT: -1,
 }
 
 # Aporte, salário, legado do presidente, despesa e imprevisto (ruim ou bom) são o
@@ -1496,6 +1502,7 @@ class LockedAssetKind(Enum):
     """O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira."""
 
     FGTS = "FGTS"
+    COMPANY_CAPITAL = "COMPANY_CAPITAL"
 
 
 class MechanicStatus(Enum):

@@ -90,10 +90,12 @@ export function NetworthGainChart({
   points,
   width,
   showGoal,
+  lockedLabel,
 }: {
   points: NetworthPoint[];
   width: number;
   showGoal: boolean;
+  lockedLabel: string;
 }) {
   const [hover, setHover] = useState<number | null>(null);
   const shape = useMemo(() => buildShape(points, width, showGoal), [points, width, showGoal]);
@@ -241,7 +243,7 @@ export function NetworthGainChart({
         />
       </svg>
 
-      {hovered && <NetworthTooltip point={hovered} left={tooltipLeft} />}
+      {hovered && <NetworthTooltip point={hovered} left={tooltipLeft} lockedLabel={lockedLabel} />}
     </div>
   );
 }

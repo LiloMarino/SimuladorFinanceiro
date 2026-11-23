@@ -233,13 +233,13 @@ Ela vem do estudo **Trinity**, feito com dados dos EUA. O estudo viu que retirar
 **Salário (opcional).** O **modo de salário** do host define quem ganha o quê:
 
 - **Todos iguais** (padrão): todos são CLT e ganham o salário do host.
-- **Profissões:** cada jogador escolhe a sua na tela de entrada ou na aba **Profissão** do botão [**Minha preparação**](#minha-preparação), e todos a veem no cartão dele na sala. A escolha fica no seu perfil e vale nas próximas salas. Quem já jogou a partida salva volta com a sua; ao adicionar um bot, o host escolhe a profissão dele ou deixa em **Sortear** (num lote, a profissão escolhida vale para todos e **Sortear para cada bot** dá uma a cada um). A meta e a despesa continuam as do host: a profissão muda só a renda e o risco.
+- **Profissões:** cada jogador escolhe a sua na tela de entrada ou na aba **Profissão** do botão [**Minha preparação**](#minha-preparação), e todos a veem no cartão dele na sala. A escolha fica no seu perfil e vale nas próximas salas. Quem já jogou a partida salva volta com a sua; ao adicionar um bot, o host escolhe a profissão dele ou deixa em **Sortear** (num lote, a profissão escolhida vale para todos e **Sortear para cada bot** dá uma a cada um). A meta e a despesa continuam as do host: a profissão muda só a renda e o risco. Ao trocar de profissão no meio da partida, o patrimônio travado da antiga vira caixa pela regra de saída dele: o FGTS do CLT cai inteiro, sem a multa de 40% que é só da demissão, e o capital do Empreendedor é vendido inteiro com o desconto de 20% (Ex.: R$ 38.000 de capital viram R$ 30.400 no caixa).
 
 | Profissão | Renda por mês | O que ela sente |
 | --- | --- | --- |
 | CLT | 1,0× o salário | Demissão pelo desemprego; reajuste de IPCA + metade do PIB; imposto de renda das pessoas |
 | Servidor | 0,95× | Nunca é demitido; reajuste de IPCA + o reajuste real dos servidores aprovado no governo |
-| Empreendedor | 1,1×, corrigido pelo PIB | A renda sobe e cai com o PIB dos últimos 12 meses; sente o imposto de renda das empresas |
+| Empreendedor | 1,1×, corrigido pelo PIB | A renda é o lucro e sobe e cai com o PIB dos últimos 12 meses; sente o imposto de renda das empresas. Você escolhe, de 0% a 100%, quanto do lucro volta para a empresa e vira **capital da empresa**, que conta no patrimônio como patrimônio travado e rende pelo PIB: com PIB positivo o rendimento cai no caixa, com PIB negativo o capital encolhe. O capital só vira caixa vendendo 10%, 25%, 50% ou 100% dele, com desconto de 20% na venda (Ex.: vender 25% de R$ 38.000 tira R$ 9.500 do capital e põe R$ 7.600 no caixa) |
 | Aposentado | 0,95× | O imprevisto de saúde custa o dobro; reajuste de IPCA + o reajuste real dos aposentados |
 | Auxílio | bico de 0,5× + auxílio | O bico some no sorteio de demissão; o auxílio cresce com o gasto do governo com auxílio; sente o imposto sobre consumo |
 | Locador | 1,1× de aluguel | A vacância (um mês sem aluguel) cai no sorteio de demissão; imposto de renda das pessoas |

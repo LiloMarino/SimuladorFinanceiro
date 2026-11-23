@@ -206,3 +206,46 @@ export const SERVICE_PRICE: MetricInfo = {
     "Você muda o preço uma vez por mês. Preço parado perde para a inflação; preço muito acima da referência afasta clientes e aumenta a chance de um mês sem nenhum.",
   format: (value) => displayMoney(value),
 };
+
+export const COMPANY_CAPITAL: MetricInfo = {
+  label: "Capital da empresa",
+  description: "A parte do lucro que ficou dentro do negócio",
+  definition:
+    "O dinheiro que você reinvestiu na empresa. Ele não fica no caixa: conta no patrimônio como patrimônio travado, rende (ou encolhe) com o PIB e só vira caixa vendendo uma parte, com desconto de 20%.",
+  example: "Ex.: R$ 38.000 de capital; vender 25% tira R$ 9.500 da empresa e põe R$ 7.600 no caixa.",
+  reading:
+    "Com PIB positivo o capital rende e o rendimento cai no caixa; com PIB negativo ele encolhe. Vender cedo custa 20% do que sai.",
+  format: (value) => displayMoney(value),
+};
+
+export const CAPITAL_INCOME: MetricInfo = {
+  label: "Renda do capital",
+  description: "O que o capital rende no mês, pelo PIB",
+  definition:
+    "A taxa ao mês do capital segue o PIB dos últimos 12 meses: com PIB positivo, 0,9% ao mês para cada 1,4% de PIB; com PIB negativo, -1,4% ao mês para cada -1,2% de PIB. Com PIB zero, nada. A renda positiva cai no caixa; a negativa sai do capital.",
+  example:
+    "Ex.: R$ 38.000 de capital e PIB em 1,4%: rende 0,9% ao mês, +R$ 342,00 no caixa. Com PIB em -1,2%, rende -1,4%: o capital perde R$ 532,00.",
+  reading: "Acima de zero o capital trabalha a seu favor; abaixo, cada real reinvestido encolhe até o PIB voltar.",
+  format: (value) => displayMoney(value),
+};
+
+export const REINVEST_SHARE: MetricInfo = {
+  label: "Quanto do lucro volta para a empresa",
+  description: "A fração do lucro do mês que vira capital",
+  definition:
+    "No pagamento do mês, esta fração do lucro vai para o capital da empresa e o resto cai no caixa. Vale a partir do próximo pagamento e você muda quando quiser.",
+  example: "Ex.: lucro de R$ 7.200 e 30% reinvestidos: R$ 2.160 viram capital e R$ 5.040 caem no caixa.",
+  reading:
+    "Com o PIB acima de 2% o capital costuma render mais do que o caixa parado; com o PIB negativo, reinvestir encolhe o dinheiro.",
+  format: (value) => displayPercent(value, 0),
+};
+
+export const CAPITAL_SALE: MetricInfo = {
+  label: "Vender parte da empresa",
+  description: "Quanto do capital vira caixa, com desconto",
+  definition:
+    "A parte vendida sai do capital da empresa e entra no caixa com o desconto de 20% na venda. Você pode vender 10%, 25%, 50% ou 100% do capital quando quiser.",
+  example: "Ex.: 25% de R$ 38.000 é R$ 9.500; com o desconto de 20%, R$ 7.600 entram no caixa.",
+  reading: "Vender protege o capital numa recessão, mas o desconto de 20% é perda certa.",
+  format: (value) => displayMoney(value),
+};

@@ -30,7 +30,7 @@ class PortfolioDTO(BaseDTO):
     fixed_income_networth_pct: Decimal
     cash_pct: Decimal
     locked_networth_pct: Decimal
-    # Cada patrimônio travado da profissão (o FGTS), com a regra de saída; vazio sem profissões ou fora do CLT
+    # Cada patrimônio travado da profissão (o FGTS do CLT, o capital do Empreendedor), com a regra de saída; vazio nas outras profissões
     locked_assets: list[LockedAssetDTO]
     # O saldo das contas travadas do jogador: a soma dos patrimônios travados
     locked_value: Decimal

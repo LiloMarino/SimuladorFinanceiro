@@ -8,7 +8,6 @@ from decimal import Decimal
 import pytest
 
 from backend.core.dto.profession import (
-    FGTS_EXIT_RULE,
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
     OVERTIME_ON,
@@ -27,6 +26,7 @@ from backend.core.enum import (
     SalaryMode,
 )
 from backend.core.exceptions.http_exceptions import ConflictError
+from backend.core.locked_assets import LOCKED_EXITS
 from backend.core.professions import LifeLevers
 from backend.core.runtime.settings_manager import SettingsManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -238,7 +238,7 @@ def test_the_fgts_is_a_locked_asset_with_the_exit_rule(monkeypatch):
     portfolio = sim.get_portfolio(ana.client_id)
 
     assert [(a.kind, a.value, a.exit_rule) for a in portfolio.locked_assets] == [
-        (LockedAssetKind.FGTS, Decimal(10000), FGTS_EXIT_RULE)
+        (LockedAssetKind.FGTS, Decimal(10000), LOCKED_EXITS[LockedAssetKind.FGTS].rule)
     ]
 
 

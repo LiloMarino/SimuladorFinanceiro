@@ -14170,6 +14170,120 @@
         ]
       }
     },
+    "/api/simulation/reinvest-share": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Salvar a fração reinvestida do Empreendedor",
+        "description": "Salva a fração do lucro do mês que volta para a empresa e vira capital, de 0 a 1 em passos de 0,01. Vale a partir do próximo pagamento e pode mudar quando quiser. Responde 409 para a fração fora da faixa e para outra profissão.",
+        "operationId": "set_reinvest_share_api_simulation_reinvest_share_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReinvestShareRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/sell-capital": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Vender parte da empresa do Empreendedor",
+        "description": "Vende 10%, 25%, 50% ou 100% do capital da empresa a qualquer momento: a parte vendida sai do capital e entra no caixa com o desconto de 20%. Responde 409 para a fração fora dessas opções, para a empresa sem capital e para outra profissão.",
+        "operationId": "sell_capital_api_simulation_sell_capital_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapitalSaleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/life-history": {
       "get": {
         "tags": [
@@ -19533,6 +19647,51 @@
         "title": "CandlePatternsUpdateDTO",
         "description": "O que o último pregão muda nos padrões: os que terminam a partir de `from_date` (os recém-\nformados e os que ganharam desfecho) e as estatísticas inteiras. Quem tem a lista troca\nnela tudo o que termina de `from_date` em diante por `patterns`."
       },
+      "CapitalSaleOptionDTO": {
+        "properties": {
+          "share": {
+            "type": "string",
+            "title": "Share"
+          },
+          "part": {
+            "type": "string",
+            "title": "Part"
+          },
+          "proceeds": {
+            "type": "string",
+            "title": "Proceeds"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "share",
+          "part",
+          "proceeds"
+        ],
+        "title": "CapitalSaleOptionDTO",
+        "description": "Uma fração do capital que a venda aceita e o que ela rende hoje."
+      },
+      "CapitalSaleRequest": {
+        "properties": {
+          "share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "share"
+        ],
+        "title": "CapitalSaleRequest"
+      },
       "CashResponse": {
         "properties": {
           "cash": {
@@ -23266,6 +23425,92 @@
           "recording"
         ],
         "title": "EngineProfileStatus"
+      },
+      "EntrepreneurMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "entrepreneur",
+            "title": "Kind",
+            "default": "entrepreneur"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "capital": {
+            "type": "string",
+            "title": "Capital"
+          },
+          "capital_months_ago": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capital Months Ago"
+          },
+          "income": {
+            "type": "string",
+            "title": "Income"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "growth": {
+            "type": "string",
+            "title": "Growth"
+          },
+          "profit": {
+            "type": "string",
+            "title": "Profit"
+          },
+          "reinvest_share": {
+            "type": "string",
+            "title": "Reinvest Share"
+          },
+          "reinvested": {
+            "type": "string",
+            "title": "Reinvested"
+          },
+          "recession": {
+            "type": "boolean",
+            "title": "Recession"
+          },
+          "negative_quarters": {
+            "type": "integer",
+            "title": "Negative Quarters"
+          },
+          "sale_options": {
+            "items": {
+              "$ref": "#/components/schemas/CapitalSaleOptionDTO"
+            },
+            "type": "array",
+            "title": "Sale Options"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "capital",
+          "capital_months_ago",
+          "income",
+          "rate",
+          "growth",
+          "profit",
+          "reinvest_share",
+          "reinvested",
+          "recession",
+          "negative_quarters",
+          "sale_options"
+        ],
+        "title": "EntrepreneurMechanicDTO",
+        "description": "Reinvestimento do Empreendedor."
       },
       "ErrorResponse": {
         "properties": {
@@ -34302,7 +34547,8 @@
       "LockedAssetKind": {
         "type": "string",
         "enum": [
-          "FGTS"
+          "FGTS",
+          "COMPANY_CAPITAL"
         ],
         "title": "LockedAssetKind",
         "description": "O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira."
@@ -40747,6 +40993,9 @@
                 "$ref": "#/components/schemas/CltMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/EntrepreneurMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/ExporterMechanicDTO"
               },
               {
@@ -40778,6 +41027,7 @@
                 "appointee": "#/components/schemas/AppointeeMechanicDTO",
                 "banker": "#/components/schemas/BankerMechanicDTO",
                 "clt": "#/components/schemas/CltMechanicDTO",
+                "entrepreneur": "#/components/schemas/EntrepreneurMechanicDTO",
                 "exporter": "#/components/schemas/ExporterMechanicDTO",
                 "freelancer": "#/components/schemas/FreelancerMechanicDTO",
                 "heir": "#/components/schemas/HeirMechanicDTO",
@@ -42288,6 +42538,26 @@
         ],
         "title": "Region",
         "description": "As 5 regiões do IBGE; o código é por extenso porque SE já é a UF de Sergipe."
+      },
+      "ReinvestShareRequest": {
+        "properties": {
+          "share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "share"
+        ],
+        "title": "ReinvestShareRequest"
       },
       "RenamePresetRequest": {
         "properties": {

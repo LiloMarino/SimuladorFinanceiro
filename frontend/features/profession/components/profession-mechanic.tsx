@@ -1,6 +1,7 @@
 import type { ProfessionMechanic as Mechanic } from "@/types";
 import { BankerBlock } from "./banker-block";
 import { CltBlock } from "./clt-block";
+import { EntrepreneurBlock } from "./entrepreneur-block";
 import { ExporterBlock } from "./exporter-block";
 import { FreelancerBlock } from "./freelancer-block";
 import { AppointeeBlock, HeirBlock, OffersBankerBlock } from "./other-blocks";
@@ -11,6 +12,8 @@ export function ProfessionMechanic({ mechanic }: { mechanic: Mechanic }) {
   switch (mechanic.kind) {
     case "clt":
       return <CltBlock mechanic={mechanic} />;
+    case "entrepreneur":
+      return <EntrepreneurBlock mechanic={mechanic} />;
     case "exporter":
       return <ExporterBlock mechanic={mechanic} />;
     case "freelancer":

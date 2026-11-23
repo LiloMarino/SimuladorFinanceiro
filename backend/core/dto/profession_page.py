@@ -189,6 +189,37 @@ class FreelancerMechanicDTO(BaseDTO):
     rows: list[PriceRowDTO]
 
 
+class CapitalSaleOptionDTO(BaseDTO):
+    """Uma fração do capital que a venda aceita e o que ela rende hoje."""
+
+    share: Decimal
+    # A parte do capital que sai da empresa e o que entra no caixa dela, com o desconto da venda
+    part: Decimal
+    proceeds: Decimal
+
+
+class EntrepreneurMechanicDTO(BaseDTO):
+    """Reinvestimento do Empreendedor."""
+
+    kind: Literal["entrepreneur"] = "entrepreneur"
+    status: MechanicStatus
+    # O capital da empresa e o de 3 meses atrás (nulo antes do terceiro pagamento)
+    capital: Decimal
+    capital_months_ago: Decimal | None
+    # O rendimento do capital no mês, com sinal, a taxa ao mês e o PIB de 12 meses de que ela sai
+    income: Decimal
+    rate: Decimal
+    growth: Decimal
+    # O lucro do mês, a fração salva e quanto dele volta para a empresa com ela
+    profit: Decimal
+    reinvest_share: Decimal
+    reinvested: Decimal
+    # PIB de 12 meses negativo e há quantos trimestres seguidos o PIB fecha negativo
+    recession: bool
+    negative_quarters: int
+    sale_options: list[CapitalSaleOptionDTO]
+
+
 class PublicServantMechanicDTO(BaseDTO):
     """Consignado do Servidor."""
 
@@ -271,6 +302,7 @@ class NoMechanicDTO(BaseDTO):
 
 MechanicBlockDTO = Annotated[
     CltMechanicDTO
+    | EntrepreneurMechanicDTO
     | ExporterMechanicDTO
     | FreelancerMechanicDTO
     | PublicServantMechanicDTO

@@ -244,6 +244,16 @@ class FreelancerPriceRequest(BaseModel):
     price: Decimal
 
 
+class ReinvestShareRequest(BaseModel):
+    # A fração do lucro que volta para a empresa (1 = tudo)
+    share: Decimal
+
+
+class CapitalSaleRequest(BaseModel):
+    # A fração do capital da empresa que a venda tira (1 = tudo)
+    share: Decimal
+
+
 class PlayerProfessionRequest(BaseModel):
     profession: Profession
     # Sigla do partido; obrigatória para o Comissionado e ignorada nas demais profissões
@@ -1234,6 +1244,46 @@ def set_price(payload: FreelancerPriceRequest, client_id: ClientID):
         raise NotFoundError("Usuário não encontrado.")
     simulation = SimulationManager.get_active_simulation()
     simulation.set_price(user, payload.price)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/reinvest-share",
+    response_model=ProfessionStateDTO,
+    summary="Salvar a fração reinvestida do Empreendedor",
+    description="Salva a fração do lucro do mês que volta para a empresa e vira capital, de 0 a 1 em passos de 0,01. Vale a partir do próximo pagamento e pode mudar quando quiser. Responde 409 para a fração fora da faixa e para outra profissão.",
+)
+def set_reinvest_share(payload: ReinvestShareRequest, client_id: ClientID):
+    """
+    Salva a fração reinvestida de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.set_reinvest_share(user, payload.share)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/sell-capital",
+    response_model=ProfessionStateDTO,
+    summary="Vender parte da empresa do Empreendedor",
+    description="Vende 10%, 25%, 50% ou 100% do capital da empresa a qualquer momento: a parte vendida sai do capital e entra no caixa com o desconto de 20%. Responde 409 para a fração fora dessas opções, para a empresa sem capital e para outra profissão.",
+)
+def sell_capital(payload: CapitalSaleRequest, client_id: ClientID):
+    """
+    Vende a fração do capital de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.sell_capital(user, payload.share)
     return simulation.get_profession_state(client_id)
 
 

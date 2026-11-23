@@ -10,6 +10,7 @@ from backend.core.clt import (
 from backend.core.dates import add_months
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import LockedAssetKind, Profession
+from backend.core.locked_assets import LOCKED_EXITS
 
 
 class LockedAssetDTO(BaseDTO):
@@ -20,10 +21,6 @@ class LockedAssetDTO(BaseDTO):
     # A fração do patrimônio que este saldo é; o motor preenche ao montar a carteira
     networth_pct: Decimal = Decimal(0)
     exit_rule: str
-
-
-# A regra de saída do FGTS, mostrada na linha do patrimônio travado
-FGTS_EXIT_RULE = "Sai só na demissão sem justa causa, com a multa de 40% sobre o saldo."
 
 
 class MechanicState(BaseDTO):
@@ -76,7 +73,7 @@ class CltState(MechanicState):
             LockedAssetDTO(
                 kind=LockedAssetKind.FGTS,
                 value=self.fgts_balance,
-                exit_rule=FGTS_EXIT_RULE,
+                exit_rule=LOCKED_EXITS[LockedAssetKind.FGTS].rule,
             )
         ]
 
@@ -112,6 +109,27 @@ class FreelancerState(MechanicState):
     # Nulo é o preço inicial da partida: a referência do mercado na data de início
     price: Decimal | None = None
     price_set_on: date | None = None
+
+
+class EntrepreneurState(MechanicState):
+    """O estado do Empreendedor: a fração do lucro reinvestida, o capital da empresa e o que a política do bot lembra."""
+
+    reinvest_share: Decimal = Decimal(0)
+    capital: Decimal = Decimal(0)
+    # O capital antes de cada um dos últimos pagamentos, do mais antigo ao mais recente
+    capital_history: list[Decimal] = Field(default_factory=list)
+    # Verdadeiro depois que a política vendeu na recessão em curso; um trimestre sem queda do PIB zera
+    recession_sold: bool = False
+
+    @property
+    def locked_assets(self) -> list[LockedAssetDTO]:
+        return [
+            LockedAssetDTO(
+                kind=LockedAssetKind.COMPANY_CAPITAL,
+                value=self.capital,
+                exit_rule=LOCKED_EXITS[LockedAssetKind.COMPANY_CAPITAL].rule,
+            )
+        ]
 
 
 class MechanicAction(BaseDTO):
@@ -179,6 +197,29 @@ class SetPrice(FreelancerAction):
     reference: Decimal
 
 
+# O nome dos lançamentos do Empreendedor no histórico da vida
+SET_REINVEST_SHARE = "set_reinvest_share"
+SELL_CAPITAL = "sell_capital"
+
+
+class EntrepreneurAction(MechanicAction):
+    """Uma ação do Empreendedor; é o tipo que a mecânica aceita."""
+
+
+class SetReinvestShare(EntrepreneurAction):
+    """Salva a fração do lucro que volta para a empresa, valendo a partir do próximo pagamento."""
+
+    kind: str = Field(default=SET_REINVEST_SHARE, pattern=rf"^{SET_REINVEST_SHARE}$")
+    share: Decimal
+
+
+class SellCapital(EntrepreneurAction):
+    """Vende uma fração do capital da empresa, com o desconto da venda."""
+
+    kind: str = Field(default=SELL_CAPITAL, pattern=rf"^{SELL_CAPITAL}$")
+    share: Decimal
+
+
 class ProfessionPeriodDTO(BaseDTO):
     """A profissão que o jogador exerce a partir de `start`, até o início do período seguinte."""
 
@@ -196,6 +237,7 @@ class ProfessionStateDTO(BaseDTO):
 # O tipo do estado de cada profissão com mecânica; as demais usam o tipo base
 STATE_TYPES: dict[Profession, type[MechanicState]] = {
     Profession.CLT: CltState,
+    Profession.ENTREPRENEUR: EntrepreneurState,
     Profession.EXPORTER: ExporterState,
     Profession.FREELANCER: FreelancerState,
 }

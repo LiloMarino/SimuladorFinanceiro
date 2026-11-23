@@ -4596,6 +4596,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/reinvest-share": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Salvar a fração reinvestida do Empreendedor
+         * @description Salva a fração do lucro do mês que volta para a empresa e vira capital, de 0 a 1 em passos de 0,01. Vale a partir do próximo pagamento e pode mudar quando quiser. Responde 409 para a fração fora da faixa e para outra profissão.
+         */
+        post: operations["set_reinvest_share_api_simulation_reinvest_share_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/sell-capital": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Vender parte da empresa do Empreendedor
+         * @description Vende 10%, 25%, 50% ou 100% do capital da empresa a qualquer momento: a parte vendida sai do capital e entra no caixa com o desconto de 20%. Responde 409 para a fração fora dessas opções, para a empresa sem capital e para outra profissão.
+         */
+        post: operations["sell_capital_api_simulation_sell_capital_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/life-history": {
         parameters: {
             query?: never;
@@ -6494,6 +6534,23 @@ export interface components {
             /** Stats */
             stats: components["schemas"]["PatternStatsDTO"][];
         };
+        /**
+         * CapitalSaleOptionDTO
+         * @description Uma fração do capital que a venda aceita e o que ela rende hoje.
+         */
+        CapitalSaleOptionDTO: {
+            /** Share */
+            share: string;
+            /** Part */
+            part: string;
+            /** Proceeds */
+            proceeds: string;
+        };
+        /** CapitalSaleRequest */
+        CapitalSaleRequest: {
+            /** Share */
+            share: number | string;
+        };
         /** CashResponse */
         CashResponse: {
             /** Cash */
@@ -7767,6 +7824,40 @@ export interface components {
         EngineProfileStatus: {
             /** Recording */
             recording: boolean;
+        };
+        /**
+         * EntrepreneurMechanicDTO
+         * @description Reinvestimento do Empreendedor.
+         */
+        EntrepreneurMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "entrepreneur";
+            status: components["schemas"]["MechanicStatus"];
+            /** Capital */
+            capital: string;
+            /** Capital Months Ago */
+            capital_months_ago: string | null;
+            /** Income */
+            income: string;
+            /** Rate */
+            rate: string;
+            /** Growth */
+            growth: string;
+            /** Profit */
+            profit: string;
+            /** Reinvest Share */
+            reinvest_share: string;
+            /** Reinvested */
+            reinvested: string;
+            /** Recession */
+            recession: boolean;
+            /** Negative Quarters */
+            negative_quarters: number;
+            /** Sale Options */
+            sale_options: components["schemas"]["CapitalSaleOptionDTO"][];
         };
         /** ErrorResponse */
         ErrorResponse: {
@@ -11490,7 +11581,7 @@ export interface components {
          * @description O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira.
          * @enum {string}
          */
-        LockedAssetKind: "FGTS";
+        LockedAssetKind: "FGTS" | "COMPANY_CAPITAL";
         /** @enum {string} */
         LogFilter: "all" | "orders" | "modes";
         /** MacdSeriesDTO */
@@ -13668,7 +13759,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -14151,6 +14242,11 @@ export interface components {
          * @enum {string}
          */
         Region: "NORTH" | "NORTHEAST" | "MIDWEST" | "SOUTHEAST" | "SOUTH";
+        /** ReinvestShareRequest */
+        ReinvestShareRequest: {
+            /** Share */
+            share: number | string;
+        };
         /** RenamePresetRequest */
         RenamePresetRequest: {
             /** Name */
@@ -27477,6 +27573,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["FreelancerPriceRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_reinvest_share_api_simulation_reinvest_share_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReinvestShareRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sell_capital_api_simulation_sell_capital_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CapitalSaleRequest"];
             };
         };
         responses: {

@@ -45,6 +45,9 @@ export function ProfessionHeader({ page, match }: ProfessionHeaderProps) {
   const mechanicName = MECHANIC_INCOME_NAMES[profession];
   const salary = Number(header.income) - Number(header.mechanic_income);
   const layoffMultiple = header.layoff_factor;
+  const { mechanic } = page;
+  // O Empreendedor mostra o lucro e quanto dele volta para a empresa
+  const reinvested = mechanic.kind === "entrepreneur" && Number(mechanic.reinvested) > 0 ? mechanic.reinvested : null;
 
   return (
     <Card>
@@ -79,9 +82,11 @@ export function ProfessionHeader({ page, match }: ProfessionHeaderProps) {
               }
               value={displayMoney(header.income)}
               note={
-                mechanicName && Number(header.mechanic_income) > 0
-                  ? `salário ${displayMoney(salary)} + ${mechanicName} ${displayMoney(header.mechanic_income)}`
-                  : "o salário do mês, já com o reajuste"
+                reinvested
+                  ? `o lucro do mês, e ${displayMoney(reinvested)} volta para a empresa`
+                  : mechanicName && Number(header.mechanic_income) > 0
+                    ? `salário ${displayMoney(salary)} + ${mechanicName} ${displayMoney(header.mechanic_income)}`
+                    : "o salário do mês, já com o reajuste"
               }
             />
             <Kpi

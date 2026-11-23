@@ -20,7 +20,16 @@ function Row({ swatch, label, value, tone }: { swatch?: string; label: string; v
 }
 
 /** O dia sob o ponteiro: patrimônio por classe, dívida, aportado, ganho e, na corrida, o que falta para a meta. */
-export function NetworthTooltip({ point, left }: { point: NetworthPoint; left: number }) {
+export function NetworthTooltip({
+  point,
+  left,
+  lockedLabel,
+}: {
+  point: NetworthPoint;
+  left: number;
+  /** O nome do patrimônio travado da profissão */
+  lockedLabel: string;
+}) {
   const gain = point.networth - point.provided;
   const gainPct = point.provided === 0 ? 0 : gain / point.provided;
   const positive = gain >= 0;
@@ -40,7 +49,7 @@ export function NetworthTooltip({ point, left }: { point: NetworthPoint; left: n
       <Row swatch="var(--chart-1)" label="Renda variável" value={displayMoney(point.equity)} />
       <Row swatch="var(--chart-2)" label="Renda fixa" value={displayMoney(point.fixed)} />
       <Row swatch="var(--input)" label="Caixa" value={displayMoney(point.cash)} />
-      {point.locked > 0 && <Row swatch="var(--chart-7)" label="FGTS" value={displayMoney(point.locked)} />}
+      {point.locked > 0 && <Row swatch="var(--chart-7)" label={lockedLabel} value={displayMoney(point.locked)} />}
       {point.debt > 0 && (
         <Row
           swatch="color-mix(in srgb, var(--destructive) 40%, var(--card))"

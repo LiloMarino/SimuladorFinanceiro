@@ -44,19 +44,19 @@ const BASE_CLASS_PANELS: PanelConfig[] = [
   },
 ];
 
-const LOCKED_PANEL: PanelConfig = {
+const lockedPanel = (label: string): PanelConfig => ({
   key: "locked",
-  label: "FGTS",
+  label,
   color: "var(--chart-7)",
   lineClass: "stroke-chart-7",
   areaClass: "fill-chart-7/12",
   dotClass: "stroke-chart-7",
   valueOf: (p) => p.locked,
-};
+});
 
-/** Um painel por classe; o FGTS ganha o dele quando algum dia teve saldo. */
-export function classPanels(points: NetworthPoint[]): PanelConfig[] {
-  return hasLocked(points) ? [...BASE_CLASS_PANELS, LOCKED_PANEL] : BASE_CLASS_PANELS;
+/** Um painel por classe; o patrimônio travado ganha o dele, com o nome dado, quando algum dia teve saldo. */
+export function classPanels(points: NetworthPoint[], lockedLabel: string): PanelConfig[] {
+  return hasLocked(points) ? [...BASE_CLASS_PANELS, lockedPanel(lockedLabel)] : BASE_CLASS_PANELS;
 }
 
 const TYPE_STYLES: Record<AssetClass, PanelStyle> = {

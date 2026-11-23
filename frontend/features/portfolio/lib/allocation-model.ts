@@ -1,12 +1,14 @@
 import type { PortfolioState } from "@/types";
+import { lockedLabels } from "@/shared/lib/locked-assets";
 
 export type ClassKey = "variable" | "fixed" | "cash" | "locked";
 
-const CLASS_META: Record<ClassKey, { label: string; color: string }> = {
+const CLASS_META: Record<ClassKey, { label: string | undefined; color: string }> = {
   variable: { label: "Renda variável", color: "var(--chart-1)" },
   fixed: { label: "Renda fixa", color: "var(--chart-2)" },
   cash: { label: "Caixa", color: "var(--input)" },
-  locked: { label: "FGTS", color: "var(--chart-7)" },
+  // O nome da conta travada vem dos tipos que o jogador tem (patrimônio travado da profissão)
+  locked: { label: undefined, color: "var(--chart-7)" },
 };
 
 /** Quantos ativos a lista mostra antes de juntar o resto em "Outros". */
@@ -32,7 +34,7 @@ export type AssetRow = {
 
 const fractionOf = (value: number, total: number) => (total > 0 ? value / total : 0);
 
-/** As classes com dinheiro, na ordem renda variável, renda fixa, caixa e conta travada (o FGTS). */
+/** As classes com dinheiro, na ordem renda variável, renda fixa, caixa e conta travada (o FGTS ou o capital da empresa). */
 export function classSlices(portfolio: PortfolioState): ClassSlice[] {
   const total = Number(portfolio.assets_value);
   const values: Record<ClassKey, number> = {
@@ -45,7 +47,8 @@ export function classSlices(portfolio: PortfolioState): ClassSlice[] {
     .filter((key) => values[key] > 0)
     .map((key) => ({
       key,
-      ...CLASS_META[key],
+      label: CLASS_META[key].label ?? lockedLabels(portfolio),
+      color: CLASS_META[key].color,
       value: values[key],
       fraction: fractionOf(values[key], total),
     }));

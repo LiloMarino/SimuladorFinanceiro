@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
@@ -15,6 +14,7 @@ import { moneyToBody, moneyToField } from "@/shared/lib/utils/money-field";
 import type { ProfessionMechanic } from "@/types";
 import { useSetPrice } from "../hooks/mutations/useSetPrice";
 import { MARKET_REFERENCE, SERVICE_PRICE } from "../lib/profession-metrics";
+import { FigureCard } from "./figure-card";
 import { MechanicBlock } from "./mechanic-block";
 import { PROFESSION_HISTORY_ID } from "./profession-history";
 
@@ -181,18 +181,6 @@ function PriceTable({ mechanic }: FreelancerBlockProps) {
           })}
         </TableBody>
       </Table>
-    </div>
-  );
-}
-
-type FigureCardProps = { label: ReactNode; value: string; note: string };
-
-function FigureCard({ label, value, note }: FigureCardProps) {
-  return (
-    <div className="grid content-start gap-1 rounded-[10px] border p-4">
-      <span className="text-[13px] font-semibold">{label}</span>
-      <b className="font-mono text-[17px] font-semibold">{value}</b>
-      <span className="text-xs text-muted-foreground">{note}</span>
     </div>
   );
 }

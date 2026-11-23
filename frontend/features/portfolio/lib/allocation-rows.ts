@@ -1,4 +1,5 @@
 import type { PortfolioState } from "@/types";
+import { lockedLabel } from "@/shared/lib/locked-assets";
 
 export type AllocationRow = {
   label: string;
@@ -11,7 +12,7 @@ export type AllocationRow = {
   exitRule?: string;
 };
 
-/** Cada patrimônio de profissão fora do caixa é uma linha com a cor do FGTS e o percentual que o servidor calcula para ele. */
+/** Cada patrimônio de profissão fora do caixa é uma linha com o nome do tipo, a cor do patrimônio travado e o percentual que o servidor calcula para ele. */
 export function allocationRows(portfolio: PortfolioState): AllocationRow[] {
   return [
     {
@@ -28,7 +29,7 @@ export function allocationRows(portfolio: PortfolioState): AllocationRow[] {
     },
     { label: "Caixa", value: portfolio.cash, pct: portfolio.cash_pct, color: "bg-input" },
     ...portfolio.locked_assets.map((asset) => ({
-      label: asset.kind,
+      label: lockedLabel(asset.kind),
       value: asset.value,
       pct: asset.networth_pct,
       color: "bg-chart-7",

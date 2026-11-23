@@ -19,11 +19,18 @@ from backend.core.clt import (
 from backend.core.dates import add_months
 from backend.core.dto.credit import PayrollLoanDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.profession import CltState, ExporterState, FreelancerState
+from backend.core.dto.profession import (
+    CltState,
+    EntrepreneurState,
+    ExporterState,
+    FreelancerState,
+)
 from backend.core.dto.profession_page import (
     AppointeeMechanicDTO,
     BankerMechanicDTO,
+    CapitalSaleOptionDTO,
     CltMechanicDTO,
+    EntrepreneurMechanicDTO,
     ExchangeLockDTO,
     ExchangeLockOptionDTO,
     ExporterMechanicDTO,
@@ -39,6 +46,14 @@ from backend.core.dto.profession_page import (
     PriceRowDTO,
     PublicServantMechanicDTO,
     SeriesGuideDTO,
+)
+from backend.core.entrepreneur import (
+    SALE_SHARES,
+    capital_income,
+    capital_rate,
+    sale_part,
+    sale_proceeds,
+    split_profit,
 )
 from backend.core.enum import (
     IncomeSeriesEffect,
@@ -64,6 +79,7 @@ from backend.core.professions import (
 from backend.features.credit.rules import PAYROLL_SPREAD
 from backend.features.economy.growth import NEUTRAL_UNEMPLOYMENT
 from backend.features.fixed_income.house_cdb import HOUSE_CDB_SPREAD
+from backend.features.profession.entrepreneur import capital_months_ago
 from backend.features.profession.exporter import mix_change_allowed, next_mix_change
 from backend.features.profession.freelancer import (
     next_price_change,
@@ -429,6 +445,43 @@ def freelancer_block(
         - since.month,
         stale=stale,
         rows=rows,
+    )
+
+
+def entrepreneur_block(
+    state: EntrepreneurState,
+    budget: LifeBudget,
+    day: date,
+    negative_quarters: int,
+) -> EntrepreneurMechanicDTO:
+    """
+    O bloco do Empreendedor: o capital e o rendimento do mês pelo PIB de 12 meses, o
+    lucro e a fração que volta para a empresa e o que cada venda de parte do capital
+    põe no caixa.
+    """
+    growth = budget.growth_on(day)
+    profit = budget.net_salary_on(day)
+    reinvested, _ = split_profit(profit, state.reinvest_share)
+    options = []
+    for share in SALE_SHARES:
+        part = sale_part(state.capital, share)
+        options.append(
+            CapitalSaleOptionDTO(share=share, part=part, proceeds=sale_proceeds(part))
+        )
+    active = state.capital > 0 or state.reinvest_share > 0
+    return EntrepreneurMechanicDTO(
+        status=MechanicStatus.ACTIVE if active else MechanicStatus.AVAILABLE,
+        capital=state.capital,
+        capital_months_ago=capital_months_ago(state),
+        income=capital_income(state.capital, growth),
+        rate=capital_rate(growth),
+        growth=growth,
+        profit=profit,
+        reinvest_share=state.reinvest_share,
+        reinvested=reinvested,
+        recession=growth < 0,
+        negative_quarters=negative_quarters,
+        sale_options=options,
     )
 
 

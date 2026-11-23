@@ -33,11 +33,20 @@ describe("allocationRows", () => {
     });
   });
 
+  it("dá a cada tipo travado o nome do tipo", () => {
+    const rows = allocationRows(
+      portfolio([
+        { kind: "COMPANY_CAPITAL", value: "300", networth_pct: "0.3", exit_rule: "Só vira caixa vendendo uma parte" },
+      ]),
+    );
+    expect(rows.at(-1)?.label).toBe("Capital da empresa");
+  });
+
   it("usa o percentual que o servidor entrega para cada linha", () => {
     const rows = allocationRows(
       portfolio([
         { kind: "FGTS", value: "300", networth_pct: "0.3", exit_rule: "a" },
-        { kind: "PENSION", value: "100", networth_pct: "0.1", exit_rule: "b" },
+        { kind: "COMPANY_CAPITAL", value: "100", networth_pct: "0.1", exit_rule: "b" },
       ] as unknown as LockedAsset[]),
     );
     expect(rows.slice(-2).map((r) => r.pct)).toEqual(["0.3", "0.1"]);
