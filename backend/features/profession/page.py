@@ -24,6 +24,7 @@ from backend.core.dto.profession import (
     EntrepreneurState,
     ExporterState,
     FreelancerState,
+    RetireeState,
 )
 from backend.core.dto.profession_page import (
     AppointeeMechanicDTO,
@@ -45,6 +46,8 @@ from backend.core.dto.profession_page import (
     OffersBankerMechanicDTO,
     PriceRowDTO,
     PublicServantMechanicDTO,
+    RedeemBracketDTO,
+    RetireeMechanicDTO,
     SeriesGuideDTO,
 )
 from backend.core.entrepreneur import (
@@ -69,6 +72,14 @@ from backend.core.freelancer import (
     clients_on,
 )
 from backend.core.life_budget import LifeBudget, cents
+from backend.core.pension import (
+    REDEEM_BRACKETS,
+    annual_yield,
+    income_rate,
+    months_in_plan,
+    next_bracket,
+    redeem_bracket,
+)
 from backend.core.professions import (
     DRIVER_CURVES,
     REFERENCE_WELFARE_SPENDING,
@@ -84,6 +95,10 @@ from backend.features.profession.exporter import mix_change_allowed, next_mix_ch
 from backend.features.profession.freelancer import (
     next_price_change,
     price_change_allowed,
+)
+from backend.features.profession.pension import (
+    converted_amount,
+    converted_real_rate,
 )
 from backend.features.simulation.life_events import layoff_factor_of
 
@@ -110,6 +125,7 @@ def build_header(
     """Os quatro números do topo: renda, reajuste acima do IPCA, chance de demissão e imprevisto de saúde."""
     rule = budget.rule
     income = budget.net_salary_on(day)
+    converted = budget.converted_income_on(day)
     factor = budget.current_mechanic_state().income_factor
     layoff = (
         None
@@ -119,7 +135,7 @@ def build_header(
     )
     return IncomeHeaderDTO(
         income=income,
-        mechanic_income=cents(income - income / factor),
+        mechanic_income=cents((income - converted) * (1 - 1 / factor)) + converted,
         real_raise=None
         if rule.real_raise is RealRaise.NONE
         else budget.real_raise_on(day),
@@ -482,6 +498,51 @@ def entrepreneur_block(
         recession=growth < 0,
         negative_quarters=negative_quarters,
         sale_options=options,
+    )
+
+
+def retiree_block(
+    state: RetireeState,
+    budget: LifeBudget,
+    day: date,
+    cdi: Decimal,
+    selic: Decimal,
+    expected_ipca: Decimal,
+    expected_ipca_from_focus: bool,
+    real_rate: Decimal,
+) -> RetireeMechanicDTO:
+    """
+    O bloco do Aposentado: o saldo e o que ele rende, a renda já convertida, o juro real
+    de hoje e o IR do resgate com a tabela e a faixa seguinte. O valor digitado o front
+    calcula com as taxas daqui.
+    """
+    months = 0 if state.since is None else months_in_plan(state.since, day)
+    bracket = redeem_bracket(months)
+    later = next_bracket(months)
+    wait = None if later is None else later.from_months - months
+    return RetireeMechanicDTO(
+        status=MechanicStatus.ACTIVE if state.conversions else MechanicStatus.AVAILABLE,
+        balance=state.balance or Decimal(0),
+        annual_rate=annual_yield(cdi),
+        cdi=cdi,
+        converted_income=budget.converted_income_on(day),
+        converted_amount=converted_amount(state),
+        converted_real_rate=converted_real_rate(state),
+        real_rate=real_rate,
+        selic=selic,
+        expected_ipca=expected_ipca,
+        expected_ipca_from_focus=expected_ipca_from_focus,
+        income_rate=income_rate(real_rate) if real_rate > 0 else Decimal(0),
+        inflation_indexed=budget.inflation_adjusted,
+        redeem_rate=bracket.rate,
+        months_in_plan=months,
+        next_rate=None if later is None else later.rate,
+        next_rate_months=wait,
+        next_rate_on=None if wait is None else add_months(day, wait),
+        brackets=[
+            RedeemBracketDTO(label=item.label, rate=item.rate, current=item is bracket)
+            for item in REDEEM_BRACKETS
+        ],
     )
 
 

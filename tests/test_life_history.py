@@ -332,6 +332,7 @@ def _living(
     fake._run_fgts_month = partial(Simulation._run_fgts_month, living)
     fake._pay_out_fgts = partial(Simulation._pay_out_fgts, living)
     fake._run_capital_month = partial(Simulation._run_capital_month, living)
+    fake._run_pension_month = partial(Simulation._run_pension_month, living)
     fake._run_exchange_lock_month = partial(Simulation._run_exchange_lock_month, living)
     fake._exporter_state_of = partial(Simulation._exporter_state_of, living)
     fake.apply_profession_action = partial(Simulation.apply_profession_action, living)

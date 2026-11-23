@@ -4636,6 +4636,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/convert-pension": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Converter parte da previdência do Aposentado em renda
+         * @description Converte parte do saldo da previdência em renda vitalícia: o valor sai do saldo e do patrimônio e passa a render todo mês, para sempre, ao juro real do dia. Responde 409 para o valor fora de R$ 0,01 até o saldo, para o juro real zerado ou negativo e para outra profissão.
+         */
+        post: operations["convert_pension_api_simulation_convert_pension_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/redeem-pension": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resgatar parte da previdência do Aposentado
+         * @description Resgata parte do saldo da previdência: o valor sai do saldo e cai no caixa depois do IR regressivo da faixa do tempo no plano (35% até 2 anos, 10% depois de 10). Responde 409 para o valor fora de R$ 0,01 até o saldo e para outra profissão.
+         */
+        post: operations["redeem_pension_api_simulation_redeem_pension_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/life-history": {
         parameters: {
             query?: never;
@@ -11575,13 +11615,15 @@ export interface components {
             networth_pct: string;
             /** Exit Rule */
             exit_rule: string;
+            /** Since */
+            since: string | null;
         };
         /**
          * LockedAssetKind
          * @description O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira.
          * @enum {string}
          */
-        LockedAssetKind: "FGTS" | "COMPANY_CAPITAL";
+        LockedAssetKind: "FGTS" | "COMPANY_CAPITAL" | "PENSION";
         /** @enum {string} */
         LogFilter: "all" | "orders" | "modes";
         /** MacdSeriesDTO */
@@ -12954,6 +12996,11 @@ export interface components {
             /** Items */
             items: components["schemas"]["PendingDTO"][];
         };
+        /** PensionAmountRequest */
+        PensionAmountRequest: {
+            /** Amount */
+            amount: number | string;
+        };
         /**
          * PlaceKind
          * @description Um lugar do mapa é um estado ou uma região.
@@ -13759,7 +13806,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -14231,6 +14278,18 @@ export interface components {
             candle_challenge_state: components["schemas"]["CandleChallengeStateDTO"];
             candle_challenge_notice: components["schemas"]["ChallengeNoticeEventDTO"];
         };
+        /**
+         * RedeemBracketDTO
+         * @description Uma faixa da tabela do IR regressivo do resgate.
+         */
+        RedeemBracketDTO: {
+            /** Label */
+            label: string;
+            /** Rate */
+            rate: string;
+            /** Current */
+            current: boolean;
+        };
         /** RedeemFixedIncomeRequest */
         RedeemFixedIncomeRequest: {
             /** Amount */
@@ -14281,6 +14340,54 @@ export interface components {
             abbr: string;
             /** Flags */
             flags: components["schemas"]["VoterValue"][];
+        };
+        /**
+         * RetireeMechanicDTO
+         * @description Previdência do Aposentado.
+         */
+        RetireeMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "retiree";
+            status: components["schemas"]["MechanicStatus"];
+            /** Balance */
+            balance: string;
+            /** Annual Rate */
+            annual_rate: string;
+            /** Cdi */
+            cdi: string;
+            /** Converted Income */
+            converted_income: string;
+            /** Converted Amount */
+            converted_amount: string;
+            /** Converted Real Rate */
+            converted_real_rate: string | null;
+            /** Real Rate */
+            real_rate: string;
+            /** Selic */
+            selic: string;
+            /** Expected Ipca */
+            expected_ipca: string;
+            /** Expected Ipca From Focus */
+            expected_ipca_from_focus: boolean;
+            /** Income Rate */
+            income_rate: string;
+            /** Inflation Indexed */
+            inflation_indexed: boolean;
+            /** Redeem Rate */
+            redeem_rate: string;
+            /** Months In Plan */
+            months_in_plan: number;
+            /** Next Rate */
+            next_rate: string | null;
+            /** Next Rate Months */
+            next_rate_months: number | null;
+            /** Next Rate On */
+            next_rate_on: string | null;
+            /** Brackets */
+            brackets: components["schemas"]["RedeemBracketDTO"][];
         };
         /**
          * ReturnSourcesDTO
@@ -27657,6 +27764,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CapitalSaleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    convert_pension_api_simulation_convert_pension_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PensionAmountRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    redeem_pension_api_simulation_redeem_pension_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PensionAmountRequest"];
             };
         };
         responses: {

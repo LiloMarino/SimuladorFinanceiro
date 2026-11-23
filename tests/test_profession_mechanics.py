@@ -117,7 +117,7 @@ def test_every_mechanic_has_a_state_type_and_every_policy_a_mechanic():
 
 
 def test_a_profession_without_mechanic_starts_with_the_empty_base_state():
-    state = initial_state(Profession.RETIREE)
+    state = initial_state(Profession.WELFARE)
 
     assert type(state) is MechanicState
     assert state.model_dump() == {}
@@ -127,7 +127,7 @@ def test_a_profession_without_mechanic_starts_with_the_empty_base_state():
 def test_a_profession_without_mechanic_refuses_actions():
     with pytest.raises(ConflictError, match="não tem mecânica"):
         apply_action(
-            Profession.RETIREE, MechanicState(), Bump(), date(2004, 3, 29), MACRO
+            Profession.WELFARE, MechanicState(), Bump(), date(2004, 3, 29), MACRO
         )
 
 
@@ -270,17 +270,17 @@ def test_switching_in_the_middle_keeps_cash_and_starting_capital(monkeypatch):
     portfolio = repository.portfolio.ids(sim.settings.id)[ana.id]
     capital = repository.portfolio.starting_cash([portfolio])
 
-    sim.switch_profession(ana, Profession.RETIREE)
+    sim.switch_profession(ana, Profession.WELFARE)
 
     # O FGTS acumulado cai no caixa pela regra de saída; o resto do caixa fica
     assert locked > 0
     assert sim.get_cash(ana.client_id) == cash + locked
     assert repository.portfolio.starting_cash([portfolio]) == capital
-    assert UserManager.get_profession(ana.id) is Profession.RETIREE
-    assert sim.get_profession_state(ana.client_id).profession is Profession.RETIREE
+    assert UserManager.get_profession(ana.id) is Profession.WELFARE
+    assert sim.get_profession_state(ana.client_id).profession is Profession.WELFARE
     assert (
         repository.simulation_player.professions(sim.settings.id)[ana.id]
-        is Profession.RETIREE
+        is Profession.WELFARE
     )
 
 
@@ -291,11 +291,11 @@ def test_switching_writes_the_period_and_the_zero_money_history_event(monkeypatc
         sim.next_tick()
     day = sim.get_current_date()
 
-    sim.switch_profession(ana, Profession.RETIREE)
+    sim.switch_profession(ana, Profession.WELFARE)
 
     assert repository.profession.periods(sim.settings.id)[ana.id] == [
         ProfessionPeriodDTO(profession=Profession.CLT, start=sim.settings.start_date),
-        ProfessionPeriodDTO(profession=Profession.RETIREE, start=day),
+        ProfessionPeriodDTO(profession=Profession.WELFARE, start=day),
     ]
     [row] = [
         r
@@ -303,7 +303,7 @@ def test_switching_writes_the_period_and_the_zero_money_history_event(monkeypatc
         if r.kind is LifeHistoryKind.PROFESSION_SWITCHED
     ]
     assert row.event_date == day
-    assert row.life_event_key == Profession.RETIREE.value
+    assert row.life_event_key == Profession.WELFARE.value
     assert row.cash_after == sim.get_cash(ana.client_id)
 
 
@@ -314,7 +314,7 @@ def test_the_switch_starts_the_new_profession_on_its_initial_state(
     sim = match(monkeypatch)
     sim.apply_profession_action(ana, Bump())
 
-    sim.switch_profession(ana, Profession.RETIREE)
+    sim.switch_profession(ana, Profession.WELFARE)
     sim.switch_profession(ana, Profession.CLT)
 
     assert sim.get_profession_state(ana.client_id).state == Bonus(count=0)
@@ -350,7 +350,7 @@ def test_the_switch_is_refused_in_a_match_without_professions(monkeypatch):
     sim = SimulationManager.get_active_simulation()
 
     assert "profissões" in refusal(
-        lambda: sim.switch_profession(ana, Profession.RETIREE)
+        lambda: sim.switch_profession(ana, Profession.WELFARE)
     )
 
 
@@ -365,12 +365,12 @@ def test_the_late_player_opens_the_first_period_on_the_day_of_joining(monkeypatc
     UserManager.join_match(
         late.client_id,
         first_free_color(set(UserManager.room_colors().values())),
-        profession=Profession.RETIREE,
+        profession=Profession.WELFARE,
     )
 
     periods = repository.profession.periods(sim.settings.id)[late.id]
     assert periods == [
-        ProfessionPeriodDTO(profession=Profession.RETIREE, start=sim.get_current_date())
+        ProfessionPeriodDTO(profession=Profession.WELFARE, start=sim.get_current_date())
     ]
     assert type(sim.get_profession_state(late.client_id).state) is MechanicState
 

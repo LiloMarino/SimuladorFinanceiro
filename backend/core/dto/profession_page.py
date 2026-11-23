@@ -220,6 +220,47 @@ class EntrepreneurMechanicDTO(BaseDTO):
     sale_options: list[CapitalSaleOptionDTO]
 
 
+class RedeemBracketDTO(BaseDTO):
+    """Uma faixa da tabela do IR regressivo do resgate."""
+
+    label: str
+    rate: Decimal
+    # Verdadeiro na faixa que o tempo no plano alcança hoje
+    current: bool
+
+
+class RetireeMechanicDTO(BaseDTO):
+    """Previdência do Aposentado."""
+
+    kind: Literal["retiree"] = "retiree"
+    status: MechanicStatus
+    balance: Decimal
+    # A taxa anual do plano (CDI menos 1%) e o CDI de que ela sai
+    annual_rate: Decimal
+    cdi: Decimal
+    # A renda vitalícia já convertida no mês, o valor que virou renda e o juro real médio dele (nulo sem conversão)
+    converted_income: Decimal
+    converted_amount: Decimal
+    converted_real_rate: Decimal | None
+    # O juro real de hoje, a SELIC e o IPCA esperado de que ele sai, e se o IPCA esperado é o do Focus (senão, o realizado em 12 meses)
+    real_rate: Decimal
+    selic: Decimal
+    expected_ipca: Decimal
+    expected_ipca_from_focus: bool
+    # A fração do valor convertido que vira renda por mês com o juro real de hoje
+    income_rate: Decimal
+    # A sala corrige a renda convertida pelo IPCA
+    inflation_indexed: bool
+    # O IR do resgate de hoje e o tempo no plano, em meses completos
+    redeem_rate: Decimal
+    months_in_plan: int
+    # A faixa seguinte: a alíquota, em quantos meses chega e o mês em que passa a valer; nulos na última faixa
+    next_rate: Decimal | None
+    next_rate_months: int | None
+    next_rate_on: date | None
+    brackets: list[RedeemBracketDTO]
+
+
 class PublicServantMechanicDTO(BaseDTO):
     """Consignado do Servidor."""
 
@@ -303,6 +344,7 @@ class NoMechanicDTO(BaseDTO):
 MechanicBlockDTO = Annotated[
     CltMechanicDTO
     | EntrepreneurMechanicDTO
+    | RetireeMechanicDTO
     | ExporterMechanicDTO
     | FreelancerMechanicDTO
     | PublicServantMechanicDTO

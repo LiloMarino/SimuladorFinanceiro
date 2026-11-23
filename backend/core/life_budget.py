@@ -10,6 +10,7 @@ from backend.core.dto.profession import (
     ExporterState,
     FreelancerState,
     MechanicState,
+    RetireeState,
 )
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import IncomeLoss, IndicatorSeries, Profession
@@ -250,6 +251,32 @@ class LifeBudget:
         state = self.current_mechanic_state()
         return state if isinstance(state, FreelancerState) else FreelancerState()
 
+    def converted_income_on(self, day: date) -> Decimal:
+        """
+        A renda vitalícia que o Aposentado converteu da previdência, no dia: cada parcela
+        fica no valor de quando foi convertida, e a sala com correção a sobe pelo IPCA todo
+        mês. Fica fora do imposto, do reajuste e da perda de renda; zero nas demais profissões.
+        """
+        if self.profession is not Profession.RETIREE:
+            return Decimal(0)
+        state = self.current_mechanic_state()
+        if not isinstance(state, RetireeState):
+            return Decimal(0)
+        return cents(
+            sum(
+                (
+                    part.income * self._conversion_factor(part.converted_on, day)
+                    for part in state.conversions
+                ),
+                Decimal(0),
+            )
+        )
+
+    def _conversion_factor(self, converted_on: date, day: date) -> Decimal:
+        if not self.inflation_adjusted:
+            return Decimal(1)
+        return monthly_inflation_factor(converted_on, day)
+
     def reference_price_on(self, day: date) -> Decimal:
         """
         A referência do mercado do Autônomo no dia: a renda base do mês dividida pelos
@@ -375,11 +402,14 @@ class LifeBudget:
         """
         A renda do mês depois do imposto da profissão: o desvio da alíquota em vigor
         contra a da lei corta a renda (alíquota abaixo dela soma). Com `income_lost`, a
-        demissão sorteada tira a parte exposta, se a profissão está exposta a ela.
+        demissão sorteada tira a parte exposta, se a profissão está exposta a ela. A renda
+        vitalícia convertida da previdência soma por fora, sem imposto.
         """
         exposed, protected = self.income_parts(day)
         kept = protected if income_lost and self.rule.loss else exposed + protected
-        return cents(kept * (1 - self.tax_deviation_on(day)))
+        return cents(
+            kept * (1 - self.tax_deviation_on(day))
+        ) + self.converted_income_on(day)
 
     def income_loss(self) -> IncomeLoss | None:
         return None if self.presidency_multiple is not None else self.rule.loss

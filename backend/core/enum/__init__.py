@@ -1503,6 +1503,7 @@ class LockedAssetKind(Enum):
 
     FGTS = "FGTS"
     COMPANY_CAPITAL = "COMPANY_CAPITAL"
+    PENSION = "PENSION"
 
 
 class MechanicStatus(Enum):

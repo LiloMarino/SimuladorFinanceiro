@@ -14284,6 +14284,120 @@
         ]
       }
     },
+    "/api/simulation/convert-pension": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Converter parte da previdência do Aposentado em renda",
+        "description": "Converte parte do saldo da previdência em renda vitalícia: o valor sai do saldo e do patrimônio e passa a render todo mês, para sempre, ao juro real do dia. Responde 409 para o valor fora de R$ 0,01 até o saldo, para o juro real zerado ou negativo e para outra profissão.",
+        "operationId": "convert_pension_api_simulation_convert_pension_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PensionAmountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/redeem-pension": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Resgatar parte da previdência do Aposentado",
+        "description": "Resgata parte do saldo da previdência: o valor sai do saldo e cai no caixa depois do IR regressivo da faixa do tempo no plano (35% até 2 anos, 10% depois de 10). Responde 409 para o valor fora de R$ 0,01 até o saldo e para outra profissão.",
+        "operationId": "redeem_pension_api_simulation_redeem_pension_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PensionAmountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/life-history": {
       "get": {
         "tags": [
@@ -34531,6 +34645,18 @@
           "exit_rule": {
             "type": "string",
             "title": "Exit Rule"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Since"
           }
         },
         "additionalProperties": false,
@@ -34539,7 +34665,8 @@
           "kind",
           "value",
           "networth_pct",
-          "exit_rule"
+          "exit_rule",
+          "since"
         ],
         "title": "LockedAssetDTO",
         "description": "Um patrimônio da profissão que fica fora do caixa, com a regra de saída dele."
@@ -34548,7 +34675,8 @@
         "type": "string",
         "enum": [
           "FGTS",
-          "COMPANY_CAPITAL"
+          "COMPANY_CAPITAL",
+          "PENSION"
         ],
         "title": "LockedAssetKind",
         "description": "O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira."
@@ -38517,6 +38645,26 @@
         "title": "PendingUpdateEventDTO",
         "description": "As pendências do jogador, das graves para as de aviso."
       },
+      "PensionAmountRequest": {
+        "properties": {
+          "amount": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Amount"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount"
+        ],
+        "title": "PensionAmountRequest"
+      },
       "PlaceKind": {
         "type": "string",
         "enum": [
@@ -40996,6 +41144,9 @@
                 "$ref": "#/components/schemas/EntrepreneurMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/RetireeMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/ExporterMechanicDTO"
               },
               {
@@ -41033,7 +41184,8 @@
                 "heir": "#/components/schemas/HeirMechanicDTO",
                 "none": "#/components/schemas/NoMechanicDTO",
                 "offers_banker": "#/components/schemas/OffersBankerMechanicDTO",
-                "public_servant": "#/components/schemas/PublicServantMechanicDTO"
+                "public_servant": "#/components/schemas/PublicServantMechanicDTO",
+                "retiree": "#/components/schemas/RetireeMechanicDTO"
               }
             }
           }
@@ -42506,6 +42658,31 @@
         "title": "RealtimeEventCatalog",
         "description": "Um campo por nome de evento realtime, tipado para o DTO do payload\ncorrespondente. Nunca é instanciado de verdade — só existe para que seu\nschema apareça em `/openapi.json` via a rota dev-only em `routes/realtime.py`."
       },
+      "RedeemBracketDTO": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "rate": {
+            "type": "string",
+            "title": "Rate"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "rate",
+          "current"
+        ],
+        "title": "RedeemBracketDTO",
+        "description": "Uma faixa da tabela do IR regressivo do resgate."
+      },
       "RedeemFixedIncomeRequest": {
         "properties": {
           "amount": {
@@ -42628,6 +42805,149 @@
         ],
         "title": "ReservedPartyDTO",
         "description": "Um partido do computador, cujo nome e sigla ninguém repete, com as bandeiras fixas dele."
+      },
+      "RetireeMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "retiree",
+            "title": "Kind",
+            "default": "retiree"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "balance": {
+            "type": "string",
+            "title": "Balance"
+          },
+          "annual_rate": {
+            "type": "string",
+            "title": "Annual Rate"
+          },
+          "cdi": {
+            "type": "string",
+            "title": "Cdi"
+          },
+          "converted_income": {
+            "type": "string",
+            "title": "Converted Income"
+          },
+          "converted_amount": {
+            "type": "string",
+            "title": "Converted Amount"
+          },
+          "converted_real_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Converted Real Rate"
+          },
+          "real_rate": {
+            "type": "string",
+            "title": "Real Rate"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "expected_ipca": {
+            "type": "string",
+            "title": "Expected Ipca"
+          },
+          "expected_ipca_from_focus": {
+            "type": "boolean",
+            "title": "Expected Ipca From Focus"
+          },
+          "income_rate": {
+            "type": "string",
+            "title": "Income Rate"
+          },
+          "inflation_indexed": {
+            "type": "boolean",
+            "title": "Inflation Indexed"
+          },
+          "redeem_rate": {
+            "type": "string",
+            "title": "Redeem Rate"
+          },
+          "months_in_plan": {
+            "type": "integer",
+            "title": "Months In Plan"
+          },
+          "next_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Rate"
+          },
+          "next_rate_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Rate Months"
+          },
+          "next_rate_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Rate On"
+          },
+          "brackets": {
+            "items": {
+              "$ref": "#/components/schemas/RedeemBracketDTO"
+            },
+            "type": "array",
+            "title": "Brackets"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "balance",
+          "annual_rate",
+          "cdi",
+          "converted_income",
+          "converted_amount",
+          "converted_real_rate",
+          "real_rate",
+          "selic",
+          "expected_ipca",
+          "expected_ipca_from_focus",
+          "income_rate",
+          "inflation_indexed",
+          "redeem_rate",
+          "months_in_plan",
+          "next_rate",
+          "next_rate_months",
+          "next_rate_on",
+          "brackets"
+        ],
+        "title": "RetireeMechanicDTO",
+        "description": "Previdência do Aposentado."
       },
       "ReturnSourcesDTO": {
         "properties": {

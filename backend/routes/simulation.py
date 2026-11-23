@@ -254,6 +254,11 @@ class CapitalSaleRequest(BaseModel):
     share: Decimal
 
 
+class PensionAmountRequest(BaseModel):
+    # O valor do saldo da previdência que a ação usa, em reais
+    amount: Decimal
+
+
 class PlayerProfessionRequest(BaseModel):
     profession: Profession
     # Sigla do partido; obrigatória para o Comissionado e ignorada nas demais profissões
@@ -1284,6 +1289,46 @@ def sell_capital(payload: CapitalSaleRequest, client_id: ClientID):
         raise NotFoundError("Usuário não encontrado.")
     simulation = SimulationManager.get_active_simulation()
     simulation.sell_capital(user, payload.share)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/convert-pension",
+    response_model=ProfessionStateDTO,
+    summary="Converter parte da previdência do Aposentado em renda",
+    description="Converte parte do saldo da previdência em renda vitalícia: o valor sai do saldo e do patrimônio e passa a render todo mês, para sempre, ao juro real do dia. Responde 409 para o valor fora de R$ 0,01 até o saldo, para o juro real zerado ou negativo e para outra profissão.",
+)
+def convert_pension(payload: PensionAmountRequest, client_id: ClientID):
+    """
+    Converte em renda a parte da previdência de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.convert_pension(user, payload.amount)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/redeem-pension",
+    response_model=ProfessionStateDTO,
+    summary="Resgatar parte da previdência do Aposentado",
+    description="Resgata parte do saldo da previdência: o valor sai do saldo e cai no caixa depois do IR regressivo da faixa do tempo no plano (35% até 2 anos, 10% depois de 10). Responde 409 para o valor fora de R$ 0,01 até o saldo e para outra profissão.",
+)
+def redeem_pension(payload: PensionAmountRequest, client_id: ClientID):
+    """
+    Resgata a parte da previdência de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.redeem_pension(user, payload.amount)
     return simulation.get_profession_state(client_id)
 
 

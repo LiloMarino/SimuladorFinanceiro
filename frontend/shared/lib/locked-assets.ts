@@ -6,6 +6,7 @@ type LockedKind = PortfolioState["locked_assets"][number]["kind"];
 const LOCKED_KINDS: Record<LockedKind, { label: string; exit: string }> = {
   FGTS: { label: "FGTS", exit: "só sai na demissão" },
   COMPANY_CAPITAL: { label: "Capital da empresa", exit: "só sai vendendo" },
+  PENSION: { label: "Previdência", exit: "só sai resgatando, com IR" },
 };
 
 /** O nome e a saída do patrimônio travado quando nenhum tipo está em mãos (o histórico guarda só o saldo somado). */

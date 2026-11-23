@@ -4,7 +4,6 @@ from collections.abc import Callable
 from datetime import date, timedelta
 from decimal import Decimal
 
-from backend.core import repository
 from backend.core.copom import SELIC_STEP
 from backend.core.dto.government import (
     ApprovalDTO,
@@ -43,6 +42,7 @@ from backend.core.indicators import (
     annual_index_rate,
     inflation_target,
     inflation_tolerance,
+    recent_focus_rate,
 )
 from backend.features.economy import monetary
 from backend.features.economy.growth import NEUTRAL_REAL_RATE
@@ -280,10 +280,6 @@ def build_government_status(
     )
 
 
-# A pesquisa do Focus mais velha que isto deixa de ser a base do que o mercado espera
-FOCUS_MAX_AGE = timedelta(days=30)
-
-
 def market_expected_selic(book: GovernmentBook, today: date) -> Decimal:
     """
     A SELIC que o mercado espera para a próxima reunião: a base mais o desvio que ele
@@ -291,11 +287,8 @@ def market_expected_selic(book: GovernmentBook, today: date) -> Decimal:
     A base é a mediana do Focus quando a última pesquisa tem até 30 dias; sem ela (antes
     de nov/2004 ou no futuro gerado), é a SELIC da história no dia.
     """
-    focus = repository.economic.get_history(IndicatorSeries.FOCUS_SELIC)
-    survey = focus.last_known_day(today)
-    if survey is not None and today - survey <= FOCUS_MAX_AGE:
-        base = focus.values[survey] / 100
-    else:
+    base = recent_focus_rate(IndicatorSeries.FOCUS_SELIC, today)
+    if base is None:
         base = annual_index_rate(IndicatorSeries.SELIC, today, stored=True)
     points = book.linked().layer.expected_selic_points(today)
     return base + Decimal(str(round(points / 100, 6)))

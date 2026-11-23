@@ -167,7 +167,7 @@ def test_the_retiree_has_no_mechanic_and_only_the_lever_series(monkeypatch):
 
     page = sim.get_profession_page(ana.client_id)
 
-    assert page.mechanic.kind == "none"
+    assert page.mechanic.kind == "retiree"
     assert page.header.layoff_factor is None and page.header.income_loss is None
     assert [s.key for s in page.series] == [IncomeSeriesKey.RETIREE_RAISE]
 

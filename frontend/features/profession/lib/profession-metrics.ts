@@ -249,3 +249,48 @@ export const CAPITAL_SALE: MetricInfo = {
   reading: "Vender protege o capital numa recessão, mas o desconto de 20% é perda certa.",
   format: (value) => displayMoney(value),
 };
+
+export const PENSION_BALANCE: MetricInfo = {
+  label: "Saldo da previdência",
+  description: "Dinheiro travado que rende o CDI menos 1% ao ano",
+  definition:
+    "O saldo entra com 24 vezes a sua renda do mês e rende, todo mês, o CDI menos 1% ao ano (a taxa de administração do plano), sem IR no caminho. Conta no patrimônio, mas só chega ao caixa pelo resgate.",
+  example:
+    "Ex.: renda de R$ 5.000 por mês → saldo inicial de R$ 120.000. Com o CDI a 13,66%, o plano rende 12,66% ao ano, cerca de R$ 1.200 no primeiro mês.",
+  reading:
+    "O IR só aparece no resgate, e esperar mais tempo no plano baixa a alíquota. Converter em renda tira o valor do saldo para sempre.",
+  format: (value) => displayMoney(value),
+};
+
+export const CONVERTED_INCOME: MetricInfo = {
+  label: "Renda já convertida",
+  description: "O que as parcelas convertidas pagam por mês, para sempre",
+  definition:
+    "A soma das rendas que cada parcela convertida paga por mês. Cada parcela fixa o juro real do dia da conversão e nunca mais muda. Não paga IR nem recebe o reajuste dos aposentados; na sala com correção, sobe todo mês pelo IPCA.",
+  example: "Ex.: R$ 20.000 convertidos a 8,1% de juro real pagam R$ 130,81 por mês.",
+  reading:
+    "Quanto maior o juro real no dia de converter, mais renda cada real convertido paga. A conversão não volta: o valor sai do saldo.",
+  format: (value) => displayMoney(value),
+};
+
+export const REAL_RATE: MetricInfo = {
+  label: "Juro real",
+  description: "Quanto a SELIC rende acima da inflação esperada",
+  definition:
+    "O juro que sobra depois de descontar a inflação: (1 + SELIC) ÷ (1 + IPCA esperado) − 1. O IPCA esperado é a última previsão do mercado (Focus) com até 30 dias; sem ela vale o IPCA dos últimos 12 meses.",
+  example: "Ex.: SELIC a 13,76% e IPCA esperado de 5,2% → 1,1376 ÷ 1,052 − 1 = 8,1% ao ano de juro real.",
+  reading:
+    "Quanto maior, mais renda por mês cada real convertido paga. Com o juro real zerado ou negativo não dá para converter.",
+  format: (value) => displayPercent(value, 2),
+};
+
+export const REDEEM_TAX: MetricInfo = {
+  label: "IR regressivo",
+  description: "O IR do resgate cai com o tempo no plano",
+  definition:
+    "O resgate paga IR sobre o valor inteiro, e a alíquota depende de há quanto tempo o saldo está no plano: quanto mais tempo, menor ela é. Converter em renda não paga IR.",
+  example:
+    "Ex.: resgatar R$ 20.000 com 3 anos e 4 meses no plano, na faixa de 30%: R$ 6.000 ficam com a Receita e R$ 14.000 caem no caixa.",
+  reading: "Se a próxima faixa está perto, esperar deixa mais dinheiro no caixa; na faixa de 10% não há o que esperar.",
+  format: (value) => displayPercent(value, 0),
+};

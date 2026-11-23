@@ -220,6 +220,19 @@ def annual_index_rate(
     return annualize_daily(value)
 
 
+# A pesquisa do Focus mais velha que isto deixa de ser o que o mercado espera
+FOCUS_MAX_AGE = timedelta(days=30)
+
+
+def recent_focus_rate(series: IndicatorSeries, on: date) -> Decimal | None:
+    """A mediana do Focus de `series` (0.045 = 4,5% a.a.) quando a última pesquisa até `on` tem até 30 dias; None sem pesquisa recente."""
+    history = repository.economic.get_history(series)
+    survey = history.last_known_day(on)
+    if survey is None or on - survey > FOCUS_MAX_AGE:
+        return None
+    return from_percent(Percent(history.values[survey]))
+
+
 def month_turns(on: date, months: int) -> list[date]:
     """As viradas de mês (o 1º pregão de cada mês) dos `months` meses até o de `on`, da mais recente à mais antiga; a do mês de `on` só entra se já chegou."""
     turns: list[date] = []

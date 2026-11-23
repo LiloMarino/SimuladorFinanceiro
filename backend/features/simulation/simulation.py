@@ -111,6 +111,7 @@ from backend.core.dto.profession import (
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
     CltState,
+    ConvertPension,
     EntrepreneurState,
     ExporterState,
     FreelancerState,
@@ -120,6 +121,8 @@ from backend.core.dto.profession import (
     MechanicState,
     ProfessionPeriodDTO,
     ProfessionStateDTO,
+    RedeemPension,
+    RetireeState,
     SellCapital,
     SetExportMix,
     SetPrice,
@@ -202,8 +205,9 @@ from backend.core.indicators import (
     last_known_rate,
     month_turns,
     monthly_average_rate,
+    recent_focus_rate,
 )
-from backend.core.life_budget import LifeBudget, cents
+from backend.core.life_budget import LifeBudget
 from backend.core.life_events import life_event_label
 from backend.core.locked_assets import LOCKED_EXITS
 from backend.core.metrics import (
@@ -224,6 +228,7 @@ from backend.core.metrics import (
     metrics,
 )
 from backend.core.networth import networth
+from backend.core.pension import months_in_plan, real_rate, redeem_net
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.professions import (
     DOLLAR_WINDOW_DAYS,
@@ -365,7 +370,14 @@ from backend.features.profession.page import (
     no_block,
     offers_banker_block,
     public_servant_block,
+    retiree_block,
 )
+from backend.features.profession.pension import (
+    open_balance,
+    policy_convert_amount,
+    policy_redeem_amount,
+)
+from backend.features.profession.pension import pay_month as pay_pension_month
 from backend.features.profession.policy import policy_action
 from backend.features.profession.profession_book import ProfessionBook
 from backend.features.profession.public_servant import (
@@ -3275,6 +3287,7 @@ class Simulation:
                 if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
                 self._run_capital_month(user, budget, day, profit=salary)
+                self._run_pension_month(user, day)
                 # A parcela do consignado sai do salário que acabou de entrar
                 self._engine.credit_book.collect_payroll(user.client_id, self._speed)
                 self._engine.pay_expense(user.client_id, budget.expense_on(day))
@@ -3423,8 +3436,27 @@ class Simulation:
         return budget.with_party(lambda day: government.is_aligned(party, day))
 
     def _mechanic_state_of(self, user_id: int) -> MechanicState:
-        """O estado da mecânica da profissão que o jogador exerce agora."""
-        return self._profession_book.state_of(user_id, self._profession_of(user_id))
+        """O estado da mecânica da profissão que o jogador exerce agora; o saldo da previdência que ainda não abriu abre na primeira leitura."""
+        profession = self._profession_of(user_id)
+        state = self._profession_book.state_of(user_id, profession)
+        if isinstance(state, RetireeState) and state.balance is None:
+            return self._open_pension(user_id, state)
+        return state
+
+    def _open_pension(self, user_id: int, state: RetireeState) -> RetireeState:
+        """
+        Abre o saldo da previdência em 24 rendas do mês de hoje e o guarda: o tempo no
+        plano conta daqui. A renda vem do orçamento da profissão sem o estado da mecânica,
+        que é o que está sendo aberto.
+        """
+        if self._life is None or not self.settings.uses_professions:
+            return state
+        income = self._life.for_profession(Profession.RETIREE).net_salary_on(
+            self._current_date
+        )
+        opened = open_balance(state, income, self._current_date)
+        self._profession_book.save_state(user_id, opened)
+        return opened
 
     def _with_mechanic(self, budget: LifeBudget, user_id: int) -> LifeBudget:
         """A renda de quem tem mecânica acompanha o estado dela, lido a cada cálculo."""
@@ -3483,6 +3515,21 @@ class Simulation:
                     budget,
                     day,
                     negative_quarters(self._gdp_quarters(day)),
+                )
+            case Profession.RETIREE:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, RetireeState):
+                    return no_block()
+                rate, expected, from_focus = self._pension_real_rate(day)
+                return retiree_block(
+                    state,
+                    budget,
+                    day,
+                    annual_index_rate(IndicatorSeries.CDI, day),
+                    self._selic_on(day),
+                    expected,
+                    from_focus,
+                    rate,
                 )
             case Profession.EXPORTER:
                 state = self._mechanic_state_of(user_id)
@@ -3639,6 +3686,39 @@ class Simulation:
         )
         return self.apply_profession_action(user, SellCapital(share=share), payout)
 
+    def _pension_real_rate(self, day: date) -> tuple[Decimal, Decimal, bool]:
+        """
+        O juro real da previdência no dia, o IPCA esperado de que ele sai e se esse IPCA é
+        o do Focus: a pesquisa de até 30 dias; sem ela vale o IPCA realizado em 12 meses.
+        """
+        expected = recent_focus_rate(IndicatorSeries.FOCUS_IPCA, day)
+        from_focus = expected is not None
+        if expected is None:
+            expected = annual_index_rate(IndicatorSeries.IPCA, day)
+        return real_rate(self._selic_on(day), expected), expected, from_focus
+
+    @synchronized
+    def convert_pension(self, user: UserDTO, amount: Decimal) -> MechanicState:
+        """Converte parte do saldo da previdência do Aposentado em renda vitalícia, ao juro real do dia, pelo mesmo caminho das ações da mecânica."""
+        if self._profession_of(user.id) is not Profession.RETIREE:
+            raise ConflictError("Só o Aposentado converte a previdência em renda.")
+        rate, _, _ = self._pension_real_rate(self._current_date)
+        return self.apply_profession_action(
+            user, ConvertPension(amount=amount, real_rate=rate)
+        )
+
+    @synchronized
+    def redeem_pension(self, user: UserDTO, amount: Decimal) -> MechanicState:
+        """Resgata parte do saldo da previdência do Aposentado: o valor sai do saldo e cai no caixa depois do IR regressivo, na linha do histórico do resgate."""
+        if self._profession_of(user.id) is not Profession.RETIREE:
+            raise ConflictError("Só o Aposentado resgata a previdência.")
+        state = self._mechanic_state_of(user.id)
+        payout = Decimal(0)
+        if isinstance(state, RetireeState) and state.since is not None:
+            months = months_in_plan(state.since, self._current_date)
+            payout = redeem_net(amount, months)
+        return self.apply_profession_action(user, RedeemPension(amount=amount), payout)
+
     @synchronized
     def switch_profession(self, user: UserDTO, profession: Profession) -> None:
         """
@@ -3670,10 +3750,11 @@ class Simulation:
         self._engine.record_profession_switch(user.client_id, profession, payout)
 
     def _locked_exit_payout(self, user: UserDTO) -> Decimal:
-        """O que os patrimônios travados da profissão atual deixam no caixa na troca de profissão: cada saldo pela taxa de saída do tipo."""
+        """O que os patrimônios travados da profissão atual deixam no caixa na troca de profissão: cada saldo pela regra de saída do tipo, no dia da troca."""
+        day = self._current_date
         return sum(
             (
-                cents(asset.value * LOCKED_EXITS[asset.kind].switch_rate)
+                LOCKED_EXITS[asset.kind].payout(asset.value, asset.since, day)
                 for asset in self._mechanic_state_of(user.id).locked_assets
             ),
             Decimal(0),
@@ -3713,6 +3794,7 @@ class Simulation:
             self._run_exporter_policy(user, day, macro)
             self._run_freelancer_policy(user, budgets[user.client_id], day, macro)
             self._run_entrepreneur_policy(user, budgets[user.client_id], day)
+            self._run_retiree_policy(user, day)
 
     def _run_house_cdb_policy(
         self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
@@ -3787,6 +3869,34 @@ class Simulation:
             marked = policy_recession_flag(state, quarters, sold)
             if marked is not state:
                 self._profession_book.save_state(user.id, marked)
+
+    def _run_retiree_policy(self, user: UserDTO, day: date) -> None:
+        """O Aposentado-bot resgata o saldo inteiro na faixa de menor IR e converte metade do saldo uma vez, no primeiro mês com o juro real acima de 6% ao ano, pelas mesmas ações dos jogadores."""
+        if self._profession_of(user.id) is not Profession.RETIREE:
+            return
+        state = self._mechanic_state_of(user.id)
+        if not isinstance(state, RetireeState):
+            return
+        redeem = policy_redeem_amount(state, day)
+        if redeem is not None:
+            self.redeem_pension(user, redeem)
+            return
+        rate, _, _ = self._pension_real_rate(day)
+        convert = policy_convert_amount(state, rate)
+        if convert is not None:
+            self.convert_pension(user, convert)
+
+    def _run_pension_month(self, user: UserDTO, day: date) -> None:
+        """O saldo da previdência no pagamento do mês: rende o CDI menos 1% ao ano, sem IR."""
+        state = (
+            self._mechanic_state_of(user.id) if self.settings.uses_professions else None
+        )
+        if not isinstance(state, RetireeState):
+            return
+        self._profession_book.save_state(
+            user.id,
+            pay_pension_month(state, annual_index_rate(IndicatorSeries.CDI, day)),
+        )
 
     def _run_capital_month(
         self, user: UserDTO, budget: LifeBudget, day: date, profit: Decimal

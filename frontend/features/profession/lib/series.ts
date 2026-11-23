@@ -135,6 +135,8 @@ const PLAYER_ACTIONS = new Set([
   "set_price",
   "set_reinvest_share",
   "sell_capital",
+  "convert_pension",
+  "redeem_pension",
 ]);
 
 export function isPlayerAction(row: LifeHistoryRow) {

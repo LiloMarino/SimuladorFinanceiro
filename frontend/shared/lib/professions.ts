@@ -124,13 +124,18 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     name: "Aposentado",
     icon: Armchair,
     description:
-      "Aposentadoria: nunca é demitido, o reajuste acima da inflação depende do governo da sala e a saúde custa o dobro.",
+      "Aposentadoria: nunca é demitido, o reajuste acima da inflação depende do governo da sala e a saúde custa o dobro. A previdência rende o CDI menos 1% e vira renda vitalícia ou é resgatada com IR regressivo.",
     incomeMultiple: 0.95,
     gains: [
       { text: "Nunca é demitido" },
       { text: "Aumento acima da inflação quando o governo dá aos aposentados", requires: GOVERNMENT_RAISE },
+      { text: "Previdência que rende o CDI menos 1% e vira renda para sempre" },
     ],
-    losses: [{ text: "Ganha 5% menos que o CLT" }, { text: "Despesa de saúde custa o dobro" }],
+    losses: [
+      { text: "Ganha 5% menos que o CLT" },
+      { text: "Despesa de saúde custa o dobro" },
+      { text: "Resgatar a previdência paga IR de 35% a 10%, pelo tempo no plano" },
+    ],
     tags: [
       { key: "retireeRaise", requires: GOVERNMENT_RAISE },
       { key: "personalTax", requires: GOVERNMENT },

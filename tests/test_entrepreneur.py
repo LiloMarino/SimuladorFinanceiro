@@ -320,7 +320,7 @@ def test_the_switch_turns_the_whole_capital_into_cash_with_the_discount(monkeypa
     save(sim, ana, capital=Decimal(38000))
     cash = sim.get_cash(ana.client_id)
 
-    sim.switch_profession(ana, Profession.RETIREE)
+    sim.switch_profession(ana, Profession.WELFARE)
 
     assert sim.get_cash(ana.client_id) == cash + Decimal(30400)
     assert sim.get_portfolio(ana.client_id).locked_value == 0
@@ -328,7 +328,7 @@ def test_the_switch_turns_the_whole_capital_into_cash_with_the_discount(monkeypa
         r
         for r in life_history(sim, ana.client_id)
         if r.kind is LifeHistoryKind.PROFESSION_SWITCHED
-        and r.life_event_key == Profession.RETIREE.value
+        and r.life_event_key == Profession.WELFARE.value
     ]
     assert row.amount == 30400
 
@@ -339,7 +339,7 @@ def test_the_switch_turns_the_whole_fgts_into_cash_without_the_fine(monkeypatch)
     sim._profession_book.save_state(ana.id, CltState(fgts_balance=Decimal(10000)))
     cash = sim.get_cash(ana.client_id)
 
-    sim.switch_profession(ana, Profession.RETIREE)
+    sim.switch_profession(ana, Profession.WELFARE)
 
     assert sim.get_cash(ana.client_id) == cash + Decimal(10000)
     assert sim.get_portfolio(ana.client_id).locked_value == 0
@@ -352,8 +352,11 @@ def test_the_switch_turns_the_whole_fgts_into_cash_without_the_fine(monkeypatch)
 
 
 def test_the_exit_rate_lives_with_the_kind_of_the_locked_asset():
-    assert LOCKED_EXITS[LockedAssetKind.FGTS].switch_rate == 1
-    assert LOCKED_EXITS[LockedAssetKind.COMPANY_CAPITAL].switch_rate == Decimal("0.8")
+    day = date(2020, 1, 1)
+    assert LOCKED_EXITS[LockedAssetKind.FGTS].payout(Decimal(100), None, day) == 100
+    assert LOCKED_EXITS[LockedAssetKind.COMPANY_CAPITAL].payout(
+        Decimal(100), None, day
+    ) == Decimal(80)
     assert set(LOCKED_EXITS) == set(LockedAssetKind)
 
 
@@ -361,7 +364,7 @@ def test_the_switch_without_locked_assets_pays_nothing(monkeypatch):
     sim, ana = entrepreneur(monkeypatch)
     cash = sim.get_cash(ana.client_id)
 
-    sim.switch_profession(ana, Profession.RETIREE)
+    sim.switch_profession(ana, Profession.WELFARE)
 
     assert sim.get_cash(ana.client_id) == cash
 

@@ -378,6 +378,7 @@ export type ExchangeLockRequest = components["schemas"]["ExchangeLockRequest"];
 export type ExportMixRequest = components["schemas"]["ExportMixRequest"];
 export type ReinvestShareRequest = components["schemas"]["ReinvestShareRequest"];
 export type CapitalSaleRequest = components["schemas"]["CapitalSaleRequest"];
+export type PensionAmountRequest = components["schemas"]["PensionAmountRequest"];
 export type FreelancerPriceRequest = components["schemas"]["FreelancerPriceRequest"];
 export type MechanicStatus = components["schemas"]["MechanicStatus"];
 export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];

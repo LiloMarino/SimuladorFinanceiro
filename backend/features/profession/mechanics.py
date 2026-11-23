@@ -14,6 +14,7 @@ from backend.core.dto.profession import (
     FreelancerAction,
     MechanicAction,
     MechanicState,
+    RetireeAction,
     SetOvertime,
 )
 from backend.core.enum import Profession
@@ -23,6 +24,7 @@ from backend.features.profession.clt import set_overtime
 from backend.features.profession.entrepreneur import apply_entrepreneur
 from backend.features.profession.exporter import apply_exporter
 from backend.features.profession.freelancer import apply_freelancer
+from backend.features.profession.pension import apply_retiree
 
 
 @dataclass(frozen=True)
@@ -39,6 +41,7 @@ MECHANICS: dict[Profession, Mechanic] = {
     Profession.ENTREPRENEUR: Mechanic(EntrepreneurAction, apply_entrepreneur),
     Profession.EXPORTER: Mechanic(ExporterAction, apply_exporter),
     Profession.FREELANCER: Mechanic(FreelancerAction, apply_freelancer),
+    Profession.RETIREE: Mechanic(RetireeAction, apply_retiree),
 }
 
 

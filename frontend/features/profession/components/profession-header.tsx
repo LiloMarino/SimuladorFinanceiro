@@ -12,6 +12,7 @@ import { HEALTH_COST, LAYOFF_CHANCE, REAL_RAISE } from "../lib/profession-metric
 const MECHANIC_INCOME_NAMES: Partial<Record<ProfessionPage["profession"], string>> = {
   CLT: "hora extra",
   OFFERS_BANKER: "comissão",
+  RETIREE: "renda vitalícia",
 };
 
 // O que explica a renda quando a profissão não sobe pelo IPCA

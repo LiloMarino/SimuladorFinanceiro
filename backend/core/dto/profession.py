@@ -21,6 +21,8 @@ class LockedAssetDTO(BaseDTO):
     # A fração do patrimônio que este saldo é; o motor preenche ao montar a carteira
     networth_pct: Decimal = Decimal(0)
     exit_rule: str
+    # Desde quando o saldo está travado; só o tipo cuja saída conta o tempo preenche
+    since: date | None = None
 
 
 class MechanicState(BaseDTO):
@@ -132,6 +134,37 @@ class EntrepreneurState(MechanicState):
         ]
 
 
+class PensionConversion(BaseDTO):
+    """Uma parcela convertida em renda vitalícia: o dia, o valor que saiu do saldo, o juro real do dia e a renda mensal que ela rende."""
+
+    converted_on: date
+    amount: Decimal
+    real_rate: Decimal
+    # A renda do mês em reais do dia da conversão; a sala com correção a sobe pelo IPCA
+    income: Decimal
+
+
+class RetireeState(MechanicState):
+    """O estado do Aposentado: o saldo da previdência, desde quando está no plano e as parcelas convertidas em renda."""
+
+    # Nulo é o saldo que a partida ainda não abriu: a primeira leitura o fixa em 24 rendas do mês
+    balance: Decimal | None = None
+    # O dia em que o saldo abriu; o tempo no plano conta daqui
+    since: date | None = None
+    conversions: list[PensionConversion] = Field(default_factory=list)
+
+    @property
+    def locked_assets(self) -> list[LockedAssetDTO]:
+        return [
+            LockedAssetDTO(
+                kind=LockedAssetKind.PENSION,
+                value=self.balance or Decimal(0),
+                since=self.since,
+                exit_rule=LOCKED_EXITS[LockedAssetKind.PENSION].rule,
+            )
+        ]
+
+
 class MechanicAction(BaseDTO):
     """Uma ação do jogador (ou da política do bot) sobre a mecânica; `kind` é o nome dela no histórico da vida."""
 
@@ -220,6 +253,30 @@ class SellCapital(EntrepreneurAction):
     share: Decimal
 
 
+# O nome dos lançamentos do Aposentado no histórico da vida
+CONVERT_PENSION = "convert_pension"
+REDEEM_PENSION = "redeem_pension"
+
+
+class RetireeAction(MechanicAction):
+    """Uma ação do Aposentado; é o tipo que a mecânica aceita."""
+
+
+class ConvertPension(RetireeAction):
+    """Converte `amount` do saldo em renda vitalícia; `real_rate` é o juro real do servidor no dia da ação."""
+
+    kind: str = Field(default=CONVERT_PENSION, pattern=rf"^{CONVERT_PENSION}$")
+    amount: Decimal
+    real_rate: Decimal
+
+
+class RedeemPension(RetireeAction):
+    """Resgata `amount` do saldo para o caixa, com o IR regressivo da faixa do tempo no plano."""
+
+    kind: str = Field(default=REDEEM_PENSION, pattern=rf"^{REDEEM_PENSION}$")
+    amount: Decimal
+
+
 class ProfessionPeriodDTO(BaseDTO):
     """A profissão que o jogador exerce a partir de `start`, até o início do período seguinte."""
 
@@ -240,6 +297,7 @@ STATE_TYPES: dict[Profession, type[MechanicState]] = {
     Profession.ENTREPRENEUR: EntrepreneurState,
     Profession.EXPORTER: ExporterState,
     Profession.FREELANCER: FreelancerState,
+    Profession.RETIREE: RetireeState,
 }
 
 

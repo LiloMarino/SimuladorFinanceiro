@@ -22,7 +22,7 @@ describe("allocationRows", () => {
 
   it("cria uma linha por patrimônio travado, com a regra de saída", () => {
     const rows = allocationRows(
-      portfolio([{ kind: "FGTS", value: "250", networth_pct: "0.25", exit_rule: "Sai na demissão" }]),
+      portfolio([{ kind: "FGTS", value: "250", networth_pct: "0.25", exit_rule: "Sai na demissão", since: null }]),
     );
     expect(rows.at(-1)).toMatchObject({
       label: "FGTS",
@@ -36,7 +36,13 @@ describe("allocationRows", () => {
   it("dá a cada tipo travado o nome do tipo", () => {
     const rows = allocationRows(
       portfolio([
-        { kind: "COMPANY_CAPITAL", value: "300", networth_pct: "0.3", exit_rule: "Só vira caixa vendendo uma parte" },
+        {
+          kind: "COMPANY_CAPITAL",
+          value: "300",
+          networth_pct: "0.3",
+          exit_rule: "Só vira caixa vendendo uma parte",
+          since: null,
+        },
       ]),
     );
     expect(rows.at(-1)?.label).toBe("Capital da empresa");
