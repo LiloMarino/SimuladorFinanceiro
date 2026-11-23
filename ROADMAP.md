@@ -95,10 +95,9 @@
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | Alto | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (34 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (35 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -136,6 +135,7 @@
 | [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | M29 · 4.3 | — | — | — | ✅ |
+| [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | — | — | ✅ |
 
 </details>
 
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 12/26 concluídos
+> **Progresso:** 13/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -166,7 +166,7 @@
 | 9 | [**F322**](#f322) | Feature | FGTS e hora extra do CLT | — | ✅ Concluído |
 | 10 | [**F323**](#f323) | Feature | Consignado do Servidor | — | ✅ Concluído |
 | 11 | [**F324**](#f324) | Feature | CDB da casa do Bancário | — | ✅ Concluído |
-| 12 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | [F315](#f315), [F322](#f322), [F323](#f323), [F324](#f324) | ⏳ Pendente |
+| 12 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | — | ✅ Concluído |
 | 13 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | [F315](#f315) | ⏳ Pendente |
 | 14 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | [F315](#f315) | ⏳ Pendente |
 | 15 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | [F315](#f315) | ⏳ Pendente |
@@ -275,7 +275,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 · 12º | 0 | Alto | Bom | ⏳ |
 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 · 13º | 1 | Médio | Bom | ⏳ |
 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 · 14º | 1 | Médio | Bom | ⏳ |
 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | M29 · 4.3 · 15º | 1 | Médio | Bom | ⏳ |
@@ -360,7 +359,6 @@
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
 | **F336** | Feature | Ordem stop e validade na boleta | N43 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
 | **F338** | Performance | Dia da partida mais rápido com gestoras e bots | N40 | — | M29 · 4.3 | — | Médio | Médio | Bom | Bom |
-| **F340** | Feature | Página Profissão e os blocos das mecânicas | N39 | D23 | M29 · 4.3 | [F315](#f315), [F322](#f322), [F323](#f323), [F324](#f324) | Alto | Médio | Alto | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -601,11 +599,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f338"></a>
 **F338 — Dia da partida mais rápido com gestoras e bots.** Do playtest de 20/11 e da medição pela CLI. Na partida com gestoras e bots (salva 10 do banco de teste, 200 dias a 100x), um dia leva 0,34 s na metade dos casos, 0,95 s em 95% deles (as viradas de mês) e chega a 1,5 s. A 100x o jogo entrega cerca de 1 dia por segundo, e toda leitura e ação do jogador espera o dia em andamento, porque o loop segura a trava da partida o dia inteiro. Ceder a vez entre um dia e outro foi medido e descartado: só baixa os picos. Medir com o modo debug (`backend/core/metrics.py`, `GET /api/debug/metrics`) onde o dia gasta o tempo, por etapa (gestoras, bots, estratégias, idas ao banco), comparar com uma partida sem gestoras e otimizar o que pesa mais. O alvo sai da medição; a régua é a 100x passar de 1 dia por segundo nessa partida. O script da medição de espera e de duração do dia está em `.claude/trabalho/medicao-dia/`.
 
-<a id="f340"></a>
-**F340 — Página Profissão e os blocos das mecânicas.** Serve N39; segue a D23. Implementada a partir dos boards do canvas, desenhados numa sessão de criação antes do card. A página Profissão fica no grupo Você, ao lado de Meta, só no modo profissões (`frontend/features/profession/pages/profession.tsx`, item em `App.tsx`): o card da profissão (o `ProfessionBadge` e as `ProfessionTags` que hoje moram no card de vida da Meta), as séries que movem a renda (gráfico curto do indicador da profissão), o histórico de uso e o molde do bloco da mecânica. Entram os blocos das mecânicas que já têm motor: o do CLT (saldo do FGTS e o botão da hora extra), o do Servidor (consignado) e o do Bancário (CDB da casa), mais o cartão do Consignado com o selo "da sua profissão" na tela Crédito. As mecânicas seguintes chegam com o board pronto e fazem o motor e o bloco no próprio card.
-
-**Aceite:** a página mostra o card e as séries para toda profissão; os três blocos e o cartão do Consignado seguem os boards; `pnpm run check` verde.
-
 ---
 
 ## 🔍 Em avaliação
@@ -700,6 +693,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F324** | Feature | CDB da casa do Bancário | N39 | D23 | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
+| **F340** | Feature | Página Profissão e os blocos das mecânicas | N39 | D23 | M29 · 4.3 |
 
 <a id="f315"></a>
 **F315 — Base das mecânicas de profissão.** Serve N39; segue a D23. A fundação onde cada profissão pendura a mecânica dela, só no motor: a página Profissão e os blocos das mecânicas moram no card "Página Profissão e os blocos das mecânicas", desenhados antes no canvas.
@@ -766,6 +760,11 @@ Decidido:
 
 <a id="f339"></a>
 **F339 — Partida com gestora incorporada volta a carregar.** Achado na cópia das salvas do usuário: a partida de id 14 quebra no primeiro dia depois de recarregada, com `KeyError: 'BBMM11'` em `income_tax.category` (`assess`, chamado por `SimulationEngine._assess`). A gestora Banco Master (fundo 6, cota BBMM11) foi incorporada numa fusão em 14/12/2028 (`merged_into_fund_id` 5, 0 cotas). Ao carregar, a cota incorporada fica fora de `engine.stocks`, mas as compras e vendas dela continuam nos eventos de renda variável dos portfólios, e o IR monta `asset_classes` só a partir de `engine.stocks`. A cota incorporada segue conhecida pela classe dela (`stock.asset_class` = FUND) em todo lugar que lê o histórico: IR, extrato, carteira e relatórios. Achar onde o carregamento a deixa de fora e conferir os outros leitores do histórico. Teste: fundir duas gestoras, salvar, recarregar e rodar um dia com o IR apurado.
+
+<a id="f340"></a>
+**F340 — Página Profissão e os blocos das mecânicas.** Serve N39; segue a D23. Implementada a partir dos boards do canvas, desenhados numa sessão de criação antes do card. A página Profissão fica no grupo Você, ao lado de Meta, só no modo profissões (`frontend/features/profession/pages/profession.tsx`, item em `App.tsx`): o card da profissão (o `ProfessionBadge` e as `ProfessionTags` que hoje moram no card de vida da Meta), as séries que movem a renda (gráfico curto do indicador da profissão), o histórico de uso e o molde do bloco da mecânica. Entram os blocos das mecânicas que já têm motor: o do CLT (saldo do FGTS e o botão da hora extra), o do Servidor (consignado) e o do Bancário (CDB da casa), mais o cartão do Consignado com o selo "da sua profissão" na tela Crédito. As mecânicas seguintes chegam com o board pronto e fazem o motor e o bloco no próprio card.
+
+**Aceite:** a página mostra o card e as séries para toda profissão; os três blocos e o cartão do Consignado seguem os boards; `pnpm run check` verde.
 
 ---
 
