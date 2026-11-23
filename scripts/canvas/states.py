@@ -3223,8 +3223,28 @@ def profession_banker(page: Page) -> None:
     expect(page.get_by_text("CDB da casa", exact=False).first).to_be_visible()
 
 
+def profession_exporter(page: Page) -> None:
+    """Profissão de um Exportador no primeiro mês: sem trava, com os dois prazos e o mix inicial de 100% exportado."""
+    profession_page(page, "EXPORTER")
+    expect(page.get_by_text("trava de câmbio e mix").first).to_be_visible()
+
+
+def profession_exporter_lock(page: Page) -> None:
+    """Profissão de um Exportador com a trava de 50% da receita por 12 meses contratada pela API."""
+    page_with_profession(page, "EXPORTER", "/profession")
+    api_send(
+        page, "POST", "/api/simulation/exchange-lock", {"share": "0.5", "months": 12}
+    )
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Trava ativa").first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
+    "profissao/exportador": profession_exporter,
+    "profissao/exportador-trava": profession_exporter_lock,
     "profissao/servidor": profession_public_servant,
     "profissao/bancario": profession_banker,
     "meta/clt": goal_clt,
