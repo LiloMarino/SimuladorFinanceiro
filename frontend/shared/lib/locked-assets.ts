@@ -7,6 +7,7 @@ const LOCKED_KINDS: Record<LockedKind, { label: string; exit: string }> = {
   FGTS: { label: "FGTS", exit: "só sai na demissão" },
   COMPANY_CAPITAL: { label: "Capital da empresa", exit: "só sai vendendo" },
   PENSION: { label: "Previdência", exit: "só sai resgatando, com IR" },
+  WELFARE_SAVINGS: { label: "Pé-de-Meia", exit: "libera a cada 2 anos" },
 };
 
 /** O nome e a saída do patrimônio travado quando nenhum tipo está em mãos (o histórico guarda só o saldo somado). */

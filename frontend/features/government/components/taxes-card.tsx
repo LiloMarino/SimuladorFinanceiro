@@ -4,9 +4,10 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import type { Budget, GovernmentPanel, MeasureKind } from "@/types";
+import { displayMonthYear } from "@/shared/lib/utils/display";
 import { useToday } from "../hooks/useToday";
 import { shareLabel, signedShareLabel } from "../lib/budget";
-import { generalLabel, generalToday, isGeneral, measureTarget, monthYear, sectorEffect } from "../lib/government";
+import { generalLabel, generalToday, isGeneral, measureTarget, sectorEffect } from "../lib/government";
 import { REVENUE, TAX_PRICE, type TaxPrice } from "../lib/government-metrics";
 import { MeasureAction } from "./measure-action";
 import { PromisedBadge } from "./promised-badge";
@@ -157,7 +158,7 @@ export function TaxesCard({ panel, budget, onPropose }: TaxesCardProps) {
                       {waiting
                         ? "aprovada, esperando"
                         : measure.effective
-                          ? `desde ${monthYear(measure.effective)}`
+                          ? `desde ${displayMonthYear(measure.effective)}`
                           : ""}
                     </TableCell>
                   </TableRow>

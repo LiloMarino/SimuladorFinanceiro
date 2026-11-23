@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Info } from "lucide-react";
 import { MetricHint } from "@/shared/components/metric-hint";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
@@ -18,7 +17,7 @@ import {
 } from "../lib/pension";
 import { CONVERTED_INCOME, PENSION_BALANCE, REAL_RATE, REDEEM_TAX } from "../lib/profession-metrics";
 import { FigureCard } from "./figure-card";
-import { BlockPanel, MechanicBlock } from "./mechanic-block";
+import { BlockBand, BlockNote, BlockPanel, MechanicBlock } from "./mechanic-block";
 import { PROFESSION_HISTORY_ID } from "./profession-history";
 import { RedeemPensionDialog } from "./redeem-pension-dialog";
 
@@ -115,7 +114,7 @@ function PensionActions({ mechanic }: RetireeBlockProps) {
   return (
     <>
       {/* Valor */}
-      <div className="border-y bg-subtle px-5 py-3">
+      <BlockBand>
         <Field data-invalid={overBalance}>
           <FieldLabel htmlFor="pension-amount">Valor</FieldLabel>
           <Input
@@ -132,7 +131,7 @@ function PensionActions({ mechanic }: RetireeBlockProps) {
             <FieldDescription>De R$ 0,01 até o saldo, {displayMoney(balance)}.</FieldDescription>
           )}
         </Field>
-      </div>
+      </BlockBand>
 
       <div className="grid gap-3 md:grid-cols-2">
         {/* Converter em renda */}
@@ -183,24 +182,18 @@ function PensionActions({ mechanic }: RetireeBlockProps) {
 
       {/* A próxima faixa e o aviso da conversão */}
       {wait && (
-        <p className="flex items-start gap-2 text-[13px] text-muted-foreground">
-          <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-          <span>
-            <b className="font-bold text-foreground">
-              Em {monthsText(wait.months)} o IR cai para {displayPercent(wait.rate, 0)}
-            </b>
-            : o mesmo resgate daria {displayMoney(wait.laterNet)} líquidos.
-          </span>
-        </p>
+        <BlockNote>
+          <b className="font-bold text-foreground">
+            Em {monthsText(wait.months)} o IR cai para {displayPercent(wait.rate, 0)}
+          </b>
+          : o mesmo resgate daria {displayMoney(wait.laterNet)} líquidos.
+        </BlockNote>
       )}
-      <p className="flex items-start gap-2 text-[13px] text-muted-foreground">
-        <Info className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-        <span>
-          Converter é para sempre: o valor convertido sai do saldo e não volta. A renda fica no juro real do dia da
-          conversão{mechanic.inflation_indexed ? " e sobe todo mês pelo IPCA" : ""}, sem IR e sem o reajuste dos
-          aposentados.
-        </span>
-      </p>
+      <BlockNote>
+        Converter é para sempre: o valor convertido sai do saldo e não volta. A renda fica no juro real do dia da
+        conversão{mechanic.inflation_indexed ? " e sobe todo mês pelo IPCA" : ""}, sem IR e sem o reajuste dos
+        aposentados.
+      </BlockNote>
 
       <RedeemPensionDialog
         key={amount}

@@ -815,6 +815,12 @@ class SimulationEngine:
             total_locked=self.locked_value(client_id),
         )
 
+    def liquid_wealth(self, client_id: UUID) -> Decimal:
+        """O caixa mais a renda fixa e o Tesouro a preço de mercado: o patrimônio de quem sobra no mês, sem ações e sem conta travada."""
+        with self._lock:
+            fixed = list(self.fixed_broker.get_fixed_positions(client_id).values())
+            return self._cash[client_id] + self.fixed_market_value(fixed)
+
     _locked_assets_source: Callable[[UUID], list[LockedAssetDTO]] | None = None
 
     def use_locked_assets(self, source: Callable[[UUID], list[LockedAssetDTO]]) -> None:

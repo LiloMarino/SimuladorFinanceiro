@@ -241,6 +241,11 @@ export function displayMonthShort(isoDate: string) {
   return new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(parseLocalDate(isoDate)).replace(".", "");
 }
 
+/** "2014-01-02" → "jan 2014", o mês e o ano de uma data. */
+export function displayMonthYear(isoDate: string) {
+  return `${displayMonthShort(isoDate)} ${parseLocalDate(isoDate).getFullYear()}`;
+}
+
 /** ["Ana", "Bia", "Lilo"] → "Ana, Bia e Lilo". */
 export function displayList(items: string[]) {
   return new Intl.ListFormat("pt-BR", { style: "long", type: "conjunction" }).format(items);

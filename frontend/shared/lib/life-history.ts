@@ -67,6 +67,9 @@ const PROFESSION_ACTION_TEXTS: Record<string, string> = {
   sell_capital: "Vendeu parte da empresa",
   convert_pension: "Converteu parte da previdência",
   redeem_pension: "Resgatou parte da previdência",
+  enroll_course: "Matriculou-se no curso técnico",
+  savings_released: "O Pé-de-Meia liberou o saldo",
+  savings_postponed: "A liberação do Pé-de-Meia pulou para a data seguinte",
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia

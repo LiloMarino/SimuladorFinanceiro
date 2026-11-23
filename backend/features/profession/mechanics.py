@@ -16,6 +16,7 @@ from backend.core.dto.profession import (
     MechanicState,
     RetireeAction,
     SetOvertime,
+    WelfareAction,
 )
 from backend.core.enum import Profession
 from backend.core.exceptions.http_exceptions import ConflictError
@@ -25,6 +26,7 @@ from backend.features.profession.entrepreneur import apply_entrepreneur
 from backend.features.profession.exporter import apply_exporter
 from backend.features.profession.freelancer import apply_freelancer
 from backend.features.profession.pension import apply_retiree
+from backend.features.profession.welfare import apply_welfare
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,7 @@ MECHANICS: dict[Profession, Mechanic] = {
     Profession.EXPORTER: Mechanic(ExporterAction, apply_exporter),
     Profession.FREELANCER: Mechanic(FreelancerAction, apply_freelancer),
     Profession.RETIREE: Mechanic(RetireeAction, apply_retiree),
+    Profession.WELFARE: Mechanic(WelfareAction, apply_welfare),
 }
 
 

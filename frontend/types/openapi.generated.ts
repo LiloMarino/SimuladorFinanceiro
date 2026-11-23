@@ -4676,6 +4676,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/enroll-course": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Matricular o Auxílio no curso técnico
+         * @description Matricula quem vive do Auxílio no curso técnico de 12 meses: a renda do bico cai pela metade e o benefício fica inteiro. Na virada do mês em que o curso conclui, o jogador vira CLT, perde a tarifa social e o benefício, e o saldo do Pé-de-Meia cai inteiro no caixa. Responde 409 para quem já está matriculado e para outra profissão.
+         */
+        post: operations["enroll_course_api_simulation_enroll_course_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/life-history": {
         parameters: {
             query?: never;
@@ -11623,7 +11643,7 @@ export interface components {
          * @description O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira.
          * @enum {string}
          */
-        LockedAssetKind: "FGTS" | "COMPANY_CAPITAL" | "PENSION";
+        LockedAssetKind: "FGTS" | "COMPANY_CAPITAL" | "PENSION" | "WELFARE_SAVINGS";
         /** @enum {string} */
         LogFilter: "all" | "orders" | "modes";
         /** MacdSeriesDTO */
@@ -13806,7 +13826,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -17525,6 +17545,57 @@ export interface components {
          * @enum {string}
          */
         VoterValue: "FREE_MARKET" | "SOCIAL_JUSTICE" | "STABILITY" | "DEVELOPMENT" | "SAVER_PROTECTION" | "PUBLIC_SERVICE";
+        /**
+         * WelfareMechanicDTO
+         * @description Pé-de-Meia, tarifa social e curso técnico do Auxílio.
+         */
+        WelfareMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "welfare";
+            status: components["schemas"]["MechanicStatus"];
+            /** Balance */
+            balance: string;
+            /**
+             * Next Release On
+             * Format: date
+             */
+            next_release_on: string;
+            /** Cash Was Negative */
+            cash_was_negative: boolean;
+            /** Deposit */
+            deposit: string;
+            /** Surplus */
+            surplus: string;
+            /** Deposit Rate */
+            deposit_rate: string;
+            /** Deposit Cap */
+            deposit_cap: string;
+            /** Deposit Factor */
+            deposit_factor: string;
+            /** Full Expense */
+            full_expense: string;
+            /** Paid Expense */
+            paid_expense: string;
+            /** Discount */
+            discount: string;
+            /** Gig Income */
+            gig_income: string;
+            /** Gig Income In Course */
+            gig_income_in_course: string;
+            /** Clt Salary */
+            clt_salary: string;
+            /** In Course */
+            in_course: boolean;
+            /** Course Months */
+            course_months: number;
+            /** Course Months Done */
+            course_months_done: number | null;
+            /** Course Ends On */
+            course_ends_on: string | null;
+        };
         /** YearMonthDTO */
         YearMonthDTO: {
             /**
@@ -27850,6 +27921,44 @@ export interface operations {
                 "application/json": components["schemas"]["PensionAmountRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    enroll_course_api_simulation_enroll_course_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

@@ -48,4 +48,8 @@ LOCKED_EXITS: dict[LockedAssetKind, LockedExit] = {
         rule="Resgatar paga o IR regressivo pelo tempo no plano (35% a 10%).",
         payout=pension_payout,
     ),
+    LockedAssetKind.WELFARE_SAVINGS: LockedExit(
+        rule="Libera a cada 2 anos, se o caixa não ficou negativo no período.",
+        payout=fixed_share(Decimal(1)),
+    ),
 }

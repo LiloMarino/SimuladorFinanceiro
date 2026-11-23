@@ -200,6 +200,9 @@ class ProfessionRule:
     benefit_multiple: Decimal = Decimal(0)
     # Quantas vezes o imprevisto de saúde pesa para esta profissão
     health_multiple: Decimal = Decimal(1)
+    # A fração que a tarifa social tira da despesa paga todo mês; a meta e os imprevistos
+    # ficam pela despesa cheia
+    expense_discount: Decimal = Decimal(0)
 
 
 PROFESSIONS: dict[Profession, ProfessionRule] = {
@@ -230,6 +233,7 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         tax=TaxBase.CONSUMPTION,
         loss=IncomeLoss.GIG_LOSS,
         benefit_multiple=Decimal("0.45"),
+        expense_discount=Decimal("0.15"),
     ),
     Profession.LANDLORD: ProfessionRule(
         income_multiple=Decimal("1.1"),

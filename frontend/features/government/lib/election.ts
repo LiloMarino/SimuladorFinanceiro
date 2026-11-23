@@ -1,21 +1,16 @@
 import { addMonths, differenceInCalendarDays, differenceInCalendarMonths } from "date-fns";
-import { displayMonthShort, displayShortDate, parseLocalDate } from "@/shared/lib/utils/display";
+import { displayMonthYear, displayShortDate, parseLocalDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionPhase } from "@/types";
 
 /** Os diálogos da página da eleição que um atalho de fora (as pendências, o diálogo da campanha) abre ao chegar. */
 export type ElectionShortcut = "found" | "join" | "contribution" | "vice" | "campaign" | "federation-answer";
 
-/** "out 2020": o mês e o ano de uma data. */
-export function monthYear(isoDate: string) {
-  return `${displayMonthShort(isoDate)} ${isoDate.slice(0, 4)}`;
-}
-
 /** O prazo de filiação de quem quer concorrer nesta eleição; depois dele, a filiação vale para a seguinte. */
 export function affiliationNote(panel: ElectionPanel) {
   const { affiliation_deadline: deadline, first_round: firstRound } = panel.dates;
   return panel.today <= deadline
-    ? `Para concorrer em ${monthYear(firstRound)}, filie-se até ${displayShortDate(deadline)}.`
-    : `Quem se filia agora concorre na eleição seguinte: o prazo para ${monthYear(firstRound)} fechou em ${displayShortDate(deadline)}.`;
+    ? `Para concorrer em ${displayMonthYear(firstRound)}, filie-se até ${displayShortDate(deadline)}.`
+    : `Quem se filia agora concorre na eleição seguinte: o prazo para ${displayMonthYear(firstRound)} fechou em ${displayShortDate(deadline)}.`;
 }
 
 /** A contribuição se cobra só com a campanha aberta; antes dela, a frase diz quando começa. */

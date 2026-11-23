@@ -4,11 +4,17 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { ExpansionEmblem } from "@/shared/components/expansion-emblem";
 import { cn } from "@/shared/lib/utils";
-import { displayList, displayMoneyWhole, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
+import {
+  displayList,
+  displayMoneyWhole,
+  displayMonthYear,
+  displayPercent,
+  displayShortDate,
+} from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionPhase } from "@/types";
 import { useToday } from "../hooks/useToday";
 import { federationOf } from "../lib/federation";
-import { affiliationNote, countdownLabel, monthYear, phaseLabel } from "../lib/election";
+import { affiliationNote, countdownLabel, phaseLabel } from "../lib/election";
 import { PartyMark } from "@/shared/components/party-mark";
 import { CountryStrip } from "./country-strip";
 
@@ -115,7 +121,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
   const steps = [
     {
       title: "Campanha",
-      date: `${monthYear(dates.campaign_start)} → ${monthYear(dates.ticket_deadline)}`,
+      date: `${displayMonthYear(dates.campaign_start)} → ${displayMonthYear(dates.ticket_deadline)}`,
       note: "Chapas, ações e cobrança da verba abertas",
     },
     { title: "1º turno", date: displayShortDate(dates.first_round), note: "Mais de 50% dos votos válidos leva" },
@@ -138,7 +144,7 @@ export function ElectionHeader({ panel, onJoin, onFound }: ElectionHeaderProps) 
             <ExpansionEmblem expansion="government" size="lg" />
             <div className="grid min-w-64 flex-1 gap-1">
               <div className="flex flex-wrap items-center gap-2.5">
-                <b className="text-xl">Eleição de {monthYear(dates.first_round)}</b>
+                <b className="text-xl">Eleição de {displayMonthYear(dates.first_round)}</b>
                 <Badge variant="secondary">{phaseLabel(phase)}</Badge>
                 {!choosing && badge && (
                   <Badge variant="info">

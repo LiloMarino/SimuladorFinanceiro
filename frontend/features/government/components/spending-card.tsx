@@ -5,11 +5,10 @@ import { MetricHint } from "@/shared/components/metric-hint";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { inflationTone, PHASE_SHORT, signedIpca } from "@/shared/lib/effects";
-import { displayMoneyLarge } from "@/shared/lib/utils/display";
+import { displayMoneyLarge, displayMonthYear } from "@/shared/lib/utils/display";
 import type { GovernmentPanel, MeasureKind, SpendingRow } from "@/types";
 import { shareLabel, signedShareLabel } from "../lib/budget";
 import { SPENDING_INFLATION_NOW, SPENDING_COST } from "../lib/government-metrics";
-import { monthYear } from "../lib/government";
 import { isSpending, SPENDING_LABEL, type SpendingKind } from "@/shared/lib/spending-kinds";
 import { pointsOf } from "../lib/spending";
 import { MeasureAction } from "./measure-action";
@@ -162,7 +161,7 @@ function SpendingRowView({ row, isPresident, onPropose }: SpendingRowViewProps) 
             {raise ? `${pointsOf(row.value)}% ao ano` : `${pointsOf(row.value)}% do PIB`}
           </span>
           <span className="text-xs text-muted-foreground">
-            {raise ? "+ a inflação" : row.since ? `desde ${monthYear(row.since)}` : "desde o início"}
+            {raise ? "+ a inflação" : row.since ? `desde ${displayMonthYear(row.since)}` : "desde o início"}
           </span>
         </span>
       </TableCell>

@@ -25,6 +25,7 @@ from backend.core.dto.profession import (
     ExporterState,
     FreelancerState,
     RetireeState,
+    WelfareState,
 )
 from backend.core.dto.profession_page import (
     AppointeeMechanicDTO,
@@ -49,6 +50,7 @@ from backend.core.dto.profession_page import (
     RedeemBracketDTO,
     RetireeMechanicDTO,
     SeriesGuideDTO,
+    WelfareMechanicDTO,
 )
 from backend.core.entrepreneur import (
     SALE_SHARES,
@@ -63,6 +65,7 @@ from backend.core.enum import (
     IncomeSeriesKey,
     MeasureKind,
     MechanicStatus,
+    Profession,
 )
 from backend.core.exporter import LOCK_TERMS_MONTHS
 from backend.core.freelancer import (
@@ -71,7 +74,7 @@ from backend.core.freelancer import (
     TABLE_DEVIATIONS,
     clients_on,
 )
-from backend.core.life_budget import LifeBudget, cents
+from backend.core.life_budget import LifeBudget, cents, no_mechanic_state
 from backend.core.pension import (
     REDEEM_BRACKETS,
     annual_yield,
@@ -86,6 +89,18 @@ from backend.core.professions import (
     IncomeDriver,
     LifeLevers,
     RealRaise,
+)
+from backend.core.welfare import (
+    COURSE_INCOME_FACTOR,
+    COURSE_MONTHS,
+    course_ends_on,
+    course_months_done,
+    deposit_amount,
+    deposit_cap,
+    deposit_rate,
+    next_release_on,
+    releases_reached,
+    spending_factor,
 )
 from backend.features.credit.rules import PAYROLL_SPREAD
 from backend.features.economy.growth import NEUTRAL_UNEMPLOYMENT
@@ -135,7 +150,8 @@ def build_header(
     )
     return IncomeHeaderDTO(
         income=income,
-        mechanic_income=cents((income - converted) * (1 - 1 / factor)) + converted,
+        mechanic_income=max(cents((income - converted) * (1 - 1 / factor)), Decimal(0))
+        + converted,
         real_raise=None
         if rule.real_raise is RealRaise.NONE
         else budget.real_raise_on(day),
@@ -616,6 +632,53 @@ def banker_block(
     else:
         status = MechanicStatus.AVAILABLE
     return BankerMechanicDTO(status=status, cdbs=cdbs)
+
+
+def welfare_block(
+    state: WelfareState,
+    budget: LifeBudget,
+    day: date,
+    start: date,
+    wealth: Decimal,
+) -> WelfareMechanicDTO:
+    """
+    O bloco do Auxílio: o Pé-de-Meia com o depósito que o mês rende hoje (a sobra desde o
+    início do mês, com o fator do gasto do governo), a tarifa social e o curso técnico com
+    a renda do bico antes e durante ele e o salário que o CLT pagaria ao concluir.
+    """
+    factor = spending_factor(budget.levers_on(day).welfare_spending)
+    net_income = budget.net_salary_on(day)
+    surplus = (
+        Decimal(0)
+        if state.month_start_wealth is None
+        else wealth - state.month_start_wealth
+    )
+    full = budget.with_mechanic_state(no_mechanic_state)
+    return WelfareMechanicDTO(
+        status=MechanicStatus.ACTIVE,
+        balance=state.balance,
+        next_release_on=next_release_on(start, releases_reached(start, day)),
+        cash_was_negative=state.cash_was_negative,
+        deposit=deposit_amount(surplus, net_income, factor),
+        surplus=surplus,
+        deposit_rate=deposit_rate(factor),
+        deposit_cap=deposit_cap(net_income, factor),
+        deposit_factor=factor,
+        full_expense=budget.expense_on(day),
+        paid_expense=budget.paid_expense_on(day),
+        discount=budget.expense_on(day) - budget.paid_expense_on(day),
+        gig_income=full.exposed_net_on(day),
+        gig_income_in_course=cents(full.exposed_net_on(day) * COURSE_INCOME_FACTOR),
+        clt_salary=full.for_profession(Profession.CLT).net_salary_on(day),
+        in_course=state.in_course,
+        course_months=COURSE_MONTHS,
+        course_months_done=None
+        if state.course_enrolled_on is None
+        else course_months_done(state.course_enrolled_on, day),
+        course_ends_on=None
+        if state.course_enrolled_on is None
+        else course_ends_on(state.course_enrolled_on),
+    )
 
 
 def heir_block(

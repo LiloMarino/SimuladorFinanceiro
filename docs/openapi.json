@@ -14398,6 +14398,53 @@
         ]
       }
     },
+    "/api/simulation/enroll-course": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Matricular o Auxílio no curso técnico",
+        "description": "Matricula quem vive do Auxílio no curso técnico de 12 meses: a renda do bico cai pela metade e o benefício fica inteiro. Na virada do mês em que o curso conclui, o jogador vira CLT, perde a tarifa social e o benefício, e o saldo do Pé-de-Meia cai inteiro no caixa. Responde 409 para quem já está matriculado e para outra profissão.",
+        "operationId": "enroll_course_api_simulation_enroll_course_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/life-history": {
       "get": {
         "tags": [
@@ -34676,7 +34723,8 @@
         "enum": [
           "FGTS",
           "COMPANY_CAPITAL",
-          "PENSION"
+          "PENSION",
+          "WELFARE_SAVINGS"
         ],
         "title": "LockedAssetKind",
         "description": "O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira."
@@ -41147,6 +41195,9 @@
                 "$ref": "#/components/schemas/RetireeMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/WelfareMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/ExporterMechanicDTO"
               },
               {
@@ -41185,7 +41236,8 @@
                 "none": "#/components/schemas/NoMechanicDTO",
                 "offers_banker": "#/components/schemas/OffersBankerMechanicDTO",
                 "public_servant": "#/components/schemas/PublicServantMechanicDTO",
-                "retiree": "#/components/schemas/RetireeMechanicDTO"
+                "retiree": "#/components/schemas/RetireeMechanicDTO",
+                "welfare": "#/components/schemas/WelfareMechanicDTO"
               }
             }
           }
@@ -51814,6 +51866,133 @@
         ],
         "title": "VoterValue",
         "description": "As bandeiras de um partido e os eixos do perfil dele."
+      },
+      "WelfareMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "welfare",
+            "title": "Kind",
+            "default": "welfare"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "balance": {
+            "type": "string",
+            "title": "Balance"
+          },
+          "next_release_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Release On"
+          },
+          "cash_was_negative": {
+            "type": "boolean",
+            "title": "Cash Was Negative"
+          },
+          "deposit": {
+            "type": "string",
+            "title": "Deposit"
+          },
+          "surplus": {
+            "type": "string",
+            "title": "Surplus"
+          },
+          "deposit_rate": {
+            "type": "string",
+            "title": "Deposit Rate"
+          },
+          "deposit_cap": {
+            "type": "string",
+            "title": "Deposit Cap"
+          },
+          "deposit_factor": {
+            "type": "string",
+            "title": "Deposit Factor"
+          },
+          "full_expense": {
+            "type": "string",
+            "title": "Full Expense"
+          },
+          "paid_expense": {
+            "type": "string",
+            "title": "Paid Expense"
+          },
+          "discount": {
+            "type": "string",
+            "title": "Discount"
+          },
+          "gig_income": {
+            "type": "string",
+            "title": "Gig Income"
+          },
+          "gig_income_in_course": {
+            "type": "string",
+            "title": "Gig Income In Course"
+          },
+          "clt_salary": {
+            "type": "string",
+            "title": "Clt Salary"
+          },
+          "in_course": {
+            "type": "boolean",
+            "title": "In Course"
+          },
+          "course_months": {
+            "type": "integer",
+            "title": "Course Months"
+          },
+          "course_months_done": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Course Months Done"
+          },
+          "course_ends_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Course Ends On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "balance",
+          "next_release_on",
+          "cash_was_negative",
+          "deposit",
+          "surplus",
+          "deposit_rate",
+          "deposit_cap",
+          "deposit_factor",
+          "full_expense",
+          "paid_expense",
+          "discount",
+          "gig_income",
+          "gig_income_in_course",
+          "clt_salary",
+          "in_course",
+          "course_months",
+          "course_months_done",
+          "course_ends_on"
+        ],
+        "title": "WelfareMechanicDTO",
+        "description": "Pé-de-Meia, tarifa social e curso técnico do Auxílio."
       },
       "YearMonthDTO": {
         "properties": {

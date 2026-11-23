@@ -110,8 +110,11 @@ from backend.core.dto.profession import (
     EXCHANGE_LOCK_ENDED,
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
+    SAVINGS_POSTPONED,
+    SAVINGS_RELEASED,
     CltState,
     ConvertPension,
+    EnrollCourse,
     EntrepreneurState,
     ExporterState,
     FreelancerState,
@@ -127,6 +130,7 @@ from backend.core.dto.profession import (
     SetExportMix,
     SetPrice,
     SetReinvestShare,
+    WelfareState,
 )
 from backend.core.dto.profession_page import MechanicBlockDTO, ProfessionPageDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
@@ -253,6 +257,7 @@ from backend.core.utils import (
     next_month_turn,
     required,
 )
+from backend.core.welfare import course_concluded
 from backend.features.achievements.catalog import Achievement
 from backend.features.achievements.evaluator import (
     AchievementEvaluator,
@@ -371,6 +376,7 @@ from backend.features.profession.page import (
     offers_banker_block,
     public_servant_block,
     retiree_block,
+    welfare_block,
 )
 from backend.features.profession.pension import (
     open_balance,
@@ -387,6 +393,13 @@ from backend.features.profession.public_servant import (
     payroll_policy,
 )
 from backend.features.profession.reserve import Reserve
+from backend.features.profession.welfare import (
+    mark_negative_cash,
+    month_turn,
+    policy_enroll,
+    release,
+    release_due,
+)
 from backend.features.realtime import notify
 from backend.features.realtime.schemas import (
     ComanagerEventDTO,
@@ -2912,6 +2925,7 @@ class Simulation:
             self._collect_income_tax(users)
             if self._life is not None:
                 self._charge_overdraft(users)
+                self._run_welfare_savings(users)
             EventManager.flush()
         with metrics.measure("engine", ENGINE_NEWS):
             self._publish_newsroom(stocks)
@@ -3245,6 +3259,9 @@ class Simulation:
         """
         day = self._current_date
         per_year = self.settings.unexpected_per_year
+        # O curso concluído troca a profissão antes de montar os orçamentos: o primeiro salário do mês já é o de CLT
+        if month_changed:
+            self._conclude_courses(users, day)
         budgets = {user.client_id: self._life_budget(life, user.id) for user in users}
         skipped_by_weight: dict[Decimal, bool] = {}
         event_by_weight: dict[Decimal, LifeEventTypeDTO | None] = {}
@@ -3284,13 +3301,14 @@ class Simulation:
                 budget = budgets[user.client_id]
                 loses_income = budget.income_loss() is not None and skipped_for(budget)
                 salary = budget.net_salary_on(day, income_lost=loses_income)
+                self._run_welfare_month(user, budget, day)
                 if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
                 self._run_capital_month(user, budget, day, profit=salary)
                 self._run_pension_month(user, day)
                 # A parcela do consignado sai do salário que acabou de entrar
                 self._engine.credit_book.collect_payroll(user.client_id, self._speed)
-                self._engine.pay_expense(user.client_id, budget.expense_on(day))
+                self._engine.pay_expense(user.client_id, budget.paid_expense_on(day))
                 self._run_fgts_month(user, budget, day, salary_paid=salary > 0)
                 self._run_exchange_lock_month(user, budget, day, salary_paid=salary > 0)
 
@@ -3530,6 +3548,17 @@ class Simulation:
                     expected,
                     from_focus,
                     rate,
+                )
+            case Profession.WELFARE:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, WelfareState):
+                    return no_block()
+                return welfare_block(
+                    state,
+                    budget,
+                    day,
+                    self.settings.start_date,
+                    self._engine.liquid_wealth(client_id),
                 )
             case Profession.EXPORTER:
                 state = self._mechanic_state_of(user_id)
@@ -3778,7 +3807,7 @@ class Simulation:
             reserve = Reserve(
                 cash=self._engine.coverable_cash(user.client_id),
                 health_cost=health.expense_multiple
-                * budgets[user.client_id].expense_on(day),
+                * budgets[user.client_id].paid_expense_on(day),
             )
             action = policy_action(
                 self._profession_of(user.id),
@@ -3795,6 +3824,7 @@ class Simulation:
             self._run_freelancer_policy(user, budgets[user.client_id], day, macro)
             self._run_entrepreneur_policy(user, budgets[user.client_id], day)
             self._run_retiree_policy(user, day)
+            self._run_welfare_policy(user, day)
 
     def _run_house_cdb_policy(
         self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
@@ -3885,6 +3915,83 @@ class Simulation:
         convert = policy_convert_amount(state, rate)
         if convert is not None:
             self.convert_pension(user, convert)
+
+    @synchronized
+    def enroll_course(self, user: UserDTO) -> MechanicState:
+        """Matricula o jogador do Auxílio no curso técnico, pelo mesmo caminho das ações da mecânica."""
+        if self._profession_of(user.id) is not Profession.WELFARE:
+            raise ConflictError("Só quem vive do Auxílio faz o curso técnico.")
+        return self.apply_profession_action(user, EnrollCourse())
+
+    def _welfare_state_of(self, user: UserDTO) -> WelfareState | None:
+        """O estado do Auxílio de quem exerce a profissão; nulo para as demais ou sem profissões na partida."""
+        if not self.settings.uses_professions:
+            return None
+        state = self._mechanic_state_of(user.id)
+        return state if isinstance(state, WelfareState) else None
+
+    def _conclude_courses(self, users: list[UserDTO], day: date) -> None:
+        """Na virada do mês em que os 12 meses fecham, o curso técnico conclui: o jogador vira CLT e o Pé-de-Meia cai no caixa pela regra de saída."""
+        for user in users:
+            state = self._welfare_state_of(user)
+            if (
+                state is not None
+                and state.course_enrolled_on is not None
+                and course_concluded(state.course_enrolled_on, day)
+            ):
+                self.switch_profession(user, Profession.CLT)
+
+    def _run_welfare_month(self, user: UserDTO, budget: LifeBudget, day: date) -> None:
+        """
+        A virada do mês do Auxílio, antes da renda do mês cair: o Pé-de-Meia recebe o
+        depósito da sobra do mês que fechou, e o patrimônio líquido de hoje fica
+        guardado como o início do mês que abre. O dinheiro é do governo: o caixa não muda.
+        """
+        state = self._welfare_state_of(user)
+        if state is None:
+            return
+        turn = month_turn(
+            state,
+            self._engine.liquid_wealth(user.client_id),
+            budget.net_salary_on(day),
+            budget.levers_on(day).welfare_spending,
+        )
+        self._profession_book.save_state(user.id, turn.state)
+
+    def _run_welfare_savings(self, users: list[UserDTO]) -> None:
+        """
+        No fim do pregão, depois do juro do cheque especial: o caixa negativo do dia
+        marca o período, e a data de liberação do Pé-de-Meia paga o saldo inteiro ou
+        o adia, pela marca. Os dois casos entram no histórico da vida.
+        """
+        day = self._current_date
+        start = self.settings.start_date
+        for user in users:
+            state = self._welfare_state_of(user)
+            if state is None:
+                continue
+            marked = mark_negative_cash(state, self.get_cash(user.client_id))
+            if release_due(marked, start, day):
+                result = release(marked, start, day)
+                self._profession_book.save_state(user.id, result.state)
+                if result.postponed and marked.balance > 0:
+                    self._engine.record_profession_action(
+                        user.client_id, SAVINGS_POSTPONED
+                    )
+                elif result.released > 0:
+                    self._engine.record_profession_action(
+                        user.client_id, SAVINGS_RELEASED, result.released
+                    )
+            elif marked is not state:
+                self._profession_book.save_state(user.id, marked)
+
+    def _run_welfare_policy(self, user: UserDTO, day: date) -> None:
+        """O Auxílio-bot se matricula no curso técnico no primeiro mês da partida com 10 anos ou mais, pela mesma ação dos jogadores."""
+        state = self._welfare_state_of(user)
+        if state is not None and policy_enroll(
+            state, self.settings.start_date, self.settings.end_date
+        ):
+            self.enroll_course(user)
 
     def _run_pension_month(self, user: UserDTO, day: date) -> None:
         """O saldo da previdência no pagamento do mês: rende o CDI menos 1% ao ano, sem IR."""

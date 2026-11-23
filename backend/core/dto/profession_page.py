@@ -261,6 +261,36 @@ class RetireeMechanicDTO(BaseDTO):
     brackets: list[RedeemBracketDTO]
 
 
+class WelfareMechanicDTO(BaseDTO):
+    """Pé-de-Meia, tarifa social e curso técnico do Auxílio."""
+
+    kind: Literal["welfare"] = "welfare"
+    status: MechanicStatus
+    # O saldo do Pé-de-Meia, a próxima data de liberação e se o caixa ficou negativo no período (a liberação então pula)
+    balance: Decimal
+    next_release_on: date
+    cash_was_negative: bool
+    # O depósito que o mês rende hoje, a sobra de que ele sai, a fração da sobra que o governo deposita e o teto, ambos já com o fator do gasto do governo com auxílio
+    deposit: Decimal
+    surplus: Decimal
+    deposit_rate: Decimal
+    deposit_cap: Decimal
+    deposit_factor: Decimal
+    # A despesa cheia, a paga com a tarifa social e o desconto mensal
+    full_expense: Decimal
+    paid_expense: Decimal
+    discount: Decimal
+    # A renda do bico sem o curso e com ele, e o salário líquido que o CLT paga
+    gig_income: Decimal
+    gig_income_in_course: Decimal
+    clt_salary: Decimal
+    # O curso em andamento: quantos meses passaram, quantos ele dura e o mês em que conclui; nulos sem matrícula
+    in_course: bool
+    course_months: int
+    course_months_done: int | None
+    course_ends_on: date | None
+
+
 class PublicServantMechanicDTO(BaseDTO):
     """Consignado do Servidor."""
 
@@ -345,6 +375,7 @@ MechanicBlockDTO = Annotated[
     CltMechanicDTO
     | EntrepreneurMechanicDTO
     | RetireeMechanicDTO
+    | WelfareMechanicDTO
     | ExporterMechanicDTO
     | FreelancerMechanicDTO
     | PublicServantMechanicDTO

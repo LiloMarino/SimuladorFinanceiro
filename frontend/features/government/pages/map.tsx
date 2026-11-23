@@ -8,7 +8,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import usePageLabel from "@/shared/hooks/usePageLabel";
 import { useSimulation } from "@/shared/hooks/useSimulation";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
-import { displayDayMonth } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMonthYear } from "@/shared/lib/utils/display";
 import type { ElectionMap, TimelinePoint } from "@/types";
 import { MapLensMenu } from "../components/map-lens-menu";
 import { MapPlaceCard } from "../components/map-place-card";
@@ -19,7 +19,7 @@ import { MapView } from "../components/map-view";
 import { useElectionMap } from "../hooks/queries/useElectionMap";
 import { useElectionTimeline } from "../hooks/queries/useElectionTimeline";
 import { useTimelinePlayback } from "../hooks/useTimelinePlayback";
-import { countdownLabel, monthYear } from "../lib/election";
+import { countdownLabel } from "../lib/election";
 import { lensView } from "../lib/map-fills";
 import {
   DEFAULT_GROUP,
@@ -93,7 +93,7 @@ function nextTurnLabel(map: ElectionMap, today: string | undefined) {
   const target = betweenRounds ? map.runoff : map.first_round;
   const name = betweenRounds
     ? `2º turno em ${displayDayMonth(map.runoff)}`
-    : `Eleição de ${monthYear(map.first_round)}`;
+    : `Eleição de ${displayMonthYear(map.first_round)}`;
   return `${name}${today ? ` · faltam ${countdownLabel(today, target)}` : ""}`;
 }
 

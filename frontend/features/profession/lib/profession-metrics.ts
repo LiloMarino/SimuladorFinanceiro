@@ -294,3 +294,50 @@ export const REDEEM_TAX: MetricInfo = {
   reading: "Se a próxima faixa está perto, esperar deixa mais dinheiro no caixa; na faixa de 10% não há o que esperar.",
   format: (value) => displayPercent(value, 0),
 };
+
+export const WELFARE_SAVINGS: MetricInfo = {
+  label: "Pé-de-Meia",
+  description: "Poupança do governo, travada, que libera a cada 2 anos",
+  definition:
+    "Todo mês em que o seu caixa e a sua renda fixa (com o Tesouro, sem as ações) terminam maiores do que começaram, o governo deposita aqui uma parte dessa sobra. O dinheiro é do governo e não sai do seu caixa. Conta no patrimônio, mas só cai no caixa a cada 2 anos de partida, se o caixa não ficou negativo em nenhum dia do período, ou de uma vez se você virar CLT.",
+  example:
+    "Ex.: saldo de R$ 1.840 e a data de liberação chega com o caixa sempre acima de zero → os R$ 1.840 caem no caixa. Se o caixa ficou negativo num dia só, a liberação pula para daqui a 2 anos.",
+  reading:
+    "Mantenha o caixa acima de zero: um dia negativo adia a liberação em 2 anos. Quanto mais o caixa e a renda fixa crescem no mês, maior o depósito, até o teto.",
+  format: (value) => displayMoney(value),
+};
+
+export const WELFARE_DEPOSIT: MetricInfo = {
+  label: "Depósito deste mês",
+  description: "O que o governo deposita no Pé-de-Meia pela sobra do mês",
+  definition:
+    "A sobra é quanto o caixa e a renda fixa cresceram desde o início do mês, sem contar as ações. O governo deposita 20% dela, multiplicado pelo fator do gasto do governo com auxílio (de 0,5× a 2×), até o teto de 10% da sua renda líquida, que o mesmo fator também multiplica. Sobra zero ou negativa não deposita nada.",
+  example:
+    "Ex.: sobra de R$ 600, renda líquida de R$ 1.400 e fator 1,0× → 20% de R$ 600 são R$ 120, abaixo do teto de R$ 140: deposita R$ 120. Com sobra de R$ 900, 20% dão R$ 180 e o depósito para no teto de R$ 140.",
+  reading:
+    "Comprar ou vender ações não muda a sobra. Quanto maior a sobra, maior o depósito, até o teto; com o governo gastando mais com auxílio, o fator sobe e o depósito cresce.",
+  format: (value) => displayMoney(value),
+};
+
+export const SOCIAL_TARIFF: MetricInfo = {
+  label: "Tarifa social",
+  description: "Desconto na despesa mensal de quem vive do Auxílio",
+  definition:
+    "A despesa que você paga todo mês sai 15% mais barata. A meta e os imprevistos continuam pela despesa cheia. O desconto acaba quando você deixa o Auxílio.",
+  example: "Ex.: despesa de R$ 1.600 → você paga R$ 1.360, R$ 240 a menos por mês.",
+  reading:
+    "É dinheiro que sobra no caixa todo mês e alimenta o depósito do Pé-de-Meia. Virar CLT pelo curso técnico faz a despesa voltar ao valor cheio.",
+  format: (value) => displayMoney(value),
+};
+
+export const TECHNICAL_COURSE: MetricInfo = {
+  label: "Curso técnico",
+  description: "A saída do Auxílio para um emprego com carteira",
+  definition:
+    "A matrícula dura 12 meses. Nesse tempo a renda do bico cai pela metade e o benefício fica inteiro; o Pé-de-Meia e a tarifa social continuam. Ao concluir você vira CLT, perde a tarifa social e o benefício, e o saldo do Pé-de-Meia cai no caixa.",
+  example:
+    "Ex.: bico de R$ 1.400 → R$ 700 durante o curso. Concluído, vira CLT com o salário de R$ 2.300, FGTS e hora extra.",
+  reading:
+    "Vale a pena quando o salário de CLT supera o bico mais o benefício, e a partida é longa o bastante para colher isso depois do curso.",
+  format: (value) => displayMoney(value),
+};

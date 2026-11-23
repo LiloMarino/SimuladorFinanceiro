@@ -2,8 +2,9 @@ import { Lock, X } from "lucide-react";
 import { InfoHint } from "@/shared/components/info-hint";
 import { cn } from "@/shared/lib/utils";
 import type { GovernmentPanel } from "@/types";
+import { displayMonthYear } from "@/shared/lib/utils/display";
 import { floorCounterLabel, remainingMonths, streakMonths } from "../lib/approval";
-import { monthYear, successionLabel } from "../lib/government";
+import { successionLabel } from "../lib/government";
 
 type StreakPipsProps = {
   approval: NonNullable<GovernmentPanel["approval"]>;
@@ -46,11 +47,11 @@ function floorSentence(panel: GovernmentPanel, approval: NonNullable<GovernmentP
   }
   if (approval.in_grace) {
     return posse
-      ? `${total} meses seguidos abaixo de ${floor}% derrubam o governo. Carência até ${monthYear(graceUntil)}.`
-      : `Carência até ${monthYear(graceUntil)}: nenhum impeachment no 1º ano, e os meses abaixo de ${floor}% não entram na contagem.`;
+      ? `${total} meses seguidos abaixo de ${floor}% derrubam o governo. Carência até ${displayMonthYear(graceUntil)}.`
+      : `Carência até ${displayMonthYear(graceUntil)}: nenhum impeachment no 1º ano, e os meses abaixo de ${floor}% não entram na contagem.`;
   }
   if (approval.low_streak === 0) {
-    return `${total} meses seguidos abaixo de ${floor}% derrubam o governo. A carência acabou em ${monthYear(graceUntil)}.`;
+    return `${total} meses seguidos abaixo de ${floor}% derrubam o governo. A carência acabou em ${displayMonthYear(graceUntil)}.`;
   }
   const since = streakMonths(approval)[0];
   const president = panel.term?.president?.name ?? "o presidente";

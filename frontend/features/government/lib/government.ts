@@ -1,11 +1,5 @@
 import { addDays, differenceInCalendarDays, format } from "date-fns";
-import {
-  displayDayMonth,
-  displayMoneyCompact,
-  displayMonthShort,
-  displayPercent,
-  parseLocalDate,
-} from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMoneyCompact, displayPercent, parseLocalDate } from "@/shared/lib/utils/display";
 import type {
   GovernmentApproval,
   GovernmentMeasure,
@@ -107,11 +101,6 @@ export function daysUntil(today: string, day: string) {
 /** O dia em que uma medida votada em `vote` passa a valer, depois da espera. */
 export function effectiveDate(vote: string, vigenceDays: number) {
   return format(addDays(parseLocalDate(vote), vigenceDays), "yyyy-MM-dd");
-}
-
-/** "nov 2019": o mês de uma data, para "desde nov 2019". */
-export function monthYear(day: string) {
-  return `${displayMonthShort(day)} ${parseLocalDate(day).getFullYear()}`;
 }
 
 export const STAGES: Record<

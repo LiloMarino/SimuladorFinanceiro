@@ -227,7 +227,7 @@ def test_the_overtime_in_the_state_asked_is_refused():
 def test_only_the_clt_has_the_overtime_action():
     with pytest.raises(ConflictError, match="não tem mecânica"):
         apply_action(
-            Profession.WELFARE,
+            Profession.PUBLIC_SERVANT,
             MechanicState(),
             SetOvertime(kind=OVERTIME_ON),
             DAY,
@@ -532,7 +532,7 @@ def test_the_locked_balance_is_zero_outside_the_clt_and_outside_the_professions_
 ):
     ana = person("Ana")
     sim = match(monkeypatch)
-    sim.switch_profession(ana, Profession.WELFARE)
+    sim.switch_profession(ana, Profession.PUBLIC_SERVANT)
 
     assert sim.get_portfolio(ana.client_id).locked_value == 0
     assert type(sim.get_profession_state(ana.client_id).state) is MechanicState

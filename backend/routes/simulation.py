@@ -1332,6 +1332,26 @@ def redeem_pension(payload: PensionAmountRequest, client_id: ClientID):
     return simulation.get_profession_state(client_id)
 
 
+@simulation_router.post(
+    "/enroll-course",
+    response_model=ProfessionStateDTO,
+    summary="Matricular o Auxílio no curso técnico",
+    description="Matricula quem vive do Auxílio no curso técnico de 12 meses: a renda do bico cai pela metade e o benefício fica inteiro. Na virada do mês em que o curso conclui, o jogador vira CLT, perde a tarifa social e o benefício, e o saldo do Pé-de-Meia cai inteiro no caixa. Responde 409 para quem já está matriculado e para outra profissão.",
+)
+def enroll_course(client_id: ClientID):
+    """
+    Matricula no curso técnico quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.enroll_course(user)
+    return simulation.get_profession_state(client_id)
+
+
 @simulation_router.get(
     "/life-history",
     response_model=LifeHistoryPageDTO,

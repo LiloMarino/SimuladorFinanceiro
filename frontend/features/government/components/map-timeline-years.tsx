@@ -1,9 +1,8 @@
 import { Badge } from "@/shared/components/ui/badge";
 import { RecentPicker, type RecentPickerItem } from "@/shared/components/recent-picker";
 import { partyColor } from "@/shared/lib/party-colors";
-import { displayDayMonth } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMonthYear } from "@/shared/lib/utils/display";
 import type { TimelineYear } from "@/types";
-import { monthYear } from "../lib/election";
 
 type MapTimelineYearsProps = {
   years: TimelineYear[];
@@ -17,7 +16,7 @@ function yearLabel(item: TimelineYear, beforeFirst: boolean) {
   if (item.status === "UPCOMING") {
     const opens = beforeFirst
       ? `${displayDayMonth(item.opens_on)} ${item.opens_on.slice(0, 4)}`
-      : monthYear(item.opens_on);
+      : displayMonthYear(item.opens_on);
     return `${item.year} · abre em ${opens}`;
   }
   return String(item.year);

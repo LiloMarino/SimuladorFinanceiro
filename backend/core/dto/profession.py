@@ -11,6 +11,7 @@ from backend.core.dates import add_months
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import LockedAssetKind, Profession
 from backend.core.locked_assets import LOCKED_EXITS
+from backend.core.welfare import COURSE_INCOME_FACTOR
 
 
 class LockedAssetDTO(BaseDTO):
@@ -34,7 +35,7 @@ class MechanicState(BaseDTO):
 
     @property
     def income_factor(self) -> Decimal:
-        """O quanto o estado multiplica a renda do mês; 1 deixa a renda da profissão como está."""
+        """O quanto o estado multiplica a renda exposta do mês (o benefício fica fora); 1 deixa a renda da profissão como está."""
         return Decimal(1)
 
     @property
@@ -165,6 +166,38 @@ class RetireeState(MechanicState):
         ]
 
 
+class WelfareState(MechanicState):
+    """O estado do Auxílio: o saldo do Pé-de-Meia, a conta das liberações, o caixa do início do mês e a matrícula no curso técnico."""
+
+    balance: Decimal = Decimal(0)
+    # Quantas datas de liberação já passaram, pagas ou adiadas
+    releases_done: int = 0
+    # Verdadeiro quando o caixa ficou negativo em algum dia desde a última liberação ou adiamento
+    cash_was_negative: bool = False
+    # O caixa somado à renda fixa e ao Tesouro no início do mês, antes da renda cair; nulo até a primeira virada
+    month_start_wealth: Decimal | None = None
+    # O dia da matrícula no curso técnico; nulo sem curso em andamento
+    course_enrolled_on: date | None = None
+
+    @property
+    def in_course(self) -> bool:
+        return self.course_enrolled_on is not None
+
+    @property
+    def income_factor(self) -> Decimal:
+        return COURSE_INCOME_FACTOR if self.in_course else Decimal(1)
+
+    @property
+    def locked_assets(self) -> list[LockedAssetDTO]:
+        return [
+            LockedAssetDTO(
+                kind=LockedAssetKind.WELFARE_SAVINGS,
+                value=self.balance,
+                exit_rule=LOCKED_EXITS[LockedAssetKind.WELFARE_SAVINGS].rule,
+            )
+        ]
+
+
 class MechanicAction(BaseDTO):
     """Uma ação do jogador (ou da política do bot) sobre a mecânica; `kind` é o nome dela no histórico da vida."""
 
@@ -277,6 +310,22 @@ class RedeemPension(RetireeAction):
     amount: Decimal
 
 
+# O nome dos lançamentos do Auxílio no histórico da vida
+ENROLL_COURSE = "enroll_course"
+SAVINGS_RELEASED = "savings_released"
+SAVINGS_POSTPONED = "savings_postponed"
+
+
+class WelfareAction(MechanicAction):
+    """Uma ação do Auxílio; é o tipo que a mecânica aceita."""
+
+
+class EnrollCourse(WelfareAction):
+    """Matricula o jogador no curso técnico, que começa hoje."""
+
+    kind: str = Field(default=ENROLL_COURSE, pattern=rf"^{ENROLL_COURSE}$")
+
+
 class ProfessionPeriodDTO(BaseDTO):
     """A profissão que o jogador exerce a partir de `start`, até o início do período seguinte."""
 
@@ -298,6 +347,7 @@ STATE_TYPES: dict[Profession, type[MechanicState]] = {
     Profession.EXPORTER: ExporterState,
     Profession.FREELANCER: FreelancerState,
     Profession.RETIREE: RetireeState,
+    Profession.WELFARE: WelfareState,
 }
 
 

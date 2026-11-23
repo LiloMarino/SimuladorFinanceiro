@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Info, type LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -100,4 +101,19 @@ export function BlockPanel({ title, aside, children }: { title: string; aside?: 
       {children}
     </div>
   );
+}
+
+/** Uma nota do bloco: o ícone e a frase que explica a regra, em tom discreto. */
+export function BlockNote({ icon: Icon = Info, children }: { icon?: LucideIcon; children: ReactNode }) {
+  return (
+    <p className="flex items-start gap-2 text-[13px] text-muted-foreground">
+      <Icon className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+      <span>{children}</span>
+    </p>
+  );
+}
+
+/** A faixa de largura total do bloco, com fundo sutil e bordas em cima e embaixo: o layout interno vem do chamador. */
+export function BlockBand({ children }: { children: ReactNode }) {
+  return <div className="border-y bg-subtle px-5 py-3">{children}</div>;
 }

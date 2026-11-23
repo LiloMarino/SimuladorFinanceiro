@@ -320,7 +320,7 @@ def test_the_switch_turns_the_whole_capital_into_cash_with_the_discount(monkeypa
     save(sim, ana, capital=Decimal(38000))
     cash = sim.get_cash(ana.client_id)
 
-    sim.switch_profession(ana, Profession.WELFARE)
+    sim.switch_profession(ana, Profession.PUBLIC_SERVANT)
 
     assert sim.get_cash(ana.client_id) == cash + Decimal(30400)
     assert sim.get_portfolio(ana.client_id).locked_value == 0
@@ -328,7 +328,7 @@ def test_the_switch_turns_the_whole_capital_into_cash_with_the_discount(monkeypa
         r
         for r in life_history(sim, ana.client_id)
         if r.kind is LifeHistoryKind.PROFESSION_SWITCHED
-        and r.life_event_key == Profession.WELFARE.value
+        and r.life_event_key == Profession.PUBLIC_SERVANT.value
     ]
     assert row.amount == 30400
 
@@ -339,7 +339,7 @@ def test_the_switch_turns_the_whole_fgts_into_cash_without_the_fine(monkeypatch)
     sim._profession_book.save_state(ana.id, CltState(fgts_balance=Decimal(10000)))
     cash = sim.get_cash(ana.client_id)
 
-    sim.switch_profession(ana, Profession.WELFARE)
+    sim.switch_profession(ana, Profession.PUBLIC_SERVANT)
 
     assert sim.get_cash(ana.client_id) == cash + Decimal(10000)
     assert sim.get_portfolio(ana.client_id).locked_value == 0
@@ -364,7 +364,7 @@ def test_the_switch_without_locked_assets_pays_nothing(monkeypatch):
     sim, ana = entrepreneur(monkeypatch)
     cash = sim.get_cash(ana.client_id)
 
-    sim.switch_profession(ana, Profession.WELFARE)
+    sim.switch_profession(ana, Profession.PUBLIC_SERVANT)
 
     assert sim.get_cash(ana.client_id) == cash
 

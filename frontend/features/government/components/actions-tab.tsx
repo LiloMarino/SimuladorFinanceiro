@@ -23,13 +23,13 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { useElection } from "@/shared/hooks/queries/useElection";
 import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
-import { displayDayMonth, displayShortDate } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayMonthYear, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, GovernmentPanel, MeasureKind } from "@/types";
 import { useStateCompanies } from "../hooks/queries/useStateCompanies";
 import { governmentPending } from "../lib/actions";
 import { unguidedCount } from "../lib/house";
 import { commandChip, privatizeChip } from "../lib/state-companies";
-import { affiliationNote, collectionNote, monthYear } from "../lib/election";
+import { affiliationNote, collectionNote } from "../lib/election";
 import { ActionGroup, DecideNow } from "@/shared/components/action-card";
 import { ActionRow } from "@/shared/components/action-row";
 import { ContributionDialog } from "./contribution-dialog";
@@ -158,7 +158,7 @@ function ActionsContent({ panel, election, onPropose, onGo }: ActionsContentProp
       {panel.is_president && (
         <ActionGroup
           title="Como presidente"
-          subtitle={`Você governa${panel.term_end ? ` até ${monthYear(panel.term_end)}` : ""}: medidas, gastos e apoio no Congresso`}
+          subtitle={`Você governa${panel.term_end ? ` até ${displayMonthYear(panel.term_end)}` : ""}: medidas, gastos e apoio no Congresso`}
         >
           <ActionRow
             icon={FilePlus2}
@@ -399,7 +399,7 @@ type CampaignActionRowProps = { open: boolean; opensOn: string; onAction: () => 
 
 /** A ação de campanha: liberada com a campanha aberta; antes dela, a linha diz quando abre. */
 function CampaignActionRow({ open, opensOn, onAction, blockedReason }: CampaignActionRowProps) {
-  const reason = blockedReason ?? (open ? undefined : `Abre com a campanha, em ${monthYear(opensOn)}`);
+  const reason = blockedReason ?? (open ? undefined : `Abre com a campanha, em ${displayMonthYear(opensOn)}`);
 
   return (
     <ActionRow

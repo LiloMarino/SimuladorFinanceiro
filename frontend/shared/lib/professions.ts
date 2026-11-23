@@ -145,10 +145,15 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     name: "Auxílio",
     icon: HandCoins,
     description:
-      "Auxílio do governo: parte da renda nunca some, mas o resto é bico, que o sorteio de demissão tira por um mês.",
+      "Auxílio do governo: parte da renda nunca some, mas o resto é bico, que o sorteio de demissão tira por um mês. A despesa tem tarifa social, o governo deposita no Pé-de-Meia e o curso técnico leva a um emprego de CLT.",
     incomeMultiple: 0.5,
     benefitMultiple: 0.45,
-    gains: [{ text: "O auxílio nunca some, nem no sorteio de demissão" }],
+    gains: [
+      { text: "O auxílio nunca some, nem no sorteio de demissão" },
+      { text: "Tarifa social: a despesa que você paga é 15% menor" },
+      { text: "Pé-de-Meia: o governo deposita parte da sobra do mês, e o saldo libera a cada 2 anos" },
+      { text: "Curso técnico de 12 meses que leva a um emprego de CLT" },
+    ],
     losses: [{ text: "Mais da metade da renda é bico, e o sorteio de demissão tira o bico por um mês" }],
     tags: [
       { key: "unemployment" },

@@ -3,9 +3,10 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { useElection } from "@/shared/hooks/queries/useElection";
 import type { GovernmentPanel } from "@/types";
+import { displayMonthYear } from "@/shared/lib/utils/display";
 import { useToday } from "../hooks/useToday";
 import { countdownLabel } from "../lib/election";
-import { isComputerGovernment, monthYear } from "../lib/government";
+import { isComputerGovernment } from "../lib/government";
 import { CountryStrip } from "./country-strip";
 import { PartyMark, PersonMark } from "@/shared/components/party-mark";
 import { ValueChips } from "@/shared/components/value-chip";
@@ -46,9 +47,9 @@ export function GovernmentHeader({ panel }: GovernmentHeaderProps) {
               {term.succession && <Badge variant="warning">Assumiu por impeachment</Badge>}
             </div>
             <span className="text-[13px] text-muted-foreground">
-              {monthYear(term.start)}
-              {panel.term_end && ` a ${monthYear(panel.term_end)}`} · próxima eleição em{" "}
-              {monthYear(panel.next_election)}, faltam {countdownLabel(today, panel.next_election)} ·{" "}
+              {displayMonthYear(term.start)}
+              {panel.term_end && ` a ${displayMonthYear(panel.term_end)}`} · próxima eleição em{" "}
+              {displayMonthYear(panel.next_election)}, faltam {countdownLabel(today, panel.next_election)} ·{" "}
               {panel.monetary?.by_government ? "SELIC com o governo, no Copom" : "SELIC com o Banco Central"}
             </span>
           </div>

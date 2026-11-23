@@ -12,10 +12,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/shared/components/ui/badge";
-import { displayDayMonth, displayList, displayShortDate } from "@/shared/lib/utils/display";
+import { displayDayMonth, displayList, displayMonthYear, displayShortDate } from "@/shared/lib/utils/display";
 import type { ElectionPanel, ElectionParty } from "@/types";
 import { electionPending } from "../lib/actions";
-import { monthYear } from "../lib/election";
 import { ActionGroup, DecideNow } from "@/shared/components/action-card";
 import { ActionRow } from "@/shared/components/action-row";
 
@@ -46,7 +45,7 @@ export function ElectionActionsTab({ panel, party, mine, onDialog, onCampaign }:
     ? undefined
     : campaignOpen
       ? `O prazo da chapa fechou em ${displayShortDate(dates.ticket_deadline)}`
-      : `Abre com a campanha, em ${monthYear(dates.campaign_start)}`;
+      : `Abre com a campanha, em ${displayMonthYear(dates.campaign_start)}`;
   const inauguration = displayShortDate(dates.inauguration);
 
   // Os rivais que já prometeram medidas dão a régua de quem decide a chapa
@@ -93,7 +92,7 @@ export function ElectionActionsTab({ panel, party, mine, onDialog, onCampaign }:
           alsoIn={`Campanha do ${abbr} › Ações de campanha`}
           actionLabel="Escolher ação"
           primary
-          blockedReason={campaignOpen ? undefined : `Abre com a campanha, em ${monthYear(dates.campaign_start)}`}
+          blockedReason={campaignOpen ? undefined : `Abre com a campanha, em ${displayMonthYear(dates.campaign_start)}`}
           onAction={onCampaign}
         />
         <ActionRow

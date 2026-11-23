@@ -490,7 +490,7 @@ def test_the_switch_turns_the_balance_into_cash_with_the_tax_of_the_day_and_ends
     sim.convert_pension(ana, Decimal(10000))
     cash = sim.get_cash(ana.client_id)
 
-    sim.switch_profession(ana, Profession.WELFARE)
+    sim.switch_profession(ana, Profession.PUBLIC_SERVANT)
 
     # Quatro anos e dois meses no plano: IR de 25% sobre o que restou no saldo
     assert sim.get_cash(ana.client_id) == cash + Decimal("22500.00")
@@ -500,7 +500,7 @@ def test_the_switch_turns_the_balance_into_cash_with_the_tax_of_the_day_and_ends
         r
         for r in life_history(sim, ana.client_id)
         if r.kind is LifeHistoryKind.PROFESSION_SWITCHED
-        and r.life_event_key == Profession.WELFARE.value
+        and r.life_event_key == Profession.PUBLIC_SERVANT.value
     ]
     assert row.amount == Decimal("22500.00")
 

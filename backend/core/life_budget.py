@@ -90,7 +90,8 @@ class LifeBudget:
     despesa sobe pelo IPCA acumulado em 12 meses a cada aniversário da data de início e
     a meta sobe junto; a renda sobe pelo IPCA mais o reajuste real da profissão (a de
     carteira ganha `SALARY_GDP_SHARE` do crescimento do PIB de 12 meses, que na recessão
-    não soma nada). A despesa e a meta são as mesmas para toda profissão.
+    não soma nada). A meta e os imprevistos são os mesmos para toda profissão; a despesa
+    paga todo mês é a cheia menos o desconto da tarifa social, que só o Auxílio tem.
     """
 
     monthly_salary: Decimal
@@ -195,7 +196,6 @@ class LifeBudget:
             self.monthly_salary
             * rule.benefit_multiple
             * factor
-            * mechanic
             * self.levers_on(day).welfare_spending
             / REFERENCE_WELFARE_SPENDING
         )
@@ -398,6 +398,11 @@ class LifeBudget:
         """A renda bruta do mês, antes do imposto."""
         return sum(self.income_parts(day), Decimal(0))
 
+    def exposed_net_on(self, day: date) -> Decimal:
+        """A parte exposta da renda do mês depois do imposto da profissão: o bico do Auxílio, sem o benefício."""
+        exposed, _ = self.income_parts(day)
+        return cents(exposed * (1 - self.tax_deviation_on(day)))
+
     def net_salary_on(self, day: date, income_lost: bool = False) -> Decimal:
         """
         A renda do mês depois do imposto da profissão: o desvio da alíquota em vigor
@@ -439,7 +444,12 @@ class LifeBudget:
         return self.levers_on(anniversary).real_raise_of(source)
 
     def expense_on(self, day: date) -> Decimal:
+        """A despesa cheia do mês, que a meta e os imprevistos usam."""
         return cents(self.monthly_expense * self._inflation_factor(day))
+
+    def paid_expense_on(self, day: date) -> Decimal:
+        """A despesa que o jogador paga no mês: a cheia menos o desconto da tarifa social da profissão."""
+        return cents(self.expense_on(day) * (1 - self.rule.expense_discount))
 
     def readjustments(self, until: date) -> list[date]:
         """Os dias em que renda, despesa e meta sobem: o início e, com IPCA, cada aniversário."""
