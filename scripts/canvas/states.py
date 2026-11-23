@@ -3275,17 +3275,93 @@ def profession_freelancer_stalled(page: Page) -> None:
     ).to_be_visible()
 
 
+PROFESSION_GLOB = "**/api/simulation/profession"
+PORTFOLIO_GLOB = "**/api/portfolio"
+# O capital que a empresa do Empreendedor já acumulou nas receitas forjadas, e o que ele valia há 3 meses
+FORGED_CAPITAL = "38000.00"
+FORGED_CAPITAL_BEFORE = "36000.00"
+
+
+def profession_entrepreneur(page: Page) -> None:
+    """
+    Profissão de um Empreendedor com 30% do lucro reinvestido, salvo pela API. O capital é dado
+    forjado (a partida acaba de começar e ele nasce zerado): R$ 38.000, com o PIB positivo a 0,9% ao mês.
+    """
+    page_with_profession(page, "ENTREPRENEUR", "/profession")
+    api_send(page, "POST", "/api/simulation/reinvest-share", {"share": "0.3"})
+
+    def mechanic(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        block = body["mechanic"]
+        capital = float(FORGED_CAPITAL)
+        block.update(
+            status="ACTIVE",
+            capital=FORGED_CAPITAL,
+            capital_months_ago=FORGED_CAPITAL_BEFORE,
+            rate="0.009",
+            growth="0.014",
+            income=f"{capital * 0.009:.2f}",
+            recession=False,
+            negative_quarters=0,
+        )
+        block["sale_options"] = [
+            {
+                "share": str(share),
+                "part": f"{capital * share:.2f}",
+                "proceeds": f"{capital * share * 0.8:.2f}",
+            }
+            for share in (0.1, 0.25, 0.5, 1)
+        ]
+
+    patch_get(page, PROFESSION_GLOB, mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Sua mecânica: reinvestimento").first).to_be_visible()
+    expect(page.get_by_text("Capital da empresa").first).to_be_visible()
+
+
+def portfolio_entrepreneur(page: Page) -> None:
+    """Carteira de um Empreendedor com R$ 38.000 de capital da empresa (dado forjado): a linha do patrimônio travado com o ⓘ da regra de saída."""
+    page_with_profession(page, "ENTREPRENEUR", "/profession")
+
+    def portfolio(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        capital = float(FORGED_CAPITAL)
+        assets = float(body["cash"]) + capital
+        body["locked_assets"] = [
+            {
+                "kind": "COMPANY_CAPITAL",
+                "value": FORGED_CAPITAL,
+                "networth_pct": f"{capital / assets:.4f}",
+                "exit_rule": "Só vira caixa vendendo uma parte, com desconto de 20%.",
+            }
+        ]
+        body["locked_value"] = FORGED_CAPITAL
+        body["assets_value"] = f"{assets:.2f}"
+        body["cash_pct"] = f"{float(body['cash']) / assets:.4f}"
+        body["locked_networth_pct"] = f"{capital / assets:.4f}"
+
+    patch_get(page, PORTFOLIO_GLOB, portfolio)
+    page.goto("/portfolio")
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Capital da empresa").first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
     "profissao/exportador": profession_exporter,
     "profissao/exportador-trava": profession_exporter_lock,
     "profissao/autonomo": profession_freelancer,
+    "profissao/empreendedor": profession_entrepreneur,
     "profissao/autonomo-parado": profession_freelancer_stalled,
     "profissao/servidor": profession_public_servant,
     "profissao/bancario": profession_banker,
     "meta/clt": goal_clt,
     "credito/servidor-consignado": credit_public_servant_payroll,
     "carteira/clt": portfolio_clt,
+    "carteira/empreendedor": portfolio_entrepreneur,
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
     "renda-variavel/livro-com-ordem": stock_detail_with_order,
