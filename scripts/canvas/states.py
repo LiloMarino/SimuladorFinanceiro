@@ -3412,6 +3412,73 @@ def portfolio_retiree(page: Page) -> None:
     expect(page.get_by_text("Previdência").first).to_be_visible()
 
 
+def welfare_savings_mechanic(body: dict | list) -> None:
+    """Pé-de-Meia com R$ 3.200 de saldo e uma sobra de R$ 600 no mês (dado forjado: a partida acaba de começar e o saldo nasce zerado)."""
+    assert isinstance(body, dict)
+    block = body["mechanic"]
+    surplus = 600.0
+    rate = float(block["deposit_rate"])
+    cap = float(block["deposit_cap"])
+    block.update(
+        balance="3200.00",
+        surplus=f"{surplus:.2f}",
+        deposit=f"{min(surplus * rate, cap):.2f}",
+    )
+
+
+def profession_welfare(page: Page) -> None:
+    """Profissão de um Auxílio poupando: o saldo do Pé-de-Meia, o depósito do mês, a tarifa social e o convite ao curso técnico."""
+    page_with_profession(page, "WELFARE", "/profession")
+    patch_get(page, PROFESSION_GLOB, welfare_savings_mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(
+        page.get_by_text(
+            "Sua mecânica: Pé-de-Meia, tarifa social e curso técnico"
+        ).first
+    ).to_be_visible()
+
+
+def profession_welfare_course(page: Page) -> None:
+    """Profissão de um Auxílio no curso técnico, matriculado pela API: a barra de meses, a renda do bico pela metade e o que o curso entrega."""
+    page_with_profession(page, "WELFARE", "/profession")
+    api_send(page, "POST", "/api/simulation/enroll-course")
+    patch_get(page, PROFESSION_GLOB, welfare_savings_mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Curso técnico em andamento.").first).to_be_visible()
+
+
+def portfolio_welfare(page: Page) -> None:
+    """Carteira de um Auxílio com R$ 3.200 no Pé-de-Meia (dado forjado): a linha do patrimônio travado com o ⓘ da regra de saída."""
+    page_with_profession(page, "WELFARE", "/profession")
+
+    def portfolio(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        saved = 3200.0
+        assets = float(body["cash"]) + saved
+        body["locked_assets"] = [
+            {
+                "kind": "WELFARE_SAVINGS",
+                "value": "3200.00",
+                "networth_pct": f"{saved / assets:.4f}",
+                "exit_rule": "Libera a cada 2 anos, se o caixa não ficou negativo no período.",
+            }
+        ]
+        body["locked_value"] = "3200.00"
+        body["assets_value"] = f"{assets:.2f}"
+        body["cash_pct"] = f"{float(body['cash']) / assets:.4f}"
+        body["locked_networth_pct"] = f"{saved / assets:.4f}"
+
+    patch_get(page, PORTFOLIO_GLOB, portfolio)
+    page.goto("/portfolio")
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Pé-de-Meia").first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
     "profissao/exportador": profession_exporter,
@@ -3420,6 +3487,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "profissao/empreendedor": profession_entrepreneur,
     "profissao/aposentado": profession_retiree,
     "profissao/aposentado-resgate": profession_retiree_redeem,
+    "profissao/auxilio": profession_welfare,
+    "profissao/auxilio-curso": profession_welfare_course,
     "profissao/autonomo-parado": profession_freelancer_stalled,
     "profissao/servidor": profession_public_servant,
     "profissao/bancario": profession_banker,
@@ -3428,6 +3497,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "carteira/clt": portfolio_clt,
     "carteira/empreendedor": portfolio_entrepreneur,
     "carteira/aposentado": portfolio_retiree,
+    "carteira/auxilio": portfolio_welfare,
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
     "renda-variavel/livro-com-ordem": stock_detail_with_order,
