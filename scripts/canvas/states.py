@@ -3451,6 +3451,74 @@ def profession_welfare_course(page: Page) -> None:
     expect(page.get_by_text("Curso técnico em andamento.").first).to_be_visible()
 
 
+def graduate_ladder_mechanic(
+    step: str, done: list[str], months_done: int
+) -> Callable[[dict | list], None]:
+    """Escada do Recém-formado em andamento: `done` concluídos e `step` em curso há `months_done` meses (dado forjado: a partida acaba de começar e nenhum degrau tem meses andados)."""
+
+    def patch(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        block = body["mechanic"]
+        for row in block["steps"]:
+            name = row["step"]
+            if name == "GRADUATION":
+                continue
+            if name in done:
+                row.update(status="done", concluded_on="2011-02-01")
+            elif name == step:
+                row.update(
+                    status="current",
+                    months_done=months_done,
+                    ends_on="2012-08-01",
+                )
+        in_course = next(row for row in block["steps"] if row["step"] == step)
+        previous = [
+            row
+            for row in block["steps"]
+            if row["step"] in done or row["step"] == "GRADUATION"
+        ]
+        block.update(
+            status="ACTIVE",
+            final_multiple=previous[-1]["final_multiple"],
+            next_final_multiple=in_course["final_multiple"],
+            next_step=step,
+            next_opens_on="2012-08-01",
+            months_left=in_course["months"] - months_done,
+        )
+        stipend = next(row["stipend"] for row in block["steps"] if row["step"] == step)
+        if stipend is not None:
+            block["stipend_income"] = stipend
+
+    return patch
+
+
+def profession_new_graduate(page: Page) -> None:
+    """Profissão de um Recém-formado na especialização, morando com os pais: os três números, a escada com o degrau em curso e o próximo travado."""
+    page_with_profession(page, "NEW_GRADUATE", "/profession")
+    api_send(page, "POST", "/api/simulation/enroll-step", {"step": "SPECIALIZATION"})
+    patch_get(page, PROFESSION_GLOB, graduate_ladder_mechanic("SPECIALIZATION", [], 7))
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(
+        page.get_by_text("Sua mecânica: escada acadêmica e mora com os pais").first
+    ).to_be_visible()
+
+
+def profession_new_graduate_masters(page: Page) -> None:
+    """Profissão de um Recém-formado no mestrado (dado forjado: especialização concluída): a bolsa no lugar do salário e o doutorado travado."""
+    page_with_profession(page, "NEW_GRADUATE", "/profession")
+    patch_get(
+        page,
+        PROFESSION_GLOB,
+        graduate_ladder_mechanic("MASTERS", ["SPECIALIZATION"], 5),
+    )
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Mestrado em curso").first).to_be_visible()
+
+
 def portfolio_welfare(page: Page) -> None:
     """Carteira de um Auxílio com R$ 3.200 no Pé-de-Meia (dado forjado): a linha do patrimônio travado com o ⓘ da regra de saída."""
     page_with_profession(page, "WELFARE", "/profession")
@@ -3654,6 +3722,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "profissao/aposentado-resgate": profession_retiree_redeem,
     "profissao/auxilio": profession_welfare,
     "profissao/auxilio-curso": profession_welfare_course,
+    "profissao/recem-formado": profession_new_graduate,
+    "profissao/recem-formado-mestrado": profession_new_graduate_masters,
     "profissao/autonomo-parado": profession_freelancer_stalled,
     "profissao/servidor": profession_public_servant,
     "profissao/bancario": profession_banker,
