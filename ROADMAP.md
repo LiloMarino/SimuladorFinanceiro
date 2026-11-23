@@ -82,7 +82,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F328**](#f328) | Feature | Previdência do Aposentado | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -94,7 +93,7 @@
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (38 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (39 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 | — | — | — | ✅ |
 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 | — | — | — | ✅ |
 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | M29 · 4.3 | — | — | — | ✅ |
+| [**F328**](#f328) | Feature | Previdência do Aposentado | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | M29 · 4.3 | — | — | — | ✅ |
 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | — | — | ✅ |
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 16/26 concluídos
+> **Progresso:** 17/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -170,7 +170,7 @@
 | 13 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | — | ✅ Concluído |
 | 14 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | — | ✅ Concluído |
 | 15 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | — | ✅ Concluído |
-| 16 | [**F328**](#f328) | Feature | Previdência do Aposentado | [F315](#f315) | ⏳ Pendente |
+| 16 | [**F328**](#f328) | Feature | Previdência do Aposentado | — | ✅ Concluído |
 | 17 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | [F315](#f315) | ⏳ Pendente |
 | 18 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | [F315](#f315) | ⏳ Pendente |
 | 19 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | [F315](#f315) | ⏳ Pendente |
@@ -275,7 +275,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F328**](#f328) | Feature | Previdência do Aposentado | M29 · 4.3 · 16º | 1 | Médio | Bom | ⏳ |
 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | M29 · 4.3 · 17º | 1 | Médio | Bom | ⏳ |
 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | M29 · 4.3 · 18º | 1 | Médio | Bom | ⏳ |
 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | M29 · 4.3 · 19º | 1 | Médio | Bom | ⏳ |
@@ -343,7 +342,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F328** | Feature | Previdência do Aposentado | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Médio | Alto | Bom |
 | **F329** | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
 | **F330** | Feature | Relatório da casa do Corretor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
 | **F331** | Feature | Escada acadêmica do Recém-formado | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Médio | Alto | Bom |
@@ -554,9 +552,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f328"></a>
-**F328 — Previdência do Aposentado.** Serve N39; segue a D23. O Aposentado entra com um saldo de previdência privada além do capital da sala, travado e rendendo o CDI menos 1% ao ano de taxa. Na página Profissão ele pode converter parte ou todo o saldo em renda vitalícia, com a renda do mês calculada pelo juro real do dia (SELIC menos o IPCA esperado pelo Focus) e fixada daí em diante (corrigida pelo IPCA na sala com correção): converter com juro alto dá renda maior para sempre. Ou pode resgatar pagando IR regressivo pelo tempo do saldo no plano (35% até 2 anos, caindo 5 pontos a cada 2 anos, até 10% depois de 10). O saldo conta no patrimônio; o convertido vira renda. A saúde em dobro continua. Política razoável: converte metade quando o juro real passa de 6% ao ano e resgata o resto depois de 10 anos.
-
 <a id="f329"></a>
 **F329 — Pé-de-Meia, tarifa social e curso técnico do Auxílio.** Serve N39; segue a D23. **Tarifa social** (passivo): a despesa do Auxílio é 15% menor, por um campo novo na `ProfessionRule`. **Pé-de-Meia:** todo mês em que o caixa termina maior do que começou, o governo deposita 20% dessa sobra (teto de 10% do salário) numa conta travada, liberada a cada 2 anos se o caixa não ficou negativo no período; o bônus escala com o gasto com auxílio das alavancas do governo. **Curso técnico:** o jogador se matricula (12 meses com a renda do bico pela metade) e, ao concluir, vira CLT pela troca de profissão da base, perdendo o benefício e mantendo o saldo do Pé-de-Meia. Política razoável: poupa todo mês e faz o curso no começo quando a partida tem 10 anos ou mais.
 
@@ -679,6 +674,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F325** | Feature | Trava de câmbio e mix de exportação do Exportador | N39 | D23 | M29 · 4.3 |
 | **F326** | Feature | Tabela de preços do Autônomo | N39 | D23 | M29 · 4.3 |
 | **F327** | Feature | Reinvestimento do Empreendedor | N39 | D23 | M29 · 4.3 |
+| **F328** | Feature | Previdência do Aposentado | N39 | D23 | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
 | **F340** | Feature | Página Profissão e os blocos das mecânicas | N39 | D23 | M29 · 4.3 |
@@ -742,6 +738,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f327"></a>
 **F327 — Reinvestimento do Empreendedor.** Serve N39; segue a D23. Todo mês o Empreendedor escolhe a fração do lucro (a renda do mês) que volta para a empresa. O capital da empresa rende uma renda extra ligada ao PIB de 12 meses (alta no crescimento, negativa na recessão), conta no patrimônio como uma linha da carteira e só vira caixa vendendo uma parte da empresa com desconto de 20%. Estado na tabela da base; controles no bloco da página Profissão. Política razoável: reinveste 30% com o PIB acima do neutro e nada abaixo, e vende 25% quando o PIB fica negativo por dois trimestres.
+
+<a id="f328"></a>
+**F328 — Previdência do Aposentado.** Serve N39; segue a D23. O Aposentado entra com um saldo de previdência privada além do capital da sala, travado e rendendo o CDI menos 1% ao ano de taxa. Na página Profissão ele pode converter parte ou todo o saldo em renda vitalícia, com a renda do mês calculada pelo juro real do dia (SELIC menos o IPCA esperado pelo Focus) e fixada daí em diante (corrigida pelo IPCA na sala com correção): converter com juro alto dá renda maior para sempre. Ou pode resgatar pagando IR regressivo pelo tempo do saldo no plano (35% até 2 anos, caindo 5 pontos a cada 2 anos, até 10% depois de 10). O saldo conta no patrimônio; o convertido vira renda. A saúde em dobro continua. Política razoável: converte metade quando o juro real passa de 6% ao ano e resgata o resto depois de 10 anos.
 
 <a id="f337"></a>
 **F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
