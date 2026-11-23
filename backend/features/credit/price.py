@@ -7,11 +7,11 @@ próxima e fecha a taxa mensal cheia no vencimento, então a tabela bate com a
 Price clássica nas datas das parcelas.
 """
 
-import calendar
 from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_DOWN, ROUND_HALF_EVEN, Decimal
 
+from backend.core.dates import add_months
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.rates import compound, period_rate
 from backend.features.credit.rules import (
@@ -26,13 +26,6 @@ ZERO = Decimal(0)
 
 def money(value: Decimal) -> Decimal:
     return value.quantize(CENT, ROUND_HALF_EVEN)
-
-
-def add_months(day: date, months: int) -> date:
-    """Mesmo dia `months` meses depois; mês mais curto cai no último dia dele."""
-    index = day.month - 1 + months
-    year, month = day.year + index // 12, index % 12 + 1
-    return date(year, month, min(day.day, calendar.monthrange(year, month)[1]))
 
 
 def monthly_rate(annual_rate: Decimal) -> Decimal:

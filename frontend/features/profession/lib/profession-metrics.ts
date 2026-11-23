@@ -1,5 +1,5 @@
 import type { MetricInfo } from "@/shared/lib/metric-info";
-import { displayMoney, displayPercent, displaySignedPercent } from "@/shared/lib/utils/display";
+import { displayMoney, displayNumber, displayPercent, displaySignedPercent } from "@/shared/lib/utils/display";
 
 export const REAL_RAISE: MetricInfo = {
   label: "Reajuste acima do IPCA",
@@ -160,4 +160,28 @@ export const WELFARE_SPENDING: MetricInfo = {
   example: "Ex.: 5% do PIB contra 4% de referência → o auxílio paga 1,25× o de referência.",
   reading: "Acima da referência a renda sobe; abaixo, cai. Quem decide é o governo da sala.",
   format: (value) => displayPercent(value, 1),
+};
+
+export const LOCKED_DOLLAR: MetricInfo = {
+  label: "Dólar travado (câmbio futuro)",
+  description: "O dólar que você garante hoje para receber nos próximos meses",
+  definition:
+    "O dólar que você garante hoje para receber nos próximos meses. Ele é o dólar de hoje corrigido pela diferença entre o juro daqui e o de lá.",
+  example:
+    "Ex.: dólar a R$ 1,79, CDI a 13,66% e Fed Funds (o juro dos EUA) a 0,25%: em 12 meses o dólar travado é 1,79 × 1,1366 ÷ 1,0025 = R$ 2,0294.",
+  reading:
+    "Travar protege da queda do dólar e abre mão da alta. Se o dólar do dia cair abaixo do travado, a trava ganhou; se subir, perdeu.",
+  format: (value) => `R$ ${displayNumber(value, 4)}`,
+};
+
+export const EXPORT_MIX: MetricInfo = {
+  label: "Mix de exportação",
+  description: "Quanto da receita vem de vender para fora",
+  definition:
+    "A parte exportada da receita segue o dólar; a parte vendida no Brasil segue o PIB. O mix é a fração de cada uma, e ele muda uma vez por trimestre.",
+  example:
+    "Ex.: 60% exportado com o dólar 12 meses em +6,1% (fator 1,05×) e o PIB a 1,4% (fator 0,98×): a renda base vai a 0,6 × 1,05 + 0,4 × 0,98 = 1,02×.",
+  reading:
+    "Com o dólar subindo, mais exportação rende mais; com o dólar caindo e o PIB firme, vender no Brasil protege a renda.",
+  format: (value) => displayPercent(value, 0),
 };

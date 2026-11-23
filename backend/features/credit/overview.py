@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from uuid import UUID
 
+from backend.core.dates import add_months
 from backend.core.dto.credit import (
     CreditOfferDTO,
     CreditOverviewDTO,
@@ -46,7 +47,6 @@ from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
     ZERO,
     ScheduleRow,
-    add_months,
     affordable_principal,
     monthly_rate,
     total_interest,

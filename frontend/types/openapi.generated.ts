@@ -4536,6 +4536,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/exchange-lock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Contratar a trava de câmbio do Exportador
+         * @description Contrata um câmbio futuro para `share` (de 1% a 100%) da receita exportada por `months` (6 ou 12) meses: a parte travada recebe pelo dólar do dia corrigido pelo CDI contra os Fed Funds, suba ou caia o dólar. Vale a partir do próximo pagamento, não se desfaz antes do vencimento e não ajusta o caixa. Responde 409 para outra profissão, para fração ou prazo fora do permitido e com outra trava ativa.
+         */
+        post: operations["lock_exchange_api_simulation_exchange_lock_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/export-mix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mudar o mix de exportação do Exportador
+         * @description Muda a fração exportada da receita (de 0% a 100%): a parte exportada segue o dólar e a vendida no Brasil segue o PIB. Vale a partir do próximo pagamento. A mudança é livre na primeira vez e depois só no 1º dia do trimestre seguinte: antes disso responde 409, assim como para outra profissão e para a fração que já é a atual.
+         */
+        post: operations["set_export_mix_api_simulation_export_mix_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/life-history": {
         parameters: {
             query?: never;
@@ -7715,10 +7755,90 @@ export interface components {
             /** Code */
             code?: string | null;
         };
+        /**
+         * ExchangeLockDTO
+         * @description A trava de câmbio em vigor e o que ela rendeu até agora.
+         */
+        ExchangeLockDTO: {
+            /** Locked Dollar */
+            locked_dollar: string;
+            /** Share */
+            share: string;
+            /** Months */
+            months: number;
+            /** Paid Months */
+            paid_months: number;
+            /**
+             * Expires On
+             * Format: date
+             */
+            expires_on: string;
+            /** Dollar Gap */
+            dollar_gap: string;
+            /** Gain */
+            gain: string;
+        };
+        /**
+         * ExchangeLockOptionDTO
+         * @description Uma opção de prazo da trava, com o dólar que ela garante hoje.
+         */
+        ExchangeLockOptionDTO: {
+            /** Months */
+            months: number;
+            /** Locked Dollar */
+            locked_dollar: string;
+        };
+        /** ExchangeLockRequest */
+        ExchangeLockRequest: {
+            /** Share */
+            share: number | string;
+            /** Months */
+            months: number;
+        };
         /** ExpelRequest */
         ExpelRequest: {
             /** Nickname */
             nickname: string;
+        };
+        /** ExportMixRequest */
+        ExportMixRequest: {
+            /** Share */
+            share: number | string;
+        };
+        /**
+         * ExporterMechanicDTO
+         * @description Trava de câmbio e mix de exportação do Exportador.
+         */
+        ExporterMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "exporter";
+            status: components["schemas"]["MechanicStatus"];
+            /** Dollar */
+            dollar: string;
+            /** Dollar Change */
+            dollar_change: string;
+            /** Growth */
+            growth: string;
+            /** Export Share */
+            export_share: string;
+            /** Exported Factor */
+            exported_factor: string;
+            /** Domestic Factor */
+            domestic_factor: string;
+            /** Mix Factor */
+            mix_factor: string;
+            /** Exported Revenue */
+            exported_revenue: string;
+            /** Can Change Mix */
+            can_change_mix: boolean;
+            /** Next Mix Change */
+            next_mix_change: string | null;
+            /** Lock Options */
+            lock_options: components["schemas"]["ExchangeLockOptionDTO"][];
+            lock: components["schemas"]["ExchangeLockDTO"] | null;
         };
         /** FederationAnswerRequest */
         FederationAnswerRequest: {
@@ -13462,7 +13582,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -27145,6 +27265,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["OvertimeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    lock_exchange_api_simulation_exchange_lock_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExchangeLockRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_export_mix_api_simulation_export_mix_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportMixRequest"];
             };
         };
         responses: {

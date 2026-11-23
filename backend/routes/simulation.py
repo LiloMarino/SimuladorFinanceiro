@@ -228,6 +228,17 @@ class OvertimeRequest(BaseModel):
     enabled: bool
 
 
+class ExchangeLockRequest(BaseModel):
+    # A fração da receita exportada que a trava cobre (0.5 = metade) e o prazo em meses
+    share: Decimal
+    months: int
+
+
+class ExportMixRequest(BaseModel):
+    # A fração da receita que é exportada (1 = tudo)
+    share: Decimal
+
+
 class PlayerProfessionRequest(BaseModel):
     profession: Profession
     # Sigla do partido; obrigatória para o Comissionado e ignorada nas demais profissões
@@ -1158,6 +1169,46 @@ def set_overtime(payload: OvertimeRequest, client_id: ClientID):
     simulation.apply_profession_action(
         user, SetOvertime(kind=OVERTIME_ON if payload.enabled else OVERTIME_OFF)
     )
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/exchange-lock",
+    response_model=ProfessionStateDTO,
+    summary="Contratar a trava de câmbio do Exportador",
+    description="Contrata um câmbio futuro para `share` (de 1% a 100%) da receita exportada por `months` (6 ou 12) meses: a parte travada recebe pelo dólar do dia corrigido pelo CDI contra os Fed Funds, suba ou caia o dólar. Vale a partir do próximo pagamento, não se desfaz antes do vencimento e não ajusta o caixa. Responde 409 para outra profissão, para fração ou prazo fora do permitido e com outra trava ativa.",
+)
+def lock_exchange(payload: ExchangeLockRequest, client_id: ClientID):
+    """
+    Contrata a trava de câmbio de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.lock_exchange(user, payload.share, payload.months)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/export-mix",
+    response_model=ProfessionStateDTO,
+    summary="Mudar o mix de exportação do Exportador",
+    description="Muda a fração exportada da receita (de 0% a 100%): a parte exportada segue o dólar e a vendida no Brasil segue o PIB. Vale a partir do próximo pagamento. A mudança é livre na primeira vez e depois só no 1º dia do trimestre seguinte: antes disso responde 409, assim como para outra profissão e para a fração que já é a atual.",
+)
+def set_export_mix(payload: ExportMixRequest, client_id: ClientID):
+    """
+    Muda o mix de exportação de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.set_export_mix(user, payload.share)
     return simulation.get_profession_state(client_id)
 
 

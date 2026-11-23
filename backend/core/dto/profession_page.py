@@ -103,6 +103,51 @@ class CltMechanicDTO(BaseDTO):
     overtime_waiting: bool
 
 
+class ExchangeLockOptionDTO(BaseDTO):
+    """Uma opção de prazo da trava, com o dólar que ela garante hoje."""
+
+    months: int
+    locked_dollar: Decimal
+
+
+class ExchangeLockDTO(BaseDTO):
+    """A trava de câmbio em vigor e o que ela rendeu até agora."""
+
+    locked_dollar: Decimal
+    # A fração da receita exportada que ela cobre e o prazo contratado
+    share: Decimal
+    months: int
+    paid_months: int
+    expires_on: date
+    # O dólar travado menos o dólar de hoje: positivo quando a trava paga mais por dólar
+    dollar_gap: Decimal
+    # Soma, mês a mês desde a contratação, da renda da parte travada menos a que o dólar do mês daria
+    gain: Decimal
+
+
+class ExporterMechanicDTO(BaseDTO):
+    """Trava de câmbio e mix de exportação do Exportador."""
+
+    kind: Literal["exporter"] = "exporter"
+    status: MechanicStatus
+    # O dólar de hoje em reais, a variação dele em 12 meses e o PIB de 12 meses
+    dollar: Decimal
+    dollar_change: Decimal
+    growth: Decimal
+    # A fração da renda que é exportada e os fatores da renda: da parte exportada (com a trava), da vendida no Brasil e das duas juntas
+    export_share: Decimal
+    exported_factor: Decimal
+    domestic_factor: Decimal
+    mix_factor: Decimal
+    # Quanto da renda bruta do mês vem da exportação, a base da fração que a trava cobre
+    exported_revenue: Decimal
+    # O mix muda uma vez por trimestre: se pode agora e quando libera de novo (nulo antes da primeira mudança)
+    can_change_mix: bool
+    next_mix_change: date | None
+    lock_options: list[ExchangeLockOptionDTO]
+    lock: ExchangeLockDTO | None
+
+
 class PublicServantMechanicDTO(BaseDTO):
     """Consignado do Servidor."""
 
@@ -185,6 +230,7 @@ class NoMechanicDTO(BaseDTO):
 
 MechanicBlockDTO = Annotated[
     CltMechanicDTO
+    | ExporterMechanicDTO
     | PublicServantMechanicDTO
     | BankerMechanicDTO
     | HeirMechanicDTO

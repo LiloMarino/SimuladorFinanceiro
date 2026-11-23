@@ -7,6 +7,7 @@ from backend.core.clt import (
     OVERTIME_HEALTH_MULTIPLE,
     OVERTIME_INCOME_RATE,
 )
+from backend.core.dates import add_months
 from backend.core.dto.base import BaseDTO
 from backend.core.enum import LockedAssetKind, Profession
 
@@ -80,6 +81,31 @@ class CltState(MechanicState):
         ]
 
 
+class ExchangeLock(BaseDTO):
+    """A trava de câmbio do Exportador: o dólar combinado para uma fração da receita exportada e o que ela já rendeu."""
+
+    # A fração da receita exportada que a trava cobre (0.5 = metade)
+    share: Decimal
+    months: int
+    locked_dollar: Decimal
+    contracted_on: date
+    # Quantos pagamentos já usaram a trava e quanto ela rendeu a mais (ou a menos) neles
+    paid_months: int = 0
+    gain: Decimal = Decimal(0)
+
+    @property
+    def expires_on(self) -> date:
+        return add_months(self.contracted_on, self.months)
+
+
+class ExporterState(MechanicState):
+    """O estado do Exportador: a fração exportada da receita, a última mudança do mix e a trava de câmbio."""
+
+    export_share: Decimal = Decimal(1)
+    mix_changed_on: date | None = None
+    lock: ExchangeLock | None = None
+
+
 class MechanicAction(BaseDTO):
     """Uma ação do jogador (ou da política do bot) sobre a mecânica; `kind` é o nome dela no histórico da vida."""
 
@@ -103,6 +129,32 @@ class SetOvertime(MechanicAction):
         return self.kind == OVERTIME_ON
 
 
+# O nome de cada lançamento do Exportador no histórico da vida
+EXCHANGE_LOCK = "exchange_lock"
+EXPORT_MIX = "export_mix"
+EXCHANGE_LOCK_ENDED = "exchange_lock_ended"
+
+
+class ExporterAction(MechanicAction):
+    """Uma ação do Exportador; é o tipo que a mecânica aceita."""
+
+
+class LockExchange(ExporterAction):
+    """Contrata a trava de câmbio; o dólar travado é o da cotação do servidor no dia da ação."""
+
+    kind: str = Field(default=EXCHANGE_LOCK, pattern=rf"^{EXCHANGE_LOCK}$")
+    share: Decimal
+    months: int
+    locked_dollar: Decimal
+
+
+class SetExportMix(ExporterAction):
+    """Muda a fração exportada da receita."""
+
+    kind: str = Field(default=EXPORT_MIX, pattern=rf"^{EXPORT_MIX}$")
+    share: Decimal
+
+
 class ProfessionPeriodDTO(BaseDTO):
     """A profissão que o jogador exerce a partir de `start`, até o início do período seguinte."""
 
@@ -118,7 +170,10 @@ class ProfessionStateDTO(BaseDTO):
 
 
 # O tipo do estado de cada profissão com mecânica; as demais usam o tipo base
-STATE_TYPES: dict[Profession, type[MechanicState]] = {Profession.CLT: CltState}
+STATE_TYPES: dict[Profession, type[MechanicState]] = {
+    Profession.CLT: CltState,
+    Profession.EXPORTER: ExporterState,
+}
 
 
 def state_type_of(profession: Profession) -> type[MechanicState]:

@@ -5,7 +5,6 @@ partido do computador, os grupos que a emenda e a quebra atingem e o acordo em s
 função pura sobre números, e o estado da partida guarda os acordos.
 """
 
-import calendar
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import date, timedelta
@@ -150,12 +149,6 @@ def break_rejection(mix: Mapping[VoterGroup, Decimal]) -> dict[VoterGroup, Decim
 def month_support(mix: Mapping[VoterGroup, Decimal]) -> dict[VoterGroup, Decimal]:
     """O apoio que um mês de acordo soma ao partido aliado em cada grupo."""
     return {g: MONTHLY_SUPPORT * w for g, w in group_weights(mix).items()}
-
-
-def add_months(day: date, months: int) -> date:
-    index = day.month - 1 + months
-    year, month = day.year + index // 12, index % 12 + 1
-    return date(year, month, min(day.day, calendar.monthrange(year, month)[1]))
 
 
 def retry_from(declined: date) -> date:

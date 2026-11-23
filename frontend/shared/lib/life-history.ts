@@ -59,6 +59,9 @@ const PROFESSION_ACTION_TEXTS: Record<string, string> = {
   overtime_off: "Desligou a hora extra",
   overtime_ended: "A hora extra acabou com a recessão",
   overtime_available: "A hora extra pode voltar",
+  exchange_lock: "Contratou a trava de câmbio",
+  exchange_lock_ended: "A trava de câmbio venceu",
+  export_mix: "Mudou o mix de exportação",
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia

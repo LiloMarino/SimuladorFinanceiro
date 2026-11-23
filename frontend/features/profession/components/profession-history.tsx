@@ -29,6 +29,9 @@ type Filter = "ALL" | "PLAYER" | "GAME";
 const NEWEST_FIRST: TableSort<LifeHistorySort> = { column: "date", direction: "desc" };
 const COLUMNS = 3;
 
+/** O `id` da seção do histórico, destino dos links "Histórico da profissão" dos blocos */
+export const PROFESSION_HISTORY_ID = "profession-history";
+
 /** "Histórico de uso": o que o jogador fez na profissão e o que o jogo mudou nela, do mais recente ao mais antigo. */
 export function ProfessionHistory() {
   const [filter, setFilter] = useState<Filter>("ALL");
@@ -60,7 +63,7 @@ export function ProfessionHistory() {
   ];
 
   return (
-    <Card>
+    <Card id={PROFESSION_HISTORY_ID}>
       <CardHeader>
         <CardTitle>Histórico de uso</CardTitle>
         <CardDescription>O que você fez e o que o jogo mudou na sua profissão</CardDescription>

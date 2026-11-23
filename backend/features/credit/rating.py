@@ -7,8 +7,9 @@ from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_UP, Decimal
 
+from backend.core.dates import add_months
 from backend.core.enum import CreditGrade
-from backend.features.credit.price import ZERO, add_months
+from backend.features.credit.price import ZERO
 from backend.features.credit.rules import (
     LATE_WINDOW_MONTHS,
     LEVERAGE_MAX_POINTS,

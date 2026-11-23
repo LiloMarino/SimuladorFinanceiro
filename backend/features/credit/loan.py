@@ -12,11 +12,11 @@ from dataclasses import dataclass, replace
 from datetime import date
 from decimal import Decimal
 
+from backend.core.dates import add_months
 from backend.core.enum import PrepaymentMode
 from backend.features.credit.price import (
     ZERO,
     ScheduleRow,
-    add_months,
     grown_balance,
     installment,
     money,

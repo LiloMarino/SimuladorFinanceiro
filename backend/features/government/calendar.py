@@ -6,8 +6,8 @@ seguintes a cada 4 anos. Data que não é dia útil passa para o dia útil segui
 from dataclasses import dataclass
 from datetime import date, timedelta
 
+from backend.core.dates import add_months
 from backend.core.utils import is_business_day, next_business_day
-from backend.features.government.deals import add_months
 
 TERM_YEARS = 4
 CAMPAIGN_YEARS = 1

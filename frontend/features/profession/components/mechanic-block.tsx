@@ -17,13 +17,15 @@ type MechanicBlockProps = {
   description: string;
   /** Sem estado, o bloco só informa (profissão sem mecânica a ligar) */
   status?: MechanicStatus;
-  /** As telas onde o produto da mecânica mora */
-  links?: { label: string; to: string }[];
+  /** A ação principal do bloco, ao lado do estado */
+  action?: ReactNode;
+  /** As telas onde o produto da mecânica mora, ou o `id` de uma seção da própria página */
+  links?: ({ label: string; to: string } | { label: string; anchor: string })[];
   children: ReactNode;
 };
 
 /** O molde do bloco da mecânica: título, estado, o conteúdo e o rodapé "Também em". */
-export function MechanicBlock({ title, description, status, links = [], children }: MechanicBlockProps) {
+export function MechanicBlock({ title, description, status, action, links = [], children }: MechanicBlockProps) {
   const badge = status && STATUS_BADGES[status];
   return (
     <Card>
@@ -32,7 +34,12 @@ export function MechanicBlock({ title, description, status, links = [], children
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </div>
-        {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
+        {(badge || action) && (
+          <div className="flex items-center gap-2">
+            {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
+            {action}
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">{children}</div>
@@ -42,11 +49,21 @@ export function MechanicBlock({ title, description, status, links = [], children
           {/* Também em */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
             <span className="text-muted-foreground">Também em</span>
-            {links.map((link) => (
-              <Button key={link.to + link.label} variant="link" nativeButton={false} render={<Link to={link.to} />}>
-                {link.label}
-              </Button>
-            ))}
+            {links.map((link) =>
+              "anchor" in link ? (
+                <Button
+                  key={link.anchor}
+                  variant="link"
+                  onClick={() => document.getElementById(link.anchor)?.scrollIntoView({ behavior: "smooth" })}
+                >
+                  {link.label}
+                </Button>
+              ) : (
+                <Button key={link.to + link.label} variant="link" nativeButton={false} render={<Link to={link.to} />}>
+                  {link.label}
+                </Button>
+              ),
+            )}
           </div>
         </CardFooter>
       )}

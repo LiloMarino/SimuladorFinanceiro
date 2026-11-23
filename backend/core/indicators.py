@@ -220,6 +220,18 @@ def annual_index_rate(
     return annualize_daily(value)
 
 
+def month_turns(on: date, months: int) -> list[date]:
+    """As viradas de mês (o 1º pregão de cada mês) dos `months` meses até o de `on`, da mais recente à mais antiga; a do mês de `on` só entra se já chegou."""
+    turns: list[date] = []
+    for back in range(months):
+        index = on.year * 12 + on.month - 1 - back
+        first = date(index // 12, index % 12 + 1, 1)
+        turn = next_month_turn(first - timedelta(days=1))
+        if turn <= on:
+            turns.append(turn)
+    return turns
+
+
 def monthly_average_rate(
     series: IndicatorSeries, on: date, months: int, *, stored: bool = False
 ) -> Decimal | None:
@@ -229,12 +241,7 @@ def monthly_average_rate(
     nenhum mês tem amostra.
     """
     samples: list[Decimal] = []
-    for back in range(months):
-        index = on.year * 12 + on.month - 1 - back
-        first = date(index // 12, index % 12 + 1, 1)
-        turn = next_month_turn(first - timedelta(days=1))
-        if turn > on:
-            continue
+    for turn in month_turns(on, months):
         value = last_known_rate(series, turn, stored=stored)
         if value is not None:
             samples.append(annualize_daily(value))

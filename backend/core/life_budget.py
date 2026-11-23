@@ -2,10 +2,10 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass, replace
-from datetime import date
+from datetime import date, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 
-from backend.core.dto.profession import MechanicState
+from backend.core.dto.profession import ExchangeLock, ExporterState, MechanicState
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import IncomeLoss, IndicatorSeries, Profession
 from backend.core.indicators import (
@@ -16,6 +16,7 @@ from backend.core.indicators import (
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.professions import (
     DAYS_PER_YEAR,
+    DOLLAR_WINDOW_DAYS,
     DRIVER_CURVES,
     PROFESSIONS,
     REFERENCE_RATES,
@@ -52,6 +53,10 @@ def no_dollar_change(day: date) -> Decimal:
     return DRIVER_CURVES[IncomeDriver.DOLLAR].neutral
 
 
+def parity_dollar(day: date) -> Decimal:
+    return Decimal(1)
+
+
 def neutral_selic(day: date) -> Decimal:
     return DRIVER_CURVES[IncomeDriver.SELIC].neutral
 
@@ -82,6 +87,8 @@ class LifeBudget:
     # A variação do dólar em 12 meses, a SELIC ao ano e o retorno do Ibovespa em 12
     # meses da partida em cada dia, em fração; o padrão é o valor neutro de cada curva
     dollar_change_on: Callable[[date], Decimal] = no_dollar_change
+    # O dólar da partida em reais em cada dia; a trava de câmbio compara o dólar travado com o de 12 meses antes
+    dollar_on: Callable[[date], Decimal] = parity_dollar
     selic_on: Callable[[date], Decimal] = neutral_selic
     stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return
     profession: Profession = Profession.CLT
@@ -105,6 +112,7 @@ class LifeBudget:
         dollar_change_on: Callable[[date], Decimal] = no_dollar_change,
         selic_on: Callable[[date], Decimal] = neutral_selic,
         stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return,
+        dollar_on: Callable[[date], Decimal] = parity_dollar,
     ) -> "LifeBudget":
         return cls(
             monthly_salary=settings.monthly_salary,
@@ -117,6 +125,7 @@ class LifeBudget:
             dollar_change_on=dollar_change_on,
             selic_on=selic_on,
             stocks_return_on=stocks_return_on,
+            dollar_on=dollar_on,
         )
 
     def for_profession(self, profession: Profession) -> "LifeBudget":
@@ -202,9 +211,69 @@ class LifeBudget:
             case None:
                 return None
 
+    def exporter_state(self) -> ExporterState | None:
+        """O estado do Exportador, com o mix e a trava que movem a renda; nulo para as demais profissões."""
+        state = self.current_mechanic_state()
+        return state if isinstance(state, ExporterState) else None
+
+    def gdp_factor_on(self, day: date) -> Decimal:
+        """O fator que o PIB de 12 meses põe na renda do dia."""
+        return driver_factor(DRIVER_CURVES[IncomeDriver.GDP], self.growth_on(day))
+
+    def free_dollar_factor_on(self, day: date) -> Decimal:
+        """O fator que o dólar do dia põe na renda, sem trava."""
+        return driver_factor(
+            DRIVER_CURVES[IncomeDriver.DOLLAR], self.dollar_change_on(day)
+        )
+
+    def locked_dollar_factor_on(self, lock: ExchangeLock, day: date) -> Decimal:
+        """O fator da mesma curva com o dólar travado no lugar do dólar do dia: variação = dólar travado ÷ dólar de 365 dias antes menos 1."""
+        before = self.dollar_on(day - timedelta(days=DOLLAR_WINDOW_DAYS))
+        return driver_factor(
+            DRIVER_CURVES[IncomeDriver.DOLLAR], lock.locked_dollar / before - 1
+        )
+
+    def dollar_factor_on(self, day: date) -> Decimal:
+        """O fator da receita exportada: a parte travada usa o dólar travado e a solta o dólar do dia."""
+        free = self.free_dollar_factor_on(day)
+        exporter = self.exporter_state()
+        lock = None if exporter is None else exporter.lock
+        if lock is None:
+            return free
+        return (
+            lock.share * self.locked_dollar_factor_on(lock, day)
+            + (1 - lock.share) * free
+        )
+
+    def lock_gain_on(self, day: date) -> Decimal:
+        """
+        O que a trava rende no mês: a renda da parte travada com o dólar travado menos a
+        que ela daria com o dólar do dia, depois do imposto; zero sem trava.
+        """
+        exporter = self.exporter_state()
+        if (
+            exporter is None
+            or exporter.lock is None
+            or self.presidency_multiple is not None
+        ):
+            return Decimal(0)
+        lock = exporter.lock
+        base = self.monthly_salary * self.multiple_on(day) * self._salary_factor(day)
+        difference = self.locked_dollar_factor_on(
+            lock, day
+        ) - self.free_dollar_factor_on(day)
+        gain = base * exporter.export_share * lock.share * difference
+        return cents(gain * (1 - self.tax_deviation_on(day)))
+
     def driver_factor_on(self, day: date) -> Decimal:
-        """O fator que a variável da profissão põe na renda do dia; 1 sem variável."""
+        """O fator que a variável da profissão põe na renda do dia; 1 sem variável. O Exportador pondera o dólar (com a trava) e o PIB pelo mix."""
         driver = self.rule.driver
+        exporter = self.exporter_state()
+        if exporter is not None and driver is IncomeDriver.DOLLAR:
+            share = exporter.export_share
+            return share * self.dollar_factor_on(day) + (
+                1 - share
+            ) * self.gdp_factor_on(day)
         value = self.driver_value_on(day)
         if driver is None or value is None:
             return Decimal(1)

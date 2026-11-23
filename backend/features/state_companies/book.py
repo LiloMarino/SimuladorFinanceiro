@@ -11,6 +11,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from typing import Protocol
 
 from backend.core import repository
+from backend.core.dates import add_months
 from backend.core.dto.corporate_event import CorporateEventDTO
 from backend.core.dto.state_company import StateCompanyDTO, StateCompanyMonthDTO
 from backend.core.enum import (
@@ -124,11 +125,6 @@ def _effect_month(day: date) -> date:
 
 def _next_month(month: date) -> date:
     return date(month.year + month.month // 12, month.month % 12 + 1, 1)
-
-
-def _add_months(month: date, months: int) -> date:
-    total = month.year * 12 + month.month - 1 + months
-    return date(total // 12, total % 12 + 1, 1)
 
 
 def _months_between(start: date, end: date) -> int:
@@ -364,10 +360,10 @@ class StateCompanyBook:
             founded_month = _month_start(company.founded_on)
             first = _next_month(founded_month)
             policies = self._policies(
-                company.ticker, first, _add_months(first, months - 1), through
+                company.ticker, first, add_months(first, months - 1), through
             )
             growth_path = [
-                self._growth_gap(_add_months(founded_month, month) - timedelta(days=1))
+                self._growth_gap(add_months(founded_month, month) - timedelta(days=1))
                 for month in range(months)
             ]
         return fair_value.fair_value(

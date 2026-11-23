@@ -20,6 +20,8 @@ REFERENCE_WELFARE_SPENDING = Decimal("0.015")
 
 # Dias do ano médio, para contar os anos de uma carreira e de uma herança
 DAYS_PER_YEAR = Decimal("365.25")
+# A janela da variação do dólar que move a renda, em dias
+DOLLAR_WINDOW_DAYS = 365
 
 # A taxa ao ano que traz a herança do Herdeiro a valor presente: o patrimônio que rende
 # os salários da partida inteira. Com correção pela inflação o salário sobe com o IPCA e

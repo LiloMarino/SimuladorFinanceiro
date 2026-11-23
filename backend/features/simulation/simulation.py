@@ -14,6 +14,7 @@ from uuid import UUID
 
 from backend import config
 from backend.core import repository
+from backend.core.dates import add_months
 from backend.core.dto.budget import BudgetDTO
 from backend.core.dto.campaign import (
     CampaignActionRequest,
@@ -106,14 +107,18 @@ from backend.core.dto.patrimonial_history import (
 from backend.core.dto.pending import PendingDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.profession import (
+    EXCHANGE_LOCK_ENDED,
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
     CltState,
+    ExporterState,
     LockedAssetDTO,
+    LockExchange,
     MechanicAction,
     MechanicState,
     ProfessionPeriodDTO,
     ProfessionStateDTO,
+    SetExportMix,
 )
 from backend.core.dto.profession_page import MechanicBlockDTO, ProfessionPageDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
@@ -178,10 +183,18 @@ from backend.core.exceptions.http_exceptions import (
     NotFoundError,
     UnprocessableEntityError,
 )
+from backend.core.exporter import (
+    BOT_DOLLAR_AVERAGE_MONTHS,
+    BOT_LOCK_MONTHS,
+    BOT_LOCK_SHARE,
+    LOCK_TERMS_MONTHS,
+    forward_dollar,
+)
 from backend.core.fund_reference import FundReference
 from backend.core.indicators import (
     annual_index_rate,
     last_known_rate,
+    month_turns,
     monthly_average_rate,
 )
 from backend.core.life_budget import LifeBudget
@@ -206,6 +219,7 @@ from backend.core.metrics import (
 from backend.core.networth import networth
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.professions import (
+    DOLLAR_WINDOW_DAYS,
     DRIVER_CURVES,
     HEALTH_EVENT_KEY,
     IncomeDriver,
@@ -241,10 +255,10 @@ from backend.features.credit.overview import (
     build_prepayment_preview,
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
-from backend.features.credit.price import add_months
 from backend.features.credit.rules import PAYROLL_MARGIN
 from backend.features.economy.growth import (
     MacroCourse,
+    MacroMonth,
     history_dollar,
     stocks_drawdown,
     stocks_return,
@@ -315,6 +329,12 @@ from backend.features.profession.clt import (
     overtime_ends_with_recession,
     overtime_returns,
 )
+from backend.features.profession.exporter import (
+    after_payment,
+    lock_wanted,
+    mix_change_allowed,
+    mix_target,
+)
 from backend.features.profession.mechanics import apply_action
 from backend.features.profession.page import (
     appointee_block,
@@ -322,6 +342,7 @@ from backend.features.profession.page import (
     build_header,
     build_series,
     clt_block,
+    exporter_block,
     heir_block,
     no_block,
     offers_banker_block,
@@ -402,8 +423,6 @@ SPARKLINE_DAYS = 30
 ELIMINATED_MESSAGE = (
     "Você perdeu o controle da sua gestora e agora só assiste a partida."
 )
-# A janela da variação do dólar que move a renda do exportador
-DOLLAR_WINDOW_DAYS = 365
 
 logger = logging.getLogger(__name__)
 P = ParamSpec("P")
@@ -510,6 +529,7 @@ class Simulation:
                 self._dollar_change_on,
                 self._selic_on,
                 self._stocks_return_on,
+                lambda day: self._engine.dollar_on(day),
             )
             if settings.game_type is GameType.FINANCIAL_INDEPENDENCE
             else None
@@ -3239,6 +3259,7 @@ class Simulation:
                 self._engine.credit_book.collect_payroll(user.client_id, self._speed)
                 self._engine.pay_expense(user.client_id, budget.expense_on(day))
                 self._run_fgts_month(user, budget, day, salary_paid=salary > 0)
+                self._run_exchange_lock_month(user, budget, day, salary_paid=salary > 0)
 
         for user in users:
             budget = budgets[user.client_id]
@@ -3429,6 +3450,11 @@ class Simulation:
                     Decimal(0) if tr is None else from_percent(tr),
                     budget.growth_on(day),
                 )
+            case Profession.EXPORTER:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, ExporterState):
+                    return no_block()
+                return exporter_block(state, budget, day, self._exchange_quotes(day))
             case Profession.PUBLIC_SERVANT:
                 book = self._engine.credit_book
                 net_salary = budget.net_salary_on(day)
@@ -3503,6 +3529,40 @@ class Simulation:
         self._engine.record_profession_action(user.client_id, action.kind)
         return state
 
+    def _exchange_quotes(self, day: date) -> dict[int, Decimal]:
+        """O dólar travado de cada prazo do câmbio futuro em `day`: o dólar do dia corrigido pelo CDI contra os Fed Funds."""
+        spot = self._engine.dollar_on(day)
+        cdi = annual_index_rate(IndicatorSeries.CDI, day)
+        fed_funds = annual_index_rate(IndicatorSeries.FED_FUNDS, day)
+        return {
+            months: forward_dollar(spot, cdi, fed_funds, months)
+            for months in LOCK_TERMS_MONTHS
+        }
+
+    @synchronized
+    def lock_exchange(
+        self, user: UserDTO, share: Decimal, months: int
+    ) -> MechanicState:
+        """Contrata a trava de câmbio do Exportador pelo dólar travado do dia, pelo mesmo caminho das ações da mecânica."""
+        if self._profession_of(user.id) is not Profession.EXPORTER:
+            raise ConflictError("Só o Exportador contrata trava de câmbio.")
+        locked_dollar = forward_dollar(
+            self._engine.dollar_on(self._current_date),
+            annual_index_rate(IndicatorSeries.CDI, self._current_date),
+            annual_index_rate(IndicatorSeries.FED_FUNDS, self._current_date),
+            months,
+        )
+        return self.apply_profession_action(
+            user, LockExchange(share=share, months=months, locked_dollar=locked_dollar)
+        )
+
+    @synchronized
+    def set_export_mix(self, user: UserDTO, share: Decimal) -> MechanicState:
+        """Muda a fração exportada do Exportador."""
+        if self._profession_of(user.id) is not Profession.EXPORTER:
+            raise ConflictError("Só o Exportador muda o mix de exportação.")
+        return self.apply_profession_action(user, SetExportMix(share=share))
+
     @synchronized
     def switch_profession(self, user: UserDTO, profession: Profession) -> None:
         """
@@ -3562,6 +3622,7 @@ class Simulation:
                 self.apply_profession_action(user, action)
             self._run_payroll_policy(user, budgets[user.client_id], day)
             self._run_house_cdb_policy(user, budgets[user.client_id], reserve, day)
+            self._run_exporter_policy(user, day, macro)
 
     def _run_house_cdb_policy(
         self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
@@ -3585,6 +3646,53 @@ class Simulation:
         if amount <= 0:
             return
         self._buy_fixed_income(user.client_id, asset, amount)
+
+    def _run_exporter_policy(self, user: UserDTO, day: date, macro: MacroMonth) -> None:
+        """O Exportador-bot ajusta o mix pelo dólar e pelo PIB de 12 meses e trava o dólar acima da média, pelas mesmas ações dos jogadores."""
+        if self._profession_of(user.id) is not Profession.EXPORTER:
+            return
+        state = self._mechanic_state_of(user.id)
+        if not isinstance(state, ExporterState):
+            return
+        target = mix_target(self._dollar_change_on(day), macro.growth)
+        if target != state.export_share and mix_change_allowed(state, day):
+            state = self.set_export_mix(user, target)
+        dollar_start = self._dollar_history_start()
+        turn_dollars = [
+            self._engine.dollar_on(turn)
+            for turn in month_turns(day, BOT_DOLLAR_AVERAGE_MONTHS)
+            if dollar_start is not None and turn >= dollar_start
+        ]
+        if isinstance(state, ExporterState) and lock_wanted(
+            state, self._engine.dollar_on(day), turn_dollars
+        ):
+            self.lock_exchange(user, BOT_LOCK_SHARE, BOT_LOCK_MONTHS)
+
+    def _dollar_history_start(self) -> date | None:
+        """O primeiro dia da série do dólar; antes dele o motor devolve paridade, que não entra na média do bot."""
+        return repository.economic.get_history(IndicatorSeries.PTAX, stored=True).start
+
+    def _run_exchange_lock_month(
+        self, user: UserDTO, budget: LifeBudget, day: date, salary_paid: bool
+    ) -> None:
+        """
+        O pagamento do mês com a trava de câmbio: soma o que a trava rendeu e conta o
+        mês; no último pagamento a trava vence e o histórico registra o fim.
+        """
+        state = self._exporter_state_of(user.id)
+        if state is None or state.lock is None or not salary_paid:
+            return
+        state, ended = after_payment(state, budget.lock_gain_on(day))
+        self._profession_book.save_state(user.id, state)
+        if ended:
+            self._engine.record_profession_action(user.client_id, EXCHANGE_LOCK_ENDED)
+
+    def _exporter_state_of(self, user_id: int) -> ExporterState | None:
+        """O estado do Exportador de quem exerce a profissão na partida com profissões; nulo para as demais."""
+        if not self.settings.uses_professions:
+            return None
+        state = self._mechanic_state_of(user_id)
+        return state if isinstance(state, ExporterState) else None
 
     def _house_cdb_caps(self, day: date) -> dict[UUID, Decimal]:
         """O teto do CDB da casa de cada Bancário da partida: um salário líquido do mês de `day`."""

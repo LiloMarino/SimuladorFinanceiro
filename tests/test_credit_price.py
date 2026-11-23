@@ -3,10 +3,10 @@ from decimal import Decimal
 
 import pytest
 
+from backend.core.dates import add_months
 from backend.core.enum import PrepaymentMode
 from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
-    add_months,
     installment,
     overdue_charges,
     schedule,

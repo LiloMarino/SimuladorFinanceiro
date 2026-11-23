@@ -5,6 +5,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from backend.core import repository
+from backend.core.dates import add_months
 from backend.core.dto.fund import (
     FundAssemblyAutoVoteDTO,
     FundAssemblyBlock,
@@ -29,7 +30,6 @@ from backend.core.exceptions.http_exceptions import (
     UnprocessableEntityError,
 )
 from backend.core.utils import next_month_turn, ratio
-from backend.features.credit.price import add_months
 from backend.features.funds.fund_comanagers import operators_of
 from backend.features.market_maker.sessions import window_end, window_session
 from backend.features.simulation.simulation_engine import SimulationEngine

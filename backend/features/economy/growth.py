@@ -15,6 +15,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from backend.core import repository
+from backend.core.dates import quarter_start
 from backend.core.enum import IndicatorSeries
 from backend.core.indicators import annual_index_rate, last_known_value
 from backend.core.periods import MONTHS_PER_YEAR
@@ -273,10 +274,6 @@ def recorded_dollar(month_end: date) -> Decimal | None:
     if history.end is None or history.end < month_end.replace(day=1):
         return None
     return history.last_known(month_end)
-
-
-def quarter_start(day: date) -> date:
-    return date(day.year, 3 * ((day.month - 1) // 3) + 1, 1)
 
 
 def recorded(series: IndicatorSeries, day: date) -> Decimal | None:

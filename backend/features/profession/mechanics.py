@@ -8,11 +8,17 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date
 
-from backend.core.dto.profession import MechanicAction, MechanicState, SetOvertime
+from backend.core.dto.profession import (
+    ExporterAction,
+    MechanicAction,
+    MechanicState,
+    SetOvertime,
+)
 from backend.core.enum import Profession
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.features.economy.growth import MacroMonth
 from backend.features.profession.clt import set_overtime
+from backend.features.profession.exporter import apply_exporter
 
 
 @dataclass(frozen=True)
@@ -26,6 +32,7 @@ class Mechanic:
 
 MECHANICS: dict[Profession, Mechanic] = {
     Profession.CLT: Mechanic(SetOvertime, set_overtime),
+    Profession.EXPORTER: Mechanic(ExporterAction, apply_exporter),
 }
 
 

@@ -16,13 +16,17 @@ from backend.core.clt import (
     fgts_deposit,
     fgts_payout,
 )
+from backend.core.dates import add_months
 from backend.core.dto.credit import PayrollLoanDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.profession import CltState
+from backend.core.dto.profession import CltState, ExporterState
 from backend.core.dto.profession_page import (
     AppointeeMechanicDTO,
     BankerMechanicDTO,
     CltMechanicDTO,
+    ExchangeLockDTO,
+    ExchangeLockOptionDTO,
+    ExporterMechanicDTO,
     HeirMechanicDTO,
     HouseCdbDTO,
     IncomeHeaderDTO,
@@ -40,6 +44,7 @@ from backend.core.enum import (
     MeasureKind,
     MechanicStatus,
 )
+from backend.core.exporter import LOCK_TERMS_MONTHS
 from backend.core.life_budget import LifeBudget, cents
 from backend.core.professions import (
     DRIVER_CURVES,
@@ -48,10 +53,10 @@ from backend.core.professions import (
     LifeLevers,
     RealRaise,
 )
-from backend.features.credit.price import add_months
 from backend.features.credit.rules import PAYROLL_SPREAD
 from backend.features.economy.growth import NEUTRAL_UNEMPLOYMENT
 from backend.features.fixed_income.house_cdb import HOUSE_CDB_SPREAD
+from backend.features.profession.exporter import mix_change_allowed, next_mix_change
 from backend.features.simulation.life_events import layoff_factor_of
 
 # Quantos meses o gráfico de cada indicador mostra, contando o de hoje
@@ -151,7 +156,8 @@ def build_series(
     rule = budget.rule
     series: list[IncomeSeriesDTO] = []
     gdp_raise = rule.real_raise is RealRaise.GDP_SHARE
-    if gdp_raise or rule.driver is IncomeDriver.GDP:
+    mixes_gdp = budget.exporter_state() is not None
+    if gdp_raise or rule.driver is IncomeDriver.GDP or mixes_gdp:
         series.append(
             IncomeSeriesDTO(
                 key=IncomeSeriesKey.GDP,
@@ -164,7 +170,7 @@ def build_series(
                 else [],
                 effect=budget.real_raise_on(day)
                 if gdp_raise
-                else budget.driver_factor_on(day),
+                else budget.gdp_factor_on(day),
                 effect_kind=IncomeSeriesEffect.REAL_RAISE
                 if gdp_raise
                 else IncomeSeriesEffect.INCOME_FACTOR,
@@ -202,7 +208,9 @@ def build_series(
                 neutral=DRIVER_CURVES[driver].neutral,
                 points=_points(day, value_on),
                 guides=[],
-                effect=budget.driver_factor_on(day),
+                effect=budget.dollar_factor_on(day)
+                if driver is IncomeDriver.DOLLAR
+                else budget.driver_factor_on(day),
                 effect_kind=IncomeSeriesEffect.INCOME_FACTOR,
                 changes=[],
                 lever=False,
@@ -288,6 +296,51 @@ def clt_block(
         growth=growth,
         overtime_offered=offered,
         overtime_waiting=state.overtime_waiting,
+    )
+
+
+def exporter_block(
+    state: ExporterState, budget: LifeBudget, day: date, quotes: dict[int, Decimal]
+) -> ExporterMechanicDTO:
+    """
+    O bloco do Exportador: o mix com os fatores de cada parte, a trava em vigor (com o
+    ganho acumulado) e o dólar travado de cada prazo, que `quotes` traz por meses.
+    """
+    dollar = budget.dollar_on(day)
+    exported = budget.dollar_factor_on(day)
+    domestic = budget.gdp_factor_on(day)
+    combined = budget.driver_factor_on(day)
+    exported_part = state.export_share * exported
+    lock = state.lock
+    return ExporterMechanicDTO(
+        status=MechanicStatus.AVAILABLE if lock is None else MechanicStatus.ACTIVE,
+        dollar=dollar,
+        dollar_change=budget.dollar_change_on(day),
+        growth=budget.growth_on(day),
+        export_share=state.export_share,
+        exported_factor=exported,
+        domestic_factor=domestic,
+        mix_factor=combined,
+        exported_revenue=cents(budget.salary_on(day) * exported_part / combined)
+        if combined > 0
+        else Decimal(0),
+        can_change_mix=mix_change_allowed(state, day),
+        next_mix_change=next_mix_change(state),
+        lock_options=[
+            ExchangeLockOptionDTO(months=months, locked_dollar=quotes[months])
+            for months in LOCK_TERMS_MONTHS
+        ],
+        lock=None
+        if lock is None
+        else ExchangeLockDTO(
+            locked_dollar=lock.locked_dollar,
+            share=lock.share,
+            months=lock.months,
+            paid_months=lock.paid_months,
+            expires_on=lock.expires_on,
+            dollar_gap=lock.locked_dollar - dollar,
+            gain=lock.gain,
+        ),
     )
 
 
