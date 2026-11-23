@@ -3479,6 +3479,171 @@ def portfolio_welfare(page: Page) -> None:
     expect(page.get_by_text("Pé-de-Meia").first).to_be_visible()
 
 
+HOUSE_PICKS_GLOB = "**/api/simulation/house-picks"
+
+
+def house_item(
+    number: int,
+    month: str,
+    issued_on: str,
+    ticker: str,
+    side: str,
+    price: str,
+    target: str,
+    deadline: str,
+    result: str | None = None,
+    result_price: str | None = None,
+) -> dict:
+    """Uma recomendação da casa forjada, no formato do relatório do Corretor."""
+    return {
+        "id": number,
+        "report_month": month,
+        "issued_on": issued_on,
+        "ticker": ticker,
+        "side": side,
+        "price": price,
+        "target": target,
+        "deadline": deadline,
+        "result": result,
+        "result_price": result_price,
+        "resolved_on": None if result is None else deadline,
+    }
+
+
+def broker_reports_mechanic(body: dict | list) -> None:
+    """
+    Bloco do Corretor com o relatório de março e o de fevereiro já em parte vencido, o placar
+    em 14 de 22 e a comissão de uma sala que negociou R$ 12,4 mi (dado forjado: a partida acaba de
+    começar e ainda não tem relatório).
+    """
+    assert isinstance(body, dict)
+    block = body["mechanic"]
+    block.update(
+        status="ACTIVE",
+        current={
+            "month": "2012-03-01",
+            "issued_on": "2012-03-07",
+            "items": [
+                house_item(
+                    1,
+                    "2012-03-01",
+                    "2012-03-07",
+                    "PETR4",
+                    "buy",
+                    "30.00",
+                    "34.50",
+                    "2012-06-29",
+                ),
+                house_item(
+                    2,
+                    "2012-03-01",
+                    "2012-03-07",
+                    "VALE3",
+                    "sell",
+                    "52.10",
+                    "47.00",
+                    "2012-05-31",
+                ),
+                house_item(
+                    3,
+                    "2012-03-01",
+                    "2012-03-07",
+                    "ITUB4",
+                    "buy",
+                    "24.80",
+                    "27.10",
+                    "2012-04-30",
+                ),
+            ],
+        },
+        previous={
+            "month": "2012-02-01",
+            "issued_on": "2012-02-07",
+            "items": [
+                house_item(
+                    4,
+                    "2012-02-01",
+                    "2012-02-07",
+                    "BBDC4",
+                    "buy",
+                    "29.10",
+                    "33.40",
+                    "2012-03-30",
+                    "hit",
+                    "33.40",
+                ),
+                house_item(
+                    5,
+                    "2012-02-01",
+                    "2012-02-07",
+                    "ABEV3",
+                    "sell",
+                    "21.00",
+                    "18.00",
+                    "2012-03-30",
+                    "miss",
+                    "18.90",
+                ),
+                house_item(
+                    6,
+                    "2012-02-01",
+                    "2012-02-07",
+                    "WEGE3",
+                    "buy",
+                    "38.00",
+                    "42.50",
+                    "2012-05-31",
+                ),
+            ],
+        },
+        hits=14,
+        resolved=22,
+        hit_rate="0.6364",
+        commission="3100.00",
+        commission_rate="0.0005",
+        volume="12400000.00",
+        brokers=2,
+        capped=False,
+    )
+    block["income"] = f"{float(block['fixed_income']) + 3100.0:.2f}"
+
+
+def profession_broker(page: Page) -> None:
+    """Profissão de um Corretor com o relatório de março e o de fevereiro em parte vencido (dado forjado): o placar, a renda com a comissão e as duas tabelas."""
+    page_with_profession(page, "BROKER", "/profession")
+    patch_get(page, PROFESSION_GLOB, broker_reports_mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Relatório de março").first).to_be_visible()
+
+
+def profession_broker_start(page: Page) -> None:
+    """Profissão de um Corretor antes do primeiro relatório: o aviso de quando ele chega e a renda só com o fixo."""
+    page_with_profession(page, "BROKER", "/profession")
+    expect(page.get_by_text("Ainda sem relatório.").first).to_be_visible()
+
+
+def broker_picks(body: dict | list) -> None:
+    """O relatório vigente forjado: PETR4 para comprar e VALE3 para vender."""
+    assert isinstance(body, list)
+    body[:] = [
+        {"ticker": "PETR4", "side": "buy"},
+        {"ticker": "VALE3", "side": "sell"},
+    ]
+
+
+def stocks_list_broker(page: Page) -> None:
+    """Renda variável de um Corretor com PETR4 (compra) e VALE3 (venda) no relatório da casa (dado forjado): o selo ao lado do nome."""
+    page_with_profession(page, "BROKER", "/variable-income")
+    patch_get(page, HOUSE_PICKS_GLOB, broker_picks)
+    page.reload()
+    page.get_by_role("row", name=re.compile(r"^PETR4")).wait_for()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Casa: compra").first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
     "profissao/exportador": profession_exporter,
@@ -3492,6 +3657,9 @@ STATES: dict[str, Callable[[Page], None]] = {
     "profissao/autonomo-parado": profession_freelancer_stalled,
     "profissao/servidor": profession_public_servant,
     "profissao/bancario": profession_banker,
+    "profissao/corretor": profession_broker,
+    "profissao/corretor-inicio": profession_broker_start,
+    "renda-variavel/corretor": stocks_list_broker,
     "meta/clt": goal_clt,
     "credito/servidor-consignado": credit_public_servant_payroll,
     "carteira/clt": portfolio_clt,
