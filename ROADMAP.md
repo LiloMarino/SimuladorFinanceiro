@@ -82,7 +82,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F332**](#f332) | Feature | Imóveis do Locador | M29 · 4.3 | — | Alto | Bom | ⏳ |
 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | M29 · 4.3 | — | Alto | Bom | ⏳ |
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
@@ -90,7 +89,7 @@
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (42 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (43 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | M29 · 4.3 | — | — | — | ✅ |
 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | M29 · 4.3 | — | — | — | ✅ |
 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | M29 · 4.3 | — | — | — | ✅ |
+| [**F332**](#f332) | Feature | Imóveis do Locador | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | M29 · 4.3 | — | — | — | ✅ |
 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | — | — | ✅ |
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 20/26 concluídos
+> **Progresso:** 21/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -174,7 +174,7 @@
 | 17 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | — | ✅ Concluído |
 | 18 | [**F330**](#f330) | Feature | Relatório da casa do Corretor | — | ✅ Concluído |
 | 19 | [**F331**](#f331) | Feature | Escada acadêmica do Recém-formado | — | ✅ Concluído |
-| 20 | [**F332**](#f332) | Feature | Imóveis do Locador | [F315](#f315), [F321](#f321) | ⏳ Pendente |
+| 20 | [**F332**](#f332) | Feature | Imóveis do Locador | — | ✅ Concluído |
 | 21 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | [F315](#f315) | ⏳ Pendente |
 | 22 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ⏳ Pendente |
 | 23 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
@@ -275,7 +275,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F332**](#f332) | Feature | Imóveis do Locador | M29 · 4.3 · 20º | 1 | Alto | Bom | ⏳ |
 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | M29 · 4.3 · 21º | 1 | Alto | Bom | ⏳ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 22º | 0 | Baixo | Bom | ⏳ |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 23º | 0 | Médio | Bom | ⏳ |
@@ -339,7 +338,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F332** | Feature | Imóveis do Locador | N39 | D23 | M29 · 4.3 | [F315](#f315), [F321](#f321) | Alto | Alto | Alto | Bom |
 | **F333** | Feature | Administrador, a profissão que troca de setor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Alto | Alto | Alto | Bom |
 | **F334** | Feature | Calibração das profissões pelos três alarmes | N39 | D23 | M29 · 4.3 | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | Médio | Médio | Alto | Bom |
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
@@ -546,9 +544,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f332"></a>
-**F332 — Imóveis do Locador.** Serve N39; segue a D23. A renda do Locador passa a ser o aluguel dos imóveis dele: começa com imóveis cujo aluguel soma o múltiplo de hoje, no lugar do 1,1x do salário. Cada imóvel tem preço pelo IVG-R e aluguel de 0,5% do preço ao mês na assinatura, reajustado pelo IGP-M a cada 12 meses do contrato. A vacância é sorteada por imóvel todo mês, com chance que sobe com o desemprego e a queda do PIB, e substitui a vacância de hoje; vago, o imóvel volta ao mercado com aluguel pelo preço do dia. Compra e venda no bloco Imóveis da página Profissão, com custo de transação de cerca de 5% (ITBI e corretagem) e venda concluída em até 1 mês. O valor dos imóveis conta no patrimônio e aparece na carteira. Tabela nova de imóveis por jogador, com migração. Como o IVG-R começa em março de 2001, o Locador só existe nas salas que começam a partir dessa data: a regra ganha a data mínima e `available_professions` filtra pelo início da sala. Política razoável: compra quando o aluguel do dia rende mais que o CDI menos 2 pontos e vende quando rende menos que o CDI menos 5.
-
 <a id="f333"></a>
 **F333 — Administrador, a profissão que troca de setor.** Serve N39; segue a D23. Profissão nova (enum, regra, card e textos em `professions.ts`, elegível para bots). Setores: CLT, Empreendedor, Exportador, Bancário, Autônomo e Corretor; ele leva só a renda do setor (múltiplo, indicador e demissão), não a mecânica. **Experiência por setor:** entra júnior (0,85x a renda do setor) e chega a sênior (1,0x) em 12 meses no setor; sair não apaga a experiência, e voltar retoma o nível. Trocar toda hora o deixa júnior em tudo; trocar de vez em quando o deixa sênior nos setores onde mais ficou. A troca leva 1 mês, com a renda do mês pela metade, pela troca de profissão da base. **Servidor por concurso:** edital aberto algumas vezes por ano (mais com o gasto do governo alto), inscrição com meses de estudo e renda menor, e chance de aprovação; aprovado, vira Servidor com estabilidade e a perde se sair. A página Profissão mostra a experiência em cada setor e a renda que cada um daria hoje. Política razoável: troca para o setor de maior renda esperada quando a diferença passa de 20% e o setor atual já está sênior.
 
@@ -663,6 +658,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F329** | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | N39 | D23 | M29 · 4.3 |
 | **F330** | Feature | Relatório da casa do Corretor | N39 | D23 | M29 · 4.3 |
 | **F331** | Feature | Escada acadêmica do Recém-formado | N39 | D23 | M29 · 4.3 |
+| **F332** | Feature | Imóveis do Locador | N39 | D23 | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
 | **F340** | Feature | Página Profissão e os blocos das mecânicas | N39 | D23 | M29 · 4.3 |
@@ -738,6 +734,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f331"></a>
 **F331 — Escada acadêmica do Recém-formado.** Serve N39; segue a D23. A classe de maior escala da partida, fraca no começo e com o maior salário numa partida longa. Degraus em ordem: especialização (1 ano, mensalidade, trabalha junto), mestrado (2 anos, renda da bolsa no lugar do salário) e doutorado (4 anos, bolsa). Cada degrau concluído sobe o múltiplo final da carreira (ex.: 1,3x, depois 1,6x, 2,2x e 3,0x) e estica a curva (`CareerCurve` por degrau). Matricular com o desemprego acima do neutro dá desconto na mensalidade e bolsa maior. **Mora com os pais:** despesa 40% menor nos 3 primeiros anos, ou até sair de casa por um botão na página. Sem teto de calibração: os alarmes só conferem que ele não é o primeiro em todos os horizontes. Política razoável: sobe um degrau só quando os anos que faltam pagam o degrau (valor presente simples) e sai de casa no prazo.
+
+<a id="f332"></a>
+**F332 — Imóveis do Locador.** Serve N39; segue a D23. A renda do Locador passa a ser o aluguel dos imóveis dele: começa com imóveis cujo aluguel soma o múltiplo de hoje, no lugar do 1,1x do salário. Cada imóvel tem preço pelo IVG-R e aluguel de 0,5% do preço ao mês na assinatura, reajustado pelo IGP-M a cada 12 meses do contrato. A vacância é sorteada por imóvel todo mês, com chance que sobe com o desemprego e a queda do PIB, e substitui a vacância de hoje; vago, o imóvel volta ao mercado com aluguel pelo preço do dia. Compra e venda no bloco Imóveis da página Profissão, com custo de transação de cerca de 5% (ITBI e corretagem) e venda concluída em até 1 mês. O valor dos imóveis conta no patrimônio e aparece na carteira. Tabela nova de imóveis por jogador, com migração. Como o IVG-R começa em março de 2001, o Locador só existe nas salas que começam a partir dessa data: a regra ganha a data mínima e `available_professions` filtra pelo início da sala. Política razoável: compra quando o aluguel do dia rende mais que o CDI menos 2 pontos e vende quando rende menos que o CDI menos 5.
 
 <a id="f337"></a>
 **F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
