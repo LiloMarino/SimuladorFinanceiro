@@ -310,6 +310,7 @@ class UserManager:
             inflation_adjusted=sim.settings.inflation_adjusted,
             government_enabled=sim.settings.government_enabled,
             funds_enabled=sim.settings.funds_enabled,
+            start_date=sim.settings.start_date,
         ):
             raise ConflictError("Essa profissão não existe nas regras desta partida.")
         # O Comissionado entra com o partido de uma sigla que existe na partida
@@ -724,6 +725,7 @@ class UserManager:
             inflation_adjusted=SettingsManager.effective_inflation_adjusted(),
             government_enabled=SettingsManager.effective_government_enabled(),
             funds_enabled=SettingsManager.effective_funds_enabled(),
+            start_date=SettingsManager.effective_start_date(),
         ):
             return profession
         return Profession.CLT
@@ -1075,6 +1077,7 @@ class UserManager:
                 inflation_adjusted=SettingsManager.effective_inflation_adjusted(),
                 government_enabled=SettingsManager.effective_government_enabled(),
                 funds_enabled=SettingsManager.effective_funds_enabled(),
+                start_date=SettingsManager.effective_start_date(),
             )
         )
         if team is not None:

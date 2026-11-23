@@ -21,6 +21,7 @@ from backend.core.repository.news import NewsRepository
 from backend.core.repository.portfolio import PortfolioRepository
 from backend.core.repository.preset import PresetRepository
 from backend.core.repository.profession import ProfessionRepository
+from backend.core.repository.real_estate import RealEstateRepository
 from backend.core.repository.settings import SettingsRepository
 from backend.core.repository.simulation import SimulationRepository
 from backend.core.repository.simulation_player import SimulationPlayerRepository
@@ -63,3 +64,4 @@ news = NewsRepository()
 house_report = HouseReportRepository()
 sovereign_fund = SovereignFundRepository()
 state_company = StateCompanyRepository()
+real_estate = RealEstateRepository()

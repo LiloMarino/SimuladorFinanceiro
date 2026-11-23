@@ -19,6 +19,7 @@ export function useLobbyRules(settings: SimulationSettings) {
       inflation_adjusted: rules.inflation_adjusted,
       government_enabled: rules.government_enabled,
       funds_enabled: rules.funds_enabled,
+      start_date: rules.start_date,
     },
   };
 }

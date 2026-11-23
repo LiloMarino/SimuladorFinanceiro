@@ -33,6 +33,8 @@ class LockedAssetDTO(BaseDTO):
     exit_rule: str
     # Desde quando o saldo está travado; só o tipo cuja saída conta o tempo preenche
     since: date | None = None
+    # Uma frase a mais sobre o patrimônio, quando o tipo tem o que dizer além da regra de saída
+    note: str | None = None
 
 
 class MechanicState(BaseDTO):
@@ -216,6 +218,19 @@ class BrokerState(MechanicState):
     brokers: int = 0
     # A quantidade que a política do bot comprou de cada recomendação, pelo id dela; sai quando ele vende no prazo
     bought: dict[str, Decimal] = Field(default_factory=dict)
+
+
+# O nome de cada lançamento do Locador no histórico da vida
+PROPERTY_BOUGHT = "property_bought"
+PROPERTY_SOLD = "property_sold"
+PROPERTY_VACATED = "property_vacated"
+PROPERTY_RENTED = "property_rented"
+
+
+class LandlordState(MechanicState):
+    """O estado do Locador: se os imóveis iniciais já nasceram. Os imóveis moram na tabela deles; sem a marca, quem vendeu tudo ganharia os iniciais de novo."""
+
+    seeded: bool = False
 
 
 class MechanicAction(BaseDTO):
@@ -475,6 +490,7 @@ STATE_TYPES: dict[Profession, type[MechanicState]] = {
     Profession.ENTREPRENEUR: EntrepreneurState,
     Profession.EXPORTER: ExporterState,
     Profession.FREELANCER: FreelancerState,
+    Profession.LANDLORD: LandlordState,
     Profession.NEW_GRADUATE: GraduateState,
     Profession.RETIREE: RetireeState,
     Profession.WELFARE: WelfareState,

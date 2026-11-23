@@ -27,6 +27,7 @@ def resolve_bot(
         inflation_adjusted=SettingsManager.effective_inflation_adjusted(),
         government_enabled=SettingsManager.effective_government_enabled(),
         funds_enabled=SettingsManager.effective_funds_enabled(),
+        start_date=SettingsManager.effective_start_date(),
     ):
         raise UnprocessableEntityError("Essa profissão não existe nas regras da sala.")
     strategy = get_strategy(strategy_key)

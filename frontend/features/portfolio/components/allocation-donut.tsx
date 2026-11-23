@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia } from "@/shared/components/ui/empty";
 import { displayMoneyCompact, displayMoneyWhole, displayPercent, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { PortfolioState } from "@/types";
-import { lockedExits, lockedLabels } from "@/shared/lib/locked-assets";
+import { lockedDistributionNote, lockedExits, lockedLabels } from "@/shared/lib/locked-assets";
 import {
   assetCount,
   classSlices,
@@ -91,7 +91,8 @@ export function AllocationDonut({ portfolio }: { portfolio: PortfolioState }) {
               {onlyCash && (
                 <div className="mt-2 grid gap-2.5">
                   <span className="text-[13px] text-muted-foreground">
-                    Dinheiro parado não rende. Compre um título na Renda fixa ou uma ação na Renda variável.
+                    {lockedDistributionNote(portfolio) ??
+                      "Dinheiro parado não rende. Compre um título na Renda fixa ou uma ação na Renda variável."}
                   </span>
                   <div className="flex flex-wrap gap-2">
                     <Button variant="outline" size="sm" nativeButton={false} render={<Link to="/fixed-income" />}>

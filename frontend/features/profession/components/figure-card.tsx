@@ -6,13 +6,17 @@ type FigureCardProps = {
   label: ReactNode;
   value: string;
   note: string;
+  /** Uma segunda nota, mais apertada, sob a primeira */
+  extraNote?: string;
+  /** O botão do cartão, no pé */
+  action?: ReactNode;
   tone?: "default" | "success" | "destructive";
   /** Uma linha de estado sob a nota: confirma (success) ou avisa (warning) */
   flag?: { text: string; tone: "success" | "warning" };
 };
 
 /** O cartão de um número do bloco da mecânica: rótulo, valor em destaque e a nota que o explica. */
-export function FigureCard({ label, value, note, tone = "default", flag }: FigureCardProps) {
+export function FigureCard({ label, value, note, extraNote, action, tone = "default", flag }: FigureCardProps) {
   return (
     <div className="grid content-start gap-1 rounded-[10px] border p-4">
       <span className="text-[13px] font-semibold">{label}</span>
@@ -26,6 +30,7 @@ export function FigureCard({ label, value, note, tone = "default", flag }: Figur
         {value}
       </b>
       <span className="text-xs text-muted-foreground">{note}</span>
+      {extraNote && <span className="mt-1 text-xs text-muted-foreground">{extraNote}</span>}
       {flag && (
         <span
           className={cn(
@@ -41,6 +46,7 @@ export function FigureCard({ label, value, note, tone = "default", flag }: Figur
           {flag.text}
         </span>
       )}
+      {action && <div className="mt-2.5">{action}</div>}
     </div>
   );
 }

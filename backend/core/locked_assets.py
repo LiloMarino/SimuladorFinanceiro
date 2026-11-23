@@ -10,6 +10,9 @@ from backend.core.entrepreneur import SALE_PROCEEDS_RATE
 from backend.core.enum import LockedAssetKind
 from backend.core.pension import months_in_plan, redeem_net
 
+# ITBI e corretagem sobre o preço do imóvel, na compra e na venda; a saída do patrimônio de imóveis entrega o complemento
+PROPERTY_COST_RATE = Decimal("0.05")
+
 # O que o saldo `value` deixa no caixa em `day`, dado desde quando está travado (`since`, nulo quando o tipo não conta tempo)
 Payout = Callable[[Decimal, date | None, date], Decimal]
 
@@ -51,5 +54,9 @@ LOCKED_EXITS: dict[LockedAssetKind, LockedExit] = {
     LockedAssetKind.WELFARE_SAVINGS: LockedExit(
         rule="Libera a cada 2 anos, se o caixa não ficou negativo no período.",
         payout=fixed_share(Decimal(1)),
+    ),
+    LockedAssetKind.REAL_ESTATE: LockedExit(
+        rule="Vender leva 1 mês e custa 5% de ITBI e corretagem; trocar de profissão vende tudo na hora.",
+        payout=fixed_share(1 - PROPERTY_COST_RATE),
     ),
 }

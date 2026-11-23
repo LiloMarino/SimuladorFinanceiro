@@ -19,6 +19,12 @@ const MECHANIC_INCOME_NAMES: Partial<Record<ProfessionPage["profession"], string
 // O que explica a renda quando a profissão não sobe pelo IPCA
 const UNINDEXED_NOTES: Partial<Record<ProfessionPage["profession"], string>> = {
   FREELANCER: "a renda sobe pelo preço que você cobra",
+  LANDLORD: "o aluguel se reajusta pelo IGP-M a cada 12 meses de contrato",
+};
+
+// O que compõe a renda do mês de quem não vive de salário
+const INCOME_NOTES: Partial<Record<ProfessionPage["profession"], string>> = {
+  LANDLORD: "a soma dos aluguéis dos imóveis alugados",
 };
 
 const RAISE_NOTES: Record<ProfessionPage["header"]["real_raise_source"], string> = {
@@ -88,7 +94,7 @@ export function ProfessionHeader({ page, match }: ProfessionHeaderProps) {
                   ? `o lucro do mês, e ${displayMoney(reinvested)} volta para a empresa`
                   : mechanicName && Number(header.mechanic_income) > 0
                     ? `salário ${displayMoney(salary)} + ${mechanicName} ${displayMoney(header.mechanic_income)}`
-                    : "o salário do mês, já com o reajuste"
+                    : (INCOME_NOTES[profession] ?? "o salário do mês, já com o reajuste")
               }
             />
             <Kpi

@@ -77,6 +77,10 @@ const PROFESSION_ACTION_TEXTS: Record<string, string> = {
   leave_home: "Saiu da casa dos pais",
   savings_released: "O Pé-de-Meia liberou o saldo",
   savings_postponed: "A liberação do Pé-de-Meia pulou para a data seguinte",
+  property_bought: "Comprou um imóvel",
+  property_sold: "Vendeu um imóvel",
+  property_vacated: "Um imóvel ficou vago",
+  property_rented: "Um imóvel voltou ao aluguel",
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia

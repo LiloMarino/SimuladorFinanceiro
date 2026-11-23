@@ -37,3 +37,11 @@ export function allocationRows(portfolio: PortfolioState): AllocationRow[] {
     })),
   ];
 }
+
+/** Tudo o que está fora do caixa: o investido mais o patrimônio travado da profissão, com a fração do patrimônio que os dois pesam juntos. */
+export function outsideCash(portfolio: PortfolioState) {
+  return {
+    value: Number(portfolio.invested_value) + Number(portfolio.locked_value),
+    pct: Number(portfolio.invested_pct) + Number(portfolio.locked_networth_pct),
+  };
+}

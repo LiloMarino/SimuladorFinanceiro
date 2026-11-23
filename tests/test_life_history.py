@@ -317,6 +317,7 @@ def _living(
             state_of=lambda _user, profession: initial_state(profession),
             periods_of=lambda _user: [],
         ),
+        _property_book=SimpleNamespace(of=lambda _user: []),
     )
     living = cast(Simulation, fake)
     fake._layoff_factor = partial(Simulation._layoff_factor, living)
@@ -337,6 +338,7 @@ def _living(
     fake._run_pension_month = partial(Simulation._run_pension_month, living)
     fake._conclude_courses = partial(Simulation._conclude_courses, living)
     fake._conclude_steps = partial(Simulation._conclude_steps, living)
+    fake._conclude_property_sales = partial(Simulation._conclude_property_sales, living)
     fake._graduate_state_of = partial(Simulation._graduate_state_of, living)
     fake._welfare_state_of = partial(Simulation._welfare_state_of, living)
     fake._run_welfare_month = partial(Simulation._run_welfare_month, living)
@@ -344,6 +346,8 @@ def _living(
     fake._run_exchange_lock_month = partial(Simulation._run_exchange_lock_month, living)
     fake._broker_state_of = partial(Simulation._broker_state_of, living)
     fake._run_broker_month = partial(Simulation._run_broker_month, living)
+    # Estes testes não têm Locador: a virada do mês dos imóveis não tem o que sortear
+    fake._run_landlord_month = lambda _users, _day: None
     fake._exporter_state_of = partial(Simulation._exporter_state_of, living)
     fake.apply_profession_action = partial(Simulation.apply_profession_action, living)
     fake._life_budget = partial(Simulation._life_budget, living)

@@ -17,10 +17,12 @@ import { SERIES_INFO, todaySentence } from "../lib/series";
 
 type IncomeSeriesSectionProps = {
   series: IncomeSeries[];
+  /** A renda da profissão sobe com o IPCA; sem isso, ela segue a mecânica própria dela. */
+  inflationIndexed: boolean;
 };
 
 /** "O que move sua renda": um gráfico de 12 meses por indicador, ou a alavanca do governo com as mudanças recentes. */
-export function IncomeSeriesSection({ series }: IncomeSeriesSectionProps) {
+export function IncomeSeriesSection({ series, inflationIndexed }: IncomeSeriesSectionProps) {
   return (
     <section className="grid gap-3">
       <div className="grid gap-0.5">
@@ -34,10 +36,13 @@ export function IncomeSeriesSection({ series }: IncomeSeriesSectionProps) {
           <CardContent>
             <Empty>
               <EmptyHeader>
-                <EmptyTitle>Sua renda só sobe com o IPCA</EmptyTitle>
+                <EmptyTitle>
+                  {inflationIndexed ? "Sua renda só sobe com o IPCA" : "Nenhum indicador mexe na sua renda"}
+                </EmptyTitle>
                 <EmptyDescription>
-                  Nenhum indicador da economia mexe no salário da sua profissão: o reajuste anual repõe a inflação e
-                  mais nada.
+                  {inflationIndexed
+                    ? "Nenhum indicador da economia mexe no salário da sua profissão: o reajuste anual repõe a inflação e mais nada."
+                    : "Nenhum indicador da economia mexe na renda da sua profissão."}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>

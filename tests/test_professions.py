@@ -11,6 +11,7 @@ from backend.core.dto.profession import FreelancerState
 from backend.core.enum import IncomeLoss, IndicatorSeries, Profession
 from backend.core.indicators import inflation_factor, monthly_inflation_factor
 from backend.core.life_budget import LifeBudget
+from backend.core.periods import IVG_R_START
 from backend.core.professions import (
     DRIVER_CURVES,
     NOMINAL_INHERITANCE_RATE,
@@ -136,7 +137,6 @@ def test_welfare_income_doubles_when_the_government_doubles_the_spending():
         (Profession.RETIREE, "4750"),
         # Só o auxílio sobra quando o bico se perde
         (Profession.WELFARE, "2250"),
-        (Profession.LANDLORD, "0"),
         (Profession.EXPORTER, "5250"),
         (Profession.BANKER, "0"),
         # O mês sem cliente tira toda a renda
@@ -181,7 +181,7 @@ def test_each_profession_loses_income_in_its_own_way():
         Profession.ENTREPRENEUR: None,
         Profession.RETIREE: None,
         Profession.WELFARE: IncomeLoss.GIG_LOSS,
-        Profession.LANDLORD: IncomeLoss.VACANCY,
+        Profession.LANDLORD: None,
         Profession.EXPORTER: None,
         Profession.BANKER: IncomeLoss.LAYOFF,
         Profession.FREELANCER: IncomeLoss.NO_CLIENTS,
@@ -338,11 +338,12 @@ def test_the_inheritance_is_the_present_value_of_the_salaries_left_in_the_match(
     assert short < late < long
 
 
-def rooms(**changes: bool) -> dict[str, bool]:
+def rooms(**changes: Any) -> dict[str, Any]:
     return {
         "inflation_adjusted": True,
         "government_enabled": True,
         "funds_enabled": True,
+        "start_date": date(2020, 1, 1),
         **changes,
     }
 
@@ -355,6 +356,18 @@ def test_the_freelancer_exists_only_in_a_room_with_inflation_correction():
     assert set(available_professions(**rooms(inflation_adjusted=False))) == set(
         Profession
     ) - {Profession.FREELANCER}
+
+
+def test_the_landlord_exists_only_in_a_room_that_starts_with_the_property_index():
+    before = rooms(start_date=IVG_R_START - timedelta(days=1))
+    assert Profession.LANDLORD not in available_professions(**before)
+    assert Profession.LANDLORD not in available_bot_professions(**before)
+    assert set(available_professions(**before)) == set(Profession) - {
+        Profession.LANDLORD
+    }
+    from_index = rooms(start_date=IVG_R_START)
+    assert Profession.LANDLORD in available_professions(**from_index)
+    assert Profession.LANDLORD in available_bot_professions(**from_index)
 
 
 def test_each_expansion_profession_exists_only_with_its_expansion():

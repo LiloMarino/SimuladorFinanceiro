@@ -4656,6 +4656,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/buy-property": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Comprar a oferta do mês de imóvel do Locador
+         * @description Compra a oferta do mês do tamanho pedido pelo preço do IVG-R do dia: o caixa paga o preço mais 5% de ITBI e corretagem e o imóvel entra alugado a 0,5% do preço ao mês. Cada oferta se compra uma vez. Responde 409 para o caixa que não cobre a compra, para a oferta já comprada e para outra profissão.
+         */
+        post: operations["buy_property_api_simulation_buy_property_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/sell-property": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Vender um imóvel do Locador
+         * @description Põe o imóvel à venda: a venda conclui em 1 mês, pelo valor do dia da conclusão menos 5% de ITBI e corretagem, e até lá o imóvel segue rendendo. Não se desfaz. Responde 404 para o imóvel que não é do jogador, 409 para o imóvel já à venda e para outra profissão.
+         */
+        post: operations["sell_property_api_simulation_sell_property_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/convert-pension": {
         parameters: {
             query?: never;
@@ -6370,6 +6410,10 @@ export interface components {
         BuyFixedIncomeRequest: {
             /** Quantity */
             quantity: number | string;
+        };
+        /** BuyPropertyRequest */
+        BuyPropertyRequest: {
+            size: components["schemas"]["PropertySize"];
         };
         /** CampaignActionDTO */
         CampaignActionDTO: {
@@ -11021,7 +11065,7 @@ export interface components {
          * @description O que a demissão sorteada do mês faz com a renda de quem está exposto a ela.
          * @enum {string}
          */
-        IncomeLoss: "LAYOFF" | "GIG_LOSS" | "VACANCY" | "NO_CLIENTS";
+        IncomeLoss: "LAYOFF" | "GIG_LOSS" | "NO_CLIENTS";
         /** IncomeSeriesDTO */
         IncomeSeriesDTO: {
             key: components["schemas"]["IncomeSeriesKey"];
@@ -11046,13 +11090,13 @@ export interface components {
          * @description O que o valor de hoje do indicador faz com a renda, que a frase "Hoje" da série conta.
          * @enum {string}
          */
-        IncomeSeriesEffect: "REAL_RAISE" | "INCOME_FACTOR" | "LAYOFF_FACTOR" | "BENEFIT";
+        IncomeSeriesEffect: "REAL_RAISE" | "INCOME_FACTOR" | "LAYOFF_FACTOR" | "VACANCY_CHANCE" | "RENT_ADJUSTMENT" | "BENEFIT";
         /**
          * IncomeSeriesKey
          * @description O indicador que mexe na renda e ganha um gráfico (ou uma alavanca do governo) na página da profissão.
          * @enum {string}
          */
-        IncomeSeriesKey: "GDP" | "UNEMPLOYMENT" | "DOLLAR" | "SELIC" | "SERVANT_RAISE" | "RETIREE_RAISE" | "WELFARE_SPENDING";
+        IncomeSeriesKey: "GDP" | "UNEMPLOYMENT" | "DOLLAR" | "SELIC" | "IGP_M" | "SERVANT_RAISE" | "RETIREE_RAISE" | "WELFARE_SPENDING";
         /** IncomeSeriesPointDTO */
         IncomeSeriesPointDTO: {
             /**
@@ -11546,6 +11590,78 @@ export interface components {
             /** Debt Limit */
             debt_limit: string;
         };
+        /**
+         * LandlordMechanicDTO
+         * @description Os imóveis, o rendimento e as ofertas do mês do Locador.
+         */
+        LandlordMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "landlord";
+            status: components["schemas"]["MechanicStatus"];
+            /** Income */
+            income: string;
+            /** Rented */
+            rented: number;
+            /** Total */
+            total: number;
+            /** Annual Yield */
+            annual_yield: string | null;
+            /** Full Yield */
+            full_yield: string | null;
+            /** Cdi */
+            cdi: string;
+            /** Vacancy Chance */
+            vacancy_chance: string;
+            /** Properties */
+            properties: components["schemas"]["LandlordPropertyDTO"][];
+            /** Total Value */
+            total_value: string;
+            /**
+             * Offers Month
+             * Format: date
+             */
+            offers_month: string;
+            /**
+             * Next Offers On
+             * Format: date
+             */
+            next_offers_on: string;
+            /** Offers */
+            offers: components["schemas"]["PropertyOfferDTO"][];
+            /** Rent Rate */
+            rent_rate: string;
+            /** Cost Rate */
+            cost_rate: string;
+            /** Sale Months */
+            sale_months: number;
+        };
+        /**
+         * LandlordPropertyDTO
+         * @description Um imóvel do Locador na tabela da página.
+         */
+        LandlordPropertyDTO: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            size: components["schemas"]["PropertySize"];
+            /** Value */
+            value: string;
+            status: components["schemas"]["PropertyStatus"];
+            /** Rent */
+            rent: string | null;
+            /** Next Readjustment */
+            next_readjustment: string | null;
+            /** Vacant Months */
+            vacant_months: number | null;
+            /** Rerent */
+            rerent: string | null;
+            /** Sale Due */
+            sale_due: string | null;
+        };
         /** LevelChangeDTO */
         LevelChangeDTO: {
             /** Change */
@@ -11913,13 +12029,15 @@ export interface components {
             exit_rule: string;
             /** Since */
             since: string | null;
+            /** Note */
+            note: string | null;
         };
         /**
          * LockedAssetKind
          * @description O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira.
          * @enum {string}
          */
-        LockedAssetKind: "FGTS" | "COMPANY_CAPITAL" | "PENSION" | "WELFARE_SAVINGS";
+        LockedAssetKind: "FGTS" | "COMPANY_CAPITAL" | "PENSION" | "WELFARE_SAVINGS" | "REAL_ESTATE";
         /** @enum {string} */
         LogFilter: "all" | "orders" | "modes";
         /** MacdSeriesDTO */
@@ -14102,7 +14220,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["GraduateMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["BrokerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["GraduateMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["BrokerMechanicDTO"] | components["schemas"]["LandlordMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -14310,6 +14428,33 @@ export interface components {
             /** Promises */
             promises: components["schemas"]["PromiseRequest"][];
         };
+        /**
+         * PropertyOfferDTO
+         * @description A oferta do mês para um tamanho de imóvel.
+         */
+        PropertyOfferDTO: {
+            size: components["schemas"]["PropertySize"];
+            /** Price */
+            price: string;
+            /** Rent */
+            rent: string;
+            /** Cost */
+            cost: string;
+            /** Bought */
+            bought: boolean;
+        };
+        /**
+         * PropertySize
+         * @description O tamanho do imóvel do Locador: dá o preço de partida e o rótulo da oferta.
+         * @enum {string}
+         */
+        PropertySize: "STUDIO" | "TWO_BEDROOM" | "HOUSE";
+        /**
+         * PropertyStatus
+         * @description A situação do imóvel: alugado rende, vago não rende e vendendo segue rendendo até a venda concluir.
+         * @enum {string}
+         */
+        PropertyStatus: "RENTED" | "VACANT" | "SELLING";
         /** ProposeDealRequest */
         ProposeDealRequest: {
             /** Bloc Key */
@@ -15152,6 +15297,11 @@ export interface components {
         SelicRequest: {
             /** Selic */
             selic: number | string | null;
+        };
+        /** SellPropertyRequest */
+        SellPropertyRequest: {
+            /** Property Id */
+            property_id: number;
         };
         /** SellTreasuryRequest */
         SellTreasuryRequest: {
@@ -28150,6 +28300,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CapitalSaleRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    buy_property_api_simulation_buy_property_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BuyPropertyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sell_property_api_simulation_sell_property_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SellPropertyRequest"];
             };
         };
         responses: {

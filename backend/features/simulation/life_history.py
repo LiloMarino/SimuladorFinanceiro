@@ -70,6 +70,7 @@ DEFAULT_PERIODS = (HistoryPeriod(date.min, None, IncomeLoss.LAYOFF),)
 PROFESSION_ROWS = {
     CashflowEventType.PROFESSION_SWITCHED: LifeHistoryKind.PROFESSION_SWITCHED,
     CashflowEventType.PROFESSION_ACTION: LifeHistoryKind.PROFESSION_ACTION,
+    CashflowEventType.PROFESSION_EXPENSE: LifeHistoryKind.PROFESSION_ACTION,
     CashflowEventType.FGTS_WITHDRAWAL: LifeHistoryKind.FGTS_WITHDRAWAL,
 }
 
@@ -87,7 +88,6 @@ def period_at(periods: Sequence[HistoryPeriod], day: date) -> HistoryPeriod:
 # O que o sorteio da demissão é para quem não é CLT; a demissão mantém o rótulo do tipo
 _LOSS_NAMES = {
     IncomeLoss.GIG_LOSS: "Bico perdido",
-    IncomeLoss.VACANCY: "Vacância",
     IncomeLoss.NO_CLIENTS: "Mês sem cliente",
 }
 

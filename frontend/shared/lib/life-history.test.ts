@@ -71,6 +71,14 @@ describe("texto do histórico da vida real", () => {
     expect(lifeRowText(action("overtime_available"))).toBe("A hora extra pode voltar");
   });
 
+  it("o Locador tem um texto para cada passo dos imóveis", () => {
+    const action = (key: string) => row({ category: "PROFESSION", kind: "PROFESSION_ACTION", life_event_key: key });
+    expect(lifeRowText(action("property_bought"))).toBe("Comprou um imóvel");
+    expect(lifeRowText(action("property_sold"))).toBe("Vendeu um imóvel");
+    expect(lifeRowText(action("property_vacated"))).toBe("Um imóvel ficou vago");
+    expect(lifeRowText(action("property_rented"))).toBe("Um imóvel voltou ao aluguel");
+  });
+
   it("o saque do FGTS na demissão diz que veio com a multa", () => {
     expect(lifeRowText(row({ category: "PROFESSION", kind: "FGTS_WITHDRAWAL" }))).toBe(
       "Saque do FGTS com a multa de 40%",

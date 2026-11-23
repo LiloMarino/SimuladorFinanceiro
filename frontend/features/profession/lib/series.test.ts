@@ -38,6 +38,36 @@ describe("todaySentence", () => {
     ).toEqual({ lead: "Abaixo do neutro de 9%:", text: "chance de demissão em 0,6 vez a normal." });
   });
 
+  it("conta a vacância por imóvel no desemprego e no PIB do Locador", () => {
+    expect(
+      todaySentence(
+        series({
+          key: "UNEMPLOYMENT",
+          current: "0.12",
+          neutral: "0.09",
+          guides: [],
+          effect: "0.067",
+          effect_kind: "VACANCY_CHANCE",
+        }),
+      ),
+    ).toEqual({ lead: "Acima do neutro de 9%:", text: "vacância de 6,7% por imóvel no mês." });
+  });
+
+  it("conta quanto o IGP-M sobe o aluguel no próximo reajuste", () => {
+    expect(
+      todaySentence(
+        series({
+          key: "IGP_M",
+          current: "0.08",
+          neutral: null,
+          guides: [],
+          effect: "0.08",
+          effect_kind: "RENT_ADJUSTMENT",
+        }),
+      ),
+    ).toEqual({ lead: "Hoje:", text: "o próximo reajuste sobe o aluguel 8%." });
+  });
+
   it("abre com Hoje na alavanca do governo, que não tem ponto neutro", () => {
     const sentence = todaySentence(
       series({ key: "SERVANT_RAISE", neutral: null, guides: [], lever: true, current: "0.03", effect: "0.03" }),

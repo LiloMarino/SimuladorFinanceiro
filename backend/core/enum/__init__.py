@@ -100,9 +100,10 @@ class CashflowEventType(Enum):
     # O caixa da gestora incorporada passa à incorporadora na fusão
     FUND_MERGE_OUT = "FUND_MERGE_OUT"
     FUND_MERGE_IN = "FUND_MERGE_IN"
-    # Lançamentos sem dinheiro da profissão: a troca no meio da partida e a ação da mecânica
+    # Lançamentos da profissão: a troca no meio da partida e a ação da mecânica, que deixa dinheiro no caixa (ação) ou tira dele (despesa)
     PROFESSION_SWITCHED = "PROFESSION_SWITCHED"
     PROFESSION_ACTION = "PROFESSION_ACTION"
+    PROFESSION_EXPENSE = "PROFESSION_EXPENSE"
     # O saldo do FGTS e a multa de 40% que caem no caixa na demissão sorteada do CLT
     FGTS_WITHDRAWAL = "FGTS_WITHDRAWAL"
     # O rendimento do capital da empresa do Empreendedor, que cai no caixa como renda extra
@@ -154,6 +155,7 @@ CASH_SIGN: dict[CashflowEventType, int] = {
     CashflowEventType.FUND_MERGE_IN: 1,
     CashflowEventType.PROFESSION_SWITCHED: 1,
     CashflowEventType.PROFESSION_ACTION: 1,
+    CashflowEventType.PROFESSION_EXPENSE: -1,
     CashflowEventType.FGTS_WITHDRAWAL: 1,
     CashflowEventType.CAPITAL_INCOME: 1,
     CashflowEventType.CAPITAL_REINVESTMENT: -1,
@@ -472,8 +474,6 @@ class IncomeLoss(Enum):
     LAYOFF = "LAYOFF"
     # Só a renda do bico do mês seguinte não entra
     GIG_LOSS = "GIG_LOSS"
-    # O aluguel do mês seguinte não entra
-    VACANCY = "VACANCY"
     # A renda dos clientes do mês seguinte não entra
     NO_CLIENTS = "NO_CLIENTS"
 
@@ -1514,6 +1514,23 @@ class LockedAssetKind(Enum):
     COMPANY_CAPITAL = "COMPANY_CAPITAL"
     PENSION = "PENSION"
     WELFARE_SAVINGS = "WELFARE_SAVINGS"
+    REAL_ESTATE = "REAL_ESTATE"
+
+
+class PropertySize(Enum):
+    """O tamanho do imóvel do Locador: dá o preço de partida e o rótulo da oferta."""
+
+    STUDIO = "STUDIO"
+    TWO_BEDROOM = "TWO_BEDROOM"
+    HOUSE = "HOUSE"
+
+
+class PropertyStatus(Enum):
+    """A situação do imóvel: alugado rende, vago não rende e vendendo segue rendendo até a venda concluir."""
+
+    RENTED = "RENTED"
+    VACANT = "VACANT"
+    SELLING = "SELLING"
 
 
 class MechanicStatus(Enum):
@@ -1531,6 +1548,7 @@ class IncomeSeriesKey(Enum):
     UNEMPLOYMENT = "UNEMPLOYMENT"
     DOLLAR = "DOLLAR"
     SELIC = "SELIC"
+    IGP_M = "IGP_M"
     SERVANT_RAISE = "SERVANT_RAISE"
     RETIREE_RAISE = "RETIREE_RAISE"
     WELFARE_SPENDING = "WELFARE_SPENDING"
@@ -1545,6 +1563,10 @@ class IncomeSeriesEffect(Enum):
     INCOME_FACTOR = "INCOME_FACTOR"
     # Quantas vezes a chance de demissão da sala pesa
     LAYOFF_FACTOR = "LAYOFF_FACTOR"
+    # A chance de vacância de cada imóvel no mês
+    VACANCY_CHANCE = "VACANCY_CHANCE"
+    # Quanto o próximo reajuste sobe o aluguel
+    RENT_ADJUSTMENT = "RENT_ADJUSTMENT"
     # O auxílio que a profissão recebe sobe e desce com o gasto do governo
     BENEFIT = "BENEFIT"
 

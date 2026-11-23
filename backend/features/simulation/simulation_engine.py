@@ -515,8 +515,13 @@ class SimulationEngine:
     def record_profession_action(
         self, client_id: UUID, kind: str, payout: Decimal = Decimal(0)
     ) -> None:
-        """Lança a ação da mecânica da profissão no histórico da vida: a chave do evento é o nome da ação e o valor é o que ela deixou no caixa, zero na ação sem dinheiro."""
-        self._move_cash(client_id, payout, CashflowEventType.PROFESSION_ACTION, kind)
+        """Lança a ação da mecânica da profissão no histórico da vida: a chave do evento é o nome da ação e o valor é o que ela deixou no caixa (negativo quando tirou), zero na ação sem dinheiro."""
+        event_type = (
+            CashflowEventType.PROFESSION_EXPENSE
+            if payout < 0
+            else CashflowEventType.PROFESSION_ACTION
+        )
+        self._move_cash(client_id, payout, event_type, kind)
 
     def pay_capital_income(self, client_id: UUID, amount: Decimal) -> None:
         """Credita no caixa o rendimento positivo do capital da empresa, separado do lucro."""

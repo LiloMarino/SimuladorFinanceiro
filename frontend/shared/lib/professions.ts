@@ -20,8 +20,14 @@ import type { IncomeLoss, LifeStatus, Profession, SimulationSettings } from "@/t
 /** As regras da sala que decidem o que cada profissão sente: o card só mostra o que vale na partida. */
 export type RoomRules = Pick<
   SimulationSettings["simulation"],
-  "funds_enabled" | "government_enabled" | "inflation_adjusted" | "monthly_salary"
+  "funds_enabled" | "government_enabled" | "inflation_adjusted" | "monthly_salary" | "start_date"
 >;
+
+/** As regras da sala que decidem quais profissões ela oferece. */
+type AvailabilityRules = Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted" | "start_date">;
+
+/** O primeiro mês do IVG-R: o índice dos imóveis só existe daí em diante. */
+const IVG_R_START = "2001-03-01";
 
 /** Regra da sala de que uma vantagem, desvantagem ou etiqueta depende; todas precisam estar ligadas. */
 type RoomRequirement = "government" | "funds" | "inflationAdjusted";
@@ -58,6 +64,8 @@ export type ProfessionInfo = {
   tags: ProfessionTag[];
   /** A regra que a sala precisa ter ligada para a profissão existir; sem ela some da escolha */
   requires?: RoomRequirement;
+  /** A sala só oferece a profissão se começar nesta data (AAAA-MM-DD) ou depois */
+  minStartDate?: string;
   /** A profissão exige mais do jogador que as outras: ganha o selo "difícil" no card */
   hard?: boolean;
   /** A renda segue um partido que o jogador escolhe ao entrar; o bot não escolhe, então não a recebe */
@@ -163,14 +171,19 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   LANDLORD: {
     name: "Locador",
     icon: Building2,
-    description: "Aluguéis: renda maior que a do CLT, mas o imóvel pode ficar vago quando o desemprego sobe.",
+    description:
+      "Aluguéis: renda maior que a do CLT, que vem de imóveis que valem com o IVG-R e podem ficar vagos quando o desemprego sobe ou o PIB cai. Dá para comprar e vender imóveis.",
     incomeMultiple: 1.1,
-    gains: [{ text: "Ganha 10% mais que o CLT" }],
-    losses: [
-      { text: "O sorteio de demissão deixa o imóvel vago: um mês sem aluguel" },
-      { text: "O aluguel só sobe com a inflação", requires: INFLATION },
+    gains: [
+      { text: "Ganha 10% mais que o CLT" },
+      { text: "O imóvel vale mais com o IVG-R e o aluguel se reajusta pelo IGP-M a cada 12 meses" },
     ],
-    tags: [{ key: "unemployment" }, { key: "personalTax", requires: GOVERNMENT }],
+    losses: [
+      { text: "Cada imóvel pode ficar vago e sem aluguel, mais quando o desemprego sobe ou o PIB cai" },
+      { text: "Comprar e vender custa 5% do preço, e a venda leva 1 mês" },
+    ],
+    tags: [{ key: "unemployment" }, { key: "gdp" }, { key: "personalTax", requires: GOVERNMENT }],
+    minStartDate: IVG_R_START,
   },
   EXPORTER: {
     name: "Exportador",
@@ -294,20 +307,16 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   },
 };
 
-/** As profissões que a sala oferece, na ordem das cartas: as que exigem uma regra ou expansão somem sem ela. */
-export function availableProfessions(
-  room: Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted">,
-) {
+/** As profissões que a sala oferece, na ordem das cartas: as que exigem uma regra, uma expansão ou uma data de início somem sem ela. */
+export function availableProfessions(room: AvailabilityRules) {
   return (Object.keys(PROFESSIONS) as Profession[]).filter((profession) => {
-    const { requires } = PROFESSIONS[profession];
-    return !requires || isActive([requires], room);
+    const { requires, minStartDate } = PROFESSIONS[profession];
+    return (!requires || isActive([requires], room)) && (!minStartDate || room.start_date >= minStartDate);
   });
 }
 
 /** As profissões que o bot pode ter: as da sala, sem as que seguem um partido escolhido pelo jogador. */
-export function availableBotProfessions(
-  room: Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted">,
-) {
+export function availableBotProfessions(room: AvailabilityRules) {
   return availableProfessions(room).filter((profession) => !PROFESSIONS[profession].partyBound);
 }
 
@@ -326,10 +335,7 @@ const ROOM_RULE: Record<
   inflationAdjusted: "inflation_adjusted",
 };
 
-function isActive(
-  requires: RoomRequirement[] | undefined,
-  room: Pick<RoomRules, "funds_enabled" | "government_enabled" | "inflation_adjusted">,
-) {
+function isActive(requires: RoomRequirement[] | undefined, room: AvailabilityRules) {
   return (requires ?? []).every((rule) => room[ROOM_RULE[rule]]);
 }
 
@@ -361,7 +367,6 @@ export const TAG_NAMES: Record<TagKey, string> = {
 export const INCOME_LOSS_NAMES: Record<IncomeLoss, { event: string; missing: string }> = {
   LAYOFF: { event: "Demitido", missing: "o salário" },
   GIG_LOSS: { event: "Bico perdido", missing: "a renda do bico" },
-  VACANCY: { event: "Imóvel vago", missing: "o aluguel" },
   NO_CLIENTS: { event: "Mês sem cliente", missing: "a renda" },
 };
 

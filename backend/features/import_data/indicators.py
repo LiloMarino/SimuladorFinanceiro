@@ -19,6 +19,7 @@ import yfinance as yf
 from backend.core import repository
 from backend.core.dto.generated_future import ReplacedGeneratedDTO
 from backend.core.enum import IndicatorSeries
+from backend.core.periods import IVG_R_START
 from backend.core.utils import subtract_months
 from backend.features.import_data.bcb_focus import (
     fetch_focus_annual,
@@ -61,9 +62,8 @@ UNEMPLOYMENT_SGS = 24369
 # Dólar comercial (venda), a PTAX; o real nasce em 01/07/1994, antes disso a série é de outras moedas
 PTAX_SGS = 1
 # Número-índice dos valores de garantia dos imóveis residenciais financiados (IVG-R), base
-# 100 em março de 2001, o primeiro mês da série
+# 100 em março de 2001 (`IVG_R_START`), o primeiro mês da série
 IVG_R_SGS = 21340
-IVG_R_START = date(2001, 3, 1)
 # IGP-M da FGV, variação mensal em %: reajusta os contratos de aluguel
 IGP_M_SGS = 189
 # Taxa Referencial mensal em % (a série 226 é a diária): rende o FGTS

@@ -116,6 +116,7 @@ from backend.core.professions import (
     LifeLevers,
     RealRaise,
 )
+from backend.core.real_estate import vacancy_chance
 from backend.core.welfare import (
     COURSE_INCOME_FACTOR,
     COURSE_MONTHS,
@@ -234,16 +235,38 @@ def build_series(
     day: date,
     unemployment_on: Callable[[date], Decimal],
     author_on: LeverAuthor,
+    igpm_on: Callable[[date], Decimal],
 ) -> list[IncomeSeriesDTO]:
     """
     Cada indicador que mexe na renda da profissão: o PIB, o desemprego, a variável da
-    renda e a alavanca do governo. Vazio quando a renda só sobe com o IPCA.
+    renda e a alavanca do governo; o Locador soma o IGP-M, que reajusta o aluguel. Vazio
+    quando a renda só sobe com o IPCA.
     """
     rule = budget.rule
     series: list[IncomeSeriesDTO] = []
     gdp_raise = rule.real_raise is RealRaise.GDP_SHARE
     mixes_gdp = budget.exporter_state() is not None
-    if gdp_raise or rule.driver is IncomeDriver.GDP or mixes_gdp:
+    landlord = budget.profession is Profession.LANDLORD
+
+    def vacancy_on(on: date) -> Decimal:
+        """A chance de vacância por imóvel em `on`, pela fórmula da mecânica dos imóveis."""
+        return vacancy_chance(
+            unemployment_on(on) / NEUTRAL_UNEMPLOYMENT, budget.growth_on(on)
+        )
+
+    if landlord:
+        gdp_effect, gdp_kind = vacancy_on(day), IncomeSeriesEffect.VACANCY_CHANCE
+    elif gdp_raise:
+        gdp_effect, gdp_kind = (
+            budget.real_raise_on(day),
+            IncomeSeriesEffect.REAL_RAISE,
+        )
+    else:
+        gdp_effect, gdp_kind = (
+            budget.gdp_factor_on(day),
+            IncomeSeriesEffect.INCOME_FACTOR,
+        )
+    if gdp_raise or rule.driver is IncomeDriver.GDP or mixes_gdp or landlord:
         series.append(
             IncomeSeriesDTO(
                 key=IncomeSeriesKey.GDP,
@@ -254,17 +277,13 @@ def build_series(
                 guides=[SeriesGuideDTO(value=OVERTIME_MIN_GROWTH, overtime=True)]
                 if gdp_raise
                 else [],
-                effect=budget.real_raise_on(day)
-                if gdp_raise
-                else budget.gdp_factor_on(day),
-                effect_kind=IncomeSeriesEffect.REAL_RAISE
-                if gdp_raise
-                else IncomeSeriesEffect.INCOME_FACTOR,
+                effect=gdp_effect,
+                effect_kind=gdp_kind,
                 changes=[],
                 lever=False,
             )
         )
-    if budget.income_loss() is not None:
+    if budget.income_loss() is not None or landlord:
         current = unemployment_on(day)
         series.append(
             IncomeSeriesDTO(
@@ -273,9 +292,28 @@ def build_series(
                 neutral=NEUTRAL_UNEMPLOYMENT,
                 points=_points(day, unemployment_on),
                 guides=[],
-                effect=Decimal(str(round(layoff_factor_of(current), 4)))
+                effect=vacancy_on(day)
+                if landlord
+                else Decimal(str(round(layoff_factor_of(current), 4)))
                 * budget.layoff_weight_on(day),
-                effect_kind=IncomeSeriesEffect.LAYOFF_FACTOR,
+                effect_kind=IncomeSeriesEffect.VACANCY_CHANCE
+                if landlord
+                else IncomeSeriesEffect.LAYOFF_FACTOR,
+                changes=[],
+                lever=False,
+            )
+        )
+    if landlord:
+        current = igpm_on(day)
+        series.append(
+            IncomeSeriesDTO(
+                key=IncomeSeriesKey.IGP_M,
+                current=current,
+                neutral=None,
+                points=_points(day, igpm_on),
+                guides=[],
+                effect=current,
+                effect_kind=IncomeSeriesEffect.RENT_ADJUSTMENT,
                 changes=[],
                 lever=False,
             )

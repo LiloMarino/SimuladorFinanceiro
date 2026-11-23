@@ -13,6 +13,7 @@ const room = (overrides: Partial<RoomRules> = {}): RoomRules => ({
   government_enabled: true,
   inflation_adjusted: true,
   monthly_salary: "5000",
+  start_date: "2010-01-01",
   ...overrides,
 });
 
@@ -31,17 +32,24 @@ describe("visibleProfession", () => {
     expect(visibleProfession("WELFARE", noGovernment).tags).toEqual(["unemployment"]);
   });
 
-  it("sem correção pela inflação sai o aumento acima da inflação e o aluguel que só sobe com ela", () => {
+  it("sem correção pela inflação sai o aumento acima da inflação", () => {
     const noInflation = room({ inflation_adjusted: false });
     expect(visibleProfession("CLT", noInflation).gains).toEqual([{ text: "Renda cheia" }]);
     expect(visibleProfession("CLT", noInflation).tags).toContain("gdp");
     expect(visibleProfession("PUBLIC_SERVANT", noInflation).tags).toEqual(["personalTax"]);
-    expect(visibleProfession("LANDLORD", noInflation).losses).toHaveLength(1);
+  });
+
+  it("o Locador mostra as vantagens, as desvantagens e as etiquetas dos imóveis em qualquer sala", () => {
+    const landlord = visibleProfession("LANDLORD", room({ inflation_adjusted: false }));
+    expect(landlord.gains).toHaveLength(2);
+    expect(landlord.losses).toHaveLength(2);
+    expect(landlord.tags).toEqual(["unemployment", "gdp", "personalTax"]);
+    expect(visibleProfession("LANDLORD", room({ government_enabled: false })).tags).toEqual(["unemployment", "gdp"]);
   });
 });
 
 describe("availableProfessions", () => {
-  it("na sala com correção pela inflação e as duas expansões oferece todas", () => {
+  it("na sala com correção pela inflação, as duas expansões e início depois do IVG-R oferece todas", () => {
     expect(availableProfessions(room())).toHaveLength(Object.keys(PROFESSIONS).length);
     expect(availableProfessions(room())).toContain("FREELANCER");
   });
@@ -57,6 +65,18 @@ describe("availableProfessions", () => {
     expect(availableProfessions(room({ government_enabled: false }))).not.toContain("COMMISSIONED");
     expect(availableProfessions(room({ funds_enabled: false }))).not.toContain("OFFERS_BANKER");
     expect(availableProfessions(room({ funds_enabled: false }))).toContain("COMMISSIONED");
+  });
+
+  it("o Locador só aparece em sala que começa no primeiro mês do IVG-R ou depois", () => {
+    expect(availableProfessions(room({ start_date: "2000-01-01" }))).not.toContain("LANDLORD");
+    expect(availableProfessions(room({ start_date: "2001-02-01" }))).not.toContain("LANDLORD");
+    expect(availableProfessions(room({ start_date: "2001-03-01" }))).toContain("LANDLORD");
+    expect(availableProfessions(room({ start_date: "2019-01-01" }))).toContain("LANDLORD");
+  });
+
+  it("o bot também não recebe o Locador em sala que começa antes do IVG-R", () => {
+    expect(availableBotProfessions(room({ start_date: "2000-01-01" }))).not.toContain("LANDLORD");
+    expect(availableBotProfessions(room({ start_date: "2001-03-01" }))).toContain("LANDLORD");
   });
 
   it("o bot não recebe o Comissionado, que segue o partido escolhido pelo jogador", () => {

@@ -204,10 +204,10 @@ def annual_index_rate(
     """
     Taxa anual do indexador conhecida em `on` (0.149 = 14,9% a.a.); com `stored`, a da série guardada, sem o efeito das medidas do governo.
 
-    CDI/SELIC: a taxa do dia composta por 252 dias úteis. IPCA: o acumulado dos
-    últimos 12 meses. Fed Funds: a própria taxa publicada.
+    CDI/SELIC: a taxa do dia composta por 252 dias úteis. Séries mensais (IPCA, IGP-M): o
+    acumulado dos últimos 12 meses. Fed Funds: a própria taxa publicada.
     """
-    if series is IndicatorSeries.IPCA:
+    if series.is_monthly:
         history = repository.economic.get_history(series, stored=stored)
         monthly = history.values_until(on.replace(day=1), IPCA_WINDOW_MONTHS)
         return compose(*(from_percent(Percent(value)) for value in monthly))
@@ -314,18 +314,27 @@ def inflation_factor(start: date, day: date) -> Decimal:
     return factor
 
 
-def monthly_inflation_factor(start: date, day: date) -> Decimal:
+def monthly_index_factor(series: IndicatorSeries, start: date, day: date) -> Decimal:
     """
-    Quanto um valor em reais fixado em `start` subiu até `day` pelo IPCA corrido mês a
-    mês: o IPCA de cada mês depois do de `start`, até o de `day`. No aniversário de
-    `start` o fator é o de `inflation_factor`; entre aniversários ele sobe a cada mês.
+    Quanto um valor em reais fixado em `start` subiu até `day` pela série mensal (IPCA,
+    IGP-M, IVG-R) corrida mês a mês: a variação de cada mês depois do de `start`, até o
+    de `day`. No aniversário de `start` o fator é o acumulado de 12 meses da série.
     """
     months = (day.year - start.year) * MONTHS_PER_YEAR + day.month - start.month
     if months <= 0:
         return Decimal(1)
-    history = repository.economic.get_history(IndicatorSeries.IPCA)
+    history = repository.economic.get_history(series)
     monthly = history.values_until(day.replace(day=1), months)
     return 1 + compose(*(from_percent(Percent(value)) for value in monthly))
+
+
+def monthly_inflation_factor(start: date, day: date) -> Decimal:
+    """
+    Quanto um valor em reais fixado em `start` subiu até `day` pelo IPCA corrido mês a
+    mês. No aniversário de `start` o fator é o de `inflation_factor`; entre aniversários
+    ele sobe a cada mês.
+    """
+    return monthly_index_factor(IndicatorSeries.IPCA, start, day)
 
 
 def nearest_year_value(table: dict[int, Decimal], year: int) -> Decimal:

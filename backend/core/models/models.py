@@ -2278,3 +2278,58 @@ class ProfessionPeriods(Base):
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     start_date: Mapped[datetime.date] = mapped_column(Date, primary_key=True)
     profession: Mapped[str] = mapped_column(Text, nullable=False)
+
+
+class RealEstateProperties(Base):
+    """Os imóveis de um jogador Locador numa partida: uma linha por imóvel; o preço do dia e o aluguel em vigor saem da data de início da sala, do preço base e do contrato."""
+
+    __tablename__ = "real_estate_properties"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id", "user_id"],
+            ["simulation_players.simulation_id", "simulation_players.user_id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="real_estate_properties_player_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="real_estate_properties_pkey"),
+        Index(
+            "real_estate_properties_player_idx",
+            "simulation_id",
+            "user_id",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    # Um valor de `PropertySize`
+    size: Mapped[str] = mapped_column(Text, nullable=False)
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    # O preço do imóvel na data de início da sala: o do dia sai dele vezes o IVG-R acumulado
+    base_price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    # O mês da oferta de que o imóvel saiu; nulo nos imóveis iniciais
+    offer_month: Mapped[datetime.date | None] = mapped_column(Date)
+    # O aluguel fixado na assinatura do contrato; o IGP-M o reajusta a cada 12 meses do contrato
+    contract_rent: Mapped[decimal.Decimal] = mapped_column(
+        Numeric(20, 6), nullable=False
+    )
+    contract_start: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # Um valor de `PropertyStatus`
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    # Desde quando está vago; nulo fora da vacância
+    vacant_since: Mapped[datetime.date | None] = mapped_column(Date)
+    # O dia em que a venda pedida conclui; nulo fora da venda
+    sale_due: Mapped[datetime.date | None] = mapped_column(Date)

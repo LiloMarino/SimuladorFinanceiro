@@ -14335,6 +14335,120 @@
         ]
       }
     },
+    "/api/simulation/buy-property": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Comprar a oferta do mês de imóvel do Locador",
+        "description": "Compra a oferta do mês do tamanho pedido pelo preço do IVG-R do dia: o caixa paga o preço mais 5% de ITBI e corretagem e o imóvel entra alugado a 0,5% do preço ao mês. Cada oferta se compra uma vez. Responde 409 para o caixa que não cobre a compra, para a oferta já comprada e para outra profissão.",
+        "operationId": "buy_property_api_simulation_buy_property_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuyPropertyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/sell-property": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Vender um imóvel do Locador",
+        "description": "Põe o imóvel à venda: a venda conclui em 1 mês, pelo valor do dia da conclusão menos 5% de ITBI e corretagem, e até lá o imóvel segue rendendo. Não se desfaz. Responde 404 para o imóvel que não é do jogador, 409 para o imóvel já à venda e para outra profissão.",
+        "operationId": "sell_property_api_simulation_sell_property_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SellPropertyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/convert-pension": {
       "post": {
         "tags": [
@@ -19029,6 +19143,18 @@
           "quantity"
         ],
         "title": "BuyFixedIncomeRequest"
+      },
+      "BuyPropertyRequest": {
+        "properties": {
+          "size": {
+            "$ref": "#/components/schemas/PropertySize"
+          }
+        },
+        "type": "object",
+        "required": [
+          "size"
+        ],
+        "title": "BuyPropertyRequest"
       },
       "CampaignActionDTO": {
         "properties": {
@@ -33291,7 +33417,6 @@
         "enum": [
           "LAYOFF",
           "GIG_LOSS",
-          "VACANCY",
           "NO_CLIENTS"
         ],
         "title": "IncomeLoss",
@@ -33378,6 +33503,8 @@
           "REAL_RAISE",
           "INCOME_FACTOR",
           "LAYOFF_FACTOR",
+          "VACANCY_CHANCE",
+          "RENT_ADJUSTMENT",
           "BENEFIT"
         ],
         "title": "IncomeSeriesEffect",
@@ -33390,6 +33517,7 @@
           "UNEMPLOYMENT",
           "DOLLAR",
           "SELIC",
+          "IGP_M",
           "SERVANT_RAISE",
           "RETIREE_RAISE",
           "WELFARE_SPENDING"
@@ -34383,6 +34511,219 @@
           "debt_limit"
         ],
         "title": "LadderTierDTO"
+      },
+      "LandlordMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "landlord",
+            "title": "Kind",
+            "default": "landlord"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "income": {
+            "type": "string",
+            "title": "Income"
+          },
+          "rented": {
+            "type": "integer",
+            "title": "Rented"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "annual_yield": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Yield"
+          },
+          "full_yield": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Yield"
+          },
+          "cdi": {
+            "type": "string",
+            "title": "Cdi"
+          },
+          "vacancy_chance": {
+            "type": "string",
+            "title": "Vacancy Chance"
+          },
+          "properties": {
+            "items": {
+              "$ref": "#/components/schemas/LandlordPropertyDTO"
+            },
+            "type": "array",
+            "title": "Properties"
+          },
+          "total_value": {
+            "type": "string",
+            "title": "Total Value"
+          },
+          "offers_month": {
+            "type": "string",
+            "format": "date",
+            "title": "Offers Month"
+          },
+          "next_offers_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Offers On"
+          },
+          "offers": {
+            "items": {
+              "$ref": "#/components/schemas/PropertyOfferDTO"
+            },
+            "type": "array",
+            "title": "Offers"
+          },
+          "rent_rate": {
+            "type": "string",
+            "title": "Rent Rate"
+          },
+          "cost_rate": {
+            "type": "string",
+            "title": "Cost Rate"
+          },
+          "sale_months": {
+            "type": "integer",
+            "title": "Sale Months"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "income",
+          "rented",
+          "total",
+          "annual_yield",
+          "full_yield",
+          "cdi",
+          "vacancy_chance",
+          "properties",
+          "total_value",
+          "offers_month",
+          "next_offers_on",
+          "offers",
+          "rent_rate",
+          "cost_rate",
+          "sale_months"
+        ],
+        "title": "LandlordMechanicDTO",
+        "description": "Os imóveis, o rendimento e as ofertas do mês do Locador."
+      },
+      "LandlordPropertyDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "size": {
+            "$ref": "#/components/schemas/PropertySize"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PropertyStatus"
+          },
+          "rent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rent"
+          },
+          "next_readjustment": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Readjustment"
+          },
+          "vacant_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vacant Months"
+          },
+          "rerent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rerent"
+          },
+          "sale_due": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sale Due"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "size",
+          "value",
+          "status",
+          "rent",
+          "next_readjustment",
+          "vacant_months",
+          "rerent",
+          "sale_due"
+        ],
+        "title": "LandlordPropertyDTO",
+        "description": "Um imóvel do Locador na tabela da página."
       },
       "LevelChangeDTO": {
         "properties": {
@@ -35416,6 +35757,17 @@
               }
             ],
             "title": "Since"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
           }
         },
         "additionalProperties": false,
@@ -35425,7 +35777,8 @@
           "value",
           "networth_pct",
           "exit_rule",
-          "since"
+          "since",
+          "note"
         ],
         "title": "LockedAssetDTO",
         "description": "Um patrimônio da profissão que fica fora do caixa, com a regra de saída dele."
@@ -35436,7 +35789,8 @@
           "FGTS",
           "COMPANY_CAPITAL",
           "PENSION",
-          "WELFARE_SAVINGS"
+          "WELFARE_SAVINGS",
+          "REAL_ESTATE"
         ],
         "title": "LockedAssetKind",
         "description": "O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira."
@@ -41937,6 +42291,9 @@
                 "$ref": "#/components/schemas/BrokerMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/LandlordMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/NoMechanicDTO"
               }
             ],
@@ -41953,6 +42310,7 @@
                 "freelancer": "#/components/schemas/FreelancerMechanicDTO",
                 "graduate": "#/components/schemas/GraduateMechanicDTO",
                 "heir": "#/components/schemas/HeirMechanicDTO",
+                "landlord": "#/components/schemas/LandlordMechanicDTO",
                 "none": "#/components/schemas/NoMechanicDTO",
                 "offers_banker": "#/components/schemas/OffersBankerMechanicDTO",
                 "public_servant": "#/components/schemas/PublicServantMechanicDTO",
@@ -42525,6 +42883,60 @@
           "promises"
         ],
         "title": "PromisesRequest"
+      },
+      "PropertyOfferDTO": {
+        "properties": {
+          "size": {
+            "$ref": "#/components/schemas/PropertySize"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "rent": {
+            "type": "string",
+            "title": "Rent"
+          },
+          "cost": {
+            "type": "string",
+            "title": "Cost"
+          },
+          "bought": {
+            "type": "boolean",
+            "title": "Bought"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "size",
+          "price",
+          "rent",
+          "cost",
+          "bought"
+        ],
+        "title": "PropertyOfferDTO",
+        "description": "A oferta do mês para um tamanho de imóvel."
+      },
+      "PropertySize": {
+        "type": "string",
+        "enum": [
+          "STUDIO",
+          "TWO_BEDROOM",
+          "HOUSE"
+        ],
+        "title": "PropertySize",
+        "description": "O tamanho do imóvel do Locador: dá o preço de partida e o rótulo da oferta."
+      },
+      "PropertyStatus": {
+        "type": "string",
+        "enum": [
+          "RENTED",
+          "VACANT",
+          "SELLING"
+        ],
+        "title": "PropertyStatus",
+        "description": "A situação do imóvel: alugado rende, vago não rende e vendendo segue rendendo até a venda concluir."
       },
       "ProposeDealRequest": {
         "properties": {
@@ -45078,6 +45490,19 @@
           "selic"
         ],
         "title": "SelicRequest"
+      },
+      "SellPropertyRequest": {
+        "properties": {
+          "property_id": {
+            "type": "integer",
+            "title": "Property Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "property_id"
+        ],
+        "title": "SellPropertyRequest"
       },
       "SellTreasuryRequest": {
         "properties": {

@@ -66,6 +66,7 @@ from backend.core.enum import (
     PlayerGrouping,
     PreparationKind,
     Profession,
+    PropertySize,
     SalaryMode,
     SelicControl,
     TeamNaming,
@@ -254,6 +255,16 @@ class ReinvestShareRequest(BaseModel):
 class CapitalSaleRequest(BaseModel):
     # A fração do capital da empresa que a venda tira (1 = tudo)
     share: Decimal
+
+
+class BuyPropertyRequest(BaseModel):
+    # O tamanho da oferta do mês que a compra leva
+    size: PropertySize
+
+
+class SellPropertyRequest(BaseModel):
+    # O imóvel da carteira do Locador que entra em venda
+    property_id: int
 
 
 class EnrollStepRequest(BaseModel):
@@ -1311,6 +1322,46 @@ def sell_capital(payload: CapitalSaleRequest, client_id: ClientID):
         raise NotFoundError("Usuário não encontrado.")
     simulation = SimulationManager.get_active_simulation()
     simulation.sell_capital(user, payload.share)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/buy-property",
+    response_model=ProfessionStateDTO,
+    summary="Comprar a oferta do mês de imóvel do Locador",
+    description="Compra a oferta do mês do tamanho pedido pelo preço do IVG-R do dia: o caixa paga o preço mais 5% de ITBI e corretagem e o imóvel entra alugado a 0,5% do preço ao mês. Cada oferta se compra uma vez. Responde 409 para o caixa que não cobre a compra, para a oferta já comprada e para outra profissão.",
+)
+def buy_property(payload: BuyPropertyRequest, client_id: ClientID):
+    """
+    Compra o imóvel da oferta de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.buy_property(user, payload.size)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/sell-property",
+    response_model=ProfessionStateDTO,
+    summary="Vender um imóvel do Locador",
+    description="Põe o imóvel à venda: a venda conclui em 1 mês, pelo valor do dia da conclusão menos 5% de ITBI e corretagem, e até lá o imóvel segue rendendo. Não se desfaz. Responde 404 para o imóvel que não é do jogador, 409 para o imóvel já à venda e para outra profissão.",
+)
+def sell_property(payload: SellPropertyRequest, client_id: ClientID):
+    """
+    Põe à venda o imóvel de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.sell_property(user, payload.property_id)
     return simulation.get_profession_state(client_id)
 
 

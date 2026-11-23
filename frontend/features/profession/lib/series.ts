@@ -4,6 +4,7 @@ import type { IncomeSeries, LifeHistoryRow } from "@/types";
 import {
   DOLLAR_CHANGE,
   GDP_12M,
+  IGP_M_12M,
   RETIREE_RAISE,
   SELIC_RATE,
   SERVANT_RAISE,
@@ -30,7 +31,7 @@ export const SERIES_INFO: Record<IncomeSeries["key"], SeriesInfo> = {
   },
   UNEMPLOYMENT: {
     title: "Desemprego",
-    subtitle: "Move a chance de demissão",
+    subtitle: "Move a chance de demissão e a vacância dos imóveis",
     metric: UNEMPLOYMENT,
     display: (value) => displayPercent(value, 1),
   },
@@ -45,6 +46,12 @@ export const SERIES_INFO: Record<IncomeSeries["key"], SeriesInfo> = {
     subtitle: "Taxa ao ano",
     metric: SELIC_RATE,
     display: (value) => displayPercent(value, 2),
+  },
+  IGP_M: {
+    title: "IGP-M de 12 meses",
+    subtitle: "O índice que reajusta o aluguel",
+    metric: IGP_M_12M,
+    display: (value) => displaySignedPercent(value, 1),
   },
   SERVANT_RAISE: {
     title: "Aumento dos servidores",
@@ -105,6 +112,10 @@ export function todaySentence(series: IncomeSeries) {
         text: `chance de demissão em ${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(times)} ${times <= 1 ? "vez" : "vezes"} a normal.`,
       };
     }
+    case "VACANCY_CHANCE":
+      return { lead, text: `vacância de ${displayPercent(effect, 1, { trim: true })} por imóvel no mês.` };
+    case "RENT_ADJUSTMENT":
+      return { lead, text: `o próximo reajuste sobe o aluguel ${displayPercent(effect, 1, { trim: true })}.` };
     case "BENEFIT":
       return { lead, text: `o auxílio paga ${multiple(effect)} o de referência.` };
   }
@@ -135,6 +146,8 @@ const PLAYER_ACTIONS = new Set([
   "enroll_masters",
   "enroll_doctorate",
   "leave_home",
+  "property_bought",
+  "property_sold",
 ]);
 
 export function isPlayerAction(row: LifeHistoryRow) {

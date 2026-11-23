@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Kpi } from "@/shared/components/kpi";
 import { AllocationList } from "@/features/portfolio/components/allocation-list";
-import { allocationRows } from "@/features/portfolio/lib/allocation-rows";
+import { allocationRows, outsideCash } from "@/features/portfolio/lib/allocation-rows";
 import { StackedBar } from "@/shared/components/stacked-bar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { InfoHint } from "@/shared/components/info-hint";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
+import { lockedHeadline, lockedLabel } from "@/shared/lib/locked-assets";
 import { useAuth } from "@/shared/hooks/useAuth";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { useSimulation } from "@/shared/hooks/useSimulation";
@@ -35,7 +36,9 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
   const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, user?.nickname ?? "") : undefined;
   const positive = Number(portfolio.total_return_value) >= 0;
   const allocation = allocationRows(portfolio);
-  const allInCash = Number(portfolio.invested_value) === 0;
+  const nothingInvested = Number(portfolio.invested_value) === 0;
+  const outside = outsideCash(portfolio);
+  const lockedNotes = portfolio.locked_assets.flatMap((a) => (a.note ? [{ kind: a.kind, note: a.note }] : []));
   const indebted = Number(portfolio.debt) > 0;
 
   return (
@@ -51,15 +54,15 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
               <span className="font-mono text-[30px] leading-none font-semibold">
                 {displayMoney(portfolio.total_networth)}
               </span>
-              {!allInCash && (
+              {!nothingInvested && (
                 <Badge variant={positive ? "success" : "destructive"}>
                   {positive ? "▲" : "▼"} {displayPercent(portfolio.total_return_pct)}
                 </Badge>
               )}
             </div>
             <span className="text-[13px] text-muted-foreground">
-              {allInCash ? (
-                "Tudo em caixa. Comece comprando ações ou investindo em renda fixa."
+              {nothingInvested ? (
+                (lockedHeadline(portfolio) ?? "Tudo em caixa. Comece comprando ações ou investindo em renda fixa.")
               ) : (
                 <>
                   <span className={positive ? "text-success" : "text-destructive"}>
@@ -82,10 +85,15 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
           {/* Alocação: cada patrimônio de profissão fora do caixa é uma linha, com a regra de saída */}
           <div className="grid content-start gap-2.5 lg:border-l lg:px-6">
             <span className="text-xs font-medium text-muted-foreground">
-              Alocação · investido {displayMoney(portfolio.invested_value)} · {displayPercent(portfolio.invested_pct)}
+              Alocação · fora do caixa {displayMoney(outside.value)} · {displayPercent(outside.pct)}
             </span>
             <StackedBar segments={allocation.map((a) => ({ key: a.label, fraction: Number(a.pct), color: a.color }))} />
             <AllocationList rows={allocation} />
+            {lockedNotes.map(({ kind, note }) => (
+              <div key={kind} className="text-xs text-muted-foreground">
+                <b className="font-semibold text-foreground">{lockedLabel(kind)}:</b> {note}
+              </div>
+            ))}
           </div>
 
           {/* Indicadores */}

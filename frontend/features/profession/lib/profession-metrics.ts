@@ -64,7 +64,7 @@ export const GDP_12M: MetricInfo = {
   example:
     "Ex.: PIB de +1,4% → o país produziu 1,4% a mais do que um ano atrás. Com o PIB acima de 2% (o neutro), o seu reajuste melhora.",
   reading:
-    "Acima do neutro o reajuste melhora; abaixo de zero é recessão: o reajuste some e a hora extra do CLT é cortada.",
+    "Acima do neutro o reajuste melhora; abaixo de zero é recessão: o reajuste some e a hora extra do CLT é cortada. Para o Locador, cada ponto de queda do PIB soma 1 ponto percentual à chance de vacância por imóvel.",
   format: (value) => displaySignedPercent(value, 1),
 };
 
@@ -75,7 +75,7 @@ export const UNEMPLOYMENT: MetricInfo = {
     "A fatia das pessoas que querem trabalhar e não conseguem vaga. Move a chance de demissão do sorteio mensal.",
   example: "Ex.: 5,5% → de cada 100 pessoas procurando emprego, 5 ou 6 estão sem.",
   reading:
-    "No neutro de 9% a chance de demissão é a normal; com desemprego menor ela cai, com 18% ela sobe bem acima do normal.",
+    "No neutro de 9% a chance de demissão é a normal; com desemprego menor ela cai, com 18% ela sobe bem acima do normal. Para o Locador, a chance de vacância por imóvel é de 5% no neutro e cresce junto com o desemprego.",
   format: (value) => displayPercent(value, 1),
 };
 
@@ -387,4 +387,51 @@ export const LIVES_WITH_PARENTS: MetricInfo = {
   example: "Ex.: despesa de R$ 1.600 → você paga R$ 960, R$ 640 a menos por mês.",
   reading: "É dinheiro que sobra no caixa todo mês enquanto a carreira ainda paga pouco.",
   format: (value) => displayMoney(value),
+};
+
+export const PROPERTY_INDEXES: MetricInfo = {
+  label: "IVG-R e IGP-M",
+  description: "Os índices que movem o valor do imóvel e o aluguel",
+  definition:
+    "O IVG-R é o índice do Banco Central do valor dos imóveis residenciais. O IGP-M é o índice de preços que reajusta o aluguel uma vez por ano.",
+  example:
+    "Ex.: casa comprada por R$ 240.000,00: se o IVG-R sobe 8% no ano, ela vale R$ 259.200,00. Aluguel de R$ 1.200,00 com IGP-M de 4% vira R$ 1.248,00 no aniversário do contrato.",
+  reading:
+    "O imóvel ganha duas vezes: no valor (IVG-R) e no aluguel (IGP-M). Rendimento do aluguel abaixo do CDI menos 5 pontos é sinal de vender.",
+  format: (value) => displayPercent(value, 2),
+};
+
+export const IGP_M_12M: MetricInfo = {
+  label: "IGP-M de 12 meses",
+  description: "Quanto o índice que reajusta o aluguel subiu em um ano",
+  definition:
+    "O IGP-M é o índice de preços que corrige o aluguel. Cada contrato se reajusta uma vez por ano, pelo IGP-M acumulado nos 12 meses até o aniversário dele.",
+  example: "Ex.: IGP-M de 8% → aluguel de R$ 1.200,00 vira R$ 1.296,00 no aniversário do contrato.",
+  reading:
+    "Quanto maior, mais o aluguel sobe no próximo reajuste. IGP-M acima do IPCA faz o aluguel render mais que a inflação; abaixo, menos.",
+  format: (value) => displayPercent(value, 1),
+};
+
+export const RENTAL_YIELD: MetricInfo = {
+  label: "Rende ao ano",
+  description: "O aluguel de 12 meses sobre o valor dos imóveis",
+  definition:
+    "Soma o aluguel de 12 meses e divide pelo valor dos imóveis hoje. Só os imóveis alugados entram; o rendimento cheio é o de quando todos estão alugados. O ganho no valor do imóvel, pelo IVG-R, não entra nesta conta.",
+  example:
+    "Ex.: aluguéis de R$ 1.860,00 por mês sobre imóveis de R$ 540.000,00 → R$ 22.320,00 por ano ÷ R$ 540.000,00 = 4,1% ao ano.",
+  reading:
+    "Compare com o CDI, o que a renda fixa rende ao ano. Com o aluguel abaixo do CDI menos 5 pontos, o dinheiro rende mais fora do imóvel, e vender costuma compensar.",
+  format: (value) => displayPercent(value, 1),
+};
+
+export const VACANCY_CHANCE: MetricInfo = {
+  label: "Chance de vacância",
+  description: "A chance de cada imóvel ficar sem inquilino no mês",
+  definition:
+    "A cada virada de mês, cada imóvel alugado tem esta chance de ficar vago. Parte de 5% com o desemprego no neutro de 9%, sobe junto com o desemprego da partida e soma 1 ponto percentual por ponto de queda do PIB de 12 meses (PIB positivo não conta); fica entre 2% e 20%. Vago, o imóvel não paga aluguel, e a cada mês tem 60% de chance de voltar a ser alugado.",
+  example:
+    "Ex.: desemprego de 10,8% (1,2× o neutro) e PIB de −1% → 5% × 1,2 + 1 ponto = 7% por imóvel no mês. Com 3 imóveis, em média um imóvel fica vago a cada 5 meses.",
+  reading:
+    "Quanto menor, melhor. Perto de 2% é economia aquecida; perto de 20% é crise, com desemprego alto e PIB em queda.",
+  format: (value) => displayPercent(value, 0),
 };

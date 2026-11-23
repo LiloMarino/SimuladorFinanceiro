@@ -40,7 +40,7 @@ export default function ProfessionPage() {
     <div className="grid gap-5">
       <ProfessionHeader page={page} match={match} />
       <ProfessionMechanic mechanic={page.mechanic} />
-      <IncomeSeriesSection series={page.series} />
+      <IncomeSeriesSection series={page.series} inflationIndexed={page.header.inflation_indexed} />
       <ProfessionHistory />
     </div>
   );

@@ -6,6 +6,7 @@ import { EntrepreneurBlock } from "./entrepreneur-block";
 import { ExporterBlock } from "./exporter-block";
 import { FreelancerBlock } from "./freelancer-block";
 import { GraduateBlock } from "./graduate-block";
+import { LandlordBlock } from "./landlord-block";
 import { AppointeeBlock, HeirBlock, OffersBankerBlock } from "./other-blocks";
 import { PublicServantBlock } from "./public-servant-block";
 import { RetireeBlock } from "./retiree-block";
@@ -34,6 +35,8 @@ export function ProfessionMechanic({ mechanic }: { mechanic: Mechanic }) {
       return <BankerBlock mechanic={mechanic} />;
     case "broker":
       return <BrokerBlock mechanic={mechanic} />;
+    case "landlord":
+      return <LandlordBlock mechanic={mechanic} />;
     case "heir":
       return <HeirBlock mechanic={mechanic} />;
     case "appointee":

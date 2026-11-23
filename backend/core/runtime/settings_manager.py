@@ -228,6 +228,16 @@ class SettingsManager:
         return cls.get().uses_professions
 
     @classmethod
+    def effective_start_date(cls) -> date:
+        """A data em que a sala começa: a partida salva selecionada manda; sem ela, as regras da nova."""
+        selected_id = cls.get_selected_simulation_id()
+        if selected_id is not None:
+            summary = repository.simulation.get_simulation(selected_id)
+            if summary is not None:
+                return summary.start_date
+        return cls.get().start_date
+
+    @classmethod
     def effective_inflation_adjusted(cls) -> bool:
         """A sala corrige a renda pela inflação: a partida salva selecionada manda; sem ela, as regras da nova."""
         selected_id = cls.get_selected_simulation_id()

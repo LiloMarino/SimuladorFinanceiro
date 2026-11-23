@@ -16,6 +16,8 @@ from backend.core.enum import (
     IncomeSeriesKey,
     MechanicStatus,
     Profession,
+    PropertySize,
+    PropertyStatus,
 )
 from backend.core.professions import RealRaise
 
@@ -453,6 +455,66 @@ class BrokerMechanicDTO(BaseDTO):
     capped: bool
 
 
+class LandlordPropertyDTO(BaseDTO):
+    """Um imóvel do Locador na tabela da página."""
+
+    id: int
+    name: str
+    size: PropertySize
+    # O valor de hoje, pelo IVG-R
+    value: Decimal
+    status: PropertyStatus
+    # O aluguel em vigor e o dia do próximo reajuste pelo IGP-M; nulos no imóvel vago
+    rent: Decimal | None
+    next_readjustment: date | None
+    # Há quantos meses está vago e o aluguel com que volta (0,5% do valor de hoje); nulos fora da vacância
+    vacant_months: int | None
+    rerent: Decimal | None
+    # O dia em que a venda pedida conclui; nulo fora da venda
+    sale_due: date | None
+
+
+class PropertyOfferDTO(BaseDTO):
+    """A oferta do mês para um tamanho de imóvel."""
+
+    size: PropertySize
+    price: Decimal
+    # O aluguel inicial e o custo de compra (ITBI e corretagem)
+    rent: Decimal
+    cost: Decimal
+    # Verdadeiro quando o jogador já comprou esta oferta
+    bought: bool
+
+
+class LandlordMechanicDTO(BaseDTO):
+    """Os imóveis, o rendimento e as ofertas do mês do Locador."""
+
+    kind: Literal["landlord"] = "landlord"
+    status: MechanicStatus
+    # A soma dos aluguéis do mês e quantos imóveis estão alugados, entre quantos o jogador tem
+    income: Decimal
+    rented: int
+    total: int
+    # O rendimento do aluguel em 12 meses sobre o valor dos imóveis, com os vagos fora e com todos alugados; nulos sem imóvel
+    annual_yield: Decimal | None
+    full_yield: Decimal | None
+    # O CDI ao ano, que o rendimento do imóvel concorre
+    cdi: Decimal
+    # A chance de vacância por imóvel no mês
+    vacancy_chance: Decimal
+    properties: list[LandlordPropertyDTO]
+    total_value: Decimal
+    # O mês das ofertas, o dia em que as próximas saem e as 3 ofertas, uma de cada tamanho
+    offers_month: date
+    next_offers_on: date
+    offers: list[PropertyOfferDTO]
+    # O aluguel inicial como fração do preço ao mês e o custo de compra e de venda como fração do preço
+    rent_rate: Decimal
+    cost_rate: Decimal
+    # Em quantos meses a venda pedida conclui
+    sale_months: int
+
+
 class NoMechanicDTO(BaseDTO):
     """A profissão sem mecânica a ligar, ou com mecânica ainda sem motor."""
 
@@ -473,6 +535,7 @@ MechanicBlockDTO = Annotated[
     | AppointeeMechanicDTO
     | OffersBankerMechanicDTO
     | BrokerMechanicDTO
+    | LandlordMechanicDTO
     | NoMechanicDTO,
     Field(discriminator="kind"),
 ]

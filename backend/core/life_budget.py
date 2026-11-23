@@ -82,6 +82,10 @@ def neutral_selic(day: date) -> Decimal:
     return DRIVER_CURVES[IncomeDriver.SELIC].neutral
 
 
+def no_rent_data(day: date) -> Decimal | None:
+    return None
+
+
 @dataclass(frozen=True)
 class LifeBudget:
     """
@@ -123,6 +127,8 @@ class LifeBudget:
     current_mechanic_state: Callable[[], MechanicState] = no_mechanic_state
     # O dia em que o jogador entrou na profissão; a carreira e a casa dos pais contam daqui. Nulo é o início da partida
     profession_start: date | None = None
+    # A soma dos aluguéis dos imóveis alugados do Locador em cada dia; nula (orçamento sem os imóveis do jogador) vale o aluguel dos imóveis iniciais
+    rented_income_on: Callable[[date], Decimal | None] = no_rent_data
 
     @classmethod
     def of(
@@ -166,6 +172,12 @@ class LifeBudget:
         """O orçamento de quem entrou na profissão em `profession_start`: carreira e casa dos pais contam desse dia."""
         return replace(self, profession_start=profession_start)
 
+    def with_rented_income(
+        self, rented_income_on: Callable[[date], Decimal | None]
+    ) -> "LifeBudget":
+        """O orçamento do Locador: a renda é a soma dos aluguéis dos imóveis alugados."""
+        return replace(self, rented_income_on=rented_income_on)
+
     def as_president(self, multiple: Decimal) -> "LifeBudget":
         """O orçamento de quem recebe `multiple` salários do host pela presidência; reajuste e imposto seguem os da profissão."""
         return replace(self, presidency_multiple=multiple)
@@ -205,6 +217,11 @@ class LifeBudget:
             return stipend, self._benefit_on(day)
         mechanic = self.current_mechanic_state().income_factor
         freelancer = self.freelancer_state()
+        if self.profession is Profession.LANDLORD:
+            rent = self.rented_income_on(day)
+            if rent is None:
+                rent = cents(self.monthly_salary * rule.income_multiple)
+            return rent, self._benefit_on(day)
         if freelancer is None:
             exposed = self.monthly_salary * self.multiple_on(day) * factor * mechanic
         else:

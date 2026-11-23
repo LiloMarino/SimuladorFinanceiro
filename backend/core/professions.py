@@ -10,6 +10,7 @@ from decimal import Decimal
 from enum import Enum
 
 from backend.core.enum import IncomeLoss, Profession
+from backend.core.periods import IVG_R_START
 
 # As alavancas do governo no padrão, sem medida aprovada. As alíquotas são as da lei
 # (as mesmas de `DEFAULT_TAX_POLICY`) e o auxílio é o gasto de partida
@@ -187,6 +188,8 @@ class ProfessionRule:
     requires_inflation_adjusted: bool = False
     # A profissão só existe na sala com esta expansão ligada
     requires_expansion: Expansion | None = None
+    # A profissão só existe na sala que começa a partir deste dia
+    min_start_date: date | None = None
     # O múltiplo da renda quando o partido escolhido está fora do governo; nulo quando a
     # renda não depende do partido. `income_multiple` vale para o partido no governo
     outside_multiple: Decimal | None = None
@@ -233,7 +236,8 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
     Profession.LANDLORD: ProfessionRule(
         income_multiple=Decimal("1.1"),
         tax=TaxBase.PERSONAL,
-        loss=IncomeLoss.VACANCY,
+        inflation_indexed=False,
+        min_start_date=IVG_R_START,
     ),
     Profession.EXPORTER: ProfessionRule(
         income_multiple=Decimal("1.05"),
@@ -298,9 +302,13 @@ def driver_factor(curve: DriverCurve, value: Decimal) -> Decimal:
 
 
 def available_professions(
-    *, inflation_adjusted: bool, government_enabled: bool, funds_enabled: bool
+    *,
+    inflation_adjusted: bool,
+    government_enabled: bool,
+    funds_enabled: bool,
+    start_date: date,
 ) -> list[Profession]:
-    """As profissões que a sala pode escolher: somem as que exigem a correção pela inflação ou uma expansão que a sala não tem."""
+    """As profissões que a sala pode escolher: somem as que exigem a correção pela inflação, uma expansão que a sala não tem ou um início de sala posterior ao dela."""
     expansions = {
         Expansion.GOVERNMENT: government_enabled,
         Expansion.FUNDS: funds_enabled,
@@ -310,6 +318,7 @@ def available_professions(
         for profession, rule in PROFESSIONS.items()
         if (inflation_adjusted or not rule.requires_inflation_adjusted)
         and (rule.requires_expansion is None or expansions[rule.requires_expansion])
+        and (rule.min_start_date is None or start_date >= rule.min_start_date)
     ]
 
 
@@ -319,7 +328,11 @@ def is_party_bound(profession: Profession) -> bool:
 
 
 def available_bot_professions(
-    *, inflation_adjusted: bool, government_enabled: bool, funds_enabled: bool
+    *,
+    inflation_adjusted: bool,
+    government_enabled: bool,
+    funds_enabled: bool,
+    start_date: date,
 ) -> list[Profession]:
     """As profissões que o bot pode ter: as da sala, sem as presas a um partido (o bot não escolhe partido)."""
     return [
@@ -328,6 +341,7 @@ def available_bot_professions(
             inflation_adjusted=inflation_adjusted,
             government_enabled=government_enabled,
             funds_enabled=funds_enabled,
+            start_date=start_date,
         )
         if not is_party_bound(profession)
     ]

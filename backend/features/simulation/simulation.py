@@ -113,6 +113,10 @@ from backend.core.dto.profession import (
     EXCHANGE_LOCK_ENDED,
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
+    PROPERTY_BOUGHT,
+    PROPERTY_RENTED,
+    PROPERTY_SOLD,
+    PROPERTY_VACATED,
     SAVINGS_POSTPONED,
     SAVINGS_RELEASED,
     BrokerState,
@@ -124,6 +128,7 @@ from backend.core.dto.profession import (
     ExporterState,
     FreelancerState,
     GraduateState,
+    LandlordState,
     LeaveHome,
     LockedAssetDTO,
     LockExchange,
@@ -192,6 +197,7 @@ from backend.core.enum import (
     GameType,
     IndicatorSeries,
     LifeEventEffect,
+    LockedAssetKind,
     MeasureKind,
     OrderAction,
     PauseReason,
@@ -199,6 +205,8 @@ from backend.core.enum import (
     PlayerGrouping,
     PrepaymentMode,
     Profession,
+    PropertySize,
+    PropertyStatus,
     VoterValue,
 )
 from backend.core.exceptions import InsufficentCashError
@@ -228,7 +236,7 @@ from backend.core.indicators import (
 )
 from backend.core.life_budget import LifeBudget
 from backend.core.life_events import life_event_label
-from backend.core.locked_assets import LOCKED_EXITS
+from backend.core.locked_assets import LOCKED_EXITS, PROPERTY_COST_RATE
 from backend.core.metrics import (
     ENGINE_ACHIEVEMENTS,
     ENGINE_BACKTEST_DAY,
@@ -253,6 +261,7 @@ from backend.core.professions import (
     DOLLAR_WINDOW_DAYS,
     DRIVER_CURVES,
     HEALTH_EVENT_KEY,
+    PROFESSIONS,
     IncomeDriver,
     LifeLevers,
     RealRaise,
@@ -261,6 +270,20 @@ from backend.core.professions import (
     is_party_bound,
 )
 from backend.core.rates import from_percent, period_rate
+from backend.core.real_estate import (
+    SALE_MONTHS,
+    Offer,
+    becomes_vacant,
+    bought_draft,
+    initial_drafts,
+    is_rented_again,
+    offers_of,
+    rent_of,
+    rent_on,
+    sale_proceeds,
+    vacancy_chance,
+    value_of,
+)
 from backend.core.repository.strategy import LogFilter
 from backend.core.runtime.event_manager import EventManager
 from backend.core.runtime.simulation_manager import SimulationManager
@@ -386,6 +409,12 @@ from backend.features.profession.exporter import (
 )
 from backend.features.profession.freelancer import policy_price, price_due
 from backend.features.profession.graduate import conclude_step, policy_step
+from backend.features.profession.landlord import (
+    bought_sizes,
+    landlord_block,
+    policy_purchase,
+    policy_sales,
+)
 from backend.features.profession.mechanics import apply_action
 from backend.features.profession.page import (
     appointee_block,
@@ -419,6 +448,7 @@ from backend.features.profession.public_servant import (
     payroll_amount,
     payroll_policy,
 )
+from backend.features.profession.real_estate_book import PropertyBook
 from backend.features.profession.reserve import Reserve
 from backend.features.profession.welfare import (
     mark_negative_cash,
@@ -616,6 +646,8 @@ class Simulation:
         self._house_months: set[date] | None = None
         # O estado da mecânica e os períodos de profissão de cada jogador
         self._profession_book = ProfessionBook(settings.id)
+        # Os imóveis dos Locadores da partida
+        self._property_book = PropertyBook(settings.id)
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
         self._feed = AssetPageFeed(self)
         self._day_feed = DayFeed(self)
@@ -2402,6 +2434,10 @@ class Simulation:
             ),
             user_id,
         ).with_profession_start(self._profession_periods(user_id)[-1].start)
+        if budget.profession is Profession.LANDLORD:
+            budget = budget.with_rented_income(
+                lambda day: self._rented_income_on(user_id, day)
+            )
         president = self._government.president() if self._government else None
         if president is not None and president.id == user_id:
             return budget.as_president(presidency.SALARY_MULTIPLE)
@@ -3300,6 +3336,7 @@ class Simulation:
         if month_changed:
             self._conclude_courses(users, day)
             self._conclude_steps(users, day)
+        self._conclude_property_sales(users, day)
         budgets = {user.client_id: self._life_budget(life, user.id) for user in users}
         skipped_by_weight: dict[Decimal, bool] = {}
         event_by_weight: dict[Decimal, LifeEventTypeDTO | None] = {}
@@ -3336,6 +3373,7 @@ class Simulation:
             self._end_overtime_in_recession(users, day)
             self._run_bot_policies(users, day, budgets)
             self._run_broker_month(users, day)
+            self._run_landlord_month(users, day)
             for user in users:
                 budget = budgets[user.client_id]
                 loses_income = budget.income_loss() is not None and skipped_for(budget)
@@ -3493,7 +3531,45 @@ class Simulation:
         state = self._profession_book.state_of(user_id, profession)
         if isinstance(state, RetireeState) and state.balance is None:
             return self._open_pension(user_id, state)
+        if isinstance(state, LandlordState) and not state.seeded:
+            return self._seed_properties(user_id, state)
         return state
+
+    def _seed_properties(self, user_id: int, state: LandlordState) -> LandlordState:
+        """Os 3 imóveis iniciais nascem na primeira leitura do Locador, alugados pelo preço do dia; a marca no estado impede que quem vendeu tudo os ganhe de novo."""
+        if self._life is None or not self.settings.uses_professions:
+            return state
+        start = self.settings.start_date
+        drafts = initial_drafts(
+            self._life.monthly_salary,
+            PROFESSIONS[Profession.LANDLORD].income_multiple,
+            start,
+            max(self._current_date, start),
+        )
+        self._property_book.add(user_id, drafts)
+        seeded = state.model_copy(update={"seeded": True})
+        self._profession_book.save_state(user_id, seeded)
+        return seeded
+
+    def _rented_income_on(self, user_id: int, day: date) -> Decimal:
+        """A soma dos aluguéis que os imóveis do Locador pagam em `day`."""
+        self._mechanic_state_of(user_id)
+        return sum(
+            (rent_on(item, day) for item in self._property_book.of(user_id)),
+            Decimal(0),
+        )
+
+    def _property_offers(self, day: date) -> list[Offer]:
+        """As 3 ofertas do mês, iguais para todos os Locadores da sala."""
+        if self._life is None:
+            raise ConflictError("A partida joga com salário igual: não há profissões.")
+        return offers_of(
+            self._random_seed,
+            day.replace(day=1),
+            self._life.monthly_salary,
+            self.settings.start_date,
+            day,
+        )
 
     def _open_pension(self, user_id: int, state: RetireeState) -> RetireeState:
         """
@@ -3538,7 +3614,13 @@ class Simulation:
         return ProfessionPageDTO(
             profession=budget.profession,
             header=build_header(budget, day, unemployment_on(day)),
-            series=build_series(budget, day, unemployment_on, self._lever_author_on),
+            series=build_series(
+                budget,
+                day,
+                unemployment_on,
+                self._lever_author_on,
+                lambda on: annual_index_rate(IndicatorSeries.IGP_M, on),
+            ),
             mechanic=self._mechanic_block(client_id, user_id, budget, day),
         )
 
@@ -3615,6 +3697,19 @@ class Simulation:
                     self._house_report_of(ordered[1]) if len(ordered) > 1 else None,
                     repository.house_report.scoreboard(self.settings.id),
                     months,
+                )
+            case Profession.LANDLORD:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, LandlordState):
+                    return no_block()
+                macro = self._macro.latest(day)
+                return landlord_block(
+                    self._property_book.of(user_id),
+                    self._property_offers(day),
+                    self.settings.start_date,
+                    day,
+                    annual_index_rate(IndicatorSeries.CDI, day),
+                    vacancy_chance(self._unemployment_ratio_on(day), macro.growth),
                 )
             case Profession.EXPORTER:
                 state = self._mechanic_state_of(user_id)
@@ -3819,6 +3914,7 @@ class Simulation:
             inflation_adjusted=self.settings.inflation_adjusted,
             government_enabled=self.settings.government_enabled,
             funds_enabled=self.settings.funds_enabled,
+            start_date=self.settings.start_date,
         ):
             raise ConflictError("Essa profissão não existe nas regras desta partida.")
         if is_party_bound(profession):
@@ -3829,6 +3925,7 @@ class Simulation:
             raise ConflictError("O jogador já exerce essa profissão.")
         payout = self._locked_exit_payout(user)
         self._profession_book.switch(user.id, profession, self._current_date)
+        self._property_book.clear(user.id)
         self._professions = {**self._professions, user.id: profession}
         self._offer_bankers = None
         UserManager.replace_profession(user, profession)
@@ -3840,7 +3937,7 @@ class Simulation:
         return sum(
             (
                 LOCKED_EXITS[asset.kind].payout(asset.value, asset.since, day)
-                for asset in self._mechanic_state_of(user.id).locked_assets
+                for asset in self._locked_assets_for(user.id)
             ),
             Decimal(0),
         )
@@ -3882,6 +3979,138 @@ class Simulation:
             self._run_retiree_policy(user, day)
             self._run_welfare_policy(user, day)
             self._run_graduate_policy(user, budgets[user.client_id], day, macro)
+            self._run_landlord_policy(user, day, reserve)
+
+    def _is_landlord(self, user: UserDTO) -> bool:
+        return (
+            self.settings.uses_professions
+            and self._profession_of(user.id) is Profession.LANDLORD
+        )
+
+    def _conclude_property_sales(self, users: list[UserDTO], day: date) -> None:
+        """No dia em que a venda pedida vence, o imóvel sai da carteira e o valor do dia, menos o custo de transação, entra no caixa."""
+        start = self.settings.start_date
+        for user in users:
+            due = [
+                item
+                for item in self._property_book.of(user.id)
+                if item.sale_due is not None and item.sale_due <= day
+            ]
+            for item in due:
+                self._engine.record_profession_action(
+                    user.client_id,
+                    PROPERTY_SOLD,
+                    sale_proceeds(value_of(item, start, day)),
+                )
+            if due:
+                self._property_book.remove(user.id, [item.id for item in due])
+
+    def _run_landlord_month(self, users: list[UserDTO], day: date) -> None:
+        """
+        Na virada do mês cada imóvel alugado do Locador sorteia a vacância e cada vago
+        sorteia a volta ao aluguel, a 0,5% do valor de hoje num contrato novo. O contrato
+        assinado no mês não sorteia vacância. Cada virada vai ao histórico da vida.
+        """
+        month = day.replace(day=1)
+        macro = self._macro.latest(day)
+        chance = vacancy_chance(self._unemployment_ratio_on(day), macro.growth)
+        start = self.settings.start_date
+        for user in users:
+            if not self._is_landlord(user):
+                continue
+            self._mechanic_state_of(user.id)
+            for item in self._property_book.of(user.id):
+                signed_now = item.contract_start.replace(day=1) == month
+                if (
+                    item.status is PropertyStatus.RENTED
+                    and not signed_now
+                    and becomes_vacant(
+                        self._random_seed, user.id, month, item.id, chance
+                    )
+                ):
+                    self._property_book.vacate(user.id, item.id, day)
+                    self._engine.record_profession_action(
+                        user.client_id, PROPERTY_VACATED
+                    )
+                elif item.status is PropertyStatus.VACANT and is_rented_again(
+                    self._random_seed, user.id, month, item.id
+                ):
+                    self._property_book.rent(
+                        user.id,
+                        item.id,
+                        rent_of(value_of(item, start, day)),
+                        day,
+                    )
+                    self._engine.record_profession_action(
+                        user.client_id, PROPERTY_RENTED
+                    )
+
+    def _run_landlord_policy(self, user: UserDTO, day: date, reserve: Reserve) -> None:
+        """O Locador-bot vende o imóvel que rende abaixo do CDI e compra a oferta do mês quando o aluguel rende acima, pelas mesmas ações dos jogadores."""
+        if not self._is_landlord(user):
+            return
+        self._mechanic_state_of(user.id)
+        start = self.settings.start_date
+        cdi = annual_index_rate(IndicatorSeries.CDI, day)
+        for property_id in policy_sales(
+            self._property_book.of(user.id), start, day, cdi
+        ):
+            self.sell_property(user, property_id)
+        offer = policy_purchase(
+            self._property_offers(day),
+            bought_sizes(self._property_book.of(user.id), day.replace(day=1)),
+            cdi,
+            self.get_cash(user.client_id),
+            reserve,
+        )
+        if offer is not None:
+            self.buy_property(user, offer.size)
+
+    @synchronized
+    def buy_property(self, user: UserDTO, size: PropertySize) -> None:
+        """
+        Compra a oferta do mês do tamanho `size`: o caixa paga o preço mais 5% de ITBI e
+        corretagem, e o imóvel entra alugado num contrato aberto hoje. Cada oferta se
+        compra uma vez.
+        """
+        if not self._is_landlord(user):
+            raise ConflictError("Só o Locador compra imóveis.")
+        self._mechanic_state_of(user.id)
+        day, start = self._current_date, self.settings.start_date
+        month = day.replace(day=1)
+        if size in bought_sizes(self._property_book.of(user.id), month):
+            raise ConflictError("Você já comprou a oferta deste mês.")
+        offer = next(
+            offer for offer in self._property_offers(day) if offer.size is size
+        )
+        total = offer.price + offer.cost
+        if self._engine.get_cash(user.client_id) < total:
+            raise ConflictError(
+                f"Caixa insuficiente: a compra custa {format_money(total)}, o preço mais 5% de ITBI e corretagem."
+            )
+        self._property_book.add(user.id, [bought_draft(offer, month, start, day)])
+        self._engine.record_profession_action(user.client_id, PROPERTY_BOUGHT, -total)
+
+    @synchronized
+    def sell_property(self, user: UserDTO, property_id: int) -> None:
+        """Põe o imóvel à venda: conclui em 1 mês, pelo valor do dia da conclusão menos 5%, e até lá segue rendendo. Não se desfaz."""
+        if not self._is_landlord(user):
+            raise ConflictError("Só o Locador vende imóveis.")
+        item = next(
+            (
+                item
+                for item in self._property_book.of(user.id)
+                if item.id == property_id
+            ),
+            None,
+        )
+        if item is None:
+            raise NotFoundError("Esse imóvel não está na sua carteira.")
+        if item.status is PropertyStatus.SELLING:
+            raise ConflictError("Esse imóvel já está à venda.")
+        self._property_book.put_on_sale(
+            user.id, property_id, add_months(self._current_date, SALE_MONTHS)
+        )
 
     def _run_house_cdb_policy(
         self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
@@ -4458,7 +4687,32 @@ class Simulation:
         user = UserManager.get_user(client_id)
         if user is None or not self.settings.uses_professions:
             return []
-        return self._mechanic_state_of(user.id).locked_assets
+        return self._locked_assets_for(user.id)
+
+    def _locked_assets_for(self, user_id: int) -> list[LockedAssetDTO]:
+        """Os patrimônios travados do jogador: os da mecânica e, no Locador, o valor dos imóveis pelo IVG-R de hoje."""
+        state = self._mechanic_state_of(user_id)
+        assets = state.locked_assets
+        if not isinstance(state, LandlordState):
+            return assets
+        day, start = self._current_date, self.settings.start_date
+        properties = self._property_book.of(user_id)
+        value = sum((value_of(item, start, day) for item in properties), Decimal(0))
+        if value <= 0:
+            return assets
+        count = len(properties)
+        return [
+            *assets,
+            LockedAssetDTO(
+                kind=LockedAssetKind.REAL_ESTATE,
+                value=value,
+                exit_rule=LOCKED_EXITS[LockedAssetKind.REAL_ESTATE].rule,
+                note=(
+                    f"{count} {'imóvel' if count == 1 else 'imóveis'} pelo preço do IVG-R · "
+                    f"vender leva até 1 mês e custa {PROPERTY_COST_RATE:.0%}"
+                ),
+            ),
+        ]
 
     def _end_overtime_in_recession(self, users: list[UserDTO], day: date) -> None:
         """
@@ -5080,6 +5334,7 @@ class Simulation:
         """
         self._offer_bankers = None
         self._profession_book.forget()
+        self._property_book.forget()
         if cash > 0:
             self._engine.add_cash(user.client_id, cash)
         EventManager.flush()
