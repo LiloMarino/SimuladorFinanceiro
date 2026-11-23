@@ -290,6 +290,8 @@ PROFESSION_NAMES = re.compile(
 )
 # As profissões da sala sem expansões: o Autônomo só existe com a renda corrigida pela inflação
 PROFESSION_COUNT = 12
+# O primeiro mês do IVG-R, a partir do qual a sala oferece o Locador
+LANDLORD_FIRST_START = "2001-03-01"
 
 
 def lobby_with_professions(page: Page, *, rules: dict | None = None) -> None:
@@ -356,7 +358,13 @@ def preparation_profession_with(page: Page, rules: dict | None) -> None:
     page.get_by_role("button", name="Minha preparação").click()
     dialog = page.get_by_role("dialog")
     settings = page.request.get(urljoin(page.url, "/api/simulation/settings")).json()
-    count = PROFESSION_COUNT - (not settings["simulation"]["inflation_adjusted"])
+    rules_now = settings["simulation"]
+    # O Autônomo pede a correção pela inflação e o Locador, uma sala que começa no mês do primeiro IVG-R ou depois
+    count = (
+        PROFESSION_COUNT
+        - (not rules_now["inflation_adjusted"])
+        - (rules_now["start_date"] < LANDLORD_FIRST_START)
+    )
     expect(dialog.get_by_role("radio", name=PROFESSION_NAMES)).to_have_count(count)
     page.wait_for_load_state("networkidle")
 
@@ -3712,6 +3720,89 @@ def stocks_list_broker(page: Page) -> None:
     expect(page.get_by_text("Casa: compra").first).to_be_visible()
 
 
+# A sala do Locador começa depois de março de 2001, quando o IVG-R passa a existir
+LANDLORD_RULES = {"start_date": "2012-01-02", "end_date": "2020-01-02"}
+
+
+def landlord_totals(block: dict) -> None:
+    """Refaz os totais do bloco do Locador (aluguel do mês, imóveis alugados, rendimento) a partir dos imóveis que ele traz."""
+    rows = block["properties"]
+    income = sum(float(row["rent"]) for row in rows if row["rent"] is not None)
+    full = sum(float(row["rent"] or row["rerent"]) for row in rows)
+    value = sum(float(row["value"]) for row in rows)
+    block.update(
+        income=f"{income:.2f}",
+        rented=sum(row["status"] != "VACANT" for row in rows),
+        total=len(rows),
+        total_value=f"{value:.2f}",
+        annual_yield=f"{income * 12 / value:.4f}" if value else None,
+        full_yield=f"{full * 12 / value:.4f}" if value else None,
+    )
+
+
+def profession_landlord(page: Page) -> None:
+    """Profissão de um Locador com um imóvel vago (dado forjado) e a casa à venda (venda pela API): o aluguel do mês, a tabela com os três selos e as 3 ofertas."""
+    page_with_profession(page, "LANDLORD", "/profession", rules=LANDLORD_RULES)
+    house = next(
+        row
+        for row in retiree_profession_body(page)["mechanic"]["properties"]
+        if row["size"] == "HOUSE"
+    )
+    api_send(
+        page, "POST", "/api/simulation/sell-property", {"property_id": house["id"]}
+    )
+
+    def mechanic(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        block = body["mechanic"]
+        vacant = next(
+            row for row in block["properties"] if row["size"] == "TWO_BEDROOM"
+        )
+        vacant.update(
+            status="VACANT",
+            rent=None,
+            next_readjustment=None,
+            vacant_months=2,
+            rerent=f"{float(vacant['value']) * 0.005:.2f}",
+        )
+        landlord_totals(block)
+
+    patch_get(page, PROFESSION_GLOB, mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Sua mecânica: imóveis").first).to_be_visible()
+    expect(page.get_by_text("Vendendo").first).to_be_visible()
+    expect(page.get_by_text("Vago há 2 meses").first).to_be_visible()
+
+
+def profession_landlord_without_properties(page: Page) -> None:
+    """Profissão de um Locador depois de vender todos os imóveis (dado forjado): renda zero e as ofertas do mês."""
+    page_with_profession(page, "LANDLORD", "/profession", rules=LANDLORD_RULES)
+
+    def mechanic(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        block = body["mechanic"]
+        block["properties"] = []
+        block["status"] = "AVAILABLE"
+        landlord_totals(block)
+
+    patch_get(page, PROFESSION_GLOB, mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Nenhum imóvel agora.").first).to_be_visible()
+
+
+def portfolio_landlord(page: Page) -> None:
+    """Carteira de um Locador com os 3 imóveis iniciais: a linha Imóveis no patrimônio travado, com o ⓘ da regra de saída."""
+    page_with_profession(page, "LANDLORD", "/profession", rules=LANDLORD_RULES)
+    page.goto("/portfolio")
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Imóveis").first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
     "profissao/exportador": profession_exporter,
@@ -3729,6 +3820,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "profissao/bancario": profession_banker,
     "profissao/corretor": profession_broker,
     "profissao/corretor-inicio": profession_broker_start,
+    "profissao/locador": profession_landlord,
+    "profissao/locador-sem-imoveis": profession_landlord_without_properties,
     "renda-variavel/corretor": stocks_list_broker,
     "meta/clt": goal_clt,
     "credito/servidor-consignado": credit_public_servant_payroll,
@@ -3737,6 +3830,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "carteira/aposentado": portfolio_retiree,
     "carteira/auxilio": portfolio_welfare,
     "carteira/vazia": portfolio_empty,
+    "carteira/locador": portfolio_landlord,
     "renda-variavel/detalhe": stock_detail,
     "renda-variavel/livro-com-ordem": stock_detail_with_order,
     "renda-variavel/lista": stocks_list,
