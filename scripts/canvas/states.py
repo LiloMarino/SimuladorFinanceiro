@@ -3176,11 +3176,9 @@ def goal_clt(page: Page) -> None:
 
 
 def credit_public_servant_payroll(page: Page) -> None:
-    """Crédito de um Servidor com um consignado de 10 mil em 24 meses: fora da tabela "Seus empréstimos", dentro do total de dívida."""
+    """Crédito de um Servidor com um consignado de 5 mil em 24 meses: fora da tabela "Seus empréstimos", dentro do total de dívida."""
     page_with_profession(page, "PUBLIC_SERVANT", "/credit")
-    api_send(
-        page, "POST", "/api/credit/payroll", {"amount": "10000", "term_months": 24}
-    )
+    api_send(page, "POST", "/api/credit/payroll", {"amount": "5000", "term_months": 24})
     page.reload()
     page.wait_for_load_state("networkidle")
     dismiss_topic(page)
@@ -3192,7 +3190,43 @@ def portfolio_clt(page: Page) -> None:
     page.get_by_role("heading", name="Carteira").first.wait_for()
 
 
+def profession_page(
+    page: Page, profession: str, contract_payroll: bool = False
+) -> None:
+    """Página Profissão da profissão `profession`; `contract_payroll` assina antes um consignado de 5 mil em 24 meses."""
+    page_with_profession(page, profession, "/profession")
+    if contract_payroll:
+        api_send(
+            page, "POST", "/api/credit/payroll", {"amount": "5000", "term_months": 24}
+        )
+        page.reload()
+        page.wait_for_load_state("networkidle")
+        dismiss_topic(page)
+    page.get_by_role("heading", name="Profissão").first.wait_for()
+
+
+def profession_clt(page: Page) -> None:
+    """Profissão de um CLT no primeiro mês: cabeçalho, FGTS e hora extra, séries e histórico."""
+    profession_page(page, "CLT")
+    expect(page.get_by_text("FGTS").first).to_be_visible()
+
+
+def profession_public_servant(page: Page) -> None:
+    """Profissão de um Servidor com um consignado: a margem em barra e o contrato na tabela."""
+    profession_page(page, "PUBLIC_SERVANT", contract_payroll=True)
+    expect(page.get_by_text("Margem consignável").first).to_be_visible()
+
+
+def profession_banker(page: Page) -> None:
+    """Profissão de um Bancário no primeiro mês: os três CDBs da casa com o teto cheio por aplicar."""
+    profession_page(page, "BANKER")
+    expect(page.get_by_text("CDB da casa", exact=False).first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
+    "profissao/clt": profession_clt,
+    "profissao/servidor": profession_public_servant,
+    "profissao/bancario": profession_banker,
     "meta/clt": goal_clt,
     "credito/servidor-consignado": credit_public_servant_payroll,
     "carteira/clt": portfolio_clt,
