@@ -531,6 +531,16 @@ class GovernmentBook:
             return self._spending.value_on(kind, day)
         return rules.general_value(self.policy(day), kind)
 
+    def author_of_lever(
+        self, kind: MeasureKind, day: date
+    ) -> tuple[str | None, str | None]:
+        """Quem propôs a medida de gasto em vigor no dia: o nome e a sigla do partido; nulos quando vale o padrão."""
+        measure = self._spending.measure_on(kind, day) if kind.is_spending else None
+        if measure is None:
+            return None, None
+        party = self.proposer_party(measure)
+        return self.proposer_name(measure), party.abbr if party else None
+
     def latest_value(self, kind: MeasureKind) -> Decimal | None:
         """O valor da medida geral depois de todas as aprovadas valerem."""
         if kind.is_spending:

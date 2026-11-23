@@ -15,10 +15,10 @@ import { InstallmentsTable } from "./installments-table";
 type InstallmentsDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  quote: LoanQuote;
+  quote: Pick<LoanQuote, "term_months" | "amount" | "annual_rate" | "installment" | "schedule">;
 };
 
-/** "As N parcelas": o cronograma completo do empréstimo simulado. */
+/** "As N parcelas": o cronograma completo do empréstimo simulado, comum ou consignado. */
 export function InstallmentsDialog({ open, onOpenChange, quote }: InstallmentsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

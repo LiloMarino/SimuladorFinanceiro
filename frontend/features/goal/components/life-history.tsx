@@ -23,8 +23,8 @@ import type { LifeHistoryCategory, LifeHistoryPage, LifeStatus, LifeHistorySort 
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useLoadMoreOnVisible } from "@/shared/hooks/useLoadMoreOnVisible";
 import { useTableSortState } from "@/shared/hooks/useTableSort";
-import { useLifeHistory } from "../hooks/queries/useLifeHistory";
-import { LIFE_HISTORY_KINDS, lifeRowIcon, lifeRowText } from "../lib/life-history";
+import { useLifeHistory } from "@/shared/hooks/queries/useLifeHistory";
+import { LIFE_HISTORY_KINDS, lifeRowIcon, lifeRowText } from "@/shared/lib/life-history";
 
 type Filter = "ALL" | LifeHistoryCategory;
 

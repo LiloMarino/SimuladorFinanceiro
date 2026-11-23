@@ -246,7 +246,6 @@ export type SalaryMode = components["schemas"]["SalaryMode"];
 export type Profession = components["schemas"]["Profession"];
 // O caixa com que o Herdeiro entra na sala
 export type HeirCapital = components["schemas"]["HeirCapitalDTO"];
-export type IncomeDriver = components["schemas"]["IncomeDriver"];
 export type IncomeLoss = components["schemas"]["IncomeLoss"];
 
 // Governo & Política
@@ -371,6 +370,11 @@ export type TermPromises = components["schemas"]["TermPromisesDTO"];
 
 // Viver de renda
 export type LifeStatus = components["schemas"]["LifeStatusDTO"];
+export type ProfessionPage = components["schemas"]["ProfessionPageDTO"];
+export type IncomeSeries = ProfessionPage["series"][number];
+export type ProfessionMechanic = ProfessionPage["mechanic"];
+export type OvertimeRequest = components["schemas"]["OvertimeRequest"];
+export type MechanicStatus = components["schemas"]["MechanicStatus"];
 export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];
 export type LifeHistoryRow = LifeHistoryPage["items"][number];
 export type LifeHistoryCategory = components["schemas"]["LifeHistoryCategory"];
@@ -390,6 +394,8 @@ export type CreditRating = CreditOverview["rating"];
 export type CreditLadderTier = CreditRating["ladder"][number];
 export type CreditSuggestion = CreditOverview["suggestions"][number];
 export type LoanQuote = components["schemas"]["LoanQuoteDTO"];
+export type PayrollQuote = components["schemas"]["PayrollQuoteDTO"];
+export type PayrollLoan = CreditOverview["payroll_loans"][number];
 export type PrepaymentPreview = components["schemas"]["PrepaymentPreviewDTO"];
 export type PrepaymentMode = components["schemas"]["PrepaymentMode"];
 export type ContractLoanRequest = components["schemas"]["ContractLoanRequestDTO"];

@@ -16,6 +16,8 @@ export interface NavItem {
   debugOnly?: boolean;
   /** Só aparece nas partidas com meta (fora da Clássica); o selo mostra o seu percentual */
   goalOnly?: boolean;
+  /** Só aparece no viver de renda com uma profissão por jogador */
+  professionsOnly?: boolean;
   /** O selo mostra o placar de conquistas ("9/24"), com um ponto dourado quando há alguma nova */
   achievementTally?: boolean;
   /** Ponto vermelho no item enquanto há parcela em atraso ou sem caixa para cobrir */

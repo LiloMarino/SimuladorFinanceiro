@@ -8,7 +8,21 @@ from backend.core.clt import (
     OVERTIME_INCOME_RATE,
 )
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import Profession
+from backend.core.enum import LockedAssetKind, Profession
+
+
+class LockedAssetDTO(BaseDTO):
+    """Um patrimônio da profissão que fica fora do caixa, com a regra de saída dele."""
+
+    kind: LockedAssetKind
+    value: Decimal
+    # A fração do patrimônio que este saldo é; o motor preenche ao montar a carteira
+    networth_pct: Decimal = Decimal(0)
+    exit_rule: str
+
+
+# A regra de saída do FGTS, mostrada na linha do patrimônio travado
+FGTS_EXIT_RULE = "Sai só na demissão sem justa causa, com a multa de 40% sobre o saldo."
 
 
 class MechanicState(BaseDTO):
@@ -29,9 +43,14 @@ class MechanicState(BaseDTO):
         return Decimal(1)
 
     @property
+    def locked_assets(self) -> list[LockedAssetDTO]:
+        """Os patrimônios travados do jogador, cada um com a regra de saída; vazio sem conta travada."""
+        return []
+
+    @property
     def locked_value(self) -> Decimal:
-        """O saldo das contas travadas do jogador, que entra no patrimônio; zero sem conta travada."""
-        return Decimal(0)
+        """O saldo das contas travadas do jogador, que entra no patrimônio: a soma dos patrimônios travados."""
+        return sum((asset.value for asset in self.locked_assets), Decimal(0))
 
 
 class CltState(MechanicState):
@@ -39,6 +58,8 @@ class CltState(MechanicState):
 
     fgts_balance: Decimal = Decimal(0)
     overtime: bool = False
+    # Verdadeiro quando a recessão desligou a hora extra e o PIB de 12 meses ainda não voltou a zero
+    overtime_waiting: bool = False
 
     @property
     def income_factor(self) -> Decimal:
@@ -49,8 +70,14 @@ class CltState(MechanicState):
         return OVERTIME_HEALTH_MULTIPLE if self.overtime else Decimal(1)
 
     @property
-    def locked_value(self) -> Decimal:
-        return self.fgts_balance
+    def locked_assets(self) -> list[LockedAssetDTO]:
+        return [
+            LockedAssetDTO(
+                kind=LockedAssetKind.FGTS,
+                value=self.fgts_balance,
+                exit_rule=FGTS_EXIT_RULE,
+            )
+        ]
 
 
 class MechanicAction(BaseDTO):
@@ -63,6 +90,7 @@ class MechanicAction(BaseDTO):
 OVERTIME_ON = "overtime_on"
 OVERTIME_OFF = "overtime_off"
 OVERTIME_ENDED = "overtime_ended"
+OVERTIME_AVAILABLE = "overtime_available"
 
 
 class SetOvertime(MechanicAction):

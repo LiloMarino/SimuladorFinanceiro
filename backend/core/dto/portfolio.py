@@ -4,6 +4,7 @@ from decimal import Decimal
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.position import PortfolioPositionDTO
+from backend.core.dto.profession import LockedAssetDTO
 from backend.core.dto.sector import SectorAllocationDTO
 
 
@@ -29,7 +30,9 @@ class PortfolioDTO(BaseDTO):
     fixed_income_networth_pct: Decimal
     cash_pct: Decimal
     locked_networth_pct: Decimal
-    # O saldo das contas travadas do jogador (o FGTS); zero sem profissões ou fora do CLT
+    # Cada patrimônio travado da profissão (o FGTS), com a regra de saída; vazio sem profissões ou fora do CLT
+    locked_assets: list[LockedAssetDTO]
+    # O saldo das contas travadas do jogador: a soma dos patrimônios travados
     locked_value: Decimal
     # Patrimônio é sempre o líquido: caixa, ações, renda fixa e saldo travado menos a dívida
     assets_value: Decimal

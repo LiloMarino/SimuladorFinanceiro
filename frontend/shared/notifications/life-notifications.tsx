@@ -57,5 +57,23 @@ export function LifeNotifications() {
     independence,
   );
 
+  useRealtime(
+    "overtime_available",
+    () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.lifeHistoryAll(simulationId),
+      });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.profession(simulationId) });
+
+      if (!isToastOn("LIFE_EVENT")) return;
+
+      toast.info("A hora extra pode voltar", {
+        description: "O PIB de 12 meses voltou a zero: você pode ligar a hora extra de novo",
+        action: { label: "Ver a profissão", onClick: () => void navigate("/profession") },
+      });
+    },
+    independence,
+  );
+
   return null;
 }

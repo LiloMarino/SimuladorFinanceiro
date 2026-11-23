@@ -126,6 +126,8 @@ class SpendingTimeline:
         self._days: dict[MeasureKind, list[date]] = {k: [] for k in KINDS}
         self._values: dict[MeasureKind, list[Decimal]] = {k: [] for k in KINDS}
         self._names: dict[MeasureKind, list[str | None]] = {k: [] for k in KINDS}
+        # A medida que fixou cada valor, na mesma ordem de `_days`
+        self._authors: dict[MeasureKind, list[Measure]] = {k: [] for k in KINDS}
         # O setor e o segmento a que cada medida aponta (só as obras têm endereço)
         self._targets: dict[MeasureKind, list[tuple[str | None, str | None]]] = {
             k: [] for k in KINDS
@@ -134,6 +136,7 @@ class SpendingTimeline:
             names = self._names[measure.kind]
             names.append(program_after(names[-1] if names else None, measure))
             self._targets[measure.kind].append((measure.sector, measure.segment))
+            self._authors[measure.kind].append(measure)
             self._days[measure.kind].append(required(measure.effective))
             self._values[measure.kind].append(required(measure.value))
 
@@ -149,6 +152,11 @@ class SpendingTimeline:
     def value_on(self, kind: MeasureKind, day: date) -> Decimal:
         index = bisect_right(self._days[kind], day)
         return self._values[kind][index - 1] if index else DEFAULTS[kind]
+
+    def measure_on(self, kind: MeasureKind, day: date) -> "Measure | None":
+        """A medida aprovada que fixou o valor do dia; nula quando vale o padrão."""
+        index = bisect_right(self._days[kind], day)
+        return self._authors[kind][index - 1] if index else None
 
     def latest(self, kind: MeasureKind) -> Decimal:
         """O valor depois de todas as medidas aprovadas valerem."""

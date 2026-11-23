@@ -3,19 +3,21 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/component
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { useSimulationState } from "@/shared/hooks/queries/useSimulationState";
 import { displayDayMonth, displayMoney, displayPercent, displayShortDate } from "@/shared/lib/utils/display";
-import type { CreditLoan } from "@/types";
+import type { CreditLoan, PayrollLoan } from "@/types";
 import type { PrepayChoice } from "./prepay-dialog";
 
 type LoansTableProps = {
   loans: CreditLoan[];
-  onPrepay: (loan: CreditLoan, choice: PrepayChoice) => void;
+  /** Os consignados: a parcela sai do salário, sem nota de risco e sem atraso */
+  payrollLoans: PayrollLoan[];
+  onPrepay: (loan: Pick<CreditLoan, "id">, choice: PrepayChoice) => void;
   onPayOverdue: (loan: CreditLoan) => void;
 };
 
 const sum = (values: string[]) => values.reduce((total, value) => total + Number(value), 0);
 
 /** "Seus empréstimos": uma linha por contrato, com o total das parcelas e da dívida no fim. */
-export function LoansTable({ loans, onPrepay, onPayOverdue }: LoansTableProps) {
+export function LoansTable({ loans, payrollLoans, onPrepay, onPayOverdue }: LoansTableProps) {
   const { data: state } = useSimulationState();
   const todayYear = state?.current_date?.slice(0, 4);
   const charges = sum(loans.map((loan) => loan.overdue_charges));
@@ -108,6 +110,46 @@ export function LoansTable({ loans, onPrepay, onPayOverdue }: LoansTableProps) {
             );
           })}
 
+          {/* Consignados */}
+          {payrollLoans.map((loan) => (
+            <TableRow key={loan.id}>
+              <TableCell wrap>
+                <div className="grid">
+                  <b className="font-semibold">Consignado</b>
+                  <span className="text-xs text-muted-foreground">
+                    {displayMoney(loan.principal)} em {loan.term_months} parcelas · sem nota de risco · sem atraso: sai
+                    do salário
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <span className="font-mono text-muted-foreground">{displayShortDate(loan.contract_date)}</span>
+              </TableCell>
+              <TableCell numeric>{displayPercent(loan.annual_rate)}</TableCell>
+              <TableCell numeric>{displayMoney(loan.installment)}</TableCell>
+              <TableCell numeric>
+                {loan.paid_installments} de {loan.total_installments}
+              </TableCell>
+              <TableCell numeric>{displayMoney(loan.balance)}</TableCell>
+              <TableCell>
+                <div className="grid">
+                  <span>{loan.next_due ? dueDate(loan.next_due) : "—"}</span>
+                  <span className="text-xs text-muted-foreground">desconto no salário</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <span className="flex justify-end gap-1.5">
+                  <Button variant="outline" size="sm" onClick={() => onPrepay(loan, "part")}>
+                    Amortizar
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => onPrepay(loan, "all")}>
+                    Quitar
+                  </Button>
+                </span>
+              </TableCell>
+            </TableRow>
+          ))}
+
           {/* Total */}
           <TableRow variant="group">
             <TableCell colSpan={3}>
@@ -115,11 +157,15 @@ export function LoansTable({ loans, onPrepay, onPayOverdue }: LoansTableProps) {
               <span className="text-muted-foreground">· parcelas por mês e dívida de hoje</span>
             </TableCell>
             <TableCell numeric>
-              <b className="font-semibold">{displayMoney(sum(loans.map((loan) => loan.installment)))}</b>
+              <b className="font-semibold">
+                {displayMoney(sum([...loans, ...payrollLoans].map((loan) => loan.installment)))}
+              </b>
             </TableCell>
             <TableCell />
             <TableCell numeric>
-              <b className="font-semibold">{displayMoney(sum(loans.map((loan) => loan.balance)))}</b>
+              <b className="font-semibold">
+                {displayMoney(sum([...loans, ...payrollLoans].map((loan) => loan.balance)))}
+              </b>
               {charges > 0 && (
                 <div className="font-sans text-xs font-normal text-destructive">
                   + {displayMoney(charges)} de multa e mora

@@ -4496,6 +4496,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/profession": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Página Profissão do jogador
+         * @description O que a página Profissão mostra: o cabeçalho com a renda do mês, o reajuste acima do IPCA, a chance de demissão e o imprevisto de saúde; os indicadores que mexem na renda, com os 12 últimos meses; e o bloco da mecânica da profissão (FGTS e hora extra do CLT, margem do consignado do Servidor, CDBs da casa do Bancário, herança, partido e comissões). Responde 409 sem partida ou com salário igual para todos.
+         */
+        get: operations["get_profession_page_api_simulation_profession_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/overtime": {
         parameters: {
             query?: never;
@@ -5271,6 +5291,29 @@ export interface components {
             /** Changed */
             changed: components["schemas"]["PresetRuleGroup"][];
         };
+        /**
+         * AppointeeMechanicDTO
+         * @description O partido do Comissionado.
+         */
+        AppointeeMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "appointee";
+            /** Party */
+            party: string | null;
+            /** In Government */
+            in_government: boolean;
+            /** Multiple Now */
+            multiple_now: string;
+            /** Multiple In Government */
+            multiple_in_government: string;
+            /** Multiple Outside */
+            multiple_outside: string;
+            /** Election In Months */
+            election_in_months: number | null;
+        };
         /** ApprovalDTO */
         ApprovalDTO: {
             /** Value */
@@ -5721,6 +5764,20 @@ export interface components {
             middle: components["schemas"]["IndicatorPointDTO"][];
             /** Lower */
             lower: components["schemas"]["IndicatorPointDTO"][];
+        };
+        /**
+         * BankerMechanicDTO
+         * @description CDB da casa do Bancário.
+         */
+        BankerMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "banker";
+            status: components["schemas"]["MechanicStatus"];
+            /** Cdbs */
+            cdbs: components["schemas"]["HouseCdbDTO"][];
         };
         /**
          * BaseBlocDTO
@@ -6526,6 +6583,40 @@ export interface components {
             neutral: components["schemas"]["VoterGroup"][];
         };
         /**
+         * CltMechanicDTO
+         * @description FGTS e hora extra do CLT.
+         */
+        CltMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "clt";
+            status: components["schemas"]["MechanicStatus"];
+            /** Fgts Balance */
+            fgts_balance: string;
+            /** Fgts Deposit */
+            fgts_deposit: string;
+            /** Tr */
+            tr: string;
+            /** Fgts Yield */
+            fgts_yield: string;
+            /** Layoff Payout */
+            layoff_payout: string;
+            /** Overtime */
+            overtime: boolean;
+            /** Overtime Rate */
+            overtime_rate: string;
+            /** Overtime Income */
+            overtime_income: string;
+            /** Growth */
+            growth: string;
+            /** Overtime Offered */
+            overtime_offered: boolean;
+            /** Overtime Waiting */
+            overtime_waiting: boolean;
+        };
+        /**
          * ComanagerEventDTO
          * @description O que mudou na co-gestão de uma gestora para o jogador: convite, resposta, saída ou remoção, e a oferta de cotas novas com a resposta a ela.
          */
@@ -6912,7 +7003,7 @@ export interface components {
         /** CreditInstallmentPaidEventDTO */
         CreditInstallmentPaidEventDTO: {
             /** Loan Number */
-            loan_number: number;
+            loan_number: number | null;
             /** Installment Number */
             installment_number: number;
             /** Total Installments */
@@ -7022,6 +7113,8 @@ export interface components {
             offer: components["schemas"]["CreditOfferDTO"];
             /** Loans */
             loans: components["schemas"]["LoanDTO"][];
+            /** Payroll Loans */
+            payroll_loans: components["schemas"]["PayrollLoanDTO"][];
             /** Upcoming */
             upcoming: components["schemas"]["UpcomingInstallmentDTO"][];
             /** History */
@@ -10111,6 +10204,28 @@ export interface components {
             /** Starting Capital */
             starting_capital: string;
         };
+        /**
+         * HeirMechanicDTO
+         * @description A herança do Herdeiro.
+         */
+        HeirMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "heir";
+            /** Inheritance */
+            inheritance: string;
+            /**
+             * Received On
+             * Format: date
+             */
+            received_on: string;
+            /** Annual Expense */
+            annual_expense: string;
+            /** Covered Years */
+            covered_years: string;
+        };
         /** HighlightsDTO */
         HighlightsDTO: {
             biggest_return: components["schemas"]["PlayerHighlightDTO"] | null;
@@ -10119,6 +10234,26 @@ export interface components {
             most_tax: components["schemas"]["PlayerHighlightDTO"] | null;
             most_dividends: components["schemas"]["DividendHighlightDTO"] | null;
             your_best_month: components["schemas"]["BestMonthDTO"] | null;
+        };
+        /** HouseCdbDTO */
+        HouseCdbDTO: {
+            /** Years */
+            years: number;
+            /** Annual Rate */
+            annual_rate: string;
+            /** Treasury Rate */
+            treasury_rate: string;
+            /** Cap */
+            cap: string;
+            /** Applied */
+            applied: string;
+            /** Current Value */
+            current_value: string;
+            /**
+             * Maturity Date
+             * Format: date
+             */
+            maturity_date: string;
         };
         /** HouseDTO */
         HouseDTO: {
@@ -10239,11 +10374,78 @@ export interface components {
          */
         IncomeDriver: "GDP" | "DOLLAR" | "SELIC" | "STOCKS";
         /**
+         * IncomeHeaderDTO
+         * @description Os quatro números do topo da página.
+         */
+        IncomeHeaderDTO: {
+            /** Income */
+            income: string;
+            /** Mechanic Income */
+            mechanic_income: string;
+            /** Real Raise */
+            real_raise: string | null;
+            real_raise_source: components["schemas"]["RealRaise"];
+            /** Inflation Indexed */
+            inflation_indexed: boolean;
+            income_loss: components["schemas"]["IncomeLoss"] | null;
+            /** Layoff Factor */
+            layoff_factor: string | null;
+            /** Unemployment */
+            unemployment: string;
+            /** Neutral Unemployment */
+            neutral_unemployment: string;
+            /** Health Multiple */
+            health_multiple: string;
+            /** Health Multiple Base */
+            health_multiple_base: string;
+        };
+        /**
          * IncomeLoss
          * @description O que a demissão sorteada do mês faz com a renda de quem está exposto a ela.
          * @enum {string}
          */
         IncomeLoss: "LAYOFF" | "GIG_LOSS" | "VACANCY" | "NO_CLIENTS";
+        /** IncomeSeriesDTO */
+        IncomeSeriesDTO: {
+            key: components["schemas"]["IncomeSeriesKey"];
+            /** Current */
+            current: string;
+            /** Neutral */
+            neutral: string | null;
+            /** Points */
+            points: components["schemas"]["IncomeSeriesPointDTO"][];
+            /** Guides */
+            guides: components["schemas"]["SeriesGuideDTO"][];
+            /** Effect */
+            effect: string | null;
+            effect_kind: components["schemas"]["IncomeSeriesEffect"];
+            /** Changes */
+            changes: components["schemas"]["LeverChangeDTO"][];
+            /** Lever */
+            lever: boolean;
+        };
+        /**
+         * IncomeSeriesEffect
+         * @description O que o valor de hoje do indicador faz com a renda, que a frase "Hoje" da série conta.
+         * @enum {string}
+         */
+        IncomeSeriesEffect: "REAL_RAISE" | "INCOME_FACTOR" | "LAYOFF_FACTOR" | "BENEFIT";
+        /**
+         * IncomeSeriesKey
+         * @description O indicador que mexe na renda e ganha um gráfico (ou uma alavanca do governo) na página da profissão.
+         * @enum {string}
+         */
+        IncomeSeriesKey: "GDP" | "UNEMPLOYMENT" | "DOLLAR" | "SELIC" | "STOCKS" | "SERVANT_RAISE" | "RETIREE_RAISE" | "WELFARE_SPENDING";
+        /** IncomeSeriesPointDTO */
+        IncomeSeriesPointDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /** Value */
+            value: string;
+        };
         /** IncomeTaxBracketDTO */
         IncomeTaxBracketDTO: {
             /** Max Days */
@@ -10742,6 +10944,25 @@ export interface components {
             on: string;
         };
         /**
+         * LeverChangeDTO
+         * @description Uma mudança recente da alavanca do governo.
+         */
+        LeverChangeDTO: {
+            /**
+             * Change Date
+             * Format: date
+             */
+            change_date: string;
+            /** Before */
+            before: string;
+            /** After */
+            after: string;
+            /** Proposer Name */
+            proposer_name: string | null;
+            /** Proposer Party */
+            proposer_party: string | null;
+        };
+        /**
          * LifeEventDTO
          * @description Imprevisto sorteado no pregão: o mesmo para todos os jogadores, que cada um sente pela profissão.
          */
@@ -11058,6 +11279,28 @@ export interface components {
             /** Networth After */
             networth_after: string | null;
         };
+        /**
+         * LockedAssetDTO
+         * @description Um patrimônio da profissão que fica fora do caixa, com a regra de saída dele.
+         */
+        LockedAssetDTO: {
+            kind: components["schemas"]["LockedAssetKind"];
+            /** Value */
+            value: string;
+            /**
+             * Networth Pct
+             * @default 0
+             */
+            networth_pct: string;
+            /** Exit Rule */
+            exit_rule: string;
+        };
+        /**
+         * LockedAssetKind
+         * @description O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira.
+         * @enum {string}
+         */
+        LockedAssetKind: "FGTS";
         /** @enum {string} */
         LogFilter: "all" | "orders" | "modes";
         /** MacdSeriesDTO */
@@ -11453,6 +11696,12 @@ export interface components {
          *     herda dele, dá valor inicial a todos os campos e sobrescreve `income_factor`.
          */
         MechanicState: Record<string, never>;
+        /**
+         * MechanicStatus
+         * @description Em que pé está o bloco da mecânica da profissão: a escolha livre, em uso ou travada por um motivo.
+         * @enum {string}
+         */
+        MechanicStatus: "AVAILABLE" | "ACTIVE" | "LOCKED";
         /** MetricItem */
         MetricItem: {
             /**
@@ -11729,6 +11978,17 @@ export interface components {
             rate: string;
         };
         /**
+         * NoMechanicDTO
+         * @description A profissão sem mecânica a ligar, ou com mecânica ainda sem motor.
+         */
+        NoMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "none";
+        };
+        /**
          * NotificationCatalogResponse
          * @description O registro dos tipos de notificação; as listas vêm na ordem da importância.
          */
@@ -11769,6 +12029,25 @@ export interface components {
             toasts: {
                 [key: string]: boolean;
             };
+        };
+        /**
+         * OffersBankerMechanicDTO
+         * @description As comissões do Banqueiro de ofertas.
+         */
+        OffersBankerMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "offers_banker";
+            /** Month Commission */
+            month_commission: string;
+            /** Month Offers */
+            month_offers: number;
+            /** Total Commission */
+            total_commission: string;
+            /** Total Offers */
+            total_offers: number;
         };
         /** OperationsReportDTO */
         OperationsReportDTO: {
@@ -11976,6 +12255,17 @@ export interface components {
             interest: string;
             /** Total */
             total: string;
+        };
+        /**
+         * OvertimeAvailableEventDTO
+         * @description O PIB de 12 meses voltou a zero: a hora extra que a recessão desligou pode ser ligada de novo.
+         */
+        OvertimeAvailableEventDTO: {
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
         };
         /** OvertimeRequest */
         OvertimeRequest: {
@@ -12264,6 +12554,8 @@ export interface components {
             total_installments: number;
             /** Balance */
             balance: string;
+            /** Next Due */
+            next_due: string | null;
         };
         /** PayrollQuoteDTO */
         PayrollQuoteDTO: {
@@ -12293,6 +12585,41 @@ export interface components {
             max_amount: string;
             /** Fits Margin */
             fits_margin: boolean;
+            /** Max By Term */
+            max_by_term: components["schemas"]["PayrollTermMaxDTO"][];
+            /** Margin Free After */
+            margin_free_after: string;
+            /** Debt After */
+            debt_after: string;
+            /** Leverage After */
+            leverage_after: string | null;
+            /** Schedule */
+            schedule: components["schemas"]["InstallmentRowDTO"][];
+            /** Debt Limit Room */
+            debt_limit_room: string;
+            /** Fits Debt Limit */
+            fits_debt_limit: boolean;
+            /**
+             * First Installment Date
+             * Format: date
+             */
+            first_installment_date: string;
+            /** Common Annual Rate */
+            common_annual_rate: string | null;
+            /** Common Total Interest */
+            common_total_interest: string | null;
+            /** Interest Saved */
+            interest_saved: string | null;
+        };
+        /**
+         * PayrollTermMaxDTO
+         * @description O maior valor de consignado que a margem livre sustenta num prazo.
+         */
+        PayrollTermMaxDTO: {
+            /** Term Months */
+            term_months: number;
+            /** Max Amount */
+            max_amount: string;
         };
         /** PeakDTO */
         PeakDTO: {
@@ -12736,6 +13063,8 @@ export interface components {
             cash_pct: string;
             /** Locked Networth Pct */
             locked_networth_pct: string;
+            /** Locked Assets */
+            locked_assets: components["schemas"]["LockedAssetDTO"][];
             /** Locked Value */
             locked_value: string;
             /** Assets Value */
@@ -13126,6 +13455,15 @@ export interface components {
          * @enum {string}
          */
         Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD" | "EXPORTER" | "BANKER" | "FREELANCER" | "BROKER" | "HEIR" | "NEW_GRADUATE" | "COMMISSIONED" | "OFFERS_BANKER";
+        /** ProfessionPageDTO */
+        ProfessionPageDTO: {
+            profession: components["schemas"]["Profession"];
+            header: components["schemas"]["IncomeHeaderDTO"];
+            /** Series */
+            series: components["schemas"]["IncomeSeriesDTO"][];
+            /** Mechanic */
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+        };
         /**
          * ProfessionStateDTO
          * @description A profissão do jogador e o estado da mecânica dela.
@@ -13365,6 +13703,36 @@ export interface components {
             lever?: components["schemas"]["StateLever"] | null;
         };
         /**
+         * PublicServantMechanicDTO
+         * @description Consignado do Servidor.
+         */
+        PublicServantMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "public_servant";
+            status: components["schemas"]["MechanicStatus"];
+            /** Net Salary */
+            net_salary: string;
+            /** Margin */
+            margin: string;
+            /** Margin Used */
+            margin_used: string;
+            /** Margin Free */
+            margin_free: string;
+            /** Annual Rate */
+            annual_rate: string;
+            /** Selic */
+            selic: string;
+            /** Loans */
+            loans: components["schemas"]["PayrollLoanDTO"][];
+            /** Next Release */
+            next_release: string | null;
+            /** Next Release Amount */
+            next_release_amount: string | null;
+        };
+        /**
          * QueueBudgetDTO
          * @description A fila inteira do Congresso, se passar: o que muda no resultado do governo.
          */
@@ -13460,6 +13828,12 @@ export interface components {
         /** @enum {string} */
         ReadingSignal: "buy" | "neutral" | "sell" | "none";
         /**
+         * RealRaise
+         * @description De onde vem o reajuste acima do IPCA no aniversário.
+         * @enum {string}
+         */
+        RealRaise: "NONE" | "GDP_SHARE" | "SERVANTS" | "RETIREES";
+        /**
          * RealtimeEventCatalog
          * @description Um campo por nome de evento realtime, tipado para o DTO do payload
          *     correspondente. Nunca é instanciado de verdade — só existe para que seu
@@ -13515,6 +13889,7 @@ export interface components {
             statistics_snapshot_update: components["schemas"]["StatisticsSnapshotUpdateEventDTO"];
             goal_progress_update: components["schemas"]["GoalProgressDTO"];
             life_event: components["schemas"]["LifeEventDTO"];
+            overtime_available: components["schemas"]["OvertimeAvailableEventDTO"];
             auto_redeem: components["schemas"]["AutoRedeemEventDTO"];
             corporate_actions: components["schemas"]["CorporateActionsEventDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
@@ -14099,6 +14474,16 @@ export interface components {
             asset_class: components["schemas"]["AssetClass"] | null;
             origin: components["schemas"]["AssetOrigin"] | null;
             segment: components["schemas"]["StockSegmentDTO"] | null;
+        };
+        /**
+         * SeriesGuideDTO
+         * @description Uma linha de referência do gráfico, além do ponto neutro.
+         */
+        SeriesGuideDTO: {
+            /** Value */
+            value: string;
+            /** Overtime */
+            overtime: boolean;
         };
         /**
          * SeriesKind
@@ -16424,7 +16809,7 @@ export interface components {
              */
             due_date: string;
             /** Loan Number */
-            loan_number: number;
+            loan_number: number | null;
             /** Installment Number */
             installment_number: number;
             /** Total Installments */
@@ -26690,6 +27075,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_profession_page_api_simulation_profession_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionPageDTO"];
                 };
             };
             /** @description Unprocessable Content */

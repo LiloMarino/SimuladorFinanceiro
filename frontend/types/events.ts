@@ -69,6 +69,7 @@ export type SimulationEvents = {
   preset_applied_update: RealtimeEventCatalog["preset_applied_update"];
   goal_progress_update: RealtimeEventCatalog["goal_progress_update"];
   life_event: LifeEvent;
+  overtime_available: RealtimeEventCatalog["overtime_available"];
   auto_redeem: RealtimeEventCatalog["auto_redeem"];
   corporate_actions: RealtimeEventCatalog["corporate_actions"];
   future_recording_progress: FutureRecordingProgressEvent;

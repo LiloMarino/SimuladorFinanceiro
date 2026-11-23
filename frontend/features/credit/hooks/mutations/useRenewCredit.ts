@@ -9,5 +9,7 @@ export function useRenewCredit() {
     void queryClient.invalidateQueries({ queryKey: queryKeys.credit() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.portfolio() });
     void queryClient.invalidateQueries({ queryKey: queryKeys.simulationState() });
+    // A margem do consignado e o saldo dos contratos aparecem na página Profissão
+    void queryClient.invalidateQueries({ queryKey: queryKeys.professionAll() });
   };
 }

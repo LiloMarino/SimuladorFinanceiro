@@ -29,7 +29,10 @@ import { KeyValueRow } from "@/shared/components/key-value-row";
 export type PrepayChoice = "part" | "all";
 
 type PrepayDialogProps = {
-  loan: CreditLoan;
+  /** O contrato comum ou o consignado: os dois têm a mesma rota de pagar antes */
+  loan: Pick<CreditLoan, "id" | "principal" | "annual_rate" | "balance" | "total_installments" | "paid_installments">;
+  /** O nome do contrato no título ("Empréstimo 3", "Consignado") */
+  name: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Abre em "Amortizar uma parte" ou em "Quitar tudo" */
@@ -43,6 +46,7 @@ type PrepayDialogProps = {
 /** "Pagar antes": amortiza uma parte (encurta o prazo ou reduz a parcela) ou quita o empréstimo. */
 export function PrepayDialog({
   loan,
+  name,
   open,
   onOpenChange,
   initialChoice,
@@ -98,7 +102,7 @@ export function PrepayDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] flex-col sm:max-w-130">
         <DialogHeader variant="divided">
-          <DialogTitle>Empréstimo {loan.number} · pagar antes</DialogTitle>
+          <DialogTitle>{name} · pagar antes</DialogTitle>
           <DialogDescription>
             {displayMoney(loan.principal)} em {loan.total_installments} parcelas, a {displayPercent(loan.annual_rate)}{" "}
             ao ano · {loan.paid_installments} de {loan.total_installments} pagas

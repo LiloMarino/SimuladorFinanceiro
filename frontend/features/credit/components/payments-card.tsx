@@ -52,13 +52,14 @@ export function PaymentsCard({ overview }: PaymentsCardProps) {
               ))}
               {overview.upcoming.map((item) => (
                 <div
-                  key={`${item.loan_number}-${item.installment_number}`}
+                  key={`${item.loan_number ?? "payroll"}-${item.due_date}-${item.installment_number}`}
                   className="flex justify-between gap-3 border-t border-muted py-1.75 text-[13px] first:border-t-0"
                 >
                   <span>
                     <span className="font-mono font-semibold">{displayDayMonth(item.due_date)}</span>{" "}
                     <span className="text-muted-foreground">
-                      · Empréstimo {item.loan_number} · {item.installment_number} de {item.total_installments}
+                      · {item.loan_number === null ? "Consignado, sai do salário" : `Empréstimo ${item.loan_number}`} ·{" "}
+                      {item.installment_number} de {item.total_installments}
                     </span>
                   </span>
                   <span className="font-mono">{displayMoney(item.amount)}</span>

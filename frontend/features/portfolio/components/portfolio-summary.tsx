@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Kpi } from "@/shared/components/kpi";
+import { AllocationList } from "@/features/portfolio/components/allocation-list";
+import { allocationRows } from "@/features/portfolio/lib/allocation-rows";
 import { StackedBar } from "@/shared/components/stacked-bar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -32,24 +34,7 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
   const match = simulation?.simulation;
   const ownGoal = goal && match ? ownStanding(goal, match.player_grouping, user?.nickname ?? "") : undefined;
   const positive = Number(portfolio.total_return_value) >= 0;
-  const allocation = [
-    {
-      label: "Renda variável",
-      value: portfolio.variable_income_value,
-      pct: portfolio.variable_income_networth_pct,
-      color: "bg-chart-1",
-    },
-    {
-      label: "Renda fixa",
-      value: portfolio.fixed_income_value,
-      pct: portfolio.fixed_income_networth_pct,
-      color: "bg-chart-2",
-    },
-    { label: "Caixa", value: portfolio.cash, pct: portfolio.cash_pct, color: "bg-input" },
-    ...(Number(portfolio.locked_value) > 0
-      ? [{ label: "FGTS", value: portfolio.locked_value, pct: portfolio.locked_networth_pct, color: "bg-chart-7" }]
-      : []),
-  ];
+  const allocation = allocationRows(portfolio);
   const allInCash = Number(portfolio.invested_value) === 0;
   const indebted = Number(portfolio.debt) > 0;
 
@@ -94,24 +79,13 @@ export function PortfolioSummary({ portfolio }: { portfolio: PortfolioState }) {
             )}
           </div>
 
-          {/* Alocação */}
+          {/* Alocação: cada patrimônio de profissão fora do caixa é uma linha, com a regra de saída */}
           <div className="grid content-start gap-2.5 lg:border-l lg:px-6">
             <span className="text-xs font-medium text-muted-foreground">
               Alocação · investido {displayMoney(portfolio.invested_value)} · {displayPercent(portfolio.invested_pct)}
             </span>
             <StackedBar segments={allocation.map((a) => ({ key: a.label, fraction: Number(a.pct), color: a.color }))} />
-            <ul className={`grid gap-3 ${allocation.length > 3 ? "grid-cols-4" : "grid-cols-3"}`}>
-              {allocation.map((a) => (
-                <li key={a.label} className="grid gap-0.5">
-                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span className={`size-2 rounded-sm ${a.color}`} aria-hidden="true" />
-                    {a.label}
-                  </span>
-                  <span className="font-mono text-sm font-semibold">{displayMoney(a.value)}</span>
-                  <span className="font-mono text-xs text-muted-foreground">{displayPercent(a.pct)}</span>
-                </li>
-              ))}
-            </ul>
+            <AllocationList rows={allocation} />
           </div>
 
           {/* Indicadores */}

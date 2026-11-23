@@ -13,6 +13,14 @@ type CreditSummaryProps = {
 
 const pluralLoans = (count: number) => `${count} ${count === 1 ? "empréstimo" : "empréstimos"}`;
 
+// O consignado aparece nomeado: sozinho, "o consignado"; junto dos comuns, quantos são
+const loansNote = ({ open_loans, payroll_loans }: CreditOverview) => {
+  const payroll = payroll_loans.length;
+  if (payroll === 0) return pluralLoans(open_loans);
+  if (payroll === open_loans) return `${pluralLoans(open_loans)}: ${payroll === 1 ? "o consignado" : "consignados"}`;
+  return `${pluralLoans(open_loans)}: ${payroll} ${payroll === 1 ? "consignado" : "consignados"}`;
+};
+
 // O mês aparece uma vez só quando as duas datas caem nele: "entre 05 e 10 abr"
 const displayRange = (first: string, last: string) => {
   const [firstDay, firstMonth] = displayDayMonth(first).split(" ");
@@ -34,7 +42,7 @@ export function CreditSummary({ overview, fundName }: CreditSummaryProps) {
   const debtNote = hasFeePayable
     ? `${displayMoney(overview.loan_debt)} de empréstimos + ${displayMoney(overview.fee_payable)} de taxa a pagar`
     : hasDebt
-      ? pluralLoans(overview.open_loans)
+      ? loansNote(overview)
       : "Nenhum empréstimo";
   const monthName = overview.next_installments_month ? displayMonthName(overview.next_installments_month) : null;
 

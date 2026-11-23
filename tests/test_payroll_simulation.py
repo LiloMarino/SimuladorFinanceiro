@@ -154,7 +154,8 @@ def test_the_servant_contracts_and_the_money_falls_in_the_cash(monkeypatch):
     assert loan.total_installments == 24
     assert credit_types(sim, ana) == [CreditEventType.PAYROLL_CONTRACT]
     overview = sim.get_credit(ana, ana.client_id)
-    assert overview.loans == [] and overview.open_loans == 0
+    assert overview.loans == [] and overview.open_loans == 1
+    assert len(overview.payroll_loans) == 1
     assert overview.debt == Decimal(5000)
 
 

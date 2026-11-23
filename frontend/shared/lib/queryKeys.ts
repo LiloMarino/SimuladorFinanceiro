@@ -9,6 +9,8 @@ export const queryKeys = {
   presets: () => ["presets"] as const,
   pending: () => ["pending"] as const,
   goalProgress: (simulationId: number) => ["simulation", "goal-progress", simulationId] as const,
+  professionAll: () => ["simulation", "profession"] as const,
+  profession: (simulationId: number) => ["simulation", "profession", simulationId] as const,
   lifeStatusAll: () => ["simulation", "life"] as const,
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
   summaries: (simulationId: number) => ["simulation", "summaries", simulationId] as const,
@@ -127,6 +129,8 @@ export const queryKeys = {
   creditOverview: (account: AccountKey) => ["credit", account, "overview"] as const,
   loanQuote: (account: AccountKey, amount: string, termMonths: number, currentDate: string) =>
     ["credit", account, "quote", amount, termMonths, currentDate] as const,
+  payrollQuote: (account: AccountKey, amount: string, termMonths: number, currentDate: string) =>
+    ["credit", account, "payroll-quote", amount, termMonths, currentDate] as const,
   prepaymentPreview: (account: AccountKey, loanId: string, amount: string, currentDate: string) =>
     ["credit", account, "prepayment", loanId, amount, currentDate] as const,
   strategies: () => ["strategies"] as const,

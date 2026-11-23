@@ -28,7 +28,7 @@ import { usePortfolio } from "@/shared/hooks/queries/usePortfolio";
 import { useGoalProgress } from "@/shared/hooks/queries/useGoalProgress";
 import { displayGoalPercent, ownStanding } from "@/shared/lib/goal";
 import { useSimulationSettings } from "@/shared/hooks/queries/useSimulationSettings";
-import { hasGoal } from "@/shared/lib/game-types";
+import { hasGoal, hasProfessions } from "@/shared/lib/game-types";
 import { TutorialMenuItem } from "@/features/tutorial/components/menu-item";
 import { PendingMenuItem } from "@/features/pending/components/pending-menu-item";
 import { PendingDot } from "@/features/pending/components/pending-dot";
@@ -67,6 +67,7 @@ export default function Sidebar({ navItems, activePage }: SidebarProps) {
   const isVisible = (item: NavItem) =>
     (!item.debugOnly || showDebugTools) &&
     (!item.goalOnly || racing) &&
+    (!item.professionsOnly || (!!match && hasProfessions(match))) &&
     (!item.expansion || expansionOn[item.expansion]);
   const isExpert =
     !!match &&

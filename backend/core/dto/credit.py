@@ -98,7 +98,8 @@ class LoanDTO(BaseDTO):
 
 class UpcomingInstallmentDTO(BaseDTO):
     due_date: date
-    loan_number: int
+    # O número do empréstimo; nulo no consignado, que não tem número
+    loan_number: int | None
     installment_number: int
     total_installments: int
     amount: Decimal
@@ -131,12 +132,27 @@ class SuggestionDTO(BaseDTO):
     volatility: Decimal | None = None
 
 
+class PayrollLoanDTO(BaseDTO):
+    id: UUID
+    principal: Decimal
+    term_months: int
+    annual_rate: Decimal
+    contract_date: date
+    installment: Decimal
+    paid_installments: int
+    total_installments: int
+    balance: Decimal
+    # A data da próxima parcela, que sai do salário; nula depois da última
+    next_due: date | None
+
+
 class CreditOverviewDTO(BaseDTO):
     # A dívida total: o saldo dos empréstimos com multa e mora, mais a taxa a pagar da gestora
     debt: Decimal
     # As duas partes da dívida; a taxa a pagar só existe na conta de uma gestora
     loan_debt: Decimal
     fee_payable: Decimal
+    # Os empréstimos comuns e os consignados em aberto
     open_loans: int
     closed_loans: int
     # Patrimônio líquido e os ativos de onde ele sai
@@ -153,6 +169,8 @@ class CreditOverviewDTO(BaseDTO):
     rating: RatingDTO
     offer: CreditOfferDTO
     loans: list[LoanDTO]
+    # Os consignados em aberto: a dívida deles já está em `loan_debt`
+    payroll_loans: list[PayrollLoanDTO]
     upcoming: list[UpcomingInstallmentDTO]
     history: list[MonthPaymentsDTO]
     suggestions: list[SuggestionDTO]
@@ -198,6 +216,13 @@ class LoanQuoteDTO(BaseDTO):
     networth_after: Decimal | None = None
 
 
+class PayrollTermMaxDTO(BaseDTO):
+    """O maior valor de consignado que a margem livre sustenta num prazo."""
+
+    term_months: int
+    max_amount: Decimal
+
+
 class PayrollQuoteDTO(BaseDTO):
     amount: Decimal
     term_months: int
@@ -215,18 +240,23 @@ class PayrollQuoteDTO(BaseDTO):
     # O maior valor que a margem livre sustenta no prazo pedido, e se a parcela cabe nela
     max_amount: Decimal
     fits_margin: bool
-
-
-class PayrollLoanDTO(BaseDTO):
-    id: UUID
-    principal: Decimal
-    term_months: int
-    annual_rate: Decimal
-    contract_date: date
-    installment: Decimal
-    paid_installments: int
-    total_installments: int
-    balance: Decimal
+    # O maior valor da margem livre em cada prazo, do menor ao maior
+    max_by_term: list[PayrollTermMaxDTO]
+    # A margem que sobra depois desta parcela, a dívida e a alavancagem com o consignado assinado
+    margin_free_after: Decimal
+    debt_after: Decimal
+    leverage_after: Decimal | None
+    # O cronograma das parcelas
+    schedule: list[InstallmentRowDTO]
+    # O quanto o limite de dívida da nota ainda deixa tomar (o mesmo do empréstimo comum), e se o valor cabe nele
+    debt_limit_room: Decimal
+    fits_debt_limit: bool
+    # A data em que cai a primeira parcela, depois da carência
+    first_installment_date: date
+    # O empréstimo comum do mesmo valor e prazo, para comparar; nulo sem crédito comum (nota D)
+    common_annual_rate: Decimal | None
+    common_total_interest: Decimal | None
+    interest_saved: Decimal | None
 
 
 class PrepaymentOptionDTO(BaseDTO):

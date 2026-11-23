@@ -1,5 +1,5 @@
 import { Building, Crown, Flag, Sun, Trophy, type LucideIcon } from "lucide-react";
-import type { GameType, VictoryCriterion } from "@/types";
+import type { GameType, SimulationData, VictoryCriterion } from "@/types";
 import type { ExpansionKey } from "./expansions";
 import { VICTORY_CRITERIA } from "./victory-criteria";
 
@@ -69,6 +69,11 @@ export const EXPANSION_GAME_TYPE_OPTIONS = GAME_TYPE_OPTIONS.filter(isExpansionO
 /** O que decide a partida em uma palavra: o critério na Clássica, o tipo fora dela. */
 export function winRuleLabel(gameType: GameType, criterion: VictoryCriterion) {
   return gameType === "CLASSIC" ? VICTORY_CRITERIA[criterion].label : (GAME_TYPES[gameType]?.label ?? gameType);
+}
+
+/** O viver de renda com uma profissão por jogador: a página Profissão só existe nele. */
+export function hasProfessions(match: Pick<SimulationData, "game_type" | "salary_mode">) {
+  return match.game_type === "FINANCIAL_INDEPENDENCE" && match.salary_mode === "PROFESSIONS";
 }
 
 /** A partida acaba quando alguém chega a um patrimônio-alvo: a meta aparece no topo, no menu e nas estatísticas. */

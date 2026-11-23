@@ -359,7 +359,8 @@ class FutureRecordingProgressEventDTO(BaseDTO):
 
 
 class CreditInstallmentPaidEventDTO(BaseDTO):
-    loan_number: int
+    # Nulo no consignado, que não tem número
+    loan_number: int | None
     installment_number: int
     total_installments: int
     amount: Decimal
@@ -425,6 +426,12 @@ class CorporateActionsEventDTO(BaseDTO):
                 for s in actions.splits
             ],
         )
+
+
+class OvertimeAvailableEventDTO(BaseDTO):
+    """O PIB de 12 meses voltou a zero: a hora extra que a recessão desligou pode ser ligada de novo."""
+
+    event_date: date
 
 
 class CreditMonthlySummaryEventDTO(BaseDTO):
@@ -629,6 +636,7 @@ class RealtimeEventCatalog(BaseDTO):
     statistics_snapshot_update: StatisticsSnapshotUpdateEventDTO
     goal_progress_update: GoalProgressDTO
     life_event: LifeEventDTO
+    overtime_available: OvertimeAvailableEventDTO
     auto_redeem: AutoRedeemEventDTO
     corporate_actions: CorporateActionsEventDTO
     order_executed: OrderExecutedEventDTO

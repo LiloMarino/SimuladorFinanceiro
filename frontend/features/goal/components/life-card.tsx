@@ -1,17 +1,17 @@
-import { Flag, TriangleAlert } from "lucide-react";
+import { ArrowRight, Flag, TriangleAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 import { MetricHint, MetricLabel } from "@/shared/components/metric-hint";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ProfessionBadge } from "@/shared/components/profession-badge";
-import { ProfessionTags } from "@/shared/components/profession-tags";
 import { StackedBar } from "@/shared/components/stacked-bar";
 import { cn } from "@/shared/lib/utils";
 import { displayAnnualExpenseMultiple, displayRatePercent } from "@/shared/lib/financial-independence";
 import { displayProjectionDistance, type GoalProjection } from "@/shared/lib/goal";
-import { GOAL_ETA, INDEPENDENCE_GOAL, PROFESSION_INCOME, RESERVE_MONTHS } from "@/shared/lib/life-metrics";
-import { DRIVER_NAMES, INCOME_LOSS_NAMES, TAX_NAMES, visibleProfession } from "@/shared/lib/professions";
+import { GOAL_ETA, INDEPENDENCE_GOAL, RESERVE_MONTHS } from "@/shared/lib/life-metrics";
+import { INCOME_LOSS_NAMES, TAX_NAMES } from "@/shared/lib/professions";
 import { displayMoney, displayMoneyWhole, displayMonthName, displaySignedMoney } from "@/shared/lib/utils/display";
 import type { LifeStatus, SimulationData } from "@/types";
 import { RESERVE_FRAGILE_MONTHS, RESERVE_FULL_MONTHS, reserveShares, reserveTone } from "../lib/reserve";
@@ -58,7 +58,6 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
   const leftover = (salaryMissing ? 0 : salary) - expense;
   const startYear = match.start_date.slice(0, 4);
   const lossNames = life.income_loss ? INCOME_LOSS_NAMES[life.income_loss] : null;
-  const tags = life.profession ? visibleProfession(life.profession, match).tags : [];
 
   return (
     <Card>
@@ -67,10 +66,20 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
           <CardTitle>Vida financeira</CardTitle>
           <CardDescription>Salário, despesa e reserva desta partida</CardDescription>
         </div>
-        <span className="flex items-center gap-1">
-          <Badge variant="info">{displayAnnualExpenseMultiple(Number(life.withdrawal_rate))}</Badge>
-          <MetricHint metric={INDEPENDENCE_GOAL} />
-        </span>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {/* Atalho para a página da profissão */}
+          {life.profession && (
+            <Button size="sm" variant="outline" nativeButton={false} render={<Link to="/profession" />}>
+              <ProfessionBadge profession={life.profession} />
+              Ver a profissão
+              <ArrowRight />
+            </Button>
+          )}
+          <span className="flex items-center gap-1">
+            <Badge variant="info">{displayAnnualExpenseMultiple(Number(life.withdrawal_rate))}</Badge>
+            <MetricHint metric={INDEPENDENCE_GOAL} />
+          </span>
+        </div>
       </CardHeader>
 
       <CardContent>
@@ -85,46 +94,6 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
                 {displayRatePercent(life.overdraft_monthly_rate)} ao mês). Venda ou resgate algo para cobrir.
               </AlertDescription>
             </Alert>
-          )}
-
-          {/* Profissão e o que mexe na renda dela */}
-          {life.profession && (
-            <div className="grid gap-1.5 rounded-[10px] border p-3">
-              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                <ProfessionBadge profession={life.profession} />
-                <MetricHint metric={PROFESSION_INCOME} />
-                {tags.length > 0 && (
-                  <>
-                    <span className="text-xs font-semibold text-muted-foreground">Afetado por</span>
-                    <ProfessionTags profession={life.profession} tags={tags} salary={Number(match.monthly_salary)} />
-                  </>
-                )}
-              </span>
-              <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs">
-                {life.tax && life.tax_rate && life.tax_reference && (
-                  <span>
-                    {TAX_NAMES[life.tax]}: <b className="font-mono">{displayRatePercent(life.tax_rate)}</b> (lei:{" "}
-                    {displayRatePercent(life.tax_reference)})
-                  </span>
-                )}
-                {life.real_raise && (
-                  <span>
-                    Reajuste acima do IPCA: <b className="font-mono">{displayRatePercent(life.real_raise)}</b>
-                  </span>
-                )}
-                {life.welfare_spending && (
-                  <span>
-                    Gasto com auxílio: <b className="font-mono">{displayRatePercent(life.welfare_spending)}</b> do PIB
-                  </span>
-                )}
-                {life.driver && life.driver_value && (
-                  <span>
-                    {DRIVER_NAMES[life.driver]}: <b className="font-mono">{displayRatePercent(life.driver_value)}</b>
-                  </span>
-                )}
-                {Number(life.health_multiple) > 1 && <span>Imprevisto de saúde custa {life.health_multiple}×</span>}
-              </div>
-            </div>
           )}
 
           <div className="grid gap-5 sm:grid-cols-2">
@@ -232,6 +201,14 @@ export function LifeCard({ life, match, cash, projection }: LifeCardProps) {
               </span>
             </div>
           </div>
+
+          {/* Imposto de renda da profissão */}
+          {life.tax && life.tax_rate && life.tax_reference && (
+            <span className="text-xs text-muted-foreground">
+              {TAX_NAMES[life.tax]}: <b className="font-mono">{displayRatePercent(life.tax_rate)}</b> (lei:{" "}
+              {displayRatePercent(life.tax_reference)})
+            </span>
+          )}
 
           {/* Previsão para a meta */}
           {projection && (

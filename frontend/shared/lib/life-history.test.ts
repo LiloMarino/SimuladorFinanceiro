@@ -68,6 +68,7 @@ describe("texto do histórico da vida real", () => {
     expect(lifeRowText(action("overtime_on"))).toBe("Ligou a hora extra");
     expect(lifeRowText(action("overtime_off"))).toBe("Desligou a hora extra");
     expect(lifeRowText(action("overtime_ended"))).toBe("A hora extra acabou com a recessão");
+    expect(lifeRowText(action("overtime_available"))).toBe("A hora extra pode voltar");
   });
 
   it("o saque do FGTS na demissão diz que veio com a multa", () => {

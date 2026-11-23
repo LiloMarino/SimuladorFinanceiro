@@ -106,13 +106,16 @@ from backend.core.dto.patrimonial_history import (
 from backend.core.dto.pending import PendingDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.profession import (
+    OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
     CltState,
+    LockedAssetDTO,
     MechanicAction,
     MechanicState,
     ProfessionPeriodDTO,
     ProfessionStateDTO,
 )
+from backend.core.dto.profession_page import MechanicBlockDTO, ProfessionPageDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import DayBalanceDTO, SnapshotDTO
@@ -239,6 +242,7 @@ from backend.features.credit.overview import (
 )
 from backend.features.credit.overview import build_quote as build_loan_quote
 from backend.features.credit.price import add_months
+from backend.features.credit.rules import PAYROLL_MARGIN
 from backend.features.economy.growth import (
     MacroCourse,
     history_dollar,
@@ -306,10 +310,23 @@ from backend.features.profession.banker import (
 from backend.features.profession.clt import (
     after_layoff,
     after_month,
+    clear_overtime_waiting,
     end_overtime,
     overtime_ends_with_recession,
+    overtime_returns,
 )
 from backend.features.profession.mechanics import apply_action
+from backend.features.profession.page import (
+    appointee_block,
+    banker_block,
+    build_header,
+    build_series,
+    clt_block,
+    heir_block,
+    no_block,
+    offers_banker_block,
+    public_servant_block,
+)
 from backend.features.profession.policy import policy_action
 from backend.features.profession.profession_book import ProfessionBook
 from backend.features.profession.public_servant import (
@@ -324,6 +341,7 @@ from backend.features.realtime.schemas import (
     ComanagerEventDTO,
     ComanagerEventKind,
     CorporateActionsEventDTO,
+    OvertimeAvailableEventDTO,
     PortfolioUpdateEventDTO,
     SimulationTickUpdateEventDTO,
     SnapshotUpdateEventDTO,
@@ -523,7 +541,7 @@ class Simulation:
                 UserManager.get_user_id(client_id)
             )
         )
-        self._engine.use_locked_value(self._locked_value_of)
+        self._engine.use_locked_assets(self._locked_assets_of)
         self._price_impact = PriceImpact(
             settings.id,
             settings.price_impact_enabled,
@@ -2604,6 +2622,15 @@ class Simulation:
         position = self.get_fixed_positions(client_id).get(asset.asset_uuid)
         return position.total_applied if position else Decimal(0)
 
+    def _held_value(self, client_id: UUID, asset: FixedIncomeAssetDTO) -> Decimal:
+        """O que a posição de `client_id` no título vale hoje; zero sem posição."""
+        position = self.get_fixed_positions(client_id).get(asset.asset_uuid)
+        return (
+            position.reais_value(self._engine.fixed_quotes())
+            if position
+            else Decimal(0)
+        )
+
     @synchronized
     def quote_fixed_redemption(
         self, client_id: UUID, asset: FixedIncomeAssetDTO, amount: Decimal
@@ -3209,7 +3236,7 @@ class Simulation:
                 if salary > 0 or not loses_income:
                     self._engine.pay_salary(user.client_id, salary)
                 # A parcela do consignado sai do salário que acabou de entrar
-                self._engine.credit_book.collect_payroll(user.client_id)
+                self._engine.credit_book.collect_payroll(user.client_id, self._speed)
                 self._engine.pay_expense(user.client_id, budget.expense_on(day))
                 self._run_fgts_month(user, budget, day, salary_paid=salary > 0)
 
@@ -3310,6 +3337,15 @@ class Simulation:
             ),
         )
 
+    def _lever_author_on(
+        self, kind: MeasureKind, day: date
+    ) -> tuple[str | None, str | None]:
+        """Quem propôs a medida de gasto em vigor no dia; sem governo na sala, ninguém."""
+        government = self._government
+        if government is None:
+            return None, None
+        return government.author_of_lever(kind, day)
+
     def _in_force(self, kind: MeasureKind, day: date, default: Decimal) -> Decimal:
         government = self._government
         value = None if government is None else government.value_in_force(kind, day)
@@ -3357,6 +3393,92 @@ class Simulation:
             profession=self._profession_of(user_id),
             state=self._mechanic_state_of(user_id),
         )
+
+    @synchronized
+    def get_profession_page(self, client_id: UUID) -> ProfessionPageDTO:
+        """A página Profissão de `client_id`: o cabeçalho, os indicadores que mexem na renda e o bloco da mecânica."""
+        if self._life is None or not self.settings.uses_professions:
+            raise ConflictError("A partida joga com salário igual: não há profissões.")
+        user_id = UserManager.get_user_id(client_id)
+        day = self._current_date
+        budget = self._life_budget(self._life, user_id)
+
+        def unemployment_on(on: date) -> Decimal:
+            return self._macro.latest(on).unemployment
+
+        return ProfessionPageDTO(
+            profession=budget.profession,
+            header=build_header(budget, day, unemployment_on(day)),
+            series=build_series(budget, day, unemployment_on, self._lever_author_on),
+            mechanic=self._mechanic_block(client_id, user_id, budget, day),
+        )
+
+    def _mechanic_block(
+        self, client_id: UUID, user_id: int, budget: LifeBudget, day: date
+    ) -> MechanicBlockDTO:
+        """O bloco da mecânica da profissão do jogador; as sem mecânica devolvem o bloco vazio."""
+        match budget.profession:
+            case Profession.CLT:
+                state = self._clt_state_of(user_id)
+                if state is None:
+                    return no_block()
+                tr = last_known_rate(IndicatorSeries.TR, day)
+                return clt_block(
+                    state,
+                    budget.salary_on(day),
+                    Decimal(0) if tr is None else from_percent(tr),
+                    budget.growth_on(day),
+                )
+            case Profession.PUBLIC_SERVANT:
+                book = self._engine.credit_book
+                net_salary = budget.net_salary_on(day)
+                return public_servant_block(
+                    [
+                        build_payroll_loan(loan, day)
+                        for loan in book.payroll_loans(client_id)
+                    ],
+                    net_salary,
+                    net_salary * PAYROLL_MARGIN,
+                    book.payroll_used(client_id),
+                    book.payroll_rate(day),
+                )
+            case Profession.BANKER:
+                return banker_block(
+                    self._engine.fixed_income_market.get_house_terms(client_id),
+                    lambda asset: self._applied(client_id, asset),
+                    lambda asset: self._held_value(client_id, asset),
+                )
+            case Profession.HEIR:
+                periods = self._profession_periods(user_id)
+                return heir_block(
+                    budget,
+                    day,
+                    periods[-1].start,
+                    self.settings.starting_cash,
+                    self.settings.end_date,
+                )
+            case Profession.COMMISSIONED:
+                government = self._government
+                return appointee_block(
+                    budget,
+                    day,
+                    self._party_of(user_id),
+                    None if government is None else government.cycle().first_round,
+                )
+            case Profession.OFFERS_BANKER:
+                events = repository.event.get_cashflow_events(
+                    self.settings.id, UserManager.get_portfolio_id(client_id)
+                )
+                return offers_banker_block(
+                    [
+                        (event.event_date, event.amount)
+                        for event in events
+                        if event.event_type is CashflowEventType.OFFER_COMMISSION
+                    ],
+                    day,
+                )
+            case _:
+                return no_block()
 
     @synchronized
     def apply_profession_action(
@@ -3507,22 +3629,39 @@ class Simulation:
         state = self._mechanic_state_of(user_id)
         return state if isinstance(state, CltState) else None
 
-    def _locked_value_of(self, client_id: UUID) -> Decimal:
-        """O saldo das contas travadas da conta `client_id`, que entra no patrimônio dela; só o jogador com mecânica tem."""
+    def _locked_assets_of(self, client_id: UUID) -> list[LockedAssetDTO]:
+        """Os patrimônios travados da conta `client_id`, que entram no patrimônio dela; só o jogador com mecânica tem."""
         user = UserManager.get_user(client_id)
         if user is None or not self.settings.uses_professions:
-            return Decimal(0)
-        return self._mechanic_state_of(user.id).locked_value
+            return []
+        return self._mechanic_state_of(user.id).locked_assets
 
     def _end_overtime_in_recession(self, users: list[UserDTO], day: date) -> None:
-        """Na virada do mês, a hora extra ligada acaba sozinha se o PIB de 12 meses ficou negativo, e a recessão entra no histórico."""
+        """
+        Na virada do mês, a hora extra ligada acaba sozinha se o PIB de 12 meses ficou
+        negativo, e a que a recessão desligou avisa o jogador quando volta a ser possível;
+        os dois casos entram no histórico.
+        """
         macro = self._macro.latest(day)
         for user in users:
             state = self._clt_state_of(user.id)
-            if state is None or not overtime_ends_with_recession(state, macro):
+            if state is None:
                 continue
-            self._profession_book.save_state(user.id, end_overtime(state))
-            self._engine.record_profession_action(user.client_id, OVERTIME_ENDED)
+            if overtime_ends_with_recession(state, macro):
+                self._profession_book.save_state(user.id, end_overtime(state))
+                self._engine.record_profession_action(user.client_id, OVERTIME_ENDED)
+            elif overtime_returns(state, macro):
+                self._profession_book.save_state(user.id, clear_overtime_waiting(state))
+                if user.is_bot:
+                    continue
+                self._engine.record_profession_action(
+                    user.client_id, OVERTIME_AVAILABLE
+                )
+                notify(
+                    "overtime_available",
+                    OvertimeAvailableEventDTO(event_date=day).to_json(),
+                    to=user.client_id,
+                )
 
     def _run_fgts_month(
         self, user: UserDTO, budget: LifeBudget, day: date, salary_paid: bool

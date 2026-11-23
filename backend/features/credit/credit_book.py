@@ -516,6 +516,12 @@ class CreditBook:
         """A margem consignável livre: a fração do salário líquido que as parcelas dos consignados ativos ainda deixam."""
         return max(net_salary * PAYROLL_MARGIN - self.payroll_used(client_id), ZERO)
 
+    def payroll_room(self, client_id: UUID, day: date) -> Decimal:
+        """O quanto o limite de dívida da nota ainda deixa tomar: o mesmo limite do empréstimo comum."""
+        tier = tier_of(self.score(client_id, day).grade)
+        debt = self.debt(client_id, day)
+        return max(tier.debt_limit * self.networth(client_id, debt) - debt, ZERO)
+
     def score(self, client_id: UUID, day: date) -> RatingScore:
         return self._score(self.client(client_id), day)
 
@@ -795,7 +801,11 @@ class CreditBook:
             paid = [
                 e
                 for e in self.client(client_id).events
-                if e.event_type is CreditEventType.INSTALLMENT_PAID
+                if e.event_type
+                in (
+                    CreditEventType.INSTALLMENT_PAID,
+                    CreditEventType.PAYROLL_INSTALLMENT,
+                )
                 and (e.event_date.year, e.event_date.month) == (day.year, day.month)
             ]
             if not paid:
@@ -874,6 +884,8 @@ class CreditBook:
             state = LoanState.sign(day, amount, rate, term_months)
             if state.installment > self.payroll_margin(client_id, net_salary):
                 raise ConflictError("A parcela passa da sua margem consignável.")
+            if amount > self.payroll_room(client_id, day):
+                raise ConflictError("O valor passa do seu limite de dívida.")
             client = self._clients[client_id]
             loan = PayrollLoan(
                 loan_id=uuid4(),
@@ -894,7 +906,7 @@ class CreditBook:
             )
             return loan
 
-    def collect_payroll(self, client_id: UUID) -> None:
+    def collect_payroll(self, client_id: UUID, speed: int) -> None:
         """Cobra a parcela de cada consignado devida na virada do mês: ela sai do caixa, do salário que acabou de entrar, e nunca atrasa."""
         with self._lock:
             client = self._clients[client_id]
@@ -914,6 +926,17 @@ class CreditBook:
                     amount,
                     number,
                 )
+                if speed <= PER_INSTALLMENT_NOTICE_MAX_SPEED:
+                    self._notify(
+                        "credit_installment_paid",
+                        CreditInstallmentPaidEventDTO(
+                            loan_number=None,
+                            installment_number=number,
+                            total_installments=loan.total_installments,
+                            amount=amount,
+                        ),
+                        client_id,
+                    )
                 if loan.is_settled:
                     del client.payroll[loan.loan_id]
 

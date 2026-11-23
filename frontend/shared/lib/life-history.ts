@@ -58,6 +58,7 @@ const PROFESSION_ACTION_TEXTS: Record<string, string> = {
   overtime_on: "Ligou a hora extra",
   overtime_off: "Desligou a hora extra",
   overtime_ended: "A hora extra acabou com a recessão",
+  overtime_available: "A hora extra pode voltar",
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia

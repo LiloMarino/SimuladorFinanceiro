@@ -19,6 +19,7 @@ from backend.core.dto.credit import (
     OverdueDTO,
     PayrollLoanDTO,
     PayrollQuoteDTO,
+    PayrollTermMaxDTO,
     PrepaymentOptionDTO,
     PrepaymentPreviewDTO,
     RatingDTO,
@@ -34,6 +35,7 @@ from backend.core.exceptions.http_exceptions import (
     ConflictError,
     UnprocessableEntityError,
 )
+from backend.core.utils import next_month_turn
 from backend.features.credit.credit_book import (
     ClientCredit,
     CreditBook,
@@ -43,6 +45,7 @@ from backend.features.credit.credit_book import (
 from backend.features.credit.loan import LoanState
 from backend.features.credit.price import (
     ZERO,
+    ScheduleRow,
     add_months,
     affordable_principal,
     monthly_rate,
@@ -66,6 +69,8 @@ from backend.features.credit.rules import (
     PAYROLL_MARGIN,
     VOLATILITY_MAX_POINTS,
     next_tier,
+    payroll_first_collection,
+    payroll_next_collection,
 )
 from backend.features.statistics.risk import daily_returns
 
@@ -110,7 +115,17 @@ def _loan_dto(loan: Loan, day: date) -> LoanDTO:
     )
 
 
-def _upcoming(loans: list[Loan]) -> list[UpcomingInstallmentDTO]:
+def _payroll_due(loan: PayrollLoan, day: date) -> date | None:
+    """A virada de mês em que sai a próxima parcela do consignado; nula depois da última."""
+    if loan.state.is_closed:
+        return None
+    return payroll_next_collection(loan.contract_date, loan.state.cycles_done, day)
+
+
+def _upcoming(
+    loans: list[Loan], payroll: list[PayrollLoan], day: date
+) -> list[UpcomingInstallmentDTO]:
+    """As próximas parcelas: as do empréstimo vencem no dia do contrato e as do consignado saem do salário, na virada do mês."""
     rows = [
         UpcomingInstallmentDTO(
             due_date=row.due_date,
@@ -122,7 +137,24 @@ def _upcoming(loans: list[Loan]) -> list[UpcomingInstallmentDTO]:
         for loan in loans
         for row in loan.state.schedule()[:UPCOMING_COUNT]
     ]
-    return sorted(rows, key=lambda r: (r.due_date, r.loan_number))[:UPCOMING_COUNT]
+    for loan in payroll:
+        first = _payroll_due(loan, day)
+        if first is None:
+            continue
+        rows.extend(
+            UpcomingInstallmentDTO(
+                due_date=add_months(first, index),
+                loan_number=None,
+                installment_number=row.number,
+                total_installments=loan.total_installments,
+                amount=row.payment,
+            )
+            for index, row in enumerate(loan.state.schedule()[:UPCOMING_COUNT])
+        )
+    # O consignado, sem número, fecha o empate do dia depois dos empréstimos
+    return sorted(
+        rows, key=lambda r: (r.due_date, r.loan_number is None, r.loan_number or 0)
+    )[:UPCOMING_COUNT]
 
 
 def _history(client: ClientCredit, day: date) -> list[MonthPaymentsDTO]:
@@ -274,6 +306,7 @@ def _rating(book: CreditBook, client_id: UUID, day: date) -> RatingDTO:
 def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOverviewDTO:
     client = book.client(client_id)
     loans = book.loans(client_id)
+    payroll = book.payroll_loans(client_id)
     loan_debt = book.loan_debt(client_id, day)
     fee_payable = book.fee_payable(client_id)
     debt = loan_debt + fee_payable
@@ -287,6 +320,10 @@ def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOvervi
         (loan.state.next_due, loan.state.due_amount())
         for loan in loans
         if not loan.state.is_closed
+    ] + [
+        (due, loan.state.due_amount())
+        for loan in payroll
+        if (due := _payroll_due(loan, day)) is not None
     ]
     first_month = min((d for d, _ in next_dues), default=None)
     in_month = [
@@ -300,7 +337,7 @@ def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOvervi
         debt=debt,
         loan_debt=loan_debt,
         fee_payable=fee_payable,
-        open_loans=len(loans),
+        open_loans=len(loans) + len(payroll),
         closed_loans=client.closed_loans,
         networth=networth,
         assets=assets,
@@ -323,11 +360,39 @@ def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOvervi
             debt_limit_amount=offer.debt_limit_amount,
         ),
         loans=[_loan_dto(loan, day) for loan in loans],
-        upcoming=_upcoming(loans),
+        payroll_loans=[build_payroll_loan(loan, day) for loan in payroll],
+        upcoming=_upcoming(loans, payroll, day),
         history=_history(client, day),
         suggestions=_suggestions(book, client_id, day, debt, networth),
         portfolio_return_12m=_portfolio_return(book, client_id, day),
     )
+
+
+def _schedule_rows(
+    rows: list[ScheduleRow], due_dates: list[date] | None = None
+) -> list[InstallmentRowDTO]:
+    """O cronograma da simulação; `due_dates` troca o vencimento de cada linha (o consignado sai na virada do mês)."""
+    return [
+        InstallmentRowDTO(
+            number=r.number,
+            due_date=r.due_date if due_dates is None else due_dates[i],
+            interest=r.interest,
+            principal=r.principal,
+            payment=r.payment,
+            balance=r.balance,
+        )
+        for i, r in enumerate(rows)
+    ]
+
+
+def _payroll_due_dates(day: date, count: int) -> list[date]:
+    """As viradas de mês em que saem as parcelas de um consignado assinado em `day`."""
+    due = payroll_first_collection(day)
+    dates = [due]
+    for _ in range(count - 1):
+        due = next_month_turn(due)
+        dates.append(due)
+    return dates
 
 
 def build_quote(
@@ -379,17 +444,7 @@ def build_quote(
         total_interest=interest,
         total_paid=amount + interest,
         due_day=day.day,
-        schedule=[
-            InstallmentRowDTO(
-                number=r.number,
-                due_date=r.due_date,
-                interest=r.interest,
-                principal=r.principal,
-                payment=r.payment,
-                balance=r.balance,
-            )
-            for r in rows
-        ],
+        schedule=_schedule_rows(rows),
         leverage_before=leverage(debt, networth),
         leverage_after=after,
         projected_grade=projected.grade,
@@ -430,8 +485,23 @@ def build_payroll_quote(
         raise UnprocessableEntityError("O valor do empréstimo deve ser maior que zero.")
     rate = book.payroll_rate(day)
     state = LoanState.sign(day, amount, rate, term_months)
-    interest = total_interest(state.schedule(), amount)
+    rows = state.schedule()
+    interest = total_interest(rows, amount)
     free = book.payroll_margin(client_id, net_salary)
+    room = book.payroll_room(client_id, day)
+    # O consignado entra no caixa e na dívida de uma vez: o patrimônio não muda
+    debt = book.debt(client_id, day)
+    debt_after = debt + amount
+    # O empréstimo comum do mesmo valor e prazo, para o jogador comparar
+    offer = book.offer(client_id, day)
+    common_interest = (
+        None
+        if offer.annual_rate is None
+        else total_interest(
+            LoanState.sign(day, amount, offer.annual_rate, term_months).schedule(),
+            amount,
+        )
+    )
     return PayrollQuoteDTO(
         amount=amount,
         term_months=term_months,
@@ -446,6 +516,22 @@ def build_payroll_quote(
         margin_free=free,
         max_amount=affordable_principal(free, rate, term_months),
         fits_margin=state.installment <= free,
+        max_by_term=[
+            PayrollTermMaxDTO(
+                term_months=term, max_amount=affordable_principal(free, rate, term)
+            )
+            for term in range(MIN_TERM_MONTHS, MAX_TERM_MONTHS + 1)
+        ],
+        margin_free_after=max(free - state.installment, ZERO),
+        debt_after=debt_after,
+        leverage_after=leverage(debt_after, book.networth(client_id, debt)),
+        schedule=_schedule_rows(rows, _payroll_due_dates(day, len(rows))),
+        debt_limit_room=room,
+        fits_debt_limit=amount <= room,
+        first_installment_date=payroll_first_collection(day),
+        common_annual_rate=offer.annual_rate,
+        common_total_interest=common_interest,
+        interest_saved=None if common_interest is None else common_interest - interest,
     )
 
 
@@ -460,6 +546,7 @@ def build_payroll_loan(loan: PayrollLoan, day: date) -> PayrollLoanDTO:
         paid_installments=loan.paid_installments,
         total_installments=loan.total_installments,
         balance=loan.balance_on(day),
+        next_due=_payroll_due(loan, day),
     )
 
 

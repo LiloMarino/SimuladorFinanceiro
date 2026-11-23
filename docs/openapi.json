@@ -13895,6 +13895,53 @@
         ]
       }
     },
+    "/api/simulation/profession": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Página Profissão do jogador",
+        "description": "O que a página Profissão mostra: o cabeçalho com a renda do mês, o reajuste acima do IPCA, a chance de demissão e o imprevisto de saúde; os indicadores que mexem na renda, com os 12 últimos meses; e o bloco da mecânica da profissão (FGTS e hora extra do CLT, margem do consignado do Servidor, CDBs da casa do Bancário, herança, partido e comissões). Responde 409 sem partida ou com salário igual para todos.",
+        "operationId": "get_profession_page_api_simulation_profession_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionPageDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/overtime": {
       "post": {
         "tags": [
@@ -16012,6 +16059,67 @@
         "title": "AppliedPresetDTO",
         "description": "O preset de onde vieram as regras de agora e o que mudou desde que foi carregado."
       },
+      "AppointeeMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "appointee",
+            "title": "Kind",
+            "default": "appointee"
+          },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party"
+          },
+          "in_government": {
+            "type": "boolean",
+            "title": "In Government"
+          },
+          "multiple_now": {
+            "type": "string",
+            "title": "Multiple Now"
+          },
+          "multiple_in_government": {
+            "type": "string",
+            "title": "Multiple In Government"
+          },
+          "multiple_outside": {
+            "type": "string",
+            "title": "Multiple Outside"
+          },
+          "election_in_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Election In Months"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "party",
+          "in_government",
+          "multiple_now",
+          "multiple_in_government",
+          "multiple_outside",
+          "election_in_months"
+        ],
+        "title": "AppointeeMechanicDTO",
+        "description": "O partido do Comissionado."
+      },
       "ApprovalDTO": {
         "properties": {
           "value": {
@@ -17233,6 +17341,35 @@
           "lower"
         ],
         "title": "BandsSeriesDTO"
+      },
+      "BankerMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "banker",
+            "title": "Kind",
+            "default": "banker"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "cdbs": {
+            "items": {
+              "$ref": "#/components/schemas/HouseCdbDTO"
+            },
+            "type": "array",
+            "title": "Cdbs"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "cdbs"
+        ],
+        "title": "BankerMechanicDTO",
+        "description": "CDB da casa do Bancário."
       },
       "BaseBlocDTO": {
         "properties": {
@@ -19677,6 +19814,82 @@
         "title": "ClosingDTO",
         "description": "O que o último fechamento fez com o apoio e a rejeição do partido do presidente."
       },
+      "CltMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "clt",
+            "title": "Kind",
+            "default": "clt"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "fgts_balance": {
+            "type": "string",
+            "title": "Fgts Balance"
+          },
+          "fgts_deposit": {
+            "type": "string",
+            "title": "Fgts Deposit"
+          },
+          "tr": {
+            "type": "string",
+            "title": "Tr"
+          },
+          "fgts_yield": {
+            "type": "string",
+            "title": "Fgts Yield"
+          },
+          "layoff_payout": {
+            "type": "string",
+            "title": "Layoff Payout"
+          },
+          "overtime": {
+            "type": "boolean",
+            "title": "Overtime"
+          },
+          "overtime_rate": {
+            "type": "string",
+            "title": "Overtime Rate"
+          },
+          "overtime_income": {
+            "type": "string",
+            "title": "Overtime Income"
+          },
+          "growth": {
+            "type": "string",
+            "title": "Growth"
+          },
+          "overtime_offered": {
+            "type": "boolean",
+            "title": "Overtime Offered"
+          },
+          "overtime_waiting": {
+            "type": "boolean",
+            "title": "Overtime Waiting"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "fgts_balance",
+          "fgts_deposit",
+          "tr",
+          "fgts_yield",
+          "layoff_payout",
+          "overtime",
+          "overtime_rate",
+          "overtime_income",
+          "growth",
+          "overtime_offered",
+          "overtime_waiting"
+        ],
+        "title": "CltMechanicDTO",
+        "description": "FGTS e hora extra do CLT."
+      },
       "ComanagerEventDTO": {
         "properties": {
           "kind": {
@@ -20735,7 +20948,14 @@
       "CreditInstallmentPaidEventDTO": {
         "properties": {
           "loan_number": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Loan Number"
           },
           "installment_number": {
@@ -21062,6 +21282,13 @@
             "type": "array",
             "title": "Loans"
           },
+          "payroll_loans": {
+            "items": {
+              "$ref": "#/components/schemas/PayrollLoanDTO"
+            },
+            "type": "array",
+            "title": "Payroll Loans"
+          },
           "upcoming": {
             "items": {
               "$ref": "#/components/schemas/UpcomingInstallmentDTO"
@@ -21115,6 +21342,7 @@
           "rating",
           "offer",
           "loans",
+          "payroll_loans",
           "upcoming",
           "history",
           "suggestions",
@@ -30881,6 +31109,44 @@
         ],
         "title": "HeirCapitalDTO"
       },
+      "HeirMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "heir",
+            "title": "Kind",
+            "default": "heir"
+          },
+          "inheritance": {
+            "type": "string",
+            "title": "Inheritance"
+          },
+          "received_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Received On"
+          },
+          "annual_expense": {
+            "type": "string",
+            "title": "Annual Expense"
+          },
+          "covered_years": {
+            "type": "string",
+            "title": "Covered Years"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "inheritance",
+          "received_on",
+          "annual_expense",
+          "covered_years"
+        ],
+        "title": "HeirMechanicDTO",
+        "description": "A herança do Herdeiro."
+      },
       "HighlightsDTO": {
         "properties": {
           "biggest_return": {
@@ -30955,6 +31221,51 @@
           "your_best_month"
         ],
         "title": "HighlightsDTO"
+      },
+      "HouseCdbDTO": {
+        "properties": {
+          "years": {
+            "type": "integer",
+            "title": "Years"
+          },
+          "annual_rate": {
+            "type": "string",
+            "title": "Annual Rate"
+          },
+          "treasury_rate": {
+            "type": "string",
+            "title": "Treasury Rate"
+          },
+          "cap": {
+            "type": "string",
+            "title": "Cap"
+          },
+          "applied": {
+            "type": "string",
+            "title": "Applied"
+          },
+          "current_value": {
+            "type": "string",
+            "title": "Current Value"
+          },
+          "maturity_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Maturity Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "years",
+          "annual_rate",
+          "treasury_rate",
+          "cap",
+          "applied",
+          "current_value",
+          "maturity_date"
+        ],
+        "title": "HouseCdbDTO"
       },
       "HouseDTO": {
         "properties": {
@@ -31264,6 +31575,90 @@
         "title": "IncomeDriver",
         "description": "A variável da partida que move a renda da profissão."
       },
+      "IncomeHeaderDTO": {
+        "properties": {
+          "income": {
+            "type": "string",
+            "title": "Income"
+          },
+          "mechanic_income": {
+            "type": "string",
+            "title": "Mechanic Income"
+          },
+          "real_raise": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Real Raise"
+          },
+          "real_raise_source": {
+            "$ref": "#/components/schemas/RealRaise"
+          },
+          "inflation_indexed": {
+            "type": "boolean",
+            "title": "Inflation Indexed"
+          },
+          "income_loss": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IncomeLoss"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "layoff_factor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Layoff Factor"
+          },
+          "unemployment": {
+            "type": "string",
+            "title": "Unemployment"
+          },
+          "neutral_unemployment": {
+            "type": "string",
+            "title": "Neutral Unemployment"
+          },
+          "health_multiple": {
+            "type": "string",
+            "title": "Health Multiple"
+          },
+          "health_multiple_base": {
+            "type": "string",
+            "title": "Health Multiple Base"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "income",
+          "mechanic_income",
+          "real_raise",
+          "real_raise_source",
+          "inflation_indexed",
+          "income_loss",
+          "layoff_factor",
+          "unemployment",
+          "neutral_unemployment",
+          "health_multiple",
+          "health_multiple_base"
+        ],
+        "title": "IncomeHeaderDTO",
+        "description": "Os quatro números do topo da página."
+      },
       "IncomeLoss": {
         "type": "string",
         "enum": [
@@ -31274,6 +31669,127 @@
         ],
         "title": "IncomeLoss",
         "description": "O que a demissão sorteada do mês faz com a renda de quem está exposto a ela."
+      },
+      "IncomeSeriesDTO": {
+        "properties": {
+          "key": {
+            "$ref": "#/components/schemas/IncomeSeriesKey"
+          },
+          "current": {
+            "type": "string",
+            "title": "Current"
+          },
+          "neutral": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Neutral"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/IncomeSeriesPointDTO"
+            },
+            "type": "array",
+            "title": "Points"
+          },
+          "guides": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesGuideDTO"
+            },
+            "type": "array",
+            "title": "Guides"
+          },
+          "effect": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effect"
+          },
+          "effect_kind": {
+            "$ref": "#/components/schemas/IncomeSeriesEffect"
+          },
+          "changes": {
+            "items": {
+              "$ref": "#/components/schemas/LeverChangeDTO"
+            },
+            "type": "array",
+            "title": "Changes"
+          },
+          "lever": {
+            "type": "boolean",
+            "title": "Lever"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "current",
+          "neutral",
+          "points",
+          "guides",
+          "effect",
+          "effect_kind",
+          "changes",
+          "lever"
+        ],
+        "title": "IncomeSeriesDTO"
+      },
+      "IncomeSeriesEffect": {
+        "type": "string",
+        "enum": [
+          "REAL_RAISE",
+          "INCOME_FACTOR",
+          "LAYOFF_FACTOR",
+          "BENEFIT"
+        ],
+        "title": "IncomeSeriesEffect",
+        "description": "O que o valor de hoje do indicador faz com a renda, que a frase \"Hoje\" da série conta."
+      },
+      "IncomeSeriesKey": {
+        "type": "string",
+        "enum": [
+          "GDP",
+          "UNEMPLOYMENT",
+          "DOLLAR",
+          "SELIC",
+          "STOCKS",
+          "SERVANT_RAISE",
+          "RETIREE_RAISE",
+          "WELFARE_SPENDING"
+        ],
+        "title": "IncomeSeriesKey",
+        "description": "O indicador que mexe na renda e ganha um gráfico (ou uma alavanca do governo) na página da profissão."
+      },
+      "IncomeSeriesPointDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "value"
+        ],
+        "title": "IncomeSeriesPointDTO"
       },
       "IncomeTaxBracketDTO": {
         "properties": {
@@ -32272,6 +32788,56 @@
         ],
         "title": "LevelChangeDTO"
       },
+      "LeverChangeDTO": {
+        "properties": {
+          "change_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Change Date"
+          },
+          "before": {
+            "type": "string",
+            "title": "Before"
+          },
+          "after": {
+            "type": "string",
+            "title": "After"
+          },
+          "proposer_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposer Name"
+          },
+          "proposer_party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposer Party"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "change_date",
+          "before",
+          "after",
+          "proposer_name",
+          "proposer_party"
+        ],
+        "title": "LeverChangeDTO",
+        "description": "Uma mudança recente da alavanca do governo."
+      },
       "LifeEventDTO": {
         "properties": {
           "key": {
@@ -33194,6 +33760,44 @@
           "networth_after"
         ],
         "title": "LoanQuoteDTO"
+      },
+      "LockedAssetDTO": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/LockedAssetKind"
+          },
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "networth_pct": {
+            "type": "string",
+            "title": "Networth Pct",
+            "default": "0"
+          },
+          "exit_rule": {
+            "type": "string",
+            "title": "Exit Rule"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "value",
+          "networth_pct",
+          "exit_rule"
+        ],
+        "title": "LockedAssetDTO",
+        "description": "Um patrimônio da profissão que fica fora do caixa, com a regra de saída dele."
+      },
+      "LockedAssetKind": {
+        "type": "string",
+        "enum": [
+          "FGTS"
+        ],
+        "title": "LockedAssetKind",
+        "description": "O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira."
       },
       "LogFilter": {
         "type": "string",
@@ -34412,6 +35016,16 @@
         "title": "MechanicState",
         "description": "O estado da mecânica de uma profissão para um jogador numa partida. O tipo base é o\nda profissão sem mecânica: não guarda nada e não mexe na renda. Cada mecânica\nherda dele, dá valor inicial a todos os campos e sobrescreve `income_factor`."
       },
+      "MechanicStatus": {
+        "type": "string",
+        "enum": [
+          "AVAILABLE",
+          "ACTIVE",
+          "LOCKED"
+        ],
+        "title": "MechanicStatus",
+        "description": "Em que pé está o bloco da mecânica da profissão: a escolha livre, em uso ou travada por um motivo."
+      },
       "MetricItem": {
         "properties": {
           "kind": {
@@ -35189,6 +35803,23 @@
         ],
         "title": "NextTaxDropDTO"
       },
+      "NoMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "none",
+            "title": "Kind",
+            "default": "none"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "NoMechanicDTO",
+        "description": "A profissão sem mecânica a ligar, ou com mecânica ainda sem motor."
+      },
       "NotificationCatalogResponse": {
         "properties": {
           "sections": {
@@ -35269,6 +35900,43 @@
         "type": "object",
         "title": "NotificationSettings",
         "description": "Onde o jornal aparece, o nível de cada tipo de manchete e quais avisos sobem."
+      },
+      "OffersBankerMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "offers_banker",
+            "title": "Kind",
+            "default": "offers_banker"
+          },
+          "month_commission": {
+            "type": "string",
+            "title": "Month Commission"
+          },
+          "month_offers": {
+            "type": "integer",
+            "title": "Month Offers"
+          },
+          "total_commission": {
+            "type": "string",
+            "title": "Total Commission"
+          },
+          "total_offers": {
+            "type": "integer",
+            "title": "Total Offers"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "month_commission",
+          "month_offers",
+          "total_commission",
+          "total_offers"
+        ],
+        "title": "OffersBankerMechanicDTO",
+        "description": "As comissões do Banqueiro de ofertas."
       },
       "OperationsReportDTO": {
         "properties": {
@@ -35922,6 +36590,22 @@
           "total"
         ],
         "title": "OverdueDTO"
+      },
+      "OvertimeAvailableEventDTO": {
+        "properties": {
+          "event_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Event Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event_date"
+        ],
+        "title": "OvertimeAvailableEventDTO",
+        "description": "O PIB de 12 meses voltou a zero: a hora extra que a recessão desligou pode ser ligada de novo."
       },
       "OvertimeRequest": {
         "properties": {
@@ -36725,6 +37409,18 @@
           "balance": {
             "type": "string",
             "title": "Balance"
+          },
+          "next_due": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Due"
           }
         },
         "additionalProperties": false,
@@ -36738,7 +37434,8 @@
           "installment",
           "paid_installments",
           "total_installments",
-          "balance"
+          "balance",
+          "next_due"
         ],
         "title": "PayrollLoanDTO"
       },
@@ -36795,6 +37492,85 @@
           "fits_margin": {
             "type": "boolean",
             "title": "Fits Margin"
+          },
+          "max_by_term": {
+            "items": {
+              "$ref": "#/components/schemas/PayrollTermMaxDTO"
+            },
+            "type": "array",
+            "title": "Max By Term"
+          },
+          "margin_free_after": {
+            "type": "string",
+            "title": "Margin Free After"
+          },
+          "debt_after": {
+            "type": "string",
+            "title": "Debt After"
+          },
+          "leverage_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leverage After"
+          },
+          "schedule": {
+            "items": {
+              "$ref": "#/components/schemas/InstallmentRowDTO"
+            },
+            "type": "array",
+            "title": "Schedule"
+          },
+          "debt_limit_room": {
+            "type": "string",
+            "title": "Debt Limit Room"
+          },
+          "fits_debt_limit": {
+            "type": "boolean",
+            "title": "Fits Debt Limit"
+          },
+          "first_installment_date": {
+            "type": "string",
+            "format": "date",
+            "title": "First Installment Date"
+          },
+          "common_annual_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Common Annual Rate"
+          },
+          "common_total_interest": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Common Total Interest"
+          },
+          "interest_saved": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interest Saved"
           }
         },
         "additionalProperties": false,
@@ -36812,9 +37588,40 @@
           "margin_used",
           "margin_free",
           "max_amount",
-          "fits_margin"
+          "fits_margin",
+          "max_by_term",
+          "margin_free_after",
+          "debt_after",
+          "leverage_after",
+          "schedule",
+          "debt_limit_room",
+          "fits_debt_limit",
+          "first_installment_date",
+          "common_annual_rate",
+          "common_total_interest",
+          "interest_saved"
         ],
         "title": "PayrollQuoteDTO"
+      },
+      "PayrollTermMaxDTO": {
+        "properties": {
+          "term_months": {
+            "type": "integer",
+            "title": "Term Months"
+          },
+          "max_amount": {
+            "type": "string",
+            "title": "Max Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "term_months",
+          "max_amount"
+        ],
+        "title": "PayrollTermMaxDTO",
+        "description": "O maior valor de consignado que a margem livre sustenta num prazo."
       },
       "PeakDTO": {
         "properties": {
@@ -38247,6 +39054,13 @@
             "type": "string",
             "title": "Locked Networth Pct"
           },
+          "locked_assets": {
+            "items": {
+              "$ref": "#/components/schemas/LockedAssetDTO"
+            },
+            "type": "array",
+            "title": "Locked Assets"
+          },
           "locked_value": {
             "type": "string",
             "title": "Locked Value"
@@ -38360,6 +39174,7 @@
           "fixed_income_networth_pct",
           "cash_pct",
           "locked_networth_pct",
+          "locked_assets",
           "locked_value",
           "assets_value",
           "debt",
@@ -39368,6 +40183,70 @@
         "title": "Profession",
         "description": "A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado."
       },
+      "ProfessionPageDTO": {
+        "properties": {
+          "profession": {
+            "$ref": "#/components/schemas/Profession"
+          },
+          "header": {
+            "$ref": "#/components/schemas/IncomeHeaderDTO"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/IncomeSeriesDTO"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "mechanic": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/CltMechanicDTO"
+              },
+              {
+                "$ref": "#/components/schemas/PublicServantMechanicDTO"
+              },
+              {
+                "$ref": "#/components/schemas/BankerMechanicDTO"
+              },
+              {
+                "$ref": "#/components/schemas/HeirMechanicDTO"
+              },
+              {
+                "$ref": "#/components/schemas/AppointeeMechanicDTO"
+              },
+              {
+                "$ref": "#/components/schemas/OffersBankerMechanicDTO"
+              },
+              {
+                "$ref": "#/components/schemas/NoMechanicDTO"
+              }
+            ],
+            "title": "Mechanic",
+            "discriminator": {
+              "propertyName": "kind",
+              "mapping": {
+                "appointee": "#/components/schemas/AppointeeMechanicDTO",
+                "banker": "#/components/schemas/BankerMechanicDTO",
+                "clt": "#/components/schemas/CltMechanicDTO",
+                "heir": "#/components/schemas/HeirMechanicDTO",
+                "none": "#/components/schemas/NoMechanicDTO",
+                "offers_banker": "#/components/schemas/OffersBankerMechanicDTO",
+                "public_servant": "#/components/schemas/PublicServantMechanicDTO"
+              }
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "profession",
+          "header",
+          "series",
+          "mechanic"
+        ],
+        "title": "ProfessionPageDTO"
+      },
       "ProfessionStateDTO": {
         "properties": {
           "profession": {
@@ -40066,6 +40945,90 @@
         ],
         "title": "ProposeMeasureRequest"
       },
+      "PublicServantMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "public_servant",
+            "title": "Kind",
+            "default": "public_servant"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "net_salary": {
+            "type": "string",
+            "title": "Net Salary"
+          },
+          "margin": {
+            "type": "string",
+            "title": "Margin"
+          },
+          "margin_used": {
+            "type": "string",
+            "title": "Margin Used"
+          },
+          "margin_free": {
+            "type": "string",
+            "title": "Margin Free"
+          },
+          "annual_rate": {
+            "type": "string",
+            "title": "Annual Rate"
+          },
+          "selic": {
+            "type": "string",
+            "title": "Selic"
+          },
+          "loans": {
+            "items": {
+              "$ref": "#/components/schemas/PayrollLoanDTO"
+            },
+            "type": "array",
+            "title": "Loans"
+          },
+          "next_release": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Release"
+          },
+          "next_release_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Release Amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "net_salary",
+          "margin",
+          "margin_used",
+          "margin_free",
+          "annual_rate",
+          "selic",
+          "loans",
+          "next_release",
+          "next_release_amount"
+        ],
+        "title": "PublicServantMechanicDTO",
+        "description": "Consignado do Servidor."
+      },
       "QueueBudgetDTO": {
         "properties": {
           "total": {
@@ -40349,6 +41312,17 @@
           "none"
         ]
       },
+      "RealRaise": {
+        "type": "string",
+        "enum": [
+          "NONE",
+          "GDP_SHARE",
+          "SERVANTS",
+          "RETIREES"
+        ],
+        "title": "RealRaise",
+        "description": "De onde vem o reajuste acima do IPCA no aniversário."
+      },
       "RealtimeEventCatalog": {
         "properties": {
           "simulation_started": {
@@ -40498,6 +41472,9 @@
           },
           "life_event": {
             "$ref": "#/components/schemas/LifeEventDTO"
+          },
+          "overtime_available": {
+            "$ref": "#/components/schemas/OvertimeAvailableEventDTO"
           },
           "auto_redeem": {
             "$ref": "#/components/schemas/AutoRedeemEventDTO"
@@ -40680,6 +41657,7 @@
           "statistics_snapshot_update",
           "goal_progress_update",
           "life_event",
+          "overtime_available",
           "auto_redeem",
           "corporate_actions",
           "order_executed",
@@ -42321,6 +43299,26 @@
           "segment"
         ],
         "title": "SeriesCoverageDTO"
+      },
+      "SeriesGuideDTO": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "overtime": {
+            "type": "boolean",
+            "title": "Overtime"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "overtime"
+        ],
+        "title": "SeriesGuideDTO",
+        "description": "Uma linha de referência do gráfico, além do ponto neutro."
       },
       "SeriesKind": {
         "type": "string",
@@ -48896,7 +49894,14 @@
             "title": "Due Date"
           },
           "loan_number": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Loan Number"
           },
           "installment_number": {

@@ -48,6 +48,13 @@ def payroll_first_collection(signed: date) -> date:
     return _turn_on_or_after(signed + timedelta(days=PAYROLL_GRACE_DAYS))
 
 
+def payroll_next_collection(signed: date, cycles_done: int, day: date) -> date:
+    """A virada de mês em que sai a próxima parcela do consignado: a primeira depois da carência, e depois uma por virada."""
+    if cycles_done == 0:
+        return payroll_first_collection(signed)
+    return next_month_turn(day)
+
+
 # O juro nunca fica abaixo da renda fixa mais cara do dia mais esta margem
 FIXED_INCOME_MARGIN = Decimal("0.005")
 

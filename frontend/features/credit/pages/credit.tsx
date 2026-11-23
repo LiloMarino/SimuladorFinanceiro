@@ -21,6 +21,7 @@ import { PrepayDialog, type PrepayChoice } from "../components/prepay-dialog";
 import { RatingSuggestionsCard } from "../components/rating-suggestions-card";
 import { RiskRatingCard } from "../components/risk-rating-card";
 import { useCredit } from "@/shared/hooks/queries/useCredit";
+import { useLifeStatus } from "@/shared/hooks/queries/useLifeStatus";
 import { creditLockOfAccount, creditLockOfError } from "../lib/credit-lock";
 
 export default function CreditPage() {
@@ -58,8 +59,12 @@ function CreditContent({ overview, fundName, currentDate }: CreditContentProps) 
   const [prepay, setPrepay] = useState<PrepayTarget | null>(null);
   const amountInput = useRef<HTMLInputElement>(null);
 
+  const { data: life } = useLifeStatus();
   const { loans, offer, rating } = overview;
-  const prepayLoan = loans.find((loan) => loan.id === prepay?.loanId);
+  const payrollLoans = overview.payroll_loans;
+  const commonLoan = loans.find((loan) => loan.id === prepay?.loanId);
+  const payrollLoan = payrollLoans.find((loan) => loan.id === prepay?.loanId);
+  const prepayLoan = commonLoan ?? payrollLoan;
   const overdueLoan = loans.find((loan) => loan.id === params.get(PAY_OVERDUE_PARAM) && loan.overdue.length > 0);
   const firstOverdue = loans.find((loan) => loan.overdue.length > 0);
   // As sugestões de amortização miram o empréstimo de juro mais alto, o que mais poupa
@@ -91,11 +96,12 @@ function CreditContent({ overview, fundName, currentDate }: CreditContentProps) 
         {openOffer ? (
           // A cada empréstimo aberto ou quitado o formulário nasce de novo, com o valor padrão do limite que sobrou
           <LoanOfferCard
-            key={loans.length}
+            key={loans.length + payrollLoans.length}
             overview={overview}
             {...openOffer}
             amountInputRef={amountInput}
             currentDate={currentDate}
+            payroll={life?.profession === "PUBLIC_SERVANT"}
           />
         ) : (
           <BlockedRatingCard overview={overview} onPayOverdue={firstOverdue ? () => openOverdue(firstOverdue) : null} />
@@ -103,9 +109,10 @@ function CreditContent({ overview, fundName, currentDate }: CreditContentProps) 
       </div>
 
       {/* Seus empréstimos */}
-      {loans.length > 0 ? (
+      {loans.length + payrollLoans.length > 0 ? (
         <LoansTable
           loans={loans}
+          payrollLoans={payrollLoans}
           onPrepay={(loan, choice) => setPrepay({ loanId: loan.id, choice })}
           onPayOverdue={openOverdue}
         />
@@ -126,6 +133,7 @@ function CreditContent({ overview, fundName, currentDate }: CreditContentProps) 
         <PrepayDialog
           key={`${prepayLoan.id}-${prepay.choice}-${prepay.amount ?? ""}`}
           loan={prepayLoan}
+          name={commonLoan ? `Empréstimo ${commonLoan.number}` : "Consignado"}
           open
           onOpenChange={() => setPrepay(null)}
           initialChoice={prepay.choice}

@@ -1492,6 +1492,46 @@ class PendingSeverity(Enum):
     WARNING = "WARNING"
 
 
+class LockedAssetKind(Enum):
+    """O tipo de patrimônio da profissão que fica fora do caixa; cada tipo é uma linha na carteira."""
+
+    FGTS = "FGTS"
+
+
+class MechanicStatus(Enum):
+    """Em que pé está o bloco da mecânica da profissão: a escolha livre, em uso ou travada por um motivo."""
+
+    AVAILABLE = "AVAILABLE"
+    ACTIVE = "ACTIVE"
+    LOCKED = "LOCKED"
+
+
+class IncomeSeriesKey(Enum):
+    """O indicador que mexe na renda e ganha um gráfico (ou uma alavanca do governo) na página da profissão."""
+
+    GDP = "GDP"
+    UNEMPLOYMENT = "UNEMPLOYMENT"
+    DOLLAR = "DOLLAR"
+    SELIC = "SELIC"
+    STOCKS = "STOCKS"
+    SERVANT_RAISE = "SERVANT_RAISE"
+    RETIREE_RAISE = "RETIREE_RAISE"
+    WELFARE_SPENDING = "WELFARE_SPENDING"
+
+
+class IncomeSeriesEffect(Enum):
+    """O que o valor de hoje do indicador faz com a renda, que a frase "Hoje" da série conta."""
+
+    # Reajuste acima do IPCA na virada do ano
+    REAL_RAISE = "REAL_RAISE"
+    # Quantas vezes o indicador multiplica a renda do mês
+    INCOME_FACTOR = "INCOME_FACTOR"
+    # Quantas vezes a chance de demissão da sala pesa
+    LAYOFF_FACTOR = "LAYOFF_FACTOR"
+    # O auxílio que a profissão recebe sobe e desce com o gasto do governo
+    BENEFIT = "BENEFIT"
+
+
 class ToastType(Enum):
     """Um aviso do que acontece com o próprio jogador, ligado ou desligado por tipo."""
 

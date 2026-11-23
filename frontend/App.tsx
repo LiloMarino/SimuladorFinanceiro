@@ -15,6 +15,7 @@ import {
   Medal,
   Banknote,
   Briefcase,
+  BriefcaseBusiness,
   Landmark,
   Map as MapIcon,
   Gavel,
@@ -50,6 +51,7 @@ import ImportAssetsPage from "./features/import-assets/pages/import-assets";
 import { RealtimeProvider } from "@/shared/context/realtime";
 import { PageLabelProvider } from "@/shared/context/page-label";
 import GoalPage from "./features/goal/pages/goal";
+import ProfessionPage from "./features/profession/pages/profession";
 import CreditPage from "./features/credit/pages/credit";
 import StatisticsPage from "./features/statistics/pages/statistics";
 import CompareSimulationsPage from "./features/statistics/pages/compare-simulations";
@@ -80,6 +82,14 @@ const navItems: NavItem[] = [
   { key: "journal", label: "Jornal", endpoint: "/journal", icon: Newspaper, group: "Mercado" },
   { key: "portfolio", label: "Carteira", endpoint: "/portfolio", icon: Wallet, group: "Você" },
   { key: "goal", label: "Meta", endpoint: "/goal", icon: Flag, group: "Você", goalOnly: true },
+  {
+    key: "profession",
+    label: "Profissão",
+    endpoint: "/profession",
+    icon: BriefcaseBusiness,
+    group: "Você",
+    professionsOnly: true,
+  },
   { key: "credit", label: "Crédito", endpoint: "/credit", icon: Banknote, group: "Você", creditAlert: true },
   { key: "statistics", label: "Estatísticas", endpoint: "/statistics", icon: Trophy, group: "Você" },
   {
@@ -203,6 +213,7 @@ export default function App() {
                             <Route path="/performance" element={<PerformancePage />} />
                             <Route path="/settings" element={<SettingsPage />} />
                             <Route path="/goal" element={<GoalPage />} />
+                            <Route path="/profession" element={<ProfessionPage />} />
                             <Route path="/credit" element={<CreditPage />} />
                             <Route path="/statistics" element={<StatisticsPage />} />
                             <Route path="/economy" element={<EconomyPage />} />

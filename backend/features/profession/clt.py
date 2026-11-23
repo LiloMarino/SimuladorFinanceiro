@@ -48,7 +48,12 @@ def set_overtime(
         raise ConflictError(
             "A hora extra só existe com o PIB de 12 meses a partir de zero."
         )
-    return state.model_copy(update={"overtime": action.enabled})
+    return state.model_copy(
+        update={
+            "overtime": action.enabled,
+            "overtime_waiting": False if action.enabled else state.overtime_waiting,
+        }
+    )
 
 
 def overtime_ends_with_recession(state: CltState, macro: MacroMonth) -> bool:
@@ -57,8 +62,18 @@ def overtime_ends_with_recession(state: CltState, macro: MacroMonth) -> bool:
 
 
 def end_overtime(state: CltState) -> CltState:
-    """O estado com a hora extra desligada."""
-    return state.model_copy(update={"overtime": False})
+    """O estado com a hora extra desligada pela recessão, que fica esperando o PIB de 12 meses voltar a zero."""
+    return state.model_copy(update={"overtime": False, "overtime_waiting": True})
+
+
+def overtime_returns(state: CltState, macro: MacroMonth) -> bool:
+    """A hora extra que a recessão desligou volta a ser possível quando o PIB de 12 meses chega a zero."""
+    return state.overtime_waiting and not state.overtime and overtime_offered(macro)
+
+
+def clear_overtime_waiting(state: CltState) -> CltState:
+    """O estado sem a espera: o aviso de que a hora extra voltou a ser possível já saiu."""
+    return state.model_copy(update={"overtime_waiting": False})
 
 
 def overtime_policy(
@@ -93,6 +108,12 @@ def after_month(
 def after_layoff(state: CltState) -> tuple[CltState, Decimal]:
     """O estado depois da demissão sorteada (conta zerada, hora extra desligada) e o que cai no caixa: o saldo e a multa."""
     return (
-        state.model_copy(update={"fgts_balance": Decimal(0), "overtime": False}),
+        state.model_copy(
+            update={
+                "fgts_balance": Decimal(0),
+                "overtime": False,
+                "overtime_waiting": False,
+            }
+        ),
         fgts_payout(state.fgts_balance),
     )

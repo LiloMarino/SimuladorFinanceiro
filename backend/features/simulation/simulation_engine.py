@@ -15,6 +15,7 @@ from backend.core.dto.fixed_income_position import FixedIncomePositionDTO
 from backend.core.dto.order_preview import OrderPreviewDTO
 from backend.core.dto.portfolio import PortfolioDTO
 from backend.core.dto.position import PortfolioPositionDTO, PositionDTO
+from backend.core.dto.profession import LockedAssetDTO
 from backend.core.dto.sector import StockSegmentDTO
 from backend.core.dto.stock import StockDTO
 from backend.core.enum import (
@@ -804,16 +805,20 @@ class SimulationEngine:
             total_locked=self.locked_value(client_id),
         )
 
-    _locked_value_source: Callable[[UUID], Decimal] | None = None
+    _locked_assets_source: Callable[[UUID], list[LockedAssetDTO]] | None = None
 
-    def use_locked_value(self, source: Callable[[UUID], Decimal]) -> None:
-        """O saldo das contas travadas de cada jogador (o FGTS) vem de quem guarda o estado da profissão."""
-        self._locked_value_source = source
+    def use_locked_assets(self, source: Callable[[UUID], list[LockedAssetDTO]]) -> None:
+        """Os patrimônios travados de cada jogador (o FGTS) vêm de quem guarda o estado da profissão."""
+        self._locked_assets_source = source
+
+    def locked_assets(self, client_id: UUID) -> list[LockedAssetDTO]:
+        """Os patrimônios travados do jogador; conta sem profissão não tem."""
+        source = self._locked_assets_source
+        return [] if source is None else source(client_id)
 
     def locked_value(self, client_id: UUID) -> Decimal:
-        """O saldo travado do jogador, que conta no patrimônio; conta sem profissão não tem."""
-        source = self._locked_value_source
-        return Decimal(0) if source is None else source(client_id)
+        """O saldo travado do jogador, que conta no patrimônio: a soma dos patrimônios travados."""
+        return sum((asset.value for asset in self.locked_assets(client_id)), Decimal(0))
 
     def assets_value(self, client_id: UUID) -> Decimal:
         """Caixa, ações, renda fixa e saldo travado, sem descontar a dívida."""
@@ -914,6 +919,12 @@ class SimulationEngine:
             variable_income_networth_pct=ratio(variable_income_value, total_assets),
             fixed_income_networth_pct=ratio(fixed_income_value, total_assets),
             cash_pct=ratio(cash, total_assets),
+            locked_assets=[
+                asset.model_copy(
+                    update={"networth_pct": ratio(asset.value, total_assets)}
+                )
+                for asset in self.locked_assets(client_id)
+            ],
             locked_value=locked_value,
             locked_networth_pct=ratio(locked_value, total_assets),
             assets_value=total_assets,

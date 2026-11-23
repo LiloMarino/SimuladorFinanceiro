@@ -81,7 +81,11 @@ class FixedIncomeMarket:
 
     def get_house_assets(self, client_id: UUID) -> list[FixedIncomeAssetDTO]:
         """Os CDBs da casa do mês que `client_id` recebeu, do prazo mais curto ao mais longo."""
-        return list(self._house.get(client_id, {}).values())
+        return list(self.get_house_terms(client_id).values())
+
+    def get_house_terms(self, client_id: UUID) -> dict[int, FixedIncomeAssetDTO]:
+        """Os CDBs da casa do mês de `client_id` pelo prazo em anos."""
+        return self._house.get(client_id, {})
 
     def get_house_asset(
         self, client_id: UUID, years: int

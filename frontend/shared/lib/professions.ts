@@ -15,7 +15,7 @@ import {
   Store,
   type LucideIcon,
 } from "lucide-react";
-import type { IncomeDriver, IncomeLoss, LifeStatus, Profession, SimulationSettings } from "@/types";
+import type { IncomeLoss, LifeStatus, Profession, SimulationSettings } from "@/types";
 
 /** As regras da sala que decidem o que cada profissão sente: o card só mostra o que vale na partida. */
 export type RoomRules = Pick<
@@ -45,6 +45,8 @@ type ProfessionTag = { key: TagKey; requires?: RoomRequirement[] };
 export type ProfessionInfo = {
   name: string;
   icon: LucideIcon;
+  /** A frase que abre a página da profissão: o que ela é e o que mexe na renda */
+  description: string;
   /** Renda do mês em múltiplos do salário que o host definiu */
   incomeMultiple: number;
   /** Quanto da renda vem do auxílio do governo, nos gastos de referência (o resto é a renda do trabalho) */
@@ -77,6 +79,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   CLT: {
     name: "CLT",
     icon: Briefcase,
+    description:
+      "Carteira assinada: salário estável, reajuste que acompanha o PIB e risco de demissão quando o desemprego sobe.",
     incomeMultiple: 1,
     gains: [{ text: "Renda cheia" }, { text: "Aumento acima da inflação quando o PIB cresce", requires: INFLATION }],
     losses: [{ text: "Pode ser demitido e ficar um mês sem salário, mais quando o desemprego sobe" }],
@@ -85,6 +89,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   PUBLIC_SERVANT: {
     name: "Servidor",
     icon: Landmark,
+    description:
+      "Cargo público: nunca é demitido, o salário é um pouco menor e o reajuste acima da inflação depende do governo da sala.",
     incomeMultiple: 0.95,
     gains: [
       { text: "Nunca é demitido" },
@@ -99,6 +105,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   ENTREPRENEUR: {
     name: "Empreendedor",
     icon: Store,
+    description:
+      "Negócio próprio: renda maior que a do CLT, que sobe quando o PIB cresce bem e cai quando ele fica fraco.",
     incomeMultiple: 1.1,
     gains: [
       { text: "Ganha 10% mais que o CLT" },
@@ -111,6 +119,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   RETIREE: {
     name: "Aposentado",
     icon: Armchair,
+    description:
+      "Aposentadoria: nunca é demitido, o reajuste acima da inflação depende do governo da sala e a saúde custa o dobro.",
     incomeMultiple: 0.95,
     gains: [
       { text: "Nunca é demitido" },
@@ -125,6 +135,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   WELFARE: {
     name: "Auxílio",
     icon: HandCoins,
+    description:
+      "Auxílio do governo: parte da renda nunca some, mas o resto é bico, que o sorteio de demissão tira por um mês.",
     incomeMultiple: 0.5,
     benefitMultiple: 0.45,
     gains: [{ text: "O auxílio nunca some, nem no sorteio de demissão" }],
@@ -138,6 +150,7 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   LANDLORD: {
     name: "Locador",
     icon: Building2,
+    description: "Aluguéis: renda maior que a do CLT, mas o imóvel pode ficar vago quando o desemprego sobe.",
     incomeMultiple: 1.1,
     gains: [{ text: "Ganha 10% mais que o CLT" }],
     losses: [
@@ -149,6 +162,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   EXPORTER: {
     name: "Exportador",
     icon: Ship,
+    description:
+      "Vende para fora: a renda acompanha o dólar, sobe quando ele sobe e cai quando ele cai, e o sorteio de demissão não pega.",
     incomeMultiple: 1.05,
     gains: [{ text: "Não é demitido" }, { text: "A renda sobe com o dólar, até o dobro" }],
     losses: [{ text: "A renda cai quando o dólar cai, até a metade" }],
@@ -157,6 +172,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   BANKER: {
     name: "Bancário",
     icon: Banknote,
+    description:
+      "Banco: renda maior que a do CLT, que acompanha a SELIC, com risco de demissão quando o desemprego sobe.",
     incomeMultiple: 1.1,
     gains: [{ text: "Ganha 10% mais que o CLT" }, { text: "A renda sobe quando a SELIC passa de 12% ao ano" }],
     losses: [
@@ -168,6 +185,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   FREELANCER: {
     name: "Autônomo",
     icon: Laptop,
+    description:
+      "Trabalho por conta própria: a maior renda entre as profissões, que não sobe com a inflação e some no mês sem cliente.",
     incomeMultiple: 1.4,
     gains: [{ text: "Ganha 40% mais que o CLT" }],
     losses: [
@@ -180,6 +199,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   BROKER: {
     name: "Corretor",
     icon: ChartCandlestick,
+    description:
+      "Mercado de ações: a renda acompanha o retorno do Ibovespa em 12 meses, e o sorteio de demissão não pega.",
     incomeMultiple: 1.05,
     gains: [{ text: "Não é demitido" }, { text: "A renda sobe quando o Ibovespa rende mais de 12% em 12 meses" }],
     losses: [{ text: "A renda cai quando o Ibovespa rende menos, até 60% a menos" }],
@@ -188,6 +209,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   HEIR: {
     name: "Herdeiro",
     icon: Gem,
+    description:
+      "Herança: começa com capital, nunca é demitido e não tem renda de trabalho, então a despesa sai do patrimônio.",
     incomeMultiple: 0,
     gains: [
       { text: "Começa com o capital da sala mais uma herança que cobre os salários da partida" },
@@ -200,6 +223,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   NEW_GRADUATE: {
     name: "Recém-formado",
     icon: GraduationCap,
+    description:
+      "Começo de carreira: salário menor que o do CLT que sobe em linha reta em 10 anos, com demissão mais provável no início.",
     incomeMultiple: 0.85,
     gains: [
       { text: "A renda sobe em linha reta até 1,3× o salário em 10 anos" },
@@ -214,6 +239,7 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   COMMISSIONED: {
     name: "Comissionado",
     icon: Handshake,
+    description: "Cargo de confiança: renda maior enquanto o seu partido está no governo, menor quando ele sai.",
     incomeMultiple: 1.5,
     gains: [{ text: "Ganha 50% mais que o CLT enquanto o seu partido está na presidência ou na base" }],
     losses: [
@@ -227,6 +253,8 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
   OFFERS_BANKER: {
     name: "Banqueiro de ofertas",
     icon: Gavel,
+    description:
+      "Coordena as ofertas de ações da sala: ganha comissão sobre cada oferta que fecha, e o salário fixo é baixo.",
     incomeMultiple: 0.7,
     gains: [{ text: "Recebe 1% de toda oferta pública e emissão de cotas da sala, dividido com os outros banqueiros" }],
     losses: [
@@ -308,14 +336,6 @@ export const INCOME_LOSS_NAMES: Record<IncomeLoss, { event: string; missing: str
   GIG_LOSS: { event: "Bico perdido", missing: "a renda do bico" },
   VACANCY: { event: "Imóvel vago", missing: "o aluguel" },
   NO_CLIENTS: { event: "Mês sem cliente", missing: "a renda" },
-};
-
-/** A variável que move a renda da profissão, como a linha do card da vida financeira a nomeia. */
-export const DRIVER_NAMES: Record<IncomeDriver, string> = {
-  GDP: "PIB em 12 meses",
-  DOLLAR: "Variação do dólar em 12 meses",
-  SELIC: "SELIC ao ano",
-  STOCKS: "Retorno do Ibovespa em 12 meses",
 };
 
 /** O imposto cujo desvio contra a lei corta (ou soma à) a renda da profissão. */

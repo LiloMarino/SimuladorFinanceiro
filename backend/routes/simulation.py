@@ -35,6 +35,7 @@ from backend.core.dto.profession import (
     ProfessionStateDTO,
     SetOvertime,
 )
+from backend.core.dto.profession_page import ProfessionPageDTO
 from backend.core.dto.simulation import (
     PriceImpactPointDTO,
     PriceImpactPreviewDTO,
@@ -1121,6 +1122,21 @@ def get_profession_state(client_id: ClientID):
     if not SimulationManager.has_active_simulation():
         raise ConflictError("Não há partida em andamento.")
     return SimulationManager.get_active_simulation().get_profession_state(client_id)
+
+
+@simulation_router.get(
+    "/profession",
+    response_model=ProfessionPageDTO,
+    summary="Página Profissão do jogador",
+    description="O que a página Profissão mostra: o cabeçalho com a renda do mês, o reajuste acima do IPCA, a chance de demissão e o imprevisto de saúde; os indicadores que mexem na renda, com os 12 últimos meses; e o bloco da mecânica da profissão (FGTS e hora extra do CLT, margem do consignado do Servidor, CDBs da casa do Bancário, herança, partido e comissões). Responde 409 sem partida ou com salário igual para todos.",
+)
+def get_profession_page(client_id: ClientID):
+    """
+    Retorna a página Profissão de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    return SimulationManager.get_active_simulation().get_profession_page(client_id)
 
 
 @simulation_router.post(

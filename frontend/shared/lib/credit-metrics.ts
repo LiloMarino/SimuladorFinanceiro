@@ -78,3 +78,26 @@ export const COST_OF_DEBT: MetricInfo = {
     "Compare com o que a carteira rende: se ela rende mais que o custo da dívida, o empréstimo está trabalhando a seu favor; se rende menos, está comendo patrimônio.",
   format: (value) => `${displayPercent(value, 1)} a.a.`,
 };
+
+export const PAYROLL_MARGIN: MetricInfo = {
+  label: "Margem consignável",
+  description: "O máximo que as parcelas dos consignados podem somar por mês",
+  definition:
+    "35% do salário líquido. A parcela do consignado sai do salário antes de ele cair no caixa, e a soma de todas as parcelas não passa dessa margem.",
+  example:
+    "Ex.: salário líquido de R$ 4.850,00 → as parcelas somam até R$ 1.697,50 por mês. Com R$ 483,56 já usados, sobram R$ 1.213,94 para um novo contrato.",
+  reading:
+    "Livre alto: cabe outro consignado. Livre zero: só depois que um contrato terminar e a margem voltar a abrir.",
+  format: (value) => displayPercent(value, 0),
+};
+
+export const LOCKED_RATE: MetricInfo = {
+  label: "Juro travado no contrato",
+  description: "A taxa que vale até a última parcela",
+  definition:
+    "A taxa do consignado é a SELIC do dia da assinatura mais 2 pontos ao ano. Ela fica fixa no contrato, mesmo que a SELIC mude depois.",
+  example: "Ex.: assinado com a SELIC a 13,76% → 15,76% ao ano até o fim, mesmo que a SELIC suba para 18%.",
+  reading:
+    "Contratar com a SELIC baixa é bom: o juro fica baixo pelo prazo todo. Contratar com a SELIC alta trava um juro caro.",
+  format: (value) => displayPercent(value, 2),
+};

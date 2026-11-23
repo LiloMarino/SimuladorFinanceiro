@@ -62,6 +62,8 @@ SALARY = Decimal(5000)
 # A margem de um salário líquido de 5.000: 35%
 MARGIN = SALARY * PAYROLL_MARGIN
 FIRST_TURN = date(2020, 3, 3)
+# Patrimônio que deixa o limite de dívida folgado para o teste da margem
+RICH = Decimal(1000000)
 
 
 class PayrollEngine(CreditEngine):
@@ -84,7 +86,7 @@ def payroll_engine(engine, captured_events) -> PayrollEngine:  # noqa: F811
 def turn_to(book_engine: CreditEngine, day: date) -> None:
     """A virada do mês: o dia muda e o livro cobra o consignado, como o `_live` faz."""
     book_engine.current_date = day
-    book_engine.credit_book.collect_payroll(PLAYER)
+    book_engine.credit_book.collect_payroll(PLAYER, 1)
 
 
 def month_turns(first: date, count: int) -> list[date]:
@@ -165,6 +167,7 @@ def test_an_installment_over_the_margin_is_refused(payroll_engine):
 
 
 def test_the_largest_amount_of_the_quote_fits_the_margin(payroll_engine):
+    payroll_engine.cash[PLAYER] = RICH
     book = payroll_engine.credit_book
     quote = build_payroll_quote(book, PLAYER, START, Decimal(1000), 12, SALARY)
 
@@ -176,6 +179,7 @@ def test_the_largest_amount_of_the_quote_fits_the_margin(payroll_engine):
 
 
 def test_a_second_consignado_must_fit_in_the_margin_left_by_the_first(payroll_engine):
+    payroll_engine.cash[PLAYER] = RICH
     book = payroll_engine.credit_book
     quote = build_payroll_quote(book, PLAYER, START, Decimal(1000), 12, SALARY)
     book.contract_payroll(PLAYER, quote.max_amount * Decimal("0.6"), 12, SALARY)
@@ -295,7 +299,7 @@ def test_the_installment_is_never_late_even_without_cash(
     assert not any(loan.overdue for loan in client.loans.values())
     assert not book.alert(PLAYER, FIRST_TURN)
     assert book.pending(PLAYER, FIRST_TURN) == []
-    assert notices == []
+    assert notices == ["credit_installment_paid"]
 
 
 def test_the_consignado_counts_in_the_debt_and_reduces_the_common_limit(
@@ -314,16 +318,78 @@ def test_the_consignado_counts_in_the_debt_and_reduces_the_common_limit(
     assert before.max_amount - after.max_amount == loan.debt_on(START) == Decimal(2000)
 
 
-def test_the_consignado_stays_out_of_the_overview_loans(payroll_engine):
+def test_the_consignado_is_listed_apart_and_its_debt_matches_the_summary(
+    payroll_engine,
+):
     book = payroll_engine.credit_book
     book.contract_payroll(PLAYER, Decimal(2000), 12, SALARY)
 
     overview = build_overview(book, PLAYER, START)
 
     assert overview.loans == []
-    assert overview.open_loans == 0
+    assert len(overview.payroll_loans) == 1
+    assert overview.open_loans == 1
     assert overview.debt == Decimal(2000)
-    assert overview.upcoming == []
+    assert sum((x.balance for x in overview.payroll_loans), Decimal(0)) == (
+        overview.loan_debt
+    )
+
+
+def test_the_consignado_installments_enter_the_upcoming_without_a_number(
+    payroll_engine,
+):
+    book = payroll_engine.credit_book
+    loan = book.contract_payroll(PLAYER, Decimal(2000), 12, SALARY)
+    first = payroll_first_collection(START)
+
+    overview = build_overview(book, PLAYER, START)
+
+    assert [row.loan_number for row in overview.upcoming] == [None] * 3
+    assert overview.upcoming[0].due_date == first
+    assert overview.upcoming[0].amount == loan.state.installment
+    assert overview.payroll_loans[0].next_due == first
+    assert overview.next_installments_total == loan.state.installment
+    assert overview.next_installments_first == first
+
+
+def test_the_quote_gives_the_maximum_of_every_term_and_the_comparison(payroll_engine):
+    payroll_engine.cash[PLAYER] = RICH
+    book = payroll_engine.credit_book
+
+    quote = build_payroll_quote(book, PLAYER, START, Decimal(5000), 24, SALARY)
+
+    terms = [row.term_months for row in quote.max_by_term]
+    assert terms == list(range(MIN_TERM_MONTHS, MAX_TERM_MONTHS + 1))
+    assert {row.term_months: row.max_amount for row in quote.max_by_term}[24] == (
+        quote.max_amount
+    )
+    assert quote.fits_margin and quote.fits_debt_limit
+    assert quote.common_total_interest is not None
+    assert quote.interest_saved == quote.common_total_interest - quote.total_interest
+    assert quote.interest_saved is not None and quote.interest_saved > 0
+
+
+def test_an_amount_over_the_margin_is_flagged_by_the_quote(payroll_engine):
+    payroll_engine.cash[PLAYER] = RICH
+    book = payroll_engine.credit_book
+
+    quote = build_payroll_quote(book, PLAYER, START, Decimal(500000), 24, SALARY)
+
+    assert not quote.fits_margin
+    assert quote.amount > quote.max_amount
+
+
+def test_the_consignado_respects_the_debt_limit_of_the_common_loan(payroll_engine):
+    book = payroll_engine.credit_book
+    room = book.payroll_room(PLAYER, START)
+    amount = room + Decimal(1)
+
+    quote = build_payroll_quote(book, PLAYER, START, amount, 120 // 5, SALARY)
+
+    assert quote.debt_limit_room == room
+    assert not quote.fits_debt_limit
+    with pytest.raises(ConflictError, match="limite de dívida"):
+        book.contract_payroll(PLAYER, amount, 24, SALARY)
 
 
 def test_the_standing_counts_the_debt_the_installments_and_the_interest(
@@ -648,3 +714,68 @@ def test_the_policy_amount_is_what_half_the_free_margin_sustains_in_24_months():
     assert installment(amount, rate, 24) <= margin / 2
     assert installment(amount + Decimal(10), rate, 24) > margin / 2
     assert payroll_amount(Decimal(0), rate) == 0
+
+
+def test_the_quote_delivers_the_debt_leverage_and_margin_after_signing(payroll_engine):
+    book = payroll_engine.credit_book
+    book.contract_payroll(PLAYER, Decimal(4000), 12, SALARY)
+    debt = book.debt(PLAYER, START)
+
+    quote = build_payroll_quote(book, PLAYER, START, Decimal(1000), 12, SALARY)
+
+    assert quote.debt_after == debt + Decimal(1000)
+    assert quote.leverage_after == quote.debt_after / book.networth(PLAYER, debt)
+    assert quote.margin_free_after == quote.margin_free - quote.installment
+
+
+def test_the_margin_left_by_a_quote_that_does_not_fit_is_zero(payroll_engine):
+    book = payroll_engine.credit_book
+
+    quote = build_payroll_quote(book, PLAYER, START, Decimal(50000), 12, SALARY)
+
+    assert quote.margin_free_after == 0
+
+
+def test_the_quote_schedule_follows_the_turns_that_collect_the_installments(
+    payroll_engine,
+):
+    book = payroll_engine.credit_book
+
+    quote = build_payroll_quote(book, PLAYER, START, Decimal(3000), 6, SALARY)
+
+    first = payroll_first_collection(START)
+    assert [row.number for row in quote.schedule] == [1, 2, 3, 4, 5, 6]
+    assert quote.schedule[0].due_date == first
+    assert quote.schedule[1].due_date == next_month_turn(first)
+    assert {row.payment for row in quote.schedule[:-1]} == {quote.installment}
+    assert quote.schedule[-1].balance == 0
+
+
+def test_the_collection_notifies_the_paid_installment_only_at_low_speed(
+    payroll_engine,
+    notices,  # noqa: F811
+):
+    book = payroll_engine.credit_book
+    book.contract_payroll(PLAYER, Decimal(5000), 12, SALARY)
+
+    payroll_engine.current_date = FIRST_TURN
+    book.collect_payroll(PLAYER, 8)
+    assert "credit_installment_paid" not in notices
+
+    payroll_engine.current_date = next_month_turn(FIRST_TURN)
+    book.collect_payroll(PLAYER, 1)
+    assert notices.count("credit_installment_paid") == 1
+
+
+def test_the_monthly_summary_counts_the_consignado_installments(
+    payroll_engine,
+    notices,  # noqa: F811
+):
+    book = payroll_engine.credit_book
+    book.contract_payroll(PLAYER, Decimal(5000), 12, SALARY)
+    payroll_engine.current_date = FIRST_TURN
+    book.collect_payroll(PLAYER, 8)
+
+    book.monthly_summary([PLAYER], date(2020, 3, 31), 8)
+
+    assert notices == ["credit_monthly_summary"]

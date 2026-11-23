@@ -885,3 +885,16 @@ def test_a_change_of_target_ends_the_old_boost_without_a_ramp_down():
         )
         == 0
     )
+
+
+def test_the_author_of_a_lever_is_who_proposed_the_measure_in_force(
+    book: GovernmentBook, engine, market, monkeypatch
+):
+    govern(book, engine)
+    day_before = TERM_START
+    propose(book, SERVANTS, "0.03")
+    effective = approve_first(book, monkeypatch)
+
+    assert book.author_of_lever(SERVANTS, day_before) == (None, None)
+    assert book.author_of_lever(SERVANTS, effective) == (ALICE.nickname, "AAA")
+    assert book.author_of_lever(RETIREES, effective) == (None, None)

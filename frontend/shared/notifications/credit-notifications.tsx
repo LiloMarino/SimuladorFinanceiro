@@ -15,7 +15,7 @@ export function CreditNotifications() {
   useRealtime("credit_installment_paid", (event) => {
     if (!isToastOn("CREDIT_PAYMENTS")) return;
     toast.success("Parcela paga", {
-      description: `Empréstimo ${event.loan_number} · ${displayMoney(event.amount)} · ${event.installment_number} de ${event.total_installments}`,
+      description: `${event.loan_number === null ? "Consignado" : `Empréstimo ${event.loan_number}`} · ${displayMoney(event.amount)} · ${event.installment_number} de ${event.total_installments}`,
     });
   });
 
