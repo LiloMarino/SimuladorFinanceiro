@@ -62,6 +62,7 @@ const PROFESSION_ACTION_TEXTS: Record<string, string> = {
   exchange_lock: "Contratou a trava de câmbio",
   exchange_lock_ended: "A trava de câmbio venceu",
   export_mix: "Mudou o mix de exportação",
+  set_price: "Mudou o preço",
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia

@@ -5,13 +5,25 @@ from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 
-from backend.core.dto.profession import ExchangeLock, ExporterState, MechanicState
+from backend.core.dto.profession import (
+    ExchangeLock,
+    ExporterState,
+    FreelancerState,
+    MechanicState,
+)
 from backend.core.dto.simulation import SimulationSettingsDTO
 from backend.core.enum import IncomeLoss, IndicatorSeries, Profession
+from backend.core.freelancer import (
+    REFERENCE_CLIENTS,
+    clients_on,
+    empty_month_weight,
+    price_range,
+)
 from backend.core.indicators import (
     anniversaries,
     annual_index_rate,
     inflation_factor,
+    monthly_inflation_factor,
 )
 from backend.core.periods import MONTHS_PER_YEAR
 from backend.core.professions import (
@@ -57,6 +69,10 @@ def parity_dollar(day: date) -> Decimal:
     return Decimal(1)
 
 
+def neutral_unemployment_ratio(day: date) -> Decimal:
+    return Decimal(1)
+
+
 def neutral_selic(day: date) -> Decimal:
     return DRIVER_CURVES[IncomeDriver.SELIC].neutral
 
@@ -91,6 +107,8 @@ class LifeBudget:
     dollar_on: Callable[[date], Decimal] = parity_dollar
     selic_on: Callable[[date], Decimal] = neutral_selic
     stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return
+    # O desemprego da partida sobre o neutro em cada dia; os clientes do Autônomo perdem com ele
+    unemployment_ratio_on: Callable[[date], Decimal] = neutral_unemployment_ratio
     profession: Profession = Profession.CLT
     # As medidas do governo que valem em cada dia; sem governo, o país padrão
     levers_on: Callable[[date], LifeLevers] = no_levers
@@ -113,6 +131,7 @@ class LifeBudget:
         selic_on: Callable[[date], Decimal] = neutral_selic,
         stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return,
         dollar_on: Callable[[date], Decimal] = parity_dollar,
+        unemployment_ratio_on: Callable[[date], Decimal] = neutral_unemployment_ratio,
     ) -> "LifeBudget":
         return cls(
             monthly_salary=settings.monthly_salary,
@@ -126,6 +145,7 @@ class LifeBudget:
             selic_on=selic_on,
             stocks_return_on=stocks_return_on,
             dollar_on=dollar_on,
+            unemployment_ratio_on=unemployment_ratio_on,
         )
 
     def for_profession(self, profession: Profession) -> "LifeBudget":
@@ -163,7 +183,11 @@ class LifeBudget:
                 self.monthly_salary * self.presidency_multiple * factor
             )
         mechanic = self.current_mechanic_state().income_factor
-        exposed = self.monthly_salary * self.multiple_on(day) * factor * mechanic
+        freelancer = self.freelancer_state()
+        if freelancer is None:
+            exposed = self.monthly_salary * self.multiple_on(day) * factor * mechanic
+        else:
+            exposed = self.price_on(day) * self.clients_on(day)
         if rule.driver is not None:
             exposed *= self.driver_factor_on(day)
         benefit = (
@@ -189,13 +213,21 @@ class LifeBudget:
             career.final_multiple - rule.income_multiple
         )
 
-    def layoff_weight_on(self, day: date) -> Decimal:
-        """Quantas vezes a chance de demissão da sala pesa para a profissão no dia; 1 sem carreira."""
+    def layoff_weight_on(self, day: date, deviation: Decimal | None = None) -> Decimal:
+        """
+        Quantas vezes a chance de demissão da sala pesa para a profissão no dia; 1 sem
+        carreira. O Autônomo pesa pelo desvio do preço: o salvo, ou o `deviation` dado.
+        """
+        weight = Decimal(1)
         career = self.rule.career
-        if career is None:
-            return Decimal(1)
-        progress = career.progress((day - self.start_date).days)
-        return career.layoff_weight - progress * (career.layoff_weight - 1)
+        if career is not None:
+            progress = career.progress((day - self.start_date).days)
+            weight = career.layoff_weight - progress * (career.layoff_weight - 1)
+        if self.freelancer_state() is not None:
+            if deviation is None:
+                deviation = self.price_deviation_on(day)
+            weight *= empty_month_weight(deviation)
+        return weight
 
     def driver_value_on(self, day: date) -> Decimal | None:
         """O valor da variável que move a renda da profissão no dia; nulo sem variável."""
@@ -210,6 +242,42 @@ class LifeBudget:
                 return self.stocks_return_on(day)
             case None:
                 return None
+
+    def freelancer_state(self) -> FreelancerState | None:
+        """O estado do Autônomo, com o preço que move a renda; nulo para as demais profissões."""
+        if self.profession is not Profession.FREELANCER:
+            return None
+        state = self.current_mechanic_state()
+        return state if isinstance(state, FreelancerState) else FreelancerState()
+
+    def reference_price_on(self, day: date) -> Decimal:
+        """
+        A referência do mercado do Autônomo no dia: a renda base do mês dividida pelos
+        clientes da referência na data de início, corrida pelo IPCA mês a mês.
+        """
+        base = self.monthly_salary * self.rule.income_multiple / REFERENCE_CLIENTS
+        if not self.inflation_adjusted:
+            return base
+        return base * monthly_inflation_factor(self.start_date, day)
+
+    def price_on(self, day: date) -> Decimal:
+        """O preço por atendimento do Autônomo; sem preço salvo vale a referência da data de início."""
+        state = self.freelancer_state()
+        if state is None or state.price is None:
+            return self.reference_price_on(self.start_date)
+        return state.price
+
+    def price_deviation_on(self, day: date) -> Decimal:
+        """O preço do Autônomo sobre a referência do dia, menos 1: positivo é preço acima do mercado."""
+        return self.price_on(day) / self.reference_price_on(day) - 1
+
+    def clients_on(self, day: date) -> Decimal:
+        """Os clientes do Autônomo no mês, pela curva do preço e pelo desemprego do dia; fracionários."""
+        return clients_on(self.price_deviation_on(day), self.unemployment_ratio_on(day))
+
+    def price_range_on(self, day: date) -> tuple[Decimal, Decimal]:
+        """O menor e o maior preço que o Autônomo pode salvar no dia, em centavos."""
+        return price_range(self.reference_price_on(day))
 
     def exporter_state(self) -> ExporterState | None:
         """O estado do Exportador, com o mix e a trava que movem a renda; nulo para as demais profissões."""

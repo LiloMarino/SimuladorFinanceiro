@@ -4576,6 +4576,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/price": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Salvar o preço do Autônomo
+         * @description Salva o preço por atendimento, em reais, de 20% abaixo a 50% acima da referência do mercado do dia. Vale a partir do próximo pagamento. O primeiro ajuste é livre e depois o preço muda uma vez por mês, no 1º dia do mês seguinte ao último ajuste: antes disso responde 409, assim como para o preço fora da faixa e para outra profissão.
+         */
+        post: operations["set_price_api_simulation_price_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/life-history": {
         parameters: {
             query?: never;
@@ -8271,6 +8291,56 @@ export interface components {
             ticker: string;
             size: components["schemas"]["StateCompanySize"];
             lever?: components["schemas"]["StateLever"] | null;
+        };
+        /**
+         * FreelancerMechanicDTO
+         * @description Tabela de preços do Autônomo.
+         */
+        FreelancerMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "freelancer";
+            status: components["schemas"]["MechanicStatus"];
+            /** Price */
+            price: string;
+            /**
+             * Price Since
+             * Format: date
+             */
+            price_since: string;
+            /** Deviation */
+            deviation: string;
+            /** Reference */
+            reference: string;
+            /** Reference Rise */
+            reference_rise: string;
+            /** Clients */
+            clients: string;
+            /** Month Income */
+            month_income: string;
+            /** Unemployment Note */
+            unemployment_note: string;
+            /** Min Price */
+            min_price: string;
+            /** Max Price */
+            max_price: string;
+            /** Can Change Price */
+            can_change_price: boolean;
+            /** Next Price Change */
+            next_price_change: string | null;
+            /** Stalled Months */
+            stalled_months: number;
+            /** Stale */
+            stale: boolean;
+            /** Rows */
+            rows: components["schemas"]["PriceRowDTO"][];
+        };
+        /** FreelancerPriceRequest */
+        FreelancerPriceRequest: {
+            /** Price */
+            price: number | string;
         };
         /** FrozenPortfolioDTO */
         FrozenPortfolioDTO: {
@@ -13570,6 +13640,22 @@ export interface components {
             curve: components["schemas"]["PriceImpactPointDTO"][];
         };
         /**
+         * PriceRowDTO
+         * @description Uma linha da tabela de preços: o que um preço renderia no mês.
+         */
+        PriceRowDTO: {
+            /** Price */
+            price: string;
+            /** Deviation */
+            deviation: string;
+            /** Clients */
+            clients: string;
+            /** Income */
+            income: string;
+            /** Empty Month Chance */
+            empty_month_chance: string;
+        };
+        /**
          * Profession
          * @description A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado.
          * @enum {string}
@@ -13582,7 +13668,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -27349,6 +27435,48 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ExportMixRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    set_price_api_simulation_price_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FreelancerPriceRequest"];
             };
         };
         responses: {

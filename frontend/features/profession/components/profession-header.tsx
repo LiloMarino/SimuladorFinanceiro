@@ -14,6 +14,11 @@ const MECHANIC_INCOME_NAMES: Partial<Record<ProfessionPage["profession"], string
   OFFERS_BANKER: "comissão",
 };
 
+// O que explica a renda quando a profissão não sobe pelo IPCA
+const UNINDEXED_NOTES: Partial<Record<ProfessionPage["profession"], string>> = {
+  FREELANCER: "a renda sobe pelo preço que você cobra",
+};
+
 const RAISE_NOTES: Record<ProfessionPage["header"]["real_raise_source"], string> = {
   GDP_SHARE: "o próximo aumento, puxado pelo PIB",
   SERVANTS: "decidido pelo governo da sala",
@@ -83,7 +88,9 @@ export function ProfessionHeader({ page, match }: ProfessionHeaderProps) {
               label={<MetricLabel metric={REAL_RAISE} />}
               value={header.real_raise === null ? "—" : `${displaySignedPercent(header.real_raise, 1)} ao ano`}
               note={
-                header.inflation_indexed ? RAISE_NOTES[header.real_raise_source] : "esta partida não corrige pelo IPCA"
+                header.inflation_indexed
+                  ? RAISE_NOTES[header.real_raise_source]
+                  : (UNINDEXED_NOTES[profession] ?? "esta partida não corrige pelo IPCA")
               }
               tone={raiseTone(header.real_raise)}
             />

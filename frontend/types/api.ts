@@ -376,6 +376,7 @@ export type ProfessionMechanic = ProfessionPage["mechanic"];
 export type OvertimeRequest = components["schemas"]["OvertimeRequest"];
 export type ExchangeLockRequest = components["schemas"]["ExchangeLockRequest"];
 export type ExportMixRequest = components["schemas"]["ExportMixRequest"];
+export type FreelancerPriceRequest = components["schemas"]["FreelancerPriceRequest"];
 export type MechanicStatus = components["schemas"]["MechanicStatus"];
 export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];
 export type LifeHistoryRow = LifeHistoryPage["items"][number];

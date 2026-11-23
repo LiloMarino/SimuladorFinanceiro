@@ -13,7 +13,7 @@ from decimal import Decimal
 from backend.core import repository
 from backend.core.enum import IndicatorSeries
 from backend.core.exceptions.http_exceptions import ConflictError
-from backend.core.periods import BUSINESS_DAYS_PER_YEAR
+from backend.core.periods import BUSINESS_DAYS_PER_YEAR, MONTHS_PER_YEAR
 from backend.core.rates import Percent, compose, compound, from_percent, period_rate
 from backend.core.utils import business_days_in_month, next_month_turn
 
@@ -299,6 +299,20 @@ def inflation_factor(start: date, day: date) -> Decimal:
     for anniversary in anniversaries(start, day):
         factor *= 1 + annual_index_rate(IndicatorSeries.IPCA, anniversary)
     return factor
+
+
+def monthly_inflation_factor(start: date, day: date) -> Decimal:
+    """
+    Quanto um valor em reais fixado em `start` subiu até `day` pelo IPCA corrido mês a
+    mês: o IPCA de cada mês depois do de `start`, até o de `day`. No aniversário de
+    `start` o fator é o de `inflation_factor`; entre aniversários ele sobe a cada mês.
+    """
+    months = (day.year - start.year) * MONTHS_PER_YEAR + day.month - start.month
+    if months <= 0:
+        return Decimal(1)
+    history = repository.economic.get_history(IndicatorSeries.IPCA)
+    monthly = history.values_until(day.replace(day=1), months)
+    return 1 + compose(*(from_percent(Percent(value)) for value in monthly))
 
 
 def nearest_year_value(table: dict[int, Decimal], year: int) -> Decimal:

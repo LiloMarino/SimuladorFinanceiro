@@ -186,12 +186,14 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     name: "Autônomo",
     icon: Laptop,
     description:
-      "Trabalho por conta própria: a maior renda entre as profissões, que não sobe com a inflação e some no mês sem cliente.",
+      "Trabalho por conta própria: a maior renda entre as profissões. Você define o preço por atendimento: acima da referência do mercado rende mais por cliente e perde clientes, parado perde para a inflação, e o mês sem cliente tira a renda.",
     incomeMultiple: 1.4,
     gains: [{ text: "Ganha 40% mais que o CLT" }],
     losses: [
       { text: "O sorteio de demissão vira um mês sem cliente: um mês sem renda" },
-      { text: "A renda não sobe com a inflação: a despesa sobe e a renda fica parada" },
+      {
+        text: "A renda só acompanha a inflação se você reajustar o preço: parado, a despesa sobe e a renda fica para trás",
+      },
     ],
     tags: [{ key: "unemployment" }, { key: "personalTax", requires: GOVERNMENT }],
     requires: "inflationAdjusted",

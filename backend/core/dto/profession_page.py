@@ -148,6 +148,47 @@ class ExporterMechanicDTO(BaseDTO):
     lock: ExchangeLockDTO | None
 
 
+class PriceRowDTO(BaseDTO):
+    """Uma linha da tabela de preços: o que um preço renderia no mês."""
+
+    price: Decimal
+    # O preço sobre a referência do dia, menos 1 (0 é a própria referência)
+    deviation: Decimal
+    clients: Decimal
+    income: Decimal
+    # A chance do mês sem clientes que o sorteio usa neste preço, com o desemprego do dia
+    empty_month_chance: Decimal
+
+
+class FreelancerMechanicDTO(BaseDTO):
+    """Tabela de preços do Autônomo."""
+
+    kind: Literal["freelancer"] = "freelancer"
+    status: MechanicStatus
+    # O preço por atendimento, desde quando vale e o preço sobre a referência do dia, menos 1
+    price: Decimal
+    price_since: date
+    deviation: Decimal
+    # A referência do mercado de hoje e quanto ela subiu desde o último ajuste do preço
+    reference: Decimal
+    reference_rise: Decimal
+    # Os clientes do mês e a renda do mês, preço vezes clientes
+    clients: Decimal
+    month_income: Decimal
+    # A frase que compara o desemprego de hoje com o neutro
+    unemployment_note: str
+    # A faixa que o novo preço aceita
+    min_price: Decimal
+    max_price: Decimal
+    # O preço muda uma vez por mês: se pode agora e quando libera de novo (nulo antes do primeiro ajuste)
+    can_change_price: bool
+    next_price_change: date | None
+    # Meses desde o último ajuste (ou o início) e se o preço ficou atrás da referência a ponto de avisar
+    stalled_months: int
+    stale: bool
+    rows: list[PriceRowDTO]
+
+
 class PublicServantMechanicDTO(BaseDTO):
     """Consignado do Servidor."""
 
@@ -231,6 +272,7 @@ class NoMechanicDTO(BaseDTO):
 MechanicBlockDTO = Annotated[
     CltMechanicDTO
     | ExporterMechanicDTO
+    | FreelancerMechanicDTO
     | PublicServantMechanicDTO
     | BankerMechanicDTO
     | HeirMechanicDTO

@@ -10,6 +10,7 @@ from datetime import date
 
 from backend.core.dto.profession import (
     ExporterAction,
+    FreelancerAction,
     MechanicAction,
     MechanicState,
     SetOvertime,
@@ -19,6 +20,7 @@ from backend.core.exceptions.http_exceptions import ConflictError
 from backend.features.economy.growth import MacroMonth
 from backend.features.profession.clt import set_overtime
 from backend.features.profession.exporter import apply_exporter
+from backend.features.profession.freelancer import apply_freelancer
 
 
 @dataclass(frozen=True)
@@ -33,6 +35,7 @@ class Mechanic:
 MECHANICS: dict[Profession, Mechanic] = {
     Profession.CLT: Mechanic(SetOvertime, set_overtime),
     Profession.EXPORTER: Mechanic(ExporterAction, apply_exporter),
+    Profession.FREELANCER: Mechanic(FreelancerAction, apply_freelancer),
 }
 
 

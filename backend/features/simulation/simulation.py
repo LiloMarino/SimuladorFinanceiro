@@ -112,6 +112,7 @@ from backend.core.dto.profession import (
     OVERTIME_ENDED,
     CltState,
     ExporterState,
+    FreelancerState,
     LockedAssetDTO,
     LockExchange,
     MechanicAction,
@@ -119,6 +120,7 @@ from backend.core.dto.profession import (
     ProfessionPeriodDTO,
     ProfessionStateDTO,
     SetExportMix,
+    SetPrice,
 )
 from backend.core.dto.profession_page import MechanicBlockDTO, ProfessionPageDTO
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
@@ -257,6 +259,7 @@ from backend.features.credit.overview import (
 from backend.features.credit.overview import build_quote as build_loan_quote
 from backend.features.credit.rules import PAYROLL_MARGIN
 from backend.features.economy.growth import (
+    NEUTRAL_UNEMPLOYMENT,
     MacroCourse,
     MacroMonth,
     history_dollar,
@@ -335,6 +338,7 @@ from backend.features.profession.exporter import (
     mix_change_allowed,
     mix_target,
 )
+from backend.features.profession.freelancer import policy_price, price_due
 from backend.features.profession.mechanics import apply_action
 from backend.features.profession.page import (
     appointee_block,
@@ -343,6 +347,7 @@ from backend.features.profession.page import (
     build_series,
     clt_block,
     exporter_block,
+    freelancer_block,
     heir_block,
     no_block,
     offers_banker_block,
@@ -530,6 +535,7 @@ class Simulation:
                 self._selic_on,
                 self._stocks_return_on,
                 lambda day: self._engine.dollar_on(day),
+                self._unemployment_ratio_on,
             )
             if settings.game_type is GameType.FINANCIAL_INDEPENDENCE
             else None
@@ -3310,6 +3316,10 @@ class Simulation:
             to=user.client_id if user is not None else None,
         )
 
+    def _unemployment_ratio_on(self, day: date) -> Decimal:
+        """O desemprego da partida sobre o neutro: o que escala a perda de clientes do Autônomo."""
+        return self._macro.latest(day).unemployment / NEUTRAL_UNEMPLOYMENT
+
     def _layoff_factor(self, day: date) -> float:
         """A chance de demissão em `day` segue o desemprego da partida."""
         return layoff_factor_of(self._macro.latest(day).unemployment)
@@ -3455,6 +3465,13 @@ class Simulation:
                 if not isinstance(state, ExporterState):
                     return no_block()
                 return exporter_block(state, budget, day, self._exchange_quotes(day))
+            case Profession.FREELANCER:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, FreelancerState):
+                    return no_block()
+                return freelancer_block(
+                    state, budget, day, self._macro.latest(day).unemployment
+                )
             case Profession.PUBLIC_SERVANT:
                 book = self._engine.credit_book
                 net_salary = budget.net_salary_on(day)
@@ -3564,6 +3581,20 @@ class Simulation:
         return self.apply_profession_action(user, SetExportMix(share=share))
 
     @synchronized
+    def set_price(self, user: UserDTO, price: Decimal) -> MechanicState:
+        """Salva o preço por atendimento do Autônomo, com a referência do mercado do dia, pelo mesmo caminho das ações da mecânica."""
+        if self._profession_of(user.id) is not Profession.FREELANCER:
+            raise ConflictError("Só o Autônomo define o preço por atendimento.")
+        if self._life is None:
+            raise ConflictError("A partida joga com salário igual: não há profissões.")
+        reference = self._life_budget(self._life, user.id).reference_price_on(
+            self._current_date
+        )
+        return self.apply_profession_action(
+            user, SetPrice(price=price, reference=reference)
+        )
+
+    @synchronized
     def switch_profession(self, user: UserDTO, profession: Profession) -> None:
         """
         A troca de profissão no meio da partida: o jogador mantém o caixa e o capital
@@ -3623,6 +3654,7 @@ class Simulation:
             self._run_payroll_policy(user, budgets[user.client_id], day)
             self._run_house_cdb_policy(user, budgets[user.client_id], reserve, day)
             self._run_exporter_policy(user, day, macro)
+            self._run_freelancer_policy(user, budgets[user.client_id], day, macro)
 
     def _run_house_cdb_policy(
         self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
@@ -3646,6 +3678,26 @@ class Simulation:
         if amount <= 0:
             return
         self._buy_fixed_income(user.client_id, asset, amount)
+
+    def _run_freelancer_policy(
+        self, user: UserDTO, budget: LifeBudget, day: date, macro: MacroMonth
+    ) -> None:
+        """O Autônomo-bot reajusta o preço uma vez por ano pelo IPCA de 12 meses, com 5% a mais quando o desemprego está abaixo do neutro, dentro da faixa e pelas mesmas ações dos jogadores."""
+        if self._profession_of(user.id) is not Profession.FREELANCER:
+            return
+        state = self._mechanic_state_of(user.id)
+        if not isinstance(state, FreelancerState) or not price_due(
+            state, self.settings.start_date, day
+        ):
+            return
+        target = policy_price(
+            budget.price_on(day),
+            annual_index_rate(IndicatorSeries.IPCA, day),
+            macro.unemployment,
+            NEUTRAL_UNEMPLOYMENT,
+        )
+        low, high = budget.price_range_on(day)
+        self.set_price(user, min(max(target, low), high))
 
     def _run_exporter_policy(self, user: UserDTO, day: date, macro: MacroMonth) -> None:
         """O Exportador-bot ajusta o mix pelo dólar e pelo PIB de 12 meses e trava o dólar acima da média, pelas mesmas ações dos jogadores."""

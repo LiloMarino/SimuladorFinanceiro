@@ -185,3 +185,24 @@ export const EXPORT_MIX: MetricInfo = {
     "Com o dólar subindo, mais exportação rende mais; com o dólar caindo e o PIB firme, vender no Brasil protege a renda.",
   format: (value) => displayPercent(value, 0),
 };
+
+export const MARKET_REFERENCE: MetricInfo = {
+  label: "Referência do mercado",
+  description: "O preço que um autônomo da sua área cobra hoje",
+  definition: "O preço que um autônomo da sua área cobra hoje. Ela sobe com o IPCA, a inflação oficial, todo mês.",
+  example: "Ex.: referência de R$ 150,00 e IPCA de 0,5% no mês: no mês seguinte ela é R$ 150,75.",
+  reading:
+    "Preço acima da referência rende mais por cliente e perde clientes; abaixo, ganha clientes e a inflação corrói a renda.",
+  format: (value) => displayMoney(value),
+};
+
+export const SERVICE_PRICE: MetricInfo = {
+  label: "Seu preço",
+  description: "Quanto você cobra por atendimento",
+  definition:
+    "O valor de cada atendimento. A renda do mês é o preço vezes os clientes, e os clientes dependem de o preço estar acima ou abaixo da referência do mercado.",
+  example: "Ex.: R$ 180,00 por atendimento e 32 clientes no mês: a renda do mês é R$ 5.760,00.",
+  reading:
+    "Você muda o preço uma vez por mês. Preço parado perde para a inflação; preço muito acima da referência afasta clientes e aumenta a chance de um mês sem nenhum.",
+  format: (value) => displayMoney(value),
+};

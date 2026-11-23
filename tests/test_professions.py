@@ -7,7 +7,9 @@ from typing import Any
 
 import pytest
 
+from backend.core.dto.profession import FreelancerState
 from backend.core.enum import IncomeLoss, IndicatorSeries, Profession
+from backend.core.indicators import inflation_factor, monthly_inflation_factor
 from backend.core.life_budget import LifeBudget
 from backend.core.professions import (
     DRIVER_CURVES,
@@ -252,17 +254,36 @@ def test_the_income_follows_the_variable_of_the_profession(
     assert budget(profession, **kwargs).net_salary_on(START) == Decimal(expected)
 
 
-def test_the_freelancer_income_is_not_corrected_by_the_inflation(
+def test_the_freelancer_income_at_the_reference_price_follows_the_inflation_month_by_month(
     indicators: SetIndicator,
 ):
     indicators(IndicatorSeries.IPCA, monthly_series(date(2019, 1, 1), 48, "1"))
     later = date(2022, 6, 1)
 
     freelancer = budget(Profession.FREELANCER, inflation_adjusted=True)
-    clt = budget(Profession.CLT, inflation_adjusted=True)
+    fixed = replace(freelancer, start_date=START).with_mechanic_state(
+        lambda: FreelancerState(price=freelancer.reference_price_on(later))
+    )
 
-    assert freelancer.salary_on(later) == SALARY * Decimal("1.4")
-    assert clt.salary_on(later) > SALARY
+    # Preço parado no valor da partida: a referência sobe e o preço fica para trás
+    assert freelancer.price_on(later) == SALARY * Decimal("1.4") / 34
+    assert freelancer.price_deviation_on(later) < Decimal("-0.2")
+    # No preço da referência do dia, a renda é a do início corrida pela inflação
+    assert fixed.price_deviation_on(later) == 0
+    assert fixed.salary_on(later) > SALARY * Decimal("1.4")
+
+
+def test_the_monthly_inflation_factor_compounds_each_month_and_meets_the_annual_one(
+    indicators: SetIndicator,
+):
+    indicators(IndicatorSeries.IPCA, monthly_series(date(2019, 1, 1), 48, "1"))
+
+    assert monthly_inflation_factor(START, date(2020, 1, 31)) == 1
+    assert monthly_inflation_factor(START, date(2020, 4, 1)) == Decimal("1.01") ** 3
+    # No aniversário o fator é o do salário corrigido uma vez por ano
+    assert monthly_inflation_factor(START, date(2021, 1, 4)) == inflation_factor(
+        START, date(2021, 1, 4)
+    )
 
 
 def test_the_new_graduate_career_rises_from_the_start_to_the_final_multiple():

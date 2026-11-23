@@ -19,7 +19,7 @@ from backend.core.clt import (
 from backend.core.dates import add_months
 from backend.core.dto.credit import PayrollLoanDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
-from backend.core.dto.profession import CltState, ExporterState
+from backend.core.dto.profession import CltState, ExporterState, FreelancerState
 from backend.core.dto.profession_page import (
     AppointeeMechanicDTO,
     BankerMechanicDTO,
@@ -27,6 +27,7 @@ from backend.core.dto.profession_page import (
     ExchangeLockDTO,
     ExchangeLockOptionDTO,
     ExporterMechanicDTO,
+    FreelancerMechanicDTO,
     HeirMechanicDTO,
     HouseCdbDTO,
     IncomeHeaderDTO,
@@ -35,6 +36,7 @@ from backend.core.dto.profession_page import (
     LeverChangeDTO,
     NoMechanicDTO,
     OffersBankerMechanicDTO,
+    PriceRowDTO,
     PublicServantMechanicDTO,
     SeriesGuideDTO,
 )
@@ -45,6 +47,12 @@ from backend.core.enum import (
     MechanicStatus,
 )
 from backend.core.exporter import LOCK_TERMS_MONTHS
+from backend.core.freelancer import (
+    REFERENCE_EMPTY_MONTH,
+    STALE_DEVIATION,
+    TABLE_DEVIATIONS,
+    clients_on,
+)
 from backend.core.life_budget import LifeBudget, cents
 from backend.core.professions import (
     DRIVER_CURVES,
@@ -57,6 +65,10 @@ from backend.features.credit.rules import PAYROLL_SPREAD
 from backend.features.economy.growth import NEUTRAL_UNEMPLOYMENT
 from backend.features.fixed_income.house_cdb import HOUSE_CDB_SPREAD
 from backend.features.profession.exporter import mix_change_allowed, next_mix_change
+from backend.features.profession.freelancer import (
+    next_price_change,
+    price_change_allowed,
+)
 from backend.features.simulation.life_events import layoff_factor_of
 
 # Quantos meses o gráfico de cada indicador mostra, contando o de hoje
@@ -341,6 +353,82 @@ def exporter_block(
             dollar_gap=lock.locked_dollar - dollar,
             gain=lock.gain,
         ),
+    )
+
+
+def _percent_note(value: Decimal) -> str:
+    """Fração em percentual com a vírgula e sem a casa decimal zerada: 0.055 vira 5,5% e 0.09 vira 9%."""
+    text = f"{value * 100:.1f}".replace(".", ",")
+    return text.removesuffix(",0") + "%"
+
+
+def _unemployment_note(unemployment: Decimal, neutral: Decimal) -> str:
+    """A frase do desemprego de hoje contra o neutro e do que ele faz com a perda de clientes por cobrar caro."""
+    now, base = _percent_note(unemployment), _percent_note(neutral)
+    if unemployment < neutral:
+        return f"Com o desemprego em {now}, abaixo do neutro de {base}, a perda de clientes por cobrar caro é menor."
+    if unemployment > neutral:
+        return f"Com o desemprego em {now}, acima do neutro de {base}, a perda de clientes por cobrar caro é maior."
+    return f"Com o desemprego em {now}, no neutro, a perda de clientes por cobrar caro é a normal."
+
+
+def freelancer_block(
+    state: FreelancerState, budget: LifeBudget, day: date, unemployment: Decimal
+) -> FreelancerMechanicDTO:
+    """
+    O bloco do Autônomo: o preço e a referência do mercado, os clientes e a renda do
+    mês, a faixa que o novo preço aceita e a tabela do que cada preço renderia hoje.
+    """
+    price = budget.price_on(day)
+    reference = budget.reference_price_on(day)
+    deviation = budget.price_deviation_on(day)
+    since = state.price_set_on or budget.start_date
+    clients = budget.clients_on(day)
+    ratio = budget.unemployment_ratio_on(day)
+    low, high = budget.price_range_on(day)
+    stale = deviation <= STALE_DEVIATION
+    # A chance do mês sem clientes é a do sorteio: a da referência com o desemprego do dia, pesada pelo preço
+    day_chance = REFERENCE_EMPTY_MONTH * Decimal(
+        str(round(layoff_factor_of(unemployment), 4))
+    )
+    rows = []
+    for step in (Decimal(0), *TABLE_DEVIATIONS):
+        row_price = cents(reference * (1 + step))
+        # Os clientes e a chance seguem o preço em centavos, o mesmo que o jogador salva
+        priced = row_price / reference - 1
+        row_clients = clients_on(priced, ratio)
+        rows.append(
+            PriceRowDTO(
+                price=row_price,
+                deviation=step,
+                clients=row_clients,
+                income=cents(row_price * row_clients),
+                empty_month_chance=min(
+                    day_chance * budget.layoff_weight_on(day, priced), Decimal(1)
+                ),
+            )
+        )
+    return FreelancerMechanicDTO(
+        status=MechanicStatus.AVAILABLE
+        if stale or state.price is None
+        else MechanicStatus.ACTIVE,
+        price=cents(price),
+        price_since=since,
+        deviation=deviation,
+        reference=cents(reference),
+        reference_rise=reference / budget.reference_price_on(since) - 1,
+        clients=clients,
+        month_income=cents(price * clients),
+        unemployment_note=_unemployment_note(unemployment, NEUTRAL_UNEMPLOYMENT),
+        min_price=low,
+        max_price=high,
+        can_change_price=price_change_allowed(state, day),
+        next_price_change=next_price_change(state),
+        stalled_months=(day.year - since.year) * MONTHS_PER_YEAR
+        + day.month
+        - since.month,
+        stale=stale,
+        rows=rows,
     )
 
 

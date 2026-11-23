@@ -239,6 +239,11 @@ class ExportMixRequest(BaseModel):
     share: Decimal
 
 
+class FreelancerPriceRequest(BaseModel):
+    # O preço por atendimento, em reais
+    price: Decimal
+
+
 class PlayerProfessionRequest(BaseModel):
     profession: Profession
     # Sigla do partido; obrigatória para o Comissionado e ignorada nas demais profissões
@@ -1209,6 +1214,26 @@ def set_export_mix(payload: ExportMixRequest, client_id: ClientID):
         raise NotFoundError("Usuário não encontrado.")
     simulation = SimulationManager.get_active_simulation()
     simulation.set_export_mix(user, payload.share)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/price",
+    response_model=ProfessionStateDTO,
+    summary="Salvar o preço do Autônomo",
+    description="Salva o preço por atendimento, em reais, de 20% abaixo a 50% acima da referência do mercado do dia. Vale a partir do próximo pagamento. O primeiro ajuste é livre e depois o preço muda uma vez por mês, no 1º dia do mês seguinte ao último ajuste: antes disso responde 409, assim como para o preço fora da faixa e para outra profissão.",
+)
+def set_price(payload: FreelancerPriceRequest, client_id: ClientID):
+    """
+    Salva o preço de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.set_price(user, payload.price)
     return simulation.get_profession_state(client_id)
 
 

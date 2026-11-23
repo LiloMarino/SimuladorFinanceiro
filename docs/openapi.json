@@ -14113,6 +14113,63 @@
         ]
       }
     },
+    "/api/simulation/price": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Salvar o preço do Autônomo",
+        "description": "Salva o preço por atendimento, em reais, de 20% abaixo a 50% acima da referência do mercado do dia. Vale a partir do próximo pagamento. O primeiro ajuste é livre e depois o preço muda uma vez por mês, no 1º dia do mês seguinte ao último ajuste: antes disso responde 409, assim como para o preço fora da faixa e para outra profissão.",
+        "operationId": "set_price_api_simulation_price_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreelancerPriceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/life-history": {
       "get": {
         "tags": [
@@ -24646,6 +24703,134 @@
           "size"
         ],
         "title": "FoundStateCompanyRequest"
+      },
+      "FreelancerMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "freelancer",
+            "title": "Kind",
+            "default": "freelancer"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "price_since": {
+            "type": "string",
+            "format": "date",
+            "title": "Price Since"
+          },
+          "deviation": {
+            "type": "string",
+            "title": "Deviation"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "reference_rise": {
+            "type": "string",
+            "title": "Reference Rise"
+          },
+          "clients": {
+            "type": "string",
+            "title": "Clients"
+          },
+          "month_income": {
+            "type": "string",
+            "title": "Month Income"
+          },
+          "unemployment_note": {
+            "type": "string",
+            "title": "Unemployment Note"
+          },
+          "min_price": {
+            "type": "string",
+            "title": "Min Price"
+          },
+          "max_price": {
+            "type": "string",
+            "title": "Max Price"
+          },
+          "can_change_price": {
+            "type": "boolean",
+            "title": "Can Change Price"
+          },
+          "next_price_change": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Price Change"
+          },
+          "stalled_months": {
+            "type": "integer",
+            "title": "Stalled Months"
+          },
+          "stale": {
+            "type": "boolean",
+            "title": "Stale"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/PriceRowDTO"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "price",
+          "price_since",
+          "deviation",
+          "reference",
+          "reference_rise",
+          "clients",
+          "month_income",
+          "unemployment_note",
+          "min_price",
+          "max_price",
+          "can_change_price",
+          "next_price_change",
+          "stalled_months",
+          "stale",
+          "rows"
+        ],
+        "title": "FreelancerMechanicDTO",
+        "description": "Tabela de preços do Autônomo."
+      },
+      "FreelancerPriceRequest": {
+        "properties": {
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Price"
+          }
+        },
+        "type": "object",
+        "required": [
+          "price"
+        ],
+        "title": "FreelancerPriceRequest"
       },
       "FrozenPortfolioDTO": {
         "properties": {
@@ -40485,6 +40670,41 @@
         ],
         "title": "PriceImpactPreviewDTO"
       },
+      "PriceRowDTO": {
+        "properties": {
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "deviation": {
+            "type": "string",
+            "title": "Deviation"
+          },
+          "clients": {
+            "type": "string",
+            "title": "Clients"
+          },
+          "income": {
+            "type": "string",
+            "title": "Income"
+          },
+          "empty_month_chance": {
+            "type": "string",
+            "title": "Empty Month Chance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "price",
+          "deviation",
+          "clients",
+          "income",
+          "empty_month_chance"
+        ],
+        "title": "PriceRowDTO",
+        "description": "Uma linha da tabela de preços: o que um preço renderia no mês."
+      },
       "Profession": {
         "type": "string",
         "enum": [
@@ -40530,6 +40750,9 @@
                 "$ref": "#/components/schemas/ExporterMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/FreelancerMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/PublicServantMechanicDTO"
               },
               {
@@ -40556,6 +40779,7 @@
                 "banker": "#/components/schemas/BankerMechanicDTO",
                 "clt": "#/components/schemas/CltMechanicDTO",
                 "exporter": "#/components/schemas/ExporterMechanicDTO",
+                "freelancer": "#/components/schemas/FreelancerMechanicDTO",
                 "heir": "#/components/schemas/HeirMechanicDTO",
                 "none": "#/components/schemas/NoMechanicDTO",
                 "offers_banker": "#/components/schemas/OffersBankerMechanicDTO",

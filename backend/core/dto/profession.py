@@ -106,6 +106,14 @@ class ExporterState(MechanicState):
     lock: ExchangeLock | None = None
 
 
+class FreelancerState(MechanicState):
+    """O estado do Autônomo: o preço por atendimento e o dia do último ajuste."""
+
+    # Nulo é o preço inicial da partida: a referência do mercado na data de início
+    price: Decimal | None = None
+    price_set_on: date | None = None
+
+
 class MechanicAction(BaseDTO):
     """Uma ação do jogador (ou da política do bot) sobre a mecânica; `kind` é o nome dela no histórico da vida."""
 
@@ -155,6 +163,22 @@ class SetExportMix(ExporterAction):
     share: Decimal
 
 
+# O nome do lançamento do Autônomo no histórico da vida
+SET_PRICE = "set_price"
+
+
+class FreelancerAction(MechanicAction):
+    """Uma ação do Autônomo; é o tipo que a mecânica aceita."""
+
+
+class SetPrice(FreelancerAction):
+    """Salva o preço por atendimento; `reference` é a referência do mercado do servidor no dia da ação."""
+
+    kind: str = Field(default=SET_PRICE, pattern=rf"^{SET_PRICE}$")
+    price: Decimal
+    reference: Decimal
+
+
 class ProfessionPeriodDTO(BaseDTO):
     """A profissão que o jogador exerce a partir de `start`, até o início do período seguinte."""
 
@@ -173,6 +197,7 @@ class ProfessionStateDTO(BaseDTO):
 STATE_TYPES: dict[Profession, type[MechanicState]] = {
     Profession.CLT: CltState,
     Profession.EXPORTER: ExporterState,
+    Profession.FREELANCER: FreelancerState,
 }
 
 

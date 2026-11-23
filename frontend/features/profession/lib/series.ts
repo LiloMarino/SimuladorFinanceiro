@@ -127,7 +127,7 @@ function leadOf(series: IncomeSeries) {
 }
 
 /** O que o jogador fez na mecânica, diferente do que o jogo mudou sozinho. */
-const PLAYER_ACTIONS = new Set(["overtime_on", "overtime_off", "exchange_lock", "export_mix"]);
+const PLAYER_ACTIONS = new Set(["overtime_on", "overtime_off", "exchange_lock", "export_mix", "set_price"]);
 
 export function isPlayerAction(row: LifeHistoryRow) {
   return row.kind === "PROFESSION_ACTION" && row.life_event_key !== null && PLAYER_ACTIONS.has(row.life_event_key);
