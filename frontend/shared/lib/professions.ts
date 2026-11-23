@@ -247,14 +247,19 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     name: "Recém-formado",
     icon: GraduationCap,
     description:
-      "Começo de carreira: salário menor que o do CLT que sobe em linha reta em 10 anos, com demissão mais provável no início.",
+      "Começo de carreira: salário menor que o do CLT que sobe em linha reta em 10 anos, com demissão mais provável no início. Sobe a escada acadêmica por degraus e mora com os pais nos 3 primeiros anos.",
     incomeMultiple: 0.85,
     gains: [
       { text: "A renda sobe em linha reta até 1,3× o salário em 10 anos" },
+      {
+        text: "Cada degrau da escada acadêmica sobe o fim da carreira: especialização 1,6×, mestrado 2,2×, doutorado 3,0×",
+      },
+      { text: "Mora com os pais nos 3 primeiros anos: a despesa paga é 40% menor" },
       { text: "Aumento acima da inflação quando o PIB cresce", requires: INFLATION },
     ],
     losses: [
       { text: "Começa ganhando 15% menos que o CLT, sem capital" },
+      { text: "A especialização cobra mensalidade; no mestrado e no doutorado a bolsa paga só uma parte do salário" },
       { text: "Chance de demissão dobrada no começo, caindo até a do CLT em 10 anos" },
     ],
     tags: [{ key: "unemployment" }, { key: "gdp" }, { key: "personalTax", requires: GOVERNMENT }],

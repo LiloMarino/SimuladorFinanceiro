@@ -108,6 +108,8 @@ from backend.core.dto.patrimonial_history import (
 from backend.core.dto.pending import PendingDTO
 from backend.core.dto.position import PositionDTO
 from backend.core.dto.profession import (
+    CONCLUDE_PREFIX,
+    ENROLL_PREFIX,
     EXCHANGE_LOCK_ENDED,
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
@@ -117,9 +119,12 @@ from backend.core.dto.profession import (
     CltState,
     ConvertPension,
     EnrollCourse,
+    EnrollStep,
     EntrepreneurState,
     ExporterState,
     FreelancerState,
+    GraduateState,
+    LeaveHome,
     LockedAssetDTO,
     LockExchange,
     MechanicAction,
@@ -178,6 +183,7 @@ from backend.core.dto.treasury import (
 from backend.core.dto.user import UserDTO
 from backend.core.entrepreneur import BOT_SELL_SHARE, negative_quarters
 from backend.core.enum import (
+    AcademicStep,
     AssetClass,
     CashflowEventType,
     FixedIncomeType,
@@ -210,6 +216,8 @@ from backend.core.exporter import (
     forward_dollar,
 )
 from backend.core.fund_reference import FundReference
+from backend.core.graduate import concluded as step_concluded
+from backend.core.graduate import lives_with_parents
 from backend.core.house_report import draw_report, previous_month_start, report_day
 from backend.core.indicators import (
     annual_index_rate,
@@ -249,6 +257,7 @@ from backend.core.professions import (
     LifeLevers,
     RealRaise,
     available_professions,
+    inheritance_rate,
     is_party_bound,
 )
 from backend.core.rates import from_percent, period_rate
@@ -376,6 +385,7 @@ from backend.features.profession.exporter import (
     mix_target,
 )
 from backend.features.profession.freelancer import policy_price, price_due
+from backend.features.profession.graduate import conclude_step, policy_step
 from backend.features.profession.mechanics import apply_action
 from backend.features.profession.page import (
     appointee_block,
@@ -387,6 +397,7 @@ from backend.features.profession.page import (
     entrepreneur_block,
     exporter_block,
     freelancer_block,
+    graduate_block,
     heir_block,
     no_block,
     offers_banker_block,
@@ -2390,7 +2401,7 @@ class Simulation:
                 life.for_profession(self._profession_of(user_id)), user_id
             ),
             user_id,
-        )
+        ).with_profession_start(self._profession_periods(user_id)[-1].start)
         president = self._government.president() if self._government else None
         if president is not None and president.id == user_id:
             return budget.as_president(presidency.SALARY_MULTIPLE)
@@ -3285,9 +3296,10 @@ class Simulation:
         """
         day = self._current_date
         per_year = self.settings.unexpected_per_year
-        # O curso concluído troca a profissão antes de montar os orçamentos: o primeiro salário do mês já é o de CLT
+        # O curso concluído troca a profissão e o degrau concluído abre o trecho novo da curva antes de montar os orçamentos: o primeiro salário do mês já é o novo
         if month_changed:
             self._conclude_courses(users, day)
+            self._conclude_steps(users, day)
         budgets = {user.client_id: self._life_budget(life, user.id) for user in users}
         skipped_by_weight: dict[Decimal, bool] = {}
         event_by_weight: dict[Decimal, LifeEventTypeDTO | None] = {}
@@ -3582,6 +3594,13 @@ class Simulation:
                     self.settings.start_date,
                     self._engine.liquid_wealth(client_id),
                 )
+            case Profession.NEW_GRADUATE:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, GraduateState):
+                    return no_block()
+                return graduate_block(
+                    state, budget, day, self._macro.latest(day).unemployment
+                )
             case Profession.BROKER:
                 state = self._mechanic_state_of(user_id)
                 if not isinstance(state, BrokerState):
@@ -3862,6 +3881,7 @@ class Simulation:
             self._run_entrepreneur_policy(user, budgets[user.client_id], day)
             self._run_retiree_policy(user, day)
             self._run_welfare_policy(user, day)
+            self._run_graduate_policy(user, budgets[user.client_id], day, macro)
 
     def _run_house_cdb_policy(
         self, user: UserDTO, budget: LifeBudget, reserve: Reserve, day: date
@@ -3959,6 +3979,78 @@ class Simulation:
         if self._profession_of(user.id) is not Profession.WELFARE:
             raise ConflictError("Só quem vive do Auxílio faz o curso técnico.")
         return self.apply_profession_action(user, EnrollCourse())
+
+    @synchronized
+    def enroll_step(self, user: UserDTO, step: AcademicStep) -> MechanicState:
+        """Matricula o Recém-formado no degrau da escada acadêmica, pelo mesmo caminho das ações da mecânica."""
+        if self._profession_of(user.id) is not Profession.NEW_GRADUATE:
+            raise ConflictError("Só o Recém-formado sobe a escada acadêmica.")
+        if step is AcademicStep.GRADUATION:
+            raise ConflictError("A graduação já vem concluída no início da carreira.")
+        return self.apply_profession_action(
+            user, EnrollStep(kind=f"{ENROLL_PREFIX}{step.value.lower()}")
+        )
+
+    @synchronized
+    def leave_home(self, user: UserDTO) -> MechanicState:
+        """O Recém-formado sai da casa dos pais: a despesa volta ao normal, sem volta."""
+        state = self._graduate_state_of(user)
+        if state is None:
+            raise ConflictError("Só o Recém-formado mora com os pais.")
+        start = self._profession_periods(user.id)[-1].start
+        if state.left_home_on is None and not lives_with_parents(
+            start, None, self._current_date
+        ):
+            raise ConflictError(
+                "O desconto da casa dos pais já acabou: a despesa já voltou ao normal."
+            )
+        return self.apply_profession_action(user, LeaveHome())
+
+    def _graduate_state_of(self, user: UserDTO) -> GraduateState | None:
+        """O estado do Recém-formado de quem exerce a profissão; nulo para as demais ou sem profissões na partida."""
+        if not self.settings.uses_professions:
+            return None
+        state = self._mechanic_state_of(user.id)
+        return state if isinstance(state, GraduateState) else None
+
+    def _conclude_steps(self, users: list[UserDTO], day: date) -> None:
+        """Na virada do mês em que os meses do degrau fecham, ele conclui: nasce o trecho novo da curva, sem salto, e a conclusão vai ao histórico da vida."""
+        for user in users:
+            state = self._graduate_state_of(user)
+            if state is None or state.current is None:
+                continue
+            if not step_concluded(state.current.enrolled_on, state.current.step, day):
+                continue
+            if self._life is None:
+                continue
+            budget = self._life_budget(self._life, user.id)
+            self._profession_book.save_state(
+                user.id,
+                conclude_step(state, day, budget.multiple_on(day), budget.career_end),
+            )
+            self._engine.record_profession_action(
+                user.client_id, f"{CONCLUDE_PREFIX}{state.current.step.value.lower()}"
+            )
+
+    def _run_graduate_policy(
+        self, user: UserDTO, budget: LifeBudget, day: date, macro: MacroMonth
+    ) -> None:
+        """O Recém-formado-bot sobe o degrau seguinte só quando o que sobra da partida o paga, pela mesma ação dos jogadores."""
+        state = self._graduate_state_of(user)
+        if state is None:
+            return
+        step = policy_step(
+            state,
+            day,
+            self.settings.end_date,
+            budget.multiple_on,
+            budget.base_income_on(day),
+            inheritance_rate(self.settings.inflation_adjusted),
+            macro.unemployment > NEUTRAL_UNEMPLOYMENT,
+            budget.career_end,
+        )
+        if step is not None:
+            self.enroll_step(user, step)
 
     def _welfare_state_of(self, user: UserDTO) -> WelfareState | None:
         """O estado do Auxílio de quem exerce a profissão; nulo para as demais ou sem profissões na partida."""
@@ -4520,7 +4612,7 @@ class Simulation:
         raised = rule.real_raise in (RealRaise.SERVANTS, RealRaise.RETIREES)
         return {
             "profession": budget.profession,
-            "income_loss": rule.loss,
+            "income_loss": budget.income_loss(),
             "health_multiple": budget.health_multiple,
             "tax": rule.tax,
             "tax_rate": budget.tax_rate_on(day),
@@ -4550,7 +4642,7 @@ class Simulation:
             # Só o trecho atual tem o estado da mecânica; os anteriores são de outra profissão
             budget = self._with_party(
                 self._life.for_profession(period.profession), user_id
-            )
+            ).with_profession_start(period.start)
             if following is None:
                 budget = self._with_mechanic(budget, user_id)
             changes += budget_changes(

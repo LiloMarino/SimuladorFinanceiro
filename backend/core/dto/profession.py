@@ -9,7 +9,16 @@ from backend.core.clt import (
 )
 from backend.core.dates import add_months
 from backend.core.dto.base import BaseDTO
-from backend.core.enum import LockedAssetKind, Profession
+from backend.core.enum import AcademicStep, LockedAssetKind, Profession
+from backend.core.graduate import (
+    HOME_DISCOUNT,
+    has_stipend,
+    line_multiple,
+    lives_with_parents,
+    next_step,
+    stipend_of,
+    tuition_of,
+)
 from backend.core.locked_assets import LOCKED_EXITS
 from backend.core.welfare import COURSE_INCOME_FACTOR
 
@@ -337,6 +346,114 @@ class EnrollCourse(WelfareAction):
     kind: str = Field(default=ENROLL_COURSE, pattern=rf"^{ENROLL_COURSE}$")
 
 
+class CompletedStep(BaseDTO):
+    """Um degrau da escada acadêmica concluído, com o dia da conclusão."""
+
+    step: AcademicStep
+    concluded_on: date
+
+
+class StepEnrollment(BaseDTO):
+    """A matrícula em andamento: o degrau, o dia dela e se o desemprego acima do neutro deu o desconto, fixo até o degrau acabar."""
+
+    step: AcademicStep
+    enrolled_on: date
+    discounted: bool
+
+
+class CurveSegment(BaseDTO):
+    """Um trecho da curva de carreira: a reta de (`start`, `start_multiple`) a (`end`, `end_multiple`)."""
+
+    start: date
+    start_multiple: Decimal
+    end: date
+    end_multiple: Decimal
+
+    def multiple_on(self, day: date) -> Decimal:
+        return line_multiple(
+            self.start, self.start_multiple, self.end, self.end_multiple, day
+        )
+
+
+class GraduateState(MechanicState):
+    """O estado do Recém-formado: os degraus concluídos, a matrícula em andamento, os trechos da curva de carreira e o dia em que saiu da casa dos pais."""
+
+    completed: list[CompletedStep] = Field(default_factory=list)
+    current: StepEnrollment | None = None
+    # Os trechos nascem a cada conclusão, do mais antigo ao mais novo; vazio é a curva inicial da profissão
+    curve: list[CurveSegment] = Field(default_factory=list)
+    left_home_on: date | None = None
+
+    @property
+    def completed_steps(self) -> list[AcademicStep]:
+        return [done.step for done in self.completed]
+
+    @property
+    def next_step(self) -> AcademicStep | None:
+        """O degrau que a matrícula seguinte abre; nulo no topo da escada."""
+        return next_step(self.completed_steps)
+
+    @property
+    def stipend_step(self) -> AcademicStep | None:
+        """O degrau em curso quando ele paga bolsa no lugar do salário; nulo fora dele."""
+        if self.current is not None and has_stipend(self.current.step):
+            return self.current.step
+        return None
+
+    def segment_on(self, day: date) -> CurveSegment | None:
+        """O trecho da curva que vale em `day`; nulo antes do primeiro, quando vale a curva inicial."""
+        valid = [segment for segment in self.curve if segment.start <= day]
+        return valid[-1] if valid else None
+
+    def stipend_on(self, base_income: Decimal) -> Decimal | None:
+        """A bolsa do mês sobre a renda base; nula fora do mestrado e do doutorado."""
+        if self.current is None or self.stipend_step is None:
+            return None
+        return stipend_of(base_income, self.current.step, self.current.discounted)
+
+    def tuition_on(self, base_income: Decimal) -> Decimal:
+        """A mensalidade do mês sobre a renda base: só a especialização em curso cobra."""
+        if self.current is None or self.current.step is not AcademicStep.SPECIALIZATION:
+            return Decimal(0)
+        return tuition_of(base_income, self.current.discounted)
+
+    def home_discount_on(self, career_start: date, day: date) -> Decimal:
+        """O desconto da despesa paga em `day`: o da casa dos pais enquanto mora com eles."""
+        if lives_with_parents(career_start, self.left_home_on, day):
+            return HOME_DISCOUNT
+        return Decimal(0)
+
+    def final_multiple(self) -> Decimal | None:
+        """O múltiplo final do trecho mais novo; nulo antes da primeira conclusão."""
+        return self.curve[-1].end_multiple if self.curve else None
+
+
+# O nome de cada lançamento do Recém-formado no histórico da vida
+ENROLL_PREFIX = "enroll_"
+CONCLUDE_PREFIX = "conclude_"
+LEAVE_HOME = "leave_home"
+
+
+class GraduateAction(MechanicAction):
+    """Uma ação do Recém-formado; é o tipo que a mecânica aceita."""
+
+
+class EnrollStep(GraduateAction):
+    """Matricula o jogador no degrau da escada acadêmica, que começa hoje."""
+
+    kind: str = Field(pattern=r"^enroll_(specialization|masters|doctorate)$")
+
+    @property
+    def step(self) -> AcademicStep:
+        return AcademicStep(self.kind.removeprefix(ENROLL_PREFIX).upper())
+
+
+class LeaveHome(GraduateAction):
+    """Sai da casa dos pais: a despesa volta ao normal e não há volta."""
+
+    kind: str = Field(default=LEAVE_HOME, pattern=rf"^{LEAVE_HOME}$")
+
+
 class ProfessionPeriodDTO(BaseDTO):
     """A profissão que o jogador exerce a partir de `start`, até o início do período seguinte."""
 
@@ -358,6 +475,7 @@ STATE_TYPES: dict[Profession, type[MechanicState]] = {
     Profession.ENTREPRENEUR: EntrepreneurState,
     Profession.EXPORTER: ExporterState,
     Profession.FREELANCER: FreelancerState,
+    Profession.NEW_GRADUATE: GraduateState,
     Profession.RETIREE: RetireeState,
     Profession.WELFARE: WelfareState,
 }

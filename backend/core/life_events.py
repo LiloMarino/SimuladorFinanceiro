@@ -108,7 +108,7 @@ LIFE_EVENT_CATALOG: tuple[LifeEventSpec, ...] = (
                 "FREELANCER": "Notebook quebrado",
                 "BROKER": "Operação estornada",
                 "HEIR": "Taxa do inventário",
-                "NEW_GRADUATE": "Curso de especialização pago do bolso",
+                "NEW_GRADUATE": "Mudança de cidade pelo emprego",
                 "COMMISSIONED": "Contribuição extra ao partido",
                 "OFFERS_BANKER": "Oferta cancelada sem comissão",
             }

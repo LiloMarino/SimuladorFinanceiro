@@ -5,11 +5,13 @@ from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 
+from backend.core.dates import add_months
 from backend.core.dto.profession import (
     BrokerState,
     ExchangeLock,
     ExporterState,
     FreelancerState,
+    GraduateState,
     MechanicState,
     RetireeState,
 )
@@ -119,6 +121,8 @@ class LifeBudget:
     in_government_on: Callable[[date], bool] = never_in_government
     # O estado da mecânica da profissão do jogador, lido a cada cálculo da renda
     current_mechanic_state: Callable[[], MechanicState] = no_mechanic_state
+    # O dia em que o jogador entrou na profissão; a carreira e a casa dos pais contam daqui. Nulo é o início da partida
+    profession_start: date | None = None
 
     @classmethod
     def of(
@@ -158,6 +162,10 @@ class LifeBudget:
         """O orçamento de quem tem mecânica na profissão: a renda acompanha o estado dela."""
         return replace(self, current_mechanic_state=current_mechanic_state)
 
+    def with_profession_start(self, profession_start: date) -> "LifeBudget":
+        """O orçamento de quem entrou na profissão em `profession_start`: carreira e casa dos pais contam desse dia."""
+        return replace(self, profession_start=profession_start)
+
     def as_president(self, multiple: Decimal) -> "LifeBudget":
         """O orçamento de quem recebe `multiple` salários do host pela presidência; reajuste e imposto seguem os da profissão."""
         return replace(self, presidency_multiple=multiple)
@@ -165,6 +173,19 @@ class LifeBudget:
     @property
     def rule(self) -> ProfessionRule:
         return PROFESSIONS[self.profession]
+
+    @property
+    def career_start(self) -> date:
+        """O dia em que a carreira da profissão começa a contar: a entrada nela, ou o início da partida."""
+        return self.profession_start or self.start_date
+
+    @property
+    def career_end(self) -> date:
+        """O dia em que a curva inicial da carreira chega ao múltiplo final; sem carreira, o próprio início."""
+        career = self.rule.career
+        if career is None:
+            return self.career_start
+        return add_months(self.career_start, career.years * MONTHS_PER_YEAR)
 
     @property
     def health_multiple(self) -> Decimal:
@@ -179,6 +200,9 @@ class LifeBudget:
             return Decimal(0), cents(
                 self.monthly_salary * self.presidency_multiple * factor
             )
+        stipend = self.stipend_on(day)
+        if stipend is not None:
+            return stipend, self._benefit_on(day)
         mechanic = self.current_mechanic_state().income_factor
         freelancer = self.freelancer_state()
         if freelancer is None:
@@ -188,14 +212,43 @@ class LifeBudget:
         if rule.driver is not None:
             exposed *= self.driver_factor_on(day)
         exposed += self.broker_commission_on(day).amount
-        benefit = (
+        return cents(exposed), self._benefit_on(day)
+
+    def _benefit_on(self, day: date) -> Decimal:
+        """O benefício do mês, a parte da renda que a demissão não tira."""
+        return cents(
             self.monthly_salary
-            * rule.benefit_multiple
-            * factor
+            * self.rule.benefit_multiple
+            * self._salary_factor(day)
             * self.levers_on(day).welfare_spending
             / REFERENCE_WELFARE_SPENDING
         )
-        return cents(exposed), cents(benefit)
+
+    def base_income_on(self, day: date) -> Decimal:
+        """A renda base do mês: o salário do host reajustado, antes do múltiplo da profissão."""
+        return self.monthly_salary * self._salary_factor(day)
+
+    def graduate_state(self) -> GraduateState | None:
+        """O estado do Recém-formado, com a escada e a casa dos pais; nulo para as demais profissões. Sem estado salvo vale o inicial."""
+        if self.profession is not Profession.NEW_GRADUATE:
+            return None
+        state = self.current_mechanic_state()
+        return state if isinstance(state, GraduateState) else GraduateState()
+
+    def stipend_on(self, day: date) -> Decimal | None:
+        """A bolsa que o mestrado ou o doutorado em curso paga no lugar do salário; nula fora deles."""
+        state = self.graduate_state()
+        if state is None or self.presidency_multiple is not None:
+            return None
+        stipend = state.stipend_on(self.base_income_on(day))
+        return None if stipend is None else cents(stipend)
+
+    def tuition_on(self, day: date) -> Decimal:
+        """A mensalidade da especialização em curso no mês; zero fora dela."""
+        state = self.graduate_state()
+        if state is None:
+            return Decimal(0)
+        return state.tuition_on(self.base_income_on(day))
 
     def fixed_income_on(self, day: date) -> Decimal:
         """A parte fixa do salário do mês: o salário do host vezes o múltiplo da profissão, reajustado, sem mecânica nem variável."""
@@ -221,14 +274,18 @@ class LifeBudget:
         )
 
     def multiple_on(self, day: date) -> Decimal:
-        """O múltiplo do salário do host que a profissão rende no dia: o da carreira sobe em linha reta desde o início da partida."""
+        """O múltiplo do salário do host que a profissão rende no dia: o da carreira sobe em linha reta desde a entrada na profissão, e cada degrau concluído da escada acadêmica abre um trecho novo."""
         rule = self.rule
         career = rule.career
         if rule.outside_multiple is not None and not self.in_government_on(day):
             return rule.outside_multiple
         if career is None:
             return rule.income_multiple
-        progress = career.progress((day - self.start_date).days)
+        state = self.graduate_state()
+        segment = None if state is None else state.segment_on(day)
+        if segment is not None:
+            return segment.multiple_on(day)
+        progress = career.progress((day - self.career_start).days)
         return rule.income_multiple + progress * (
             career.final_multiple - rule.income_multiple
         )
@@ -241,7 +298,7 @@ class LifeBudget:
         weight = Decimal(1)
         career = self.rule.career
         if career is not None:
-            progress = career.progress((day - self.start_date).days)
+            progress = career.progress((day - self.career_start).days)
             weight = career.layoff_weight - progress * (career.layoff_weight - 1)
         if self.freelancer_state() is not None:
             if deviation is None:
@@ -418,7 +475,7 @@ class LifeBudget:
     def exposed_net_on(self, day: date) -> Decimal:
         """A parte exposta da renda do mês depois do imposto da profissão: o bico do Auxílio, sem o benefício."""
         exposed, _ = self.income_parts(day)
-        return cents(exposed * (1 - self.tax_deviation_on(day)))
+        return cents(exposed * (1 - self._taxed_deviation_on(day)))
 
     def net_salary_on(self, day: date, income_lost: bool = False) -> Decimal:
         """
@@ -428,13 +485,25 @@ class LifeBudget:
         vitalícia convertida da previdência soma por fora, sem imposto.
         """
         exposed, protected = self.income_parts(day)
-        kept = protected if income_lost and self.rule.loss else exposed + protected
+        kept = protected if income_lost and self.income_loss() else exposed + protected
         return cents(
-            kept * (1 - self.tax_deviation_on(day))
+            kept * (1 - self._taxed_deviation_on(day))
         ) + self.converted_income_on(day)
 
     def income_loss(self) -> IncomeLoss | None:
-        return None if self.presidency_multiple is not None else self.rule.loss
+        """O que a demissão sorteada faz com a renda; a bolsa do mestrado e do doutorado não é demitida."""
+        state = self.graduate_state()
+        if self.presidency_multiple is not None or (
+            state is not None and state.stipend_step is not None
+        ):
+            return None
+        return self.rule.loss
+
+    def _taxed_deviation_on(self, day: date) -> Decimal:
+        """O desvio de imposto que corta a renda do mês; a bolsa é isenta."""
+        if self.stipend_on(day) is not None:
+            return Decimal(0)
+        return self.tax_deviation_on(day)
 
     def tax_rate_on(self, day: date) -> Decimal:
         """A alíquota em vigor do imposto que mexe na renda da profissão."""
@@ -464,9 +533,22 @@ class LifeBudget:
         """A despesa cheia do mês, que a meta e os imprevistos usam."""
         return cents(self.monthly_expense * self._inflation_factor(day))
 
+    def expense_discount_on(self, day: date) -> Decimal:
+        """O desconto sobre a despesa paga no dia: o da tarifa social da profissão e o da casa dos pais."""
+        state = self.graduate_state()
+        home = (
+            Decimal(0)
+            if state is None
+            else state.home_discount_on(self.career_start, day)
+        )
+        return self.rule.expense_discount + home
+
     def paid_expense_on(self, day: date) -> Decimal:
-        """A despesa que o jogador paga no mês: a cheia menos o desconto da tarifa social da profissão."""
-        return cents(self.expense_on(day) * (1 - self.rule.expense_discount))
+        """A despesa que o jogador paga no mês: a cheia menos os descontos do dia, mais a mensalidade do curso em andamento."""
+        return cents(
+            self.expense_on(day) * (1 - self.expense_discount_on(day))
+            + self.tuition_on(day)
+        )
 
     def readjustments(self, until: date) -> list[date]:
         """Os dias em que renda, despesa e meta sobem: o início e, com IPCA, cada aniversário."""

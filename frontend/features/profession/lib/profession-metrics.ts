@@ -366,3 +366,25 @@ export const TECHNICAL_COURSE: MetricInfo = {
     "Vale a pena quando o salário de CLT supera o bico mais o benefício, e a partida é longa o bastante para colher isso depois do curso.",
   format: (value) => displayMoney(value),
 };
+
+export const CAREER_END_MULTIPLE: MetricInfo = {
+  label: "Múltiplo do fim da carreira",
+  description: "Quantas vezes a renda base o salário chega ao fim da subida",
+  definition:
+    "O salário do Recém-formado sobe em linha reta, de 0,85× a renda base no primeiro dia até 1,3× depois de 10 anos de carreira. Cada degrau da escada acadêmica concluído abre uma subida nova, sem salto no dia da conclusão, até um múltiplo maior: 1,6× na especialização, 2,2× no mestrado e 3,0× no doutorado.",
+  example:
+    "Ex.: renda base de R$ 3.000 e múltiplo final de 1,6× → o salário chega a R$ 4.800 por mês ao fim da subida. Com 1,3× seriam R$ 3.900.",
+  reading:
+    "Quanto maior, melhor, mas cada degrau custa tempo: a mensalidade na especialização, o salário trocado pela bolsa no mestrado e no doutorado. Numa partida curta o degrau não chega a se pagar.",
+  format: (value) => `${displayNumber(value, 1)}×`,
+};
+
+export const LIVES_WITH_PARENTS: MetricInfo = {
+  label: "Mora com os pais",
+  description: "Desconto na despesa mensal nos primeiros anos de carreira",
+  definition:
+    "Nos 3 primeiros anos na profissão, ou até você sair de casa, a despesa que você paga todo mês sai 40% mais barata. A meta e os imprevistos continuam pela despesa cheia. Sair de casa devolve a despesa ao valor cheio e não tem volta; passados os 3 anos o desconto acaba sozinho.",
+  example: "Ex.: despesa de R$ 1.600 → você paga R$ 960, R$ 640 a menos por mês.",
+  reading: "É dinheiro que sobra no caixa todo mês enquanto a carreira ainda paga pouco.",
+  format: (value) => displayMoney(value),
+};

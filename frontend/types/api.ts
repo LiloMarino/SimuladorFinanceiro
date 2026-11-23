@@ -382,6 +382,7 @@ export type CapitalSaleRequest = components["schemas"]["CapitalSaleRequest"];
 export type PensionAmountRequest = components["schemas"]["PensionAmountRequest"];
 export type FreelancerPriceRequest = components["schemas"]["FreelancerPriceRequest"];
 export type MechanicStatus = components["schemas"]["MechanicStatus"];
+export type EnrollStepRequest = components["schemas"]["EnrollStepRequest"];
 export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];
 export type LifeHistoryRow = LifeHistoryPage["items"][number];
 export type LifeHistoryCategory = components["schemas"]["LifeHistoryCategory"];

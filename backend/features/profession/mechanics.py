@@ -12,6 +12,7 @@ from backend.core.dto.profession import (
     EntrepreneurAction,
     ExporterAction,
     FreelancerAction,
+    GraduateAction,
     MechanicAction,
     MechanicState,
     RetireeAction,
@@ -25,6 +26,7 @@ from backend.features.profession.clt import set_overtime
 from backend.features.profession.entrepreneur import apply_entrepreneur
 from backend.features.profession.exporter import apply_exporter
 from backend.features.profession.freelancer import apply_freelancer
+from backend.features.profession.graduate import apply_graduate
 from backend.features.profession.pension import apply_retiree
 from backend.features.profession.welfare import apply_welfare
 
@@ -43,6 +45,7 @@ MECHANICS: dict[Profession, Mechanic] = {
     Profession.ENTREPRENEUR: Mechanic(EntrepreneurAction, apply_entrepreneur),
     Profession.EXPORTER: Mechanic(ExporterAction, apply_exporter),
     Profession.FREELANCER: Mechanic(FreelancerAction, apply_freelancer),
+    Profession.NEW_GRADUATE: Mechanic(GraduateAction, apply_graduate),
     Profession.RETIREE: Mechanic(RetireeAction, apply_retiree),
     Profession.WELFARE: Mechanic(WelfareAction, apply_welfare),
 }

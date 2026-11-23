@@ -314,7 +314,8 @@ def _living(
         _professions={},
         _government=SimpleNamespace(president=lambda: president),
         _profession_book=SimpleNamespace(
-            state_of=lambda _user, profession: initial_state(profession)
+            state_of=lambda _user, profession: initial_state(profession),
+            periods_of=lambda _user: [],
         ),
     )
     living = cast(Simulation, fake)
@@ -322,6 +323,7 @@ def _living(
     fake._layoff_factor_for = partial(Simulation._layoff_factor_for, living)
     fake._profession_of = partial(Simulation._profession_of, living)
     fake._with_party = partial(Simulation._with_party, living)
+    fake._profession_periods = partial(Simulation._profession_periods, living)
     fake._mechanic_state_of = partial(Simulation._mechanic_state_of, living)
     fake._with_mechanic = partial(Simulation._with_mechanic, living)
     fake._run_bot_policies = partial(Simulation._run_bot_policies, living)
@@ -334,6 +336,8 @@ def _living(
     fake._run_capital_month = partial(Simulation._run_capital_month, living)
     fake._run_pension_month = partial(Simulation._run_pension_month, living)
     fake._conclude_courses = partial(Simulation._conclude_courses, living)
+    fake._conclude_steps = partial(Simulation._conclude_steps, living)
+    fake._graduate_state_of = partial(Simulation._graduate_state_of, living)
     fake._welfare_state_of = partial(Simulation._welfare_state_of, living)
     fake._run_welfare_month = partial(Simulation._run_welfare_month, living)
     fake._run_welfare_policy = partial(Simulation._run_welfare_policy, living)

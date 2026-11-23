@@ -5,6 +5,7 @@ import { CltBlock } from "./clt-block";
 import { EntrepreneurBlock } from "./entrepreneur-block";
 import { ExporterBlock } from "./exporter-block";
 import { FreelancerBlock } from "./freelancer-block";
+import { GraduateBlock } from "./graduate-block";
 import { AppointeeBlock, HeirBlock, OffersBankerBlock } from "./other-blocks";
 import { PublicServantBlock } from "./public-servant-block";
 import { RetireeBlock } from "./retiree-block";
@@ -27,6 +28,8 @@ export function ProfessionMechanic({ mechanic }: { mechanic: Mechanic }) {
       return <PublicServantBlock mechanic={mechanic} />;
     case "welfare":
       return <WelfareBlock mechanic={mechanic} />;
+    case "graduate":
+      return <GraduateBlock mechanic={mechanic} />;
     case "banker":
       return <BankerBlock mechanic={mechanic} />;
     case "broker":

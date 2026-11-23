@@ -14449,6 +14449,110 @@
         ]
       }
     },
+    "/api/simulation/enroll-step": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Matricular o Recém-formado num degrau da escada acadêmica",
+        "description": "Matricula o Recém-formado na especialização (1 ano, trabalha junto e paga mensalidade de 10% da renda base), no mestrado (2 anos, bolsa de 35% da renda base no lugar do salário) ou no doutorado (4 anos, bolsa de 50%). Os degraus se sobem na ordem, um por vez: cada um exige o anterior concluído. Matricular com o desemprego acima do neutro fixa, até o degrau acabar, a mensalidade 30% menor e a bolsa 20% maior. Na virada do mês em que o degrau conclui, a curva de carreira ganha um trecho novo até o múltiplo do degrau. Responde 409 para a graduação, para o degrau fora de ordem, para quem já está matriculado e para outra profissão.",
+        "operationId": "enroll_step_api_simulation_enroll_step_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnrollStepRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/leave-home": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Sair da casa dos pais",
+        "description": "O Recém-formado sai da casa dos pais: a despesa paga deixa de ter o desconto de 40% dos 3 primeiros anos na profissão e volta ao normal, sem volta. Responde 409 para quem já saiu, para quem passou dos 3 anos (o desconto já acabou sozinho) e para outra profissão.",
+        "operationId": "leave_home_api_simulation_leave_home_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/enroll-course": {
       "post": {
         "tags": [
@@ -16017,6 +16121,17 @@
   },
   "components": {
     "schemas": {
+      "AcademicStep": {
+        "type": "string",
+        "enum": [
+          "GRADUATION",
+          "SPECIALIZATION",
+          "MASTERS",
+          "DOCTORATE"
+        ],
+        "title": "AcademicStep",
+        "description": "Os degraus da escada acadêmica do Recém-formado; a graduação já vem concluída no início da carreira."
+      },
       "AchievementCategory": {
         "type": "string",
         "enum": [
@@ -23743,6 +23858,18 @@
           "recording"
         ],
         "title": "EngineProfileStatus"
+      },
+      "EnrollStepRequest": {
+        "properties": {
+          "step": {
+            "$ref": "#/components/schemas/AcademicStep"
+          }
+        },
+        "type": "object",
+        "required": [
+          "step"
+        ],
+        "title": "EnrollStepRequest"
       },
       "EntrepreneurMechanicDTO": {
         "properties": {
@@ -31746,6 +31873,268 @@
         ],
         "title": "GovernmentUpdateEventDTO",
         "description": "Um fato do governo ou da eleição: o aviso conta o que houve e carrega o dado que o toast e o diálogo mostram."
+      },
+      "GraduateMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "graduate",
+            "title": "Kind",
+            "default": "graduate"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "salary": {
+            "type": "string",
+            "title": "Salary"
+          },
+          "stipend_income": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stipend Income"
+          },
+          "career_year": {
+            "type": "integer",
+            "title": "Career Year"
+          },
+          "final_multiple": {
+            "type": "string",
+            "title": "Final Multiple"
+          },
+          "next_final_multiple": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Final Multiple"
+          },
+          "next_step": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AcademicStep"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/GraduateStepDTO"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "next_opens_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Opens On"
+          },
+          "months_left": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months Left"
+          },
+          "unemployment": {
+            "type": "string",
+            "title": "Unemployment"
+          },
+          "neutral_unemployment": {
+            "type": "string",
+            "title": "Neutral Unemployment"
+          },
+          "unemployment_discount": {
+            "type": "boolean",
+            "title": "Unemployment Discount"
+          },
+          "tuition_discount_rate": {
+            "type": "string",
+            "title": "Tuition Discount Rate"
+          },
+          "stipend_bonus_rate": {
+            "type": "string",
+            "title": "Stipend Bonus Rate"
+          },
+          "home": {
+            "type": "string",
+            "enum": [
+              "with_parents",
+              "left",
+              "expired"
+            ],
+            "title": "Home"
+          },
+          "home_discount_rate": {
+            "type": "string",
+            "title": "Home Discount Rate"
+          },
+          "home_discount": {
+            "type": "string",
+            "title": "Home Discount"
+          },
+          "home_until": {
+            "type": "string",
+            "format": "date",
+            "title": "Home Until"
+          },
+          "full_expense": {
+            "type": "string",
+            "title": "Full Expense"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "salary",
+          "stipend_income",
+          "career_year",
+          "final_multiple",
+          "next_final_multiple",
+          "next_step",
+          "steps",
+          "next_opens_on",
+          "months_left",
+          "unemployment",
+          "neutral_unemployment",
+          "unemployment_discount",
+          "tuition_discount_rate",
+          "stipend_bonus_rate",
+          "home",
+          "home_discount_rate",
+          "home_discount",
+          "home_until",
+          "full_expense"
+        ],
+        "title": "GraduateMechanicDTO",
+        "description": "Escada acadêmica e casa dos pais do Recém-formado."
+      },
+      "GraduateStepDTO": {
+        "properties": {
+          "step": {
+            "$ref": "#/components/schemas/AcademicStep"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "done",
+              "current",
+              "next",
+              "later"
+            ],
+            "title": "Status"
+          },
+          "months": {
+            "type": "integer",
+            "title": "Months"
+          },
+          "months_done": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months Done"
+          },
+          "concluded_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Concluded On"
+          },
+          "ends_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends On"
+          },
+          "final_multiple": {
+            "type": "string",
+            "title": "Final Multiple"
+          },
+          "tuition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tuition"
+          },
+          "stipend": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stipend"
+          },
+          "unemployment_discount": {
+            "type": "boolean",
+            "title": "Unemployment Discount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "step",
+          "status",
+          "months",
+          "months_done",
+          "concluded_on",
+          "ends_on",
+          "final_multiple",
+          "tuition",
+          "stipend",
+          "unemployment_discount"
+        ],
+        "title": "GraduateStepDTO",
+        "description": "Uma linha da escada acadêmica do Recém-formado."
       },
       "GroupApprovalDTO": {
         "properties": {
@@ -41521,6 +41910,9 @@
                 "$ref": "#/components/schemas/WelfareMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/GraduateMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/ExporterMechanicDTO"
               },
               {
@@ -41559,6 +41951,7 @@
                 "entrepreneur": "#/components/schemas/EntrepreneurMechanicDTO",
                 "exporter": "#/components/schemas/ExporterMechanicDTO",
                 "freelancer": "#/components/schemas/FreelancerMechanicDTO",
+                "graduate": "#/components/schemas/GraduateMechanicDTO",
                 "heir": "#/components/schemas/HeirMechanicDTO",
                 "none": "#/components/schemas/NoMechanicDTO",
                 "offers_banker": "#/components/schemas/OffersBankerMechanicDTO",

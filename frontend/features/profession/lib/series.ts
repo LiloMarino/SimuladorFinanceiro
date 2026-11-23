@@ -131,6 +131,10 @@ const PLAYER_ACTIONS = new Set([
   "convert_pension",
   "redeem_pension",
   "enroll_course",
+  "enroll_specialization",
+  "enroll_masters",
+  "enroll_doctorate",
+  "leave_home",
 ]);
 
 export function isPlayerAction(row: LifeHistoryRow) {

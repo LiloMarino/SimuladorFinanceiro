@@ -4696,6 +4696,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/enroll-step": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Matricular o Recém-formado num degrau da escada acadêmica
+         * @description Matricula o Recém-formado na especialização (1 ano, trabalha junto e paga mensalidade de 10% da renda base), no mestrado (2 anos, bolsa de 35% da renda base no lugar do salário) ou no doutorado (4 anos, bolsa de 50%). Os degraus se sobem na ordem, um por vez: cada um exige o anterior concluído. Matricular com o desemprego acima do neutro fixa, até o degrau acabar, a mensalidade 30% menor e a bolsa 20% maior. Na virada do mês em que o degrau conclui, a curva de carreira ganha um trecho novo até o múltiplo do degrau. Responde 409 para a graduação, para o degrau fora de ordem, para quem já está matriculado e para outra profissão.
+         */
+        post: operations["enroll_step_api_simulation_enroll_step_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/leave-home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Sair da casa dos pais
+         * @description O Recém-formado sai da casa dos pais: a despesa paga deixa de ter o desconto de 40% dos 3 primeiros anos na profissão e volta ao normal, sem volta. Responde 409 para quem já saiu, para quem passou dos 3 anos (o desconto já acabou sozinho) e para outra profissão.
+         */
+        post: operations["leave_home_api_simulation_leave_home_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/enroll-course": {
         parameters: {
             query?: never;
@@ -5272,6 +5312,12 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AcademicStep
+         * @description Os degraus da escada acadêmica do Recém-formado; a graduação já vem concluída no início da carreira.
+         * @enum {string}
+         */
+        AcademicStep: "GRADUATION" | "SPECIALIZATION" | "MASTERS" | "DOCTORATE";
         /**
          * AchievementCategory
          * @enum {string}
@@ -7944,6 +7990,10 @@ export interface components {
             /** Recording */
             recording: boolean;
         };
+        /** EnrollStepRequest */
+        EnrollStepRequest: {
+            step: components["schemas"]["AcademicStep"];
+        };
         /**
          * EntrepreneurMechanicDTO
          * @description Reinvestimento do Empreendedor.
@@ -10439,6 +10489,89 @@ export interface components {
             partner_abbr: string | null;
             /** Requested By */
             requested_by: string | null;
+        };
+        /**
+         * GraduateMechanicDTO
+         * @description Escada acadêmica e casa dos pais do Recém-formado.
+         */
+        GraduateMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "graduate";
+            status: components["schemas"]["MechanicStatus"];
+            /** Salary */
+            salary: string;
+            /** Stipend Income */
+            stipend_income: string | null;
+            /** Career Year */
+            career_year: number;
+            /** Final Multiple */
+            final_multiple: string;
+            /** Next Final Multiple */
+            next_final_multiple: string | null;
+            next_step: components["schemas"]["AcademicStep"] | null;
+            /** Steps */
+            steps: components["schemas"]["GraduateStepDTO"][];
+            /** Next Opens On */
+            next_opens_on: string | null;
+            /** Months Left */
+            months_left: number | null;
+            /** Unemployment */
+            unemployment: string;
+            /** Neutral Unemployment */
+            neutral_unemployment: string;
+            /** Unemployment Discount */
+            unemployment_discount: boolean;
+            /** Tuition Discount Rate */
+            tuition_discount_rate: string;
+            /** Stipend Bonus Rate */
+            stipend_bonus_rate: string;
+            /**
+             * Home
+             * @enum {string}
+             */
+            home: "with_parents" | "left" | "expired";
+            /** Home Discount Rate */
+            home_discount_rate: string;
+            /** Home Discount */
+            home_discount: string;
+            /**
+             * Home Until
+             * Format: date
+             */
+            home_until: string;
+            /** Full Expense */
+            full_expense: string;
+        };
+        /**
+         * GraduateStepDTO
+         * @description Uma linha da escada acadêmica do Recém-formado.
+         */
+        GraduateStepDTO: {
+            step: components["schemas"]["AcademicStep"];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "done" | "current" | "next" | "later";
+            /** Months */
+            months: number;
+            /** Months Done */
+            months_done: number | null;
+            /** Concluded On */
+            concluded_on: string | null;
+            /** Ends On */
+            ends_on: string | null;
+            /** Final Multiple */
+            final_multiple: string;
+            /** Tuition */
+            tuition: string | null;
+            /** Stipend */
+            stipend: string | null;
+            /** Unemployment Discount */
+            unemployment_discount: boolean;
         };
         /**
          * GroupApprovalDTO
@@ -13969,7 +14102,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["BrokerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["GraduateMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["BrokerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -28103,6 +28236,86 @@ export interface operations {
                 "application/json": components["schemas"]["PensionAmountRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    enroll_step_api_simulation_enroll_step_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnrollStepRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    leave_home_api_simulation_leave_home_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

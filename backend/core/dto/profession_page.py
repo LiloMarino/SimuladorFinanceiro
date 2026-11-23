@@ -10,6 +10,7 @@ from backend.core.dto.base import BaseDTO
 from backend.core.dto.credit import PayrollLoanDTO
 from backend.core.dto.house_report import HouseRecommendationDTO
 from backend.core.enum import (
+    AcademicStep,
     IncomeLoss,
     IncomeSeriesEffect,
     IncomeSeriesKey,
@@ -292,6 +293,59 @@ class WelfareMechanicDTO(BaseDTO):
     course_ends_on: date | None
 
 
+class GraduateStepDTO(BaseDTO):
+    """Uma linha da escada acadêmica do Recém-formado."""
+
+    step: AcademicStep
+    # Concluído, em curso, o próximo a se matricular ou um mais adiante
+    status: Literal["done", "current", "next", "later"]
+    # A duração em meses (zero na graduação) e quantos já passaram; nulo fora do degrau em curso
+    months: int
+    months_done: int | None
+    # O mês em que concluiu (degrau concluído) ou em que conclui (degrau em curso)
+    concluded_on: date | None
+    ends_on: date | None
+    # O múltiplo do fim da carreira que o degrau leva
+    final_multiple: Decimal
+    # A mensalidade (especialização) ou a bolsa no lugar do salário (mestrado e doutorado) por mês; nulos no degrau concluído
+    tuition: Decimal | None
+    stipend: Decimal | None
+    # Se a mensalidade ou a bolsa já traz o desconto do desemprego: a da matrícula no degrau em curso, a de hoje nos demais
+    unemployment_discount: bool
+
+
+class GraduateMechanicDTO(BaseDTO):
+    """Escada acadêmica e casa dos pais do Recém-formado."""
+
+    kind: Literal["graduate"] = "graduate"
+    status: MechanicStatus
+    # O salário líquido da curva de carreira hoje, a bolsa do mês no mestrado e no doutorado (nula fora deles) e o ano da carreira
+    salary: Decimal
+    stipend_income: Decimal | None
+    career_year: int
+    # O múltiplo do fim da carreira em vigor e o que o próximo degrau leva; nulo no topo da escada
+    final_multiple: Decimal
+    next_final_multiple: Decimal | None
+    next_step: AcademicStep | None
+    steps: list[GraduateStepDTO]
+    # Quando o degrau seguinte abre (a conclusão do em curso) e quantos meses faltam; nulos sem degrau em curso
+    next_opens_on: date | None
+    months_left: int | None
+    # O desemprego de hoje, o neutro, se hoje ele está acima (a matrícula de hoje teria desconto) e os percentuais do desconto
+    unemployment: Decimal
+    neutral_unemployment: Decimal
+    unemployment_discount: bool
+    tuition_discount_rate: Decimal
+    stipend_bonus_rate: Decimal
+    # A casa dos pais: com eles, já saiu ou o prazo acabou
+    home: Literal["with_parents", "left", "expired"]
+    home_discount_rate: Decimal
+    # O desconto mensal em reais enquanto mora com os pais (zero depois), até quando vale e a despesa cheia que volta
+    home_discount: Decimal
+    home_until: date
+    full_expense: Decimal
+
+
 class PublicServantMechanicDTO(BaseDTO):
     """Consignado do Servidor."""
 
@@ -410,6 +464,7 @@ MechanicBlockDTO = Annotated[
     | EntrepreneurMechanicDTO
     | RetireeMechanicDTO
     | WelfareMechanicDTO
+    | GraduateMechanicDTO
     | ExporterMechanicDTO
     | FreelancerMechanicDTO
     | PublicServantMechanicDTO

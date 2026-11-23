@@ -1607,3 +1607,12 @@ class FundComanagerStatus(Enum):
 
     INVITED = "INVITED"
     ACTIVE = "ACTIVE"
+
+
+class AcademicStep(Enum):
+    """Os degraus da escada acadêmica do Recém-formado; a graduação já vem concluída no início da carreira."""
+
+    GRADUATION = "GRADUATION"
+    SPECIALIZATION = "SPECIALIZATION"
+    MASTERS = "MASTERS"
+    DOCTORATE = "DOCTORATE"

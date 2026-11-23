@@ -68,6 +68,13 @@ const PROFESSION_ACTION_TEXTS: Record<string, string> = {
   convert_pension: "Converteu parte da previdência",
   redeem_pension: "Resgatou parte da previdência",
   enroll_course: "Matriculou-se no curso técnico",
+  enroll_specialization: "Matriculou-se na especialização",
+  enroll_masters: "Matriculou-se no mestrado",
+  enroll_doctorate: "Matriculou-se no doutorado",
+  conclude_specialization: "Concluiu a especialização",
+  conclude_masters: "Concluiu o mestrado",
+  conclude_doctorate: "Concluiu o doutorado",
+  leave_home: "Saiu da casa dos pais",
   savings_released: "O Pé-de-Meia liberou o saldo",
   savings_postponed: "A liberação do Pé-de-Meia pulou para a data seguinte",
 };

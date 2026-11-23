@@ -25,6 +25,7 @@ from backend.core.dto.profession import (
     EntrepreneurState,
     ExporterState,
     FreelancerState,
+    GraduateState,
     RetireeState,
     WelfareState,
 )
@@ -39,6 +40,8 @@ from backend.core.dto.profession_page import (
     ExchangeLockOptionDTO,
     ExporterMechanicDTO,
     FreelancerMechanicDTO,
+    GraduateMechanicDTO,
+    GraduateStepDTO,
     HeirMechanicDTO,
     HouseCdbDTO,
     HouseReportDTO,
@@ -64,6 +67,7 @@ from backend.core.entrepreneur import (
     split_profit,
 )
 from backend.core.enum import (
+    AcademicStep,
     IncomeSeriesEffect,
     IncomeSeriesKey,
     MeasureKind,
@@ -76,6 +80,20 @@ from backend.core.freelancer import (
     STALE_DEVIATION,
     TABLE_DEVIATIONS,
     clients_on,
+)
+from backend.core.graduate import (
+    HOME_DISCOUNT,
+    LADDER,
+    STEP_RULES,
+    UNEMPLOYMENT_STIPEND_BONUS,
+    UNEMPLOYMENT_TUITION_DISCOUNT,
+    ends_on,
+    home_ends_on,
+    lives_with_parents,
+    months_between,
+    months_done,
+    stipend_of,
+    tuition_of,
 )
 from backend.core.house_report import (
     COMMISSION_RATE,
@@ -685,6 +703,118 @@ def welfare_block(
         course_ends_on=None
         if state.course_enrolled_on is None
         else course_ends_on(state.course_enrolled_on),
+    )
+
+
+def graduate_block(
+    state: GraduateState, budget: LifeBudget, day: date, unemployment: Decimal
+) -> GraduateMechanicDTO:
+    """
+    O bloco do Recém-formado: o salário da curva e o ano da carreira, o múltiplo do fim
+    da carreira com o que o próximo degrau leva, a escada com a mensalidade ou a bolsa de
+    cada degrau (com o desconto do desemprego de hoje nos que ainda não começaram) e a casa
+    dos pais com o que a despesa sobe ao sair.
+    """
+    career = budget.rule.career
+    base = budget.base_income_on(day)
+    discount_today = unemployment > NEUTRAL_UNEMPLOYMENT
+    current = state.current
+    next_step = state.next_step
+    graduation_final = None if career is None else career.final_multiple
+    graduation_row = GraduateStepDTO(
+        step=AcademicStep.GRADUATION,
+        status="done",
+        months=0,
+        months_done=None,
+        concluded_on=add_months(budget.career_start, -1),
+        ends_on=None,
+        final_multiple=graduation_final or Decimal(1),
+        tuition=None,
+        stipend=None,
+        unemployment_discount=False,
+    )
+    rows = [graduation_row]
+    for step in LADDER:
+        rule = STEP_RULES[step]
+        done = next((item for item in state.completed if item.step is step), None)
+        if done is not None:
+            status = "done"
+        elif current is not None and current.step is step:
+            status = "current"
+        elif step is next_step:
+            status = "next"
+        else:
+            status = "later"
+        discounted = (
+            current.discounted
+            if status == "current" and current is not None
+            else discount_today
+        )
+        paid = status != "done"
+        rows.append(
+            GraduateStepDTO(
+                step=step,
+                status=status,
+                months=rule.months,
+                months_done=months_done(current.enrolled_on, step, day)
+                if status == "current" and current is not None
+                else None,
+                concluded_on=None if done is None else done.concluded_on,
+                ends_on=ends_on(current.enrolled_on, step)
+                if status == "current" and current is not None
+                else None,
+                final_multiple=rule.final_multiple,
+                tuition=tuition_of(base, discounted)
+                if paid and rule.stipend_rate is None
+                else None,
+                stipend=stipend_of(base, step, discounted)
+                if paid and rule.stipend_rate is not None
+                else None,
+                unemployment_discount=discounted and paid,
+            )
+        )
+    curve_budget = budget.with_mechanic_state(
+        lambda: state.model_copy(update={"current": None})
+    )
+    if state.left_home_on is not None and state.left_home_on <= day:
+        home = "left"
+    elif lives_with_parents(budget.career_start, state.left_home_on, day):
+        home = "with_parents"
+    else:
+        home = "expired"
+    full_expense = budget.expense_on(day)
+    return GraduateMechanicDTO(
+        status=MechanicStatus.ACTIVE
+        if current is not None
+        else MechanicStatus.AVAILABLE,
+        salary=curve_budget.net_salary_on(day),
+        stipend_income=budget.stipend_on(day),
+        career_year=months_between(budget.career_start, day) // MONTHS_PER_YEAR + 1,
+        final_multiple=state.final_multiple() or graduation_final or Decimal(1),
+        next_final_multiple=None
+        if next_step is None
+        else STEP_RULES[next_step].final_multiple,
+        next_step=next_step,
+        steps=rows,
+        next_opens_on=None
+        if current is None
+        else ends_on(current.enrolled_on, current.step),
+        months_left=None
+        if current is None
+        else STEP_RULES[current.step].months
+        - months_done(current.enrolled_on, current.step, day),
+        unemployment=unemployment,
+        neutral_unemployment=NEUTRAL_UNEMPLOYMENT,
+        unemployment_discount=discount_today,
+        tuition_discount_rate=UNEMPLOYMENT_TUITION_DISCOUNT,
+        stipend_bonus_rate=UNEMPLOYMENT_STIPEND_BONUS,
+        home=home,
+        home_discount_rate=HOME_DISCOUNT,
+        home_discount=cents(full_expense * HOME_DISCOUNT)
+        if home == "with_parents"
+        else Decimal(0),
+        home_until=home_ends_on(budget.career_start),
+        full_expense=full_expense,
     )
 
 

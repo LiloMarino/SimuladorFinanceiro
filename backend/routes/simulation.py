@@ -55,6 +55,7 @@ from backend.core.dto.strategy import (
 )
 from backend.core.dto.user import UserDTO
 from backend.core.enum import (
+    AcademicStep,
     ComputerDifficulty,
     FundPreparationKind,
     GameType,
@@ -253,6 +254,11 @@ class ReinvestShareRequest(BaseModel):
 class CapitalSaleRequest(BaseModel):
     # A fração do capital da empresa que a venda tira (1 = tudo)
     share: Decimal
+
+
+class EnrollStepRequest(BaseModel):
+    # O degrau da escada acadêmica; só o seguinte ao último concluído é aceito
+    step: AcademicStep
 
 
 class PensionAmountRequest(BaseModel):
@@ -1345,6 +1351,46 @@ def redeem_pension(payload: PensionAmountRequest, client_id: ClientID):
         raise NotFoundError("Usuário não encontrado.")
     simulation = SimulationManager.get_active_simulation()
     simulation.redeem_pension(user, payload.amount)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/enroll-step",
+    response_model=ProfessionStateDTO,
+    summary="Matricular o Recém-formado num degrau da escada acadêmica",
+    description="Matricula o Recém-formado na especialização (1 ano, trabalha junto e paga mensalidade de 10% da renda base), no mestrado (2 anos, bolsa de 35% da renda base no lugar do salário) ou no doutorado (4 anos, bolsa de 50%). Os degraus se sobem na ordem, um por vez: cada um exige o anterior concluído. Matricular com o desemprego acima do neutro fixa, até o degrau acabar, a mensalidade 30% menor e a bolsa 20% maior. Na virada do mês em que o degrau conclui, a curva de carreira ganha um trecho novo até o múltiplo do degrau. Responde 409 para a graduação, para o degrau fora de ordem, para quem já está matriculado e para outra profissão.",
+)
+def enroll_step(payload: EnrollStepRequest, client_id: ClientID):
+    """
+    Matricula no degrau quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.enroll_step(user, payload.step)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/leave-home",
+    response_model=ProfessionStateDTO,
+    summary="Sair da casa dos pais",
+    description="O Recém-formado sai da casa dos pais: a despesa paga deixa de ter o desconto de 40% dos 3 primeiros anos na profissão e volta ao normal, sem volta. Responde 409 para quem já saiu, para quem passou dos 3 anos (o desconto já acabou sozinho) e para outra profissão.",
+)
+def leave_home(client_id: ClientID):
+    """
+    Tira da casa dos pais quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.leave_home(user)
     return simulation.get_profession_state(client_id)
 
 
