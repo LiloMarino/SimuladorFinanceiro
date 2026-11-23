@@ -3349,12 +3349,77 @@ def portfolio_entrepreneur(page: Page) -> None:
     expect(page.get_by_text("Capital da empresa").first).to_be_visible()
 
 
+def retiree_profession_body(page: Page) -> dict:
+    """O corpo atual de GET /api/simulation/profession do jogador da página."""
+    return page.request.get(urljoin(page.url, "/api/simulation/profession")).json()
+
+
+def profession_retiree(page: Page) -> None:
+    """Profissão de um Aposentado no primeiro mês: o saldo de 24 rendas e, depois de converter 25% dele pela API, a renda já convertida."""
+    page_with_profession(page, "RETIREE", "/profession")
+    balance = float(retiree_profession_body(page)["mechanic"]["balance"])
+    api_send(
+        page,
+        "POST",
+        "/api/simulation/convert-pension",
+        {"amount": f"{balance * 0.25:.2f}"},
+    )
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Sua mecânica: previdência").first).to_be_visible()
+    expect(page.get_by_text("Saldo da previdência").first).to_be_visible()
+
+
+def profession_retiree_redeem(page: Page) -> None:
+    """
+    Aposentado com o saldo há 3 anos e 4 meses no plano (dado forjado: a partida acaba de
+    começar): faixa de 30%, próxima faixa de 25% em 8 meses, e o diálogo de revisão do resgate aberto.
+    """
+    page_with_profession(page, "RETIREE", "/profession")
+
+    def mechanic(body: dict | list) -> None:
+        assert isinstance(body, dict)
+        block = body["mechanic"]
+        block.update(
+            redeem_rate="0.30",
+            months_in_plan=40,
+            next_rate="0.25",
+            next_rate_months=8,
+            next_rate_on="2023-09-01",
+        )
+        block["brackets"] = [
+            {**bracket, "current": bracket["label"] == "2 a 4 anos"}
+            for bracket in block["brackets"]
+        ]
+
+    patch_get(page, PROFESSION_GLOB, mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    page.get_by_role("button", name=re.compile(r"^Resgatar R\$")).first.click()
+    expect(page.get_by_role("dialog")).to_be_visible()
+    expect(page.get_by_text("A tabela do IR pelo tempo no plano")).to_be_visible()
+
+
+def portfolio_retiree(page: Page) -> None:
+    """Carteira de um Aposentado: a linha Previdência no patrimônio travado, com o ⓘ da regra de saída."""
+    page_with_profession(page, "RETIREE", "/profession")
+    retiree_profession_body(page)
+    page.goto("/portfolio")
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Previdência").first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
     "profissao/exportador": profession_exporter,
     "profissao/exportador-trava": profession_exporter_lock,
     "profissao/autonomo": profession_freelancer,
     "profissao/empreendedor": profession_entrepreneur,
+    "profissao/aposentado": profession_retiree,
+    "profissao/aposentado-resgate": profession_retiree_redeem,
     "profissao/autonomo-parado": profession_freelancer_stalled,
     "profissao/servidor": profession_public_servant,
     "profissao/bancario": profession_banker,
@@ -3362,6 +3427,7 @@ STATES: dict[str, Callable[[Page], None]] = {
     "credito/servidor-consignado": credit_public_servant_payroll,
     "carteira/clt": portfolio_clt,
     "carteira/empreendedor": portfolio_entrepreneur,
+    "carteira/aposentado": portfolio_retiree,
     "carteira/vazia": portfolio_empty,
     "renda-variavel/detalhe": stock_detail,
     "renda-variavel/livro-com-ordem": stock_detail_with_order,
