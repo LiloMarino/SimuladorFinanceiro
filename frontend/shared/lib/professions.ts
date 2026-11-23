@@ -31,7 +31,6 @@ export type TagKey =
   | "gdp"
   | "dollar"
   | "selic"
-  | "stocks"
   | "personalTax"
   | "corporateTax"
   | "consumptionTax"
@@ -216,11 +215,19 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     name: "Corretor",
     icon: ChartCandlestick,
     description:
-      "Mercado de ações: a renda acompanha o retorno do Ibovespa em 12 meses, e o sorteio de demissão não pega.",
-    incomeMultiple: 1.05,
-    gains: [{ text: "Não é demitido" }, { text: "A renda sobe quando o Ibovespa rende mais de 12% em 12 meses" }],
-    losses: [{ text: "A renda cai quando o Ibovespa rende menos, até 60% a menos" }],
-    tags: [{ key: "stocks" }, { key: "personalTax", requires: GOVERNMENT }],
+      "Mercado de ações: um fixo de 0,7× o salário da sala mais a comissão sobre o volume que a sala negocia, e o sorteio de demissão não pega.",
+    incomeMultiple: 0.7,
+    gains: [
+      { text: "Não é demitido" },
+      { text: "A comissão chega até o valor do fixo quando a sala negocia muito" },
+      { text: "Recebe todo mês o relatório da casa, com as ações recomendadas" },
+    ],
+    losses: [
+      { text: "O fixo é 0,7× o salário da sala" },
+      { text: "Sala parada, sem negociação, paga só o fixo" },
+      { text: "A comissão se divide entre todos os Corretores da sala" },
+    ],
+    tags: [{ key: "personalTax", requires: GOVERNMENT }],
   },
   HEIR: {
     name: "Herdeiro",
@@ -337,7 +344,6 @@ export const TAG_NAMES: Record<TagKey, string> = {
   gdp: "PIB",
   dollar: "Dólar",
   selic: "SELIC",
-  stocks: "Ibovespa",
   personalTax: "IR das pessoas",
   corporateTax: "IR das empresas",
   consumptionTax: "Imposto sobre consumo",

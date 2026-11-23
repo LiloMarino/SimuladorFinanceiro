@@ -42,7 +42,6 @@ def budget(
     levers: LifeLevers | None = None,
     dollar_change: str = "0",
     selic: str = "0.12",
-    stocks: str = "0.12",
 ) -> LifeBudget:
     life = LifeBudget(
         monthly_salary=SALARY,
@@ -53,7 +52,6 @@ def budget(
         growth_on=lambda _day: Decimal(growth),
         dollar_change_on=lambda _day: Decimal(dollar_change),
         selic_on=lambda _day: Decimal(selic),
-        stocks_return_on=lambda _day: Decimal(stocks),
         levers_on=(lambda _day: levers) if levers else no_levers,
     )
     return life.for_profession(profession)
@@ -77,11 +75,12 @@ def test_reference_rates_match_the_default_tax_policy():
         (Profession.WELFARE, "4750"),
         # Aluguel de 1,1x o salário
         (Profession.LANDLORD, "5500"),
-        # Com dólar, Selic e Ibovespa nos valores neutros o fator é 1
+        # Com dólar e Selic nos valores neutros o fator é 1
         (Profession.EXPORTER, "5250"),
         (Profession.BANKER, "5500"),
         (Profession.FREELANCER, "7000"),
-        (Profession.BROKER, "5250"),
+        # Parte fixa de 0,7x; a comissão da sala soma por cima
+        (Profession.BROKER, "3500"),
         # Vive do capital da herança: sem renda de trabalho
         (Profession.HEIR, "0"),
         # Começa em 0,85x e sobe com a carreira
@@ -142,7 +141,7 @@ def test_welfare_income_doubles_when_the_government_doubles_the_spending():
         (Profession.BANKER, "0"),
         # O mês sem cliente tira toda a renda
         (Profession.FREELANCER, "0"),
-        (Profession.BROKER, "5250"),
+        (Profession.BROKER, "3500"),
         (Profession.HEIR, "0"),
         (Profession.NEW_GRADUATE, "0"),
     ],
@@ -244,8 +243,6 @@ def test_the_gdp_curve_has_no_ceiling():
         (Profession.EXPORTER, {"dollar_change": "0.2"}, "6300"),
         # Selic de 16%: fator de 1 + 4 x (16% - 12%) = 1,16 sobre 5.500
         (Profession.BANKER, {"selic": "0.16"}, "6380"),
-        # Ibovespa 20% abaixo: fator de 1 + 1,5 x (-20% - 12%) = 0,52 sobre 5.250
-        (Profession.BROKER, {"stocks": "-0.2"}, "2730"),
     ],
 )
 def test_the_income_follows_the_variable_of_the_profession(

@@ -53,8 +53,6 @@ class IncomeDriver(Enum):
     DOLLAR = "DOLLAR"
     # O nível da SELIC ao ano
     SELIC = "SELIC"
-    # O retorno do Ibovespa em 12 meses
-    STOCKS = "STOCKS"
 
 
 class StartingCapital(Enum):
@@ -141,9 +139,6 @@ DRIVER_CURVES: dict[IncomeDriver, DriverCurve] = {
     ),
     IncomeDriver.SELIC: DriverCurve(
         Decimal("4.0"), Decimal("0.12"), Decimal("0.5"), Decimal("2.0")
-    ),
-    IncomeDriver.STOCKS: DriverCurve(
-        Decimal("1.5"), Decimal("0.12"), Decimal("0.4"), Decimal("2.0")
     ),
 }
 
@@ -258,10 +253,10 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         inflation_indexed=False,
         requires_inflation_adjusted=True,
     ),
+    # O salário fixo; a comissão sobre o volume da sala entra no pagamento do mês seguinte
     Profession.BROKER: ProfessionRule(
-        income_multiple=Decimal("1.05"),
+        income_multiple=Decimal("0.7"),
         tax=TaxBase.PERSONAL,
-        driver=IncomeDriver.STOCKS,
     ),
     Profession.HEIR: ProfessionRule(
         income_multiple=Decimal(0),

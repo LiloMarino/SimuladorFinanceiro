@@ -434,6 +434,13 @@ class OvertimeAvailableEventDTO(BaseDTO):
     event_date: date
 
 
+class HouseReportIssuedEventDTO(BaseDTO):
+    """A casa do Corretor mandou o relatório do mês: o selo das ações e o bloco da profissão precisam reler."""
+
+    month: date
+    issued_on: date
+
+
 class CreditMonthlySummaryEventDTO(BaseDTO):
     """O resumo do mês que substitui o aviso de cada parcela nas velocidades altas."""
 
@@ -637,6 +644,7 @@ class RealtimeEventCatalog(BaseDTO):
     goal_progress_update: GoalProgressDTO
     life_event: LifeEventDTO
     overtime_available: OvertimeAvailableEventDTO
+    house_report_issued: HouseReportIssuedEventDTO
     auto_redeem: AutoRedeemEventDTO
     corporate_actions: CorporateActionsEventDTO
     order_executed: OrderExecutedEventDTO

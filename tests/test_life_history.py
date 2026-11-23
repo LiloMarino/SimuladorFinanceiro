@@ -338,6 +338,8 @@ def _living(
     fake._run_welfare_month = partial(Simulation._run_welfare_month, living)
     fake._run_welfare_policy = partial(Simulation._run_welfare_policy, living)
     fake._run_exchange_lock_month = partial(Simulation._run_exchange_lock_month, living)
+    fake._broker_state_of = partial(Simulation._broker_state_of, living)
+    fake._run_broker_month = partial(Simulation._run_broker_month, living)
     fake._exporter_state_of = partial(Simulation._exporter_state_of, living)
     fake.apply_profession_action = partial(Simulation.apply_profession_action, living)
     fake._life_budget = partial(Simulation._life_budget, living)

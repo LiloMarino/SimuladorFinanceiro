@@ -16,15 +16,18 @@ import { AssetOriginFlag } from "@/shared/components/asset-origin-flag";
 import { ASSET_CLASSES, ASSET_CLASS_LABELS } from "@/shared/lib/asset-class";
 import { ASSET_ORIGIN_LABELS, ASSET_ORIGINS } from "@/shared/lib/asset-origin";
 import { MarketTable } from "../components/market-table";
-import type { AssetClass, AssetOrigin } from "@/types";
+import { useHousePicks } from "../hooks/queries/useHousePicks";
+import type { AssetClass, AssetOrigin, HousePick } from "@/types";
 
 type Filter = "ALL" | AssetClass;
 const ALL_SECTORS = "__all__";
 const NO_SECTOR = "__none__";
+const NO_HOUSE_PICKS: ReadonlyMap<string, HousePick["side"]> = new Map();
 
 export default function VariableIncomePage() {
   const { data: quotes, isLoading, error, refetch } = useVariableIncomeStocks();
   const { data: portfolio } = usePortfolio({ activeAccount: true });
+  const { data: housePicks = NO_HOUSE_PICKS } = useHousePicks();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("ALL");
   // Nenhuma origem marcada mostra todas
@@ -106,7 +109,7 @@ export default function VariableIncomePage() {
         </CardContent>
       );
     }
-    return <MarketTable quotes={visible} holdings={holdings} message={message} />;
+    return <MarketTable quotes={visible} holdings={holdings} housePicks={housePicks} message={message} />;
   };
 
   return (

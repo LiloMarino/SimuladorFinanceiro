@@ -373,6 +373,7 @@ export type LifeStatus = components["schemas"]["LifeStatusDTO"];
 export type ProfessionPage = components["schemas"]["ProfessionPageDTO"];
 export type IncomeSeries = ProfessionPage["series"][number];
 export type ProfessionMechanic = ProfessionPage["mechanic"];
+export type HousePick = components["schemas"]["HousePickDTO"];
 export type OvertimeRequest = components["schemas"]["OvertimeRequest"];
 export type ExchangeLockRequest = components["schemas"]["ExchangeLockRequest"];
 export type ExportMixRequest = components["schemas"]["ExportMixRequest"];

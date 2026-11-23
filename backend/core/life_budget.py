@@ -6,6 +6,7 @@ from datetime import date, timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 
 from backend.core.dto.profession import (
+    BrokerState,
     ExchangeLock,
     ExporterState,
     FreelancerState,
@@ -20,6 +21,7 @@ from backend.core.freelancer import (
     empty_month_weight,
     price_range,
 )
+from backend.core.house_report import Commission, commission
 from backend.core.indicators import (
     anniversaries,
     annual_index_rate,
@@ -78,10 +80,6 @@ def neutral_selic(day: date) -> Decimal:
     return DRIVER_CURVES[IncomeDriver.SELIC].neutral
 
 
-def neutral_stocks_return(day: date) -> Decimal:
-    return DRIVER_CURVES[IncomeDriver.STOCKS].neutral
-
-
 @dataclass(frozen=True)
 class LifeBudget:
     """
@@ -102,13 +100,12 @@ class LifeBudget:
     start_date: date
     # Crescimento do PIB de 12 meses da partida em cada dia, em fração (0.031)
     growth_on: Callable[[date], Decimal] = no_growth
-    # A variação do dólar em 12 meses, a SELIC ao ano e o retorno do Ibovespa em 12
-    # meses da partida em cada dia, em fração; o padrão é o valor neutro de cada curva
+    # A variação do dólar em 12 meses e a SELIC ao ano da partida em cada dia, em fração;
+    # o padrão é o valor neutro de cada curva
     dollar_change_on: Callable[[date], Decimal] = no_dollar_change
     # O dólar da partida em reais em cada dia; a trava de câmbio compara o dólar travado com o de 12 meses antes
     dollar_on: Callable[[date], Decimal] = parity_dollar
     selic_on: Callable[[date], Decimal] = neutral_selic
-    stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return
     # O desemprego da partida sobre o neutro em cada dia; os clientes do Autônomo perdem com ele
     unemployment_ratio_on: Callable[[date], Decimal] = neutral_unemployment_ratio
     profession: Profession = Profession.CLT
@@ -131,7 +128,6 @@ class LifeBudget:
         levers_on: Callable[[date], LifeLevers] = no_levers,
         dollar_change_on: Callable[[date], Decimal] = no_dollar_change,
         selic_on: Callable[[date], Decimal] = neutral_selic,
-        stocks_return_on: Callable[[date], Decimal] = neutral_stocks_return,
         dollar_on: Callable[[date], Decimal] = parity_dollar,
         unemployment_ratio_on: Callable[[date], Decimal] = neutral_unemployment_ratio,
     ) -> "LifeBudget":
@@ -145,7 +141,6 @@ class LifeBudget:
             levers_on=levers_on,
             dollar_change_on=dollar_change_on,
             selic_on=selic_on,
-            stocks_return_on=stocks_return_on,
             dollar_on=dollar_on,
             unemployment_ratio_on=unemployment_ratio_on,
         )
@@ -192,6 +187,7 @@ class LifeBudget:
             exposed = self.price_on(day) * self.clients_on(day)
         if rule.driver is not None:
             exposed *= self.driver_factor_on(day)
+        exposed += self.broker_commission_on(day).amount
         benefit = (
             self.monthly_salary
             * rule.benefit_multiple
@@ -200,6 +196,29 @@ class LifeBudget:
             / REFERENCE_WELFARE_SPENDING
         )
         return cents(exposed), cents(benefit)
+
+    def fixed_income_on(self, day: date) -> Decimal:
+        """A parte fixa do salário do mês: o salário do host vezes o múltiplo da profissão, reajustado, sem mecânica nem variável."""
+        return cents(
+            self.monthly_salary * self.multiple_on(day) * self._salary_factor(day)
+        )
+
+    def broker_commission_on(self, day: date) -> Commission:
+        """A comissão do Corretor no mês, bruta: a do volume que a virada do mês guardou, até o teto sobre a parte fixa; zero nas demais profissões."""
+        state = self.current_mechanic_state()
+        if (
+            self.profession is not Profession.BROKER
+            or self.presidency_multiple is not None
+            or not isinstance(state, BrokerState)
+        ):
+            return Commission(Decimal(0), Decimal(0))
+        return commission(state.volume, state.brokers, self.fixed_income_on(day))
+
+    def broker_commission_net_on(self, day: date) -> Decimal:
+        """A comissão do Corretor depois do imposto da profissão."""
+        return cents(
+            self.broker_commission_on(day).amount * (1 - self.tax_deviation_on(day))
+        )
 
     def multiple_on(self, day: date) -> Decimal:
         """O múltiplo do salário do host que a profissão rende no dia: o da carreira sobe em linha reta desde o início da partida."""
@@ -239,8 +258,6 @@ class LifeBudget:
                 return self.dollar_change_on(day)
             case IncomeDriver.SELIC:
                 return self.selic_on(day)
-            case IncomeDriver.STOCKS:
-                return self.stocks_return_on(day)
             case None:
                 return None
 

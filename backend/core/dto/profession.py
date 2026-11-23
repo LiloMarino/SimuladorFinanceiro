@@ -198,6 +198,17 @@ class WelfareState(MechanicState):
         ]
 
 
+class BrokerState(MechanicState):
+    """O estado do Corretor: o volume da sala e os Corretores do mês que fechou, que dão a comissão, e o que o bot comprou de cada recomendação."""
+
+    # O volume negociado na sala no mês civil anterior, lido na virada do mês
+    volume: Decimal = Decimal(0)
+    # Quantos Corretores dividem a comissão desse volume
+    brokers: int = 0
+    # A quantidade que a política do bot comprou de cada recomendação, pelo id dela; sai quando ele vende no prazo
+    bought: dict[str, Decimal] = Field(default_factory=dict)
+
+
 class MechanicAction(BaseDTO):
     """Uma ação do jogador (ou da política do bot) sobre a mecânica; `kind` é o nome dela no histórico da vida."""
 
@@ -342,6 +353,7 @@ class ProfessionStateDTO(BaseDTO):
 
 # O tipo do estado de cada profissão com mecânica; as demais usam o tipo base
 STATE_TYPES: dict[Profession, type[MechanicState]] = {
+    Profession.BROKER: BrokerState,
     Profession.CLT: CltState,
     Profession.ENTREPRENEUR: EntrepreneurState,
     Profession.EXPORTER: ExporterState,

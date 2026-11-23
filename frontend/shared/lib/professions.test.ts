@@ -73,7 +73,7 @@ describe("visibleProfession das profissões novas", () => {
   it("cada profissão de variável traz a etiqueta dela", () => {
     expect(visibleProfession("EXPORTER", room()).tags).toEqual(["dollar", "corporateTax"]);
     expect(visibleProfession("BANKER", room()).tags).toEqual(["unemployment", "selic", "personalTax"]);
-    expect(visibleProfession("BROKER", room()).tags).toEqual(["stocks", "personalTax"]);
+    expect(visibleProfession("BROKER", room()).tags).toEqual(["personalTax"]);
   });
 });
 

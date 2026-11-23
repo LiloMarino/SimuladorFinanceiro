@@ -31,6 +31,7 @@ const BOUGHT = 7;
 const PORTFOLIO = 8;
 
 const NO_HOLDINGS = new Map<string, string>();
+const NO_HOUSE_PICKS = new Map<string, "buy" | "sell">();
 const SIZE = byId("order-size");
 
 interface Target {
@@ -76,7 +77,7 @@ export default function BuyStockIllustration({ beat, step, still = false }: Illu
           >
             {screen === "list" && (
               <Card size="flush">
-                <MarketTable quotes={STAGE_QUOTES} holdings={NO_HOLDINGS} message={null} />
+                <MarketTable quotes={STAGE_QUOTES} holdings={NO_HOLDINGS} housePicks={NO_HOUSE_PICKS} message={null} />
               </Card>
             )}
             {screen === "detail" && (

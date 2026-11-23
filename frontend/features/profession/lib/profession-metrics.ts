@@ -126,13 +126,38 @@ export const SELIC_RATE: MetricInfo = {
   format: (value) => displayPercent(value, 2),
 };
 
-export const STOCKS_RETURN: MetricInfo = {
-  label: "Retorno do Ibovespa em 12 meses",
-  description: "Quanto a bolsa subiu ou caiu em um ano",
-  definition: "A variação do índice Ibovespa, que resume as principais ações da bolsa, nos últimos 12 meses.",
-  example: "Ex.: +20% → quem tinha R$ 10.000 numa carteira igual ao índice tem R$ 12.000.",
-  reading: "Bolsa em alta aumenta a renda de profissões ligadas ao mercado; em queda, reduz.",
-  format: (value) => displaySignedPercent(value, 1),
+export const HOUSE_SCOREBOARD: MetricInfo = {
+  label: "Placar da casa",
+  description: "Quantas recomendações acertaram o preço-alvo dentro do prazo, entre as que já venceram",
+  definition:
+    "Quantas recomendações acertaram o preço-alvo dentro do prazo, entre as que já venceram. A compra acerta quando a máxima do dia toca o alvo; a venda, quando a mínima toca. Recomendação com o prazo aberto ainda não entra na conta.",
+  example:
+    "Ex.: Acertou 14 de 22 (64%): de 22 recomendações com o prazo vencido, 14 chegaram no alvo. Chutando, acertaria cerca de 11 (50%).",
+  reading: "Acima de 50% a casa ajuda. Com poucas recomendações vencidas (ex.: 3 de 4) o número ainda diz pouco.",
+  format: (value) => displayPercent(value, 0),
+};
+
+export const BROKER_COMMISSION: MetricInfo = {
+  label: "Comissão",
+  description: "A parte do Corretor no volume negociado pela sala no mês anterior",
+  definition:
+    "A corretora ganha 0,05% de tudo o que a sala negocia em ações, FIIs, ETFs e BDRs, e divide em partes iguais entre os Corretores da sala. A comissão de um mês cai junto com o salário do mês seguinte, e vale no máximo o valor da parte fixa.",
+  example:
+    "Ex.: a sala negociou R$ 20.000.000 → 0,05% são R$ 10.000; com 4 Corretores, R$ 2.500 para cada um, que entram no mês seguinte.",
+  reading:
+    "Sala movimentada rende mais; sala parada, só o fixo. Dividir com mais Corretores diminui a sua parte, e o teto corta o que passar do valor do fixo.",
+  format: (value) => displayMoney(value),
+};
+
+export const TARGET_PRICE: MetricInfo = {
+  label: "Preço-alvo",
+  description: "O preço que a recomendação diz que a ação vai tocar até o prazo",
+  definition:
+    "O preço que a corretora espera ver até o prazo. Na compra o alvo fica acima do preço de hoje e acerta quando a máxima de um pregão toca nele; na venda fica abaixo e acerta quando a mínima toca.",
+  example: "Ex.: compra com a ação a R$ 40,00 e alvo de R$ 46,00 → acerta se em algum pregão ela chegar a R$ 46,00.",
+  reading:
+    "Quanto mais longe do preço de hoje, mais difícil de tocar. O relatório erra: um alvo errado fecha o prazo sem ser tocado.",
+  format: (value) => displayMoney(value),
 };
 
 export const SERVANT_RAISE: MetricInfo = {

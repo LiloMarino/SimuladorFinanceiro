@@ -26,6 +26,7 @@ import { StateCompanyMonthsCard } from "../components/state-company/state-compan
 import { StateCompanyPolicyCard } from "../components/state-company/state-company-policy-card";
 import { usePendingOrders } from "../hooks/queries/usePendingOrders";
 import { useVariableIncomeStock } from "../hooks/queries/useVariableIncomeStock";
+import { useHousePicks } from "../hooks/queries/useHousePicks";
 import { useIndicatorSettings } from "../hooks/queries/useIndicatorSettings";
 import { usePortfolioPosition } from "../hooks/queries/usePortfolioPosition";
 import { useStateCompanyDetail } from "../hooks/queries/useStateCompanyDetail";
@@ -104,6 +105,7 @@ function StockDetailsBody({ stock, fund, stateCompany }: StockDetailsBodyProps) 
   const { data: position } = usePortfolioPosition(stock.ticker);
   const { data: indicatorSettings } = useIndicatorSettings();
   const { fund: activeAccount } = useActiveAccount();
+  const { data: housePicks } = useHousePicks();
 
   // Clicar numa venda prepara a compra limitada ao preço dela; numa compra, a venda
   const pickOffer = (order: Order) => {
@@ -119,7 +121,7 @@ function StockDetailsBody({ stock, fund, stateCompany }: StockDetailsBodyProps) 
 
   return (
     <>
-      <StockHeader stock={stock} stateCompany={stateCompany} />
+      <StockHeader stock={stock} stateCompany={stateCompany} housePick={housePicks?.get(stock.ticker)} />
       {fund && (
         <>
           {/* Cards da gestora */}

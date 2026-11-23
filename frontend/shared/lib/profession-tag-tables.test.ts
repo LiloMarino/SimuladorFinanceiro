@@ -92,15 +92,4 @@ describe("tagTable", () => {
       ["4%", "R$ 3.740 (−32%)"],
     ]);
   });
-
-  it("Ibovespa do Corretor: fator 1 + 1,5 × (retorno − 12%), entre 0,4 e 2", () => {
-    // Renda de 5.250: +40% → 1,42; 0% → 0,82; −20% → 0,52; −40% → 0,22 vira o piso de 0,4
-    expect(rows(tagTable("stocks", "BROKER", 5000))).toEqual([
-      ["+40%", "R$ 7.455 (+42%)"],
-      ["+12%", "R$ 5.250"],
-      ["0%", "R$ 4.305 (−18%)"],
-      ["−20%", "R$ 2.730 (−48%)"],
-      ["−40% ou menos", "R$ 2.100 (piso)"],
-    ]);
-  });
 });

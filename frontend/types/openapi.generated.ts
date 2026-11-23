@@ -4516,6 +4516,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/house-picks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ações do relatório da casa do Corretor
+         * @description A ação e o lado (compra ou venda) de cada recomendação do relatório vigente da casa, para o selo na Renda variável. Só o Corretor vê: para as demais profissões, e antes do primeiro relatório, a lista vem vazia. Não traz preço-alvo nem preço futuro. Responde 409 sem partida.
+         */
+        get: operations["get_house_picks_api_simulation_house_picks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/overtime": {
         parameters: {
             query?: never;
@@ -6135,6 +6155,45 @@ export interface components {
             ticker: string;
             /** Name */
             name: string;
+        };
+        /**
+         * BrokerMechanicDTO
+         * @description O relatório da casa, o placar e a comissão do Corretor.
+         */
+        BrokerMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "broker";
+            status: components["schemas"]["MechanicStatus"];
+            current: components["schemas"]["HouseReportDTO"] | null;
+            previous: components["schemas"]["HouseReportDTO"] | null;
+            /**
+             * Next Report On
+             * Format: date
+             */
+            next_report_on: string;
+            /** Hits */
+            hits: number;
+            /** Resolved */
+            resolved: number;
+            /** Hit Rate */
+            hit_rate: string | null;
+            /** Income */
+            income: string;
+            /** Fixed Income */
+            fixed_income: string;
+            /** Commission */
+            commission: string;
+            /** Commission Rate */
+            commission_rate: string;
+            /** Volume */
+            volume: string;
+            /** Brokers */
+            brokers: number;
+            /** Capped */
+            capped: boolean;
         };
         /**
          * BudgetAmountsDTO
@@ -10623,6 +10682,90 @@ export interface components {
             /** Federations */
             federations: components["schemas"]["FederationDTO"][];
         };
+        /**
+         * HousePickDTO
+         * @description A ação de uma recomendação do relatório vigente e o lado dela; é o que o selo da Renda variável mostra.
+         */
+        HousePickDTO: {
+            /** Ticker */
+            ticker: string;
+            side: components["schemas"]["OrderAction"];
+        };
+        /**
+         * HouseRecommendationDTO
+         * @description Uma recomendação do relatório da casa: o lado, o preço do dia, o alvo, o prazo e, depois do desfecho, o resultado.
+         */
+        HouseRecommendationDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Report Month
+             * Format: date
+             */
+            report_month: string;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /** Ticker */
+            ticker: string;
+            side: components["schemas"]["OrderAction"];
+            /** Price */
+            price: string;
+            /** Target */
+            target: string;
+            /**
+             * Deadline
+             * Format: date
+             */
+            deadline: string;
+            result: components["schemas"]["HouseResult"] | null;
+            /** Result Price */
+            result_price: string | null;
+            /** Resolved On */
+            resolved_on: string | null;
+        };
+        /**
+         * HouseReportDTO
+         * @description O relatório de um mês: o dia em que saiu e as recomendações, na ordem em que a casa as deu.
+         */
+        HouseReportDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+            /** Items */
+            items: components["schemas"]["HouseRecommendationDTO"][];
+        };
+        /**
+         * HouseReportIssuedEventDTO
+         * @description A casa do Corretor mandou o relatório do mês: o selo das ações e o bloco da profissão precisam reler.
+         */
+        HouseReportIssuedEventDTO: {
+            /**
+             * Month
+             * Format: date
+             */
+            month: string;
+            /**
+             * Issued On
+             * Format: date
+             */
+            issued_on: string;
+        };
+        /**
+         * HouseResult
+         * @description O desfecho de uma recomendação do relatório da casa; sem desfecho ela segue em aberto.
+         * @enum {string}
+         */
+        HouseResult: "hit" | "miss";
         /** ImpeachmentDTO */
         ImpeachmentDTO: {
             /**
@@ -10713,7 +10856,7 @@ export interface components {
          * @description A variável da partida que move a renda da profissão.
          * @enum {string}
          */
-        IncomeDriver: "GDP" | "DOLLAR" | "SELIC" | "STOCKS";
+        IncomeDriver: "GDP" | "DOLLAR" | "SELIC";
         /**
          * IncomeHeaderDTO
          * @description Os quatro números do topo da página.
@@ -10776,7 +10919,7 @@ export interface components {
          * @description O indicador que mexe na renda e ganha um gráfico (ou uma alavanca do governo) na página da profissão.
          * @enum {string}
          */
-        IncomeSeriesKey: "GDP" | "UNEMPLOYMENT" | "DOLLAR" | "SELIC" | "STOCKS" | "SERVANT_RAISE" | "RETIREE_RAISE" | "WELFARE_SPENDING";
+        IncomeSeriesKey: "GDP" | "UNEMPLOYMENT" | "DOLLAR" | "SELIC" | "SERVANT_RAISE" | "RETIREE_RAISE" | "WELFARE_SPENDING";
         /** IncomeSeriesPointDTO */
         IncomeSeriesPointDTO: {
             /**
@@ -13826,7 +13969,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["BrokerMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -14254,6 +14397,7 @@ export interface components {
             goal_progress_update: components["schemas"]["GoalProgressDTO"];
             life_event: components["schemas"]["LifeEventDTO"];
             overtime_available: components["schemas"]["OvertimeAvailableEventDTO"];
+            house_report_issued: components["schemas"]["HouseReportIssuedEventDTO"];
             auto_redeem: components["schemas"]["AutoRedeemEventDTO"];
             corporate_actions: components["schemas"]["CorporateActionsEventDTO"];
             order_executed: components["schemas"]["OrderExecutedEventDTO"];
@@ -27593,6 +27737,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProfessionPageDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_house_picks_api_simulation_house_picks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HousePickDTO"][];
                 };
             };
             /** @description Unprocessable Content */

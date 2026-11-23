@@ -4,9 +4,10 @@ import { AssetOriginFlag } from "@/shared/components/asset-origin-flag";
 import { Badge } from "@/shared/components/ui/badge";
 import { Table, TableBody, TableCell, TableEmptyRow, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { displayCompactNumber, displayMoney, displayQuantity, displaySignedPercent } from "@/shared/lib/utils/display";
-import type { MarketQuote } from "@/types";
+import type { HousePick, MarketQuote } from "@/types";
 import { SortableTableHead } from "@/shared/components/sortable-table-head";
 import { useTableSort } from "@/shared/hooks/useTableSort";
+import { HousePickBadge } from "./house-pick-badge";
 
 const COLUMNS = 7;
 
@@ -65,11 +66,13 @@ function Sparkline({ values }: { values: number[] }) {
 type MarketTableProps = {
   quotes: MarketQuote[];
   holdings: Map<string, string>;
+  /** O lado de cada ação do relatório da casa; vazio para quem não é Corretor */
+  housePicks: ReadonlyMap<string, HousePick["side"]>;
   /** Erro, base vazia ou filtro sem resultado: ocupa uma linha, com o cabeçalho mantido */
   message: ReactNode;
 };
 
-export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
+export function MarketTable({ quotes, holdings, housePicks, message }: MarketTableProps) {
   const navigate = useNavigate();
   const sorting = useTableSort(quotes, {
     ticker: (q) => q.ticker,
@@ -107,6 +110,7 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
         {sorting.rows.map((q) => {
           const held = holdings.get(q.ticker);
           const classLabel = CLASS_LABELS[q.asset_class];
+          const housePick = housePicks.get(q.ticker);
           return (
             <TableRow key={q.ticker} onActivate={() => void navigate(`/variable-income/${q.ticker}`)}>
               <TableCell>
@@ -129,6 +133,7 @@ export function MarketTable({ quotes, holdings, message }: MarketTableProps) {
                         Estatal
                       </Badge>
                     )}
+                    {housePick && <HousePickBadge side={housePick} />}
                   </span>
                   <span className="max-w-56 truncate text-xs text-muted-foreground">{q.name}</span>
                 </div>

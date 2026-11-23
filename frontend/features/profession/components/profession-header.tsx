@@ -10,6 +10,7 @@ import { HEALTH_COST, LAYOFF_CHANCE, REAL_RAISE } from "../lib/profession-metric
 
 // A parte da renda que a mecânica da profissão soma ao salário
 const MECHANIC_INCOME_NAMES: Partial<Record<ProfessionPage["profession"], string>> = {
+  BROKER: "comissão",
   CLT: "hora extra",
   OFFERS_BANKER: "comissão",
   RETIREE: "renda vitalícia",

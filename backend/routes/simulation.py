@@ -10,6 +10,7 @@ from backend.core import repository
 from backend.core.dto.base import NAME_MAX_LENGTH
 from backend.core.dto.bot import RoomBotDTO
 from backend.core.dto.goal import GoalProgressDTO
+from backend.core.dto.house_report import HousePickDTO
 from backend.core.dto.life import (
     LifeEventTypes,
     LifeFrequenciesDTO,
@@ -1168,6 +1169,21 @@ def get_profession_page(client_id: ClientID):
     if not SimulationManager.has_active_simulation():
         raise ConflictError("Não há partida em andamento.")
     return SimulationManager.get_active_simulation().get_profession_page(client_id)
+
+
+@simulation_router.get(
+    "/house-picks",
+    response_model=list[HousePickDTO],
+    summary="Ações do relatório da casa do Corretor",
+    description="A ação e o lado (compra ou venda) de cada recomendação do relatório vigente da casa, para o selo na Renda variável. Só o Corretor vê: para as demais profissões, e antes do primeiro relatório, a lista vem vazia. Não traz preço-alvo nem preço futuro. Responde 409 sem partida.",
+)
+def get_house_picks(client_id: ClientID):
+    """
+    Retorna as ações do relatório vigente da casa para quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    return SimulationManager.get_active_simulation().get_house_picks(client_id)
 
 
 @simulation_router.post(

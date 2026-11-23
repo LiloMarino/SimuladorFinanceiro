@@ -96,7 +96,6 @@ _DRIVER_NAMES = {
     IncomeDriver.GDP: "o PIB a {}",
     IncomeDriver.DOLLAR: "o dólar variando {} em 12 meses",
     IncomeDriver.SELIC: "a SELIC a {} ao ano",
-    IncomeDriver.STOCKS: "o Ibovespa rendendo {} em 12 meses",
 }
 
 _TAX_NAMES = {

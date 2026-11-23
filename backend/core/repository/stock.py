@@ -1,5 +1,6 @@
 from bisect import bisect_right
 from datetime import date
+from decimal import Decimal
 
 import pandas as pd
 from sqlalchemy import delete, func, or_, select, true, update
@@ -690,6 +691,38 @@ class StockRepository:
         for ticker, price_date, close in rows:
             closes[ticker][price_date] = close
         return closes
+
+    @transactional
+    def get_highs_lows_between(
+        self,
+        session: Session,
+        tickers: list[str],
+        start: date,
+        end: date,
+        simulation_id: int | None = None,
+    ) -> dict[str, list[tuple[date, Decimal, Decimal]]]:
+        """A máxima e a mínima de cada ticker em [start, end], por dia de pregão, em ordem cronológica; lê o futuro guardado da partida."""
+        rows = session.execute(
+            select(
+                Stock.ticker,
+                StockPriceHistory.price_date,
+                StockPriceHistory.high,
+                StockPriceHistory.low,
+            )
+            .join(StockPriceHistory, StockPriceHistory.stock_id == Stock.id)
+            .where(
+                Stock.ticker.in_(tickers),
+                StockPriceHistory.price_date.between(start, end),
+                seen_by(StockPriceHistory, reading_version(simulation_id)),
+            )
+            .order_by(Stock.ticker, StockPriceHistory.price_date)
+        ).all()
+        ranges: dict[str, list[tuple[date, Decimal, Decimal]]] = {
+            ticker: [] for ticker in tickers
+        }
+        for ticker, price_date, high, low in rows:
+            ranges[ticker].append((price_date, Decimal(str(high)), Decimal(str(low))))
+        return ranges
 
     @transactional
     def get_closes_on(

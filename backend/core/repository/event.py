@@ -1,5 +1,6 @@
 from collections import defaultdict
 from datetime import date
+from decimal import Decimal
 
 from sqlalchemy import Case, func, select
 from sqlalchemy.orm import Session
@@ -12,13 +13,14 @@ from backend.core.dto.events.credit import CreditEventDTO
 from backend.core.dto.events.equity import EquityEventDTO
 from backend.core.dto.events.fixed_income import FixedIncomeEventDTO
 from backend.core.dto.events.strategy import StrategyEventDTO
-from backend.core.enum import AssetClass, CashflowEventType
+from backend.core.enum import AssetClass, CashflowEventType, EquityEventType
 from backend.core.models.models import (
     EventCashflow,
     EventCredit,
     EventEquity,
     EventFixedIncome,
     GovernmentEvent,
+    Portfolios,
     Stock,
 )
 from backend.core.repository.strategy import log_models
@@ -135,6 +137,40 @@ class EventRepository:
             for t, d, q in session.execute(stmt).all()
             if q != 0
         ]
+
+    @transactional
+    def get_traded_volume(
+        self, session: Session, simulation_id: int, start: date, end: date
+    ) -> Decimal:
+        """
+        O volume negociado em [start, end): quantidade vezes preço das compras e vendas
+        de ações, FIIs, ETFs e BDRs dos jogadores e dos bots. Cripto, cota de gestora e as
+        carteiras da gestora e do Fundo Soberano (sem jogador) ficam de fora, assim como
+        desdobramento, fração, integralização e fusão.
+        """
+        volume = session.scalar(
+            select(func.coalesce(func.sum(EventEquity.quantity * EventEquity.price), 0))
+            .join(Stock, Stock.id == EventEquity.stock_id)
+            .join(Portfolios, Portfolios.id == EventEquity.portfolio_id)
+            .where(
+                EventEquity.simulation_id == simulation_id,
+                EventEquity.event_type.in_(
+                    [EquityEventType.BUY.value, EquityEventType.SELL.value]
+                ),
+                EventEquity.event_date >= start,
+                EventEquity.event_date < end,
+                Portfolios.user_id.is_not(None),
+                Stock.asset_class.in_(
+                    [
+                        AssetClass.STOCK.value,
+                        AssetClass.FII.value,
+                        AssetClass.ETF.value,
+                        AssetClass.BDR.value,
+                    ]
+                ),
+            )
+        )
+        return Decimal(volume or 0)
 
     def _insert_cashflows(
         self, session: Session, cashflow_events: list[CashflowEventDTO]

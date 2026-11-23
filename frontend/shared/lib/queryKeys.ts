@@ -11,6 +11,7 @@ export const queryKeys = {
   goalProgress: (simulationId: number) => ["simulation", "goal-progress", simulationId] as const,
   professionAll: () => ["simulation", "profession"] as const,
   profession: (simulationId: number) => ["simulation", "profession", simulationId] as const,
+  housePicks: (simulationId: number) => ["simulation", "profession", "house-picks", simulationId] as const,
   lifeStatusAll: () => ["simulation", "life"] as const,
   lifeStatus: (simulationId: number) => ["simulation", "life", simulationId] as const,
   summaries: (simulationId: number) => ["simulation", "summaries", simulationId] as const,

@@ -12,6 +12,7 @@ from backend.core.repository.fund_directed_issuance import (
 )
 from backend.core.repository.generated_future import GeneratedFutureRepository
 from backend.core.repository.government import GovernmentRepository
+from backend.core.repository.house_report import HouseReportRepository
 from backend.core.repository.import_settings import ImportSettingsRepository
 from backend.core.repository.last_simulation_settings import (
     LastSimulationSettingsRepository,
@@ -59,5 +60,6 @@ strategy = StrategyRepository()
 candle_challenge = CandleChallengeRepository()
 summaries = SummaryRepository()
 news = NewsRepository()
+house_report = HouseReportRepository()
 sovereign_fund = SovereignFundRepository()
 state_company = StateCompanyRepository()

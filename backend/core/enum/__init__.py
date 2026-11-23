@@ -183,6 +183,15 @@ class OrderAction(Enum):
     SELL = "sell"
 
 
+class HouseResult(Enum):
+    """O desfecho de uma recomendação do relatório da casa; sem desfecho ela segue em aberto."""
+
+    # O preço bateu o alvo dentro do prazo
+    HIT = "hit"
+    # O prazo fechou sem o preço tocar o alvo
+    MISS = "miss"
+
+
 class OrderOwner(Enum):
     """Quem pôs a ordem no livro."""
 
@@ -1522,7 +1531,6 @@ class IncomeSeriesKey(Enum):
     UNEMPLOYMENT = "UNEMPLOYMENT"
     DOLLAR = "DOLLAR"
     SELIC = "SELIC"
-    STOCKS = "STOCKS"
     SERVANT_RAISE = "SERVANT_RAISE"
     RETIREE_RAISE = "RETIREE_RAISE"
     WELFARE_SPENDING = "WELFARE_SPENDING"

@@ -88,6 +88,7 @@ from backend.core.dto.government import (
     PromisesPanelDTO,
     ProposeMeasureRequest,
 )
+from backend.core.dto.house_report import HousePickDTO, HouseRecommendationDTO
 from backend.core.dto.life import (
     LifeEventDTO,
     LifeEventTypeDTO,
@@ -112,6 +113,7 @@ from backend.core.dto.profession import (
     OVERTIME_ENDED,
     SAVINGS_POSTPONED,
     SAVINGS_RELEASED,
+    BrokerState,
     CltState,
     ConvertPension,
     EnrollCourse,
@@ -132,7 +134,11 @@ from backend.core.dto.profession import (
     SetReinvestShare,
     WelfareState,
 )
-from backend.core.dto.profession_page import MechanicBlockDTO, ProfessionPageDTO
+from backend.core.dto.profession_page import (
+    HouseReportDTO,
+    MechanicBlockDTO,
+    ProfessionPageDTO,
+)
 from backend.core.dto.promises import BalanceDTO, PromisesPreviewDTO, PromisesRequest
 from backend.core.dto.simulation import SimulationDTO
 from backend.core.dto.snapshot import DayBalanceDTO, SnapshotDTO
@@ -204,6 +210,7 @@ from backend.core.exporter import (
     forward_dollar,
 )
 from backend.core.fund_reference import FundReference
+from backend.core.house_report import draw_report, previous_month_start, report_day
 from backend.core.indicators import (
     annual_index_rate,
     last_known_rate,
@@ -279,7 +286,6 @@ from backend.features.economy.growth import (
     MacroMonth,
     history_dollar,
     stocks_drawdown,
-    stocks_return,
 )
 from backend.features.economy.panel import build_economy_panel
 from backend.features.fixed_income import treasury, treasury_panel
@@ -339,6 +345,15 @@ from backend.features.profession.banker import (
     SELIC_AVERAGE_MONTHS,
     house_cdb_amount,
 )
+from backend.features.profession.broker import (
+    bot_budget_each,
+    bot_buys,
+    candidates_of,
+    horizon_end,
+    picks_of,
+    tradable_today,
+    verdicts_of,
+)
 from backend.features.profession.clt import (
     after_layoff,
     after_month,
@@ -365,6 +380,7 @@ from backend.features.profession.mechanics import apply_action
 from backend.features.profession.page import (
     appointee_block,
     banker_block,
+    broker_block,
     build_header,
     build_series,
     clt_block,
@@ -405,6 +421,7 @@ from backend.features.realtime.schemas import (
     ComanagerEventDTO,
     ComanagerEventKind,
     CorporateActionsEventDTO,
+    HouseReportIssuedEventDTO,
     OvertimeAvailableEventDTO,
     PortfolioUpdateEventDTO,
     SimulationTickUpdateEventDTO,
@@ -571,7 +588,6 @@ class Simulation:
                 self._levers_on,
                 self._dollar_change_on,
                 self._selic_on,
-                self._stocks_return_on,
                 lambda day: self._engine.dollar_on(day),
                 self._unemployment_ratio_on,
             )
@@ -584,6 +600,9 @@ class Simulation:
         # da partida na primeira vez e refeitos quando entra jogador
         self._parties: dict[int, str] = {}
         self._offer_bankers: list[UUID] | None = None
+        # As recomendações da casa sem desfecho e os meses com relatório, lidos do banco na primeira consulta
+        self._house_open: list[HouseRecommendationDTO] | None = None
+        self._house_months: set[date] | None = None
         # O estado da mecânica e os períodos de profissão de cada jogador
         self._profession_book = ProfessionBook(settings.id)
         self._current_date = resume_from or self.settings.start_date - timedelta(days=1)
@@ -774,8 +793,14 @@ class Simulation:
         return self._engine.fixed_broker.get_fixed_positions(client_id)
 
     @synchronized
-    def create_order(self, order: Order, *, fill_max: bool = False) -> None:
-        self._ensure_can_operate(order.client_id)
+    def create_order(
+        self, order: Order, *, fill_max: bool = False, by_policy: bool = False
+    ) -> None:
+        # A política da profissão do bot opera ao lado da estratégia dele; só a boleta do jogador exige o manual
+        if by_policy:
+            self._ensure_can_trade(order.client_id)
+        else:
+            self._ensure_can_operate(order.client_id)
         if self._funds is not None and self._funds.is_merged(order.ticker):
             raise ConflictError("A gestora foi incorporada e a cota deixou o mercado.")
         if (
@@ -2926,6 +2951,7 @@ class Simulation:
             if self._life is not None:
                 self._charge_overdraft(users)
                 self._run_welfare_savings(users)
+                self._run_house_report(users, stocks)
             EventManager.flush()
         with metrics.measure("engine", ENGINE_NEWS):
             self._publish_newsroom(stocks)
@@ -3297,6 +3323,7 @@ class Simulation:
             # A recessão desliga a hora extra e a política do bot age antes da renda do mês: o estado que ficam vale já neste mês
             self._end_overtime_in_recession(users, day)
             self._run_bot_policies(users, day, budgets)
+            self._run_broker_month(users, day)
             for user in users:
                 budget = budgets[user.client_id]
                 loses_income = budget.income_loss() is not None and skipped_for(budget)
@@ -3383,11 +3410,6 @@ class Simulation:
     def _selic_on(self, day: date) -> Decimal:
         """A SELIC ao ano que a partida vive no dia, a mesma que o cheque especial cobra."""
         return annual_index_rate(IndicatorSeries.SELIC, day)
-
-    def _stocks_return_on(self, day: date) -> Decimal:
-        """O retorno do Ibovespa da partida em 12 meses; sem série, o valor neutro da curva."""
-        value = stocks_return(day)
-        return DRIVER_CURVES[IncomeDriver.STOCKS].neutral if value is None else value
 
     def _levers_on(self, day: date) -> LifeLevers:
         """As medidas do governo que chegam à renda no dia; sem governo, o país padrão."""
@@ -3559,6 +3581,21 @@ class Simulation:
                     day,
                     self.settings.start_date,
                     self._engine.liquid_wealth(client_id),
+                )
+            case Profession.BROKER:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, BrokerState):
+                    return no_block()
+                months = self._house_months_issued()
+                ordered = sorted(months, reverse=True)
+                return broker_block(
+                    state,
+                    budget,
+                    day,
+                    self._house_report_of(ordered[0]) if ordered else None,
+                    self._house_report_of(ordered[1]) if len(ordered) > 1 else None,
+                    repository.house_report.scoreboard(self.settings.id),
+                    months,
                 )
             case Profession.EXPORTER:
                 state = self._mechanic_state_of(user_id)
@@ -3984,6 +4021,215 @@ class Simulation:
                     )
             elif marked is not state:
                 self._profession_book.save_state(user.id, marked)
+
+    def _broker_state_of(self, user: UserDTO) -> BrokerState | None:
+        """O estado do Corretor de quem exerce a profissão; nulo para as demais ou sem profissões na partida."""
+        if not self.settings.uses_professions:
+            return None
+        state = self._mechanic_state_of(user.id)
+        return state if isinstance(state, BrokerState) else None
+
+    def _run_broker_month(self, users: list[UserDTO], day: date) -> None:
+        """
+        Na virada do mês cada Corretor guarda o volume que a sala negociou no mês civil
+        que fechou e quantos Corretores o dividem: a comissão desse mês entra com o
+        salário de hoje. O volume vem dos eventos já gravados, até o dia anterior.
+        """
+        brokers = [
+            (user, state)
+            for user in users
+            if (state := self._broker_state_of(user)) is not None
+        ]
+        if not brokers:
+            return
+        volume = repository.event.get_traded_volume(
+            self.settings.id, previous_month_start(day), day.replace(day=1)
+        )
+        for user, state in brokers:
+            self._profession_book.save_state(
+                user.id,
+                state.model_copy(update={"volume": volume, "brokers": len(brokers)}),
+            )
+
+    def _house_months_issued(self) -> set[date]:
+        """Os meses da sala que já têm relatório."""
+        if self._house_months is None:
+            self._house_months = set(repository.house_report.months(self.settings.id))
+        return self._house_months
+
+    def _house_open_ones(self) -> list[HouseRecommendationDTO]:
+        """As recomendações da casa que ainda esperam o desfecho."""
+        if self._house_open is None:
+            self._house_open = repository.house_report.open_before(
+                self.settings.id, date.max
+            )
+        return self._house_open
+
+    def _house_report_of(self, month: date) -> HouseReportDTO:
+        """O relatório do mês, como foi guardado."""
+        items = repository.house_report.of_month(self.settings.id, month)
+        return HouseReportDTO(month=month, issued_on=items[0].issued_on, items=items)
+
+    @synchronized
+    def get_house_picks(self, client_id: UUID) -> list[HousePickDTO]:
+        """A ação e o lado de cada recomendação do relatório vigente; só o Corretor vê, e quem não é recebe a lista vazia."""
+        user_id = UserManager.get_user_id(client_id)
+        if (
+            not self.settings.uses_professions
+            or self._profession_of(user_id) is not Profession.BROKER
+        ):
+            return []
+        months = self._house_months_issued()
+        if not months:
+            return []
+        return picks_of(repository.house_report.of_month(self.settings.id, max(months)))
+
+    def _run_house_report(self, users: list[UserDTO], candles: list[CandleDTO]) -> None:
+        """
+        No fim do pregão, depois da gravação do dia: o desfecho das recomendações em
+        aberto com a máxima, a mínima e o fechamento de hoje e, no 5º dia útil do mês, o
+        relatório da casa da sala, que o Corretor-bot já age no mesmo dia. O relatório
+        guardado nunca é recalculado.
+        """
+        if not self.settings.uses_professions:
+            return
+        day = self._current_date
+        reports = repository.house_report
+        verdicts = verdicts_of(
+            self._house_open_ones(), candles, day, next_business_day(day)
+        )
+        if verdicts:
+            reports.resolve(verdicts, day)
+            self._house_open = [
+                item for item in self._house_open_ones() if item.id not in verdicts
+            ]
+        month = day.replace(day=1)
+        if day == report_day(month) and month not in self._house_months_issued():
+            self._issue_house_report(users, candles, day, month)
+        self._run_broker_bot_sales(users, day)
+
+    def _issue_house_report(
+        self, users: list[UserDTO], candles: list[CandleDTO], day: date, month: date
+    ) -> None:
+        """Sorteia o relatório do mês entre as ações negociadas hoje, guarda e avisa os Corretores."""
+        tradable = tradable_today(candles, day)
+        if not tradable:
+            return
+        future = repository.stock.get_highs_lows_between(
+            [candle.ticker for candle in tradable],
+            day,
+            horizon_end(day, self.settings.end_date),
+            self.settings.id,
+        )
+        drafts = draw_report(
+            str(self._random_seed),
+            day,
+            self.settings.end_date,
+            candidates_of(tradable, future),
+        )
+        if not drafts:
+            return
+        items = repository.house_report.insert_report(
+            self.settings.id, month, day, drafts
+        )
+        self._house_months_issued().add(month)
+        self._house_open = [*self._house_open_ones(), *items]
+        for user in users:
+            if user.is_bot or self._broker_state_of(user) is None:
+                continue
+            notify(
+                "house_report_issued",
+                HouseReportIssuedEventDTO(month=month, issued_on=day).to_json(),
+                to=user.client_id,
+            )
+        self._run_broker_bot_buys(users, day, items)
+
+    def _run_broker_bot_buys(
+        self, users: list[UserDTO], day: date, items: list[HouseRecommendationDTO]
+    ) -> None:
+        """
+        No dia do relatório o Corretor-bot compra as recomendações de compra com 20% do
+        patrimônio (até o caixa livre), em partes iguais, por valor e pelo mesmo caminho das ordens dos
+        jogadores; a quantidade que entrou de cada uma fica no estado dele para a venda
+        no prazo. As recomendações de venda ele ignora.
+        """
+        buys = bot_buys(items)
+        if not buys:
+            return
+        for user in users:
+            state = self._broker_state_of(user)
+            if not user.is_bot or state is None:
+                continue
+            sheet = self._engine.balance_sheet(user.client_id)
+            each = bot_budget_each(
+                sheet.total_equity + sheet.total_fixed + sheet.total_cash,
+                sheet.total_cash,
+                len(buys),
+            )
+            if each <= 0:
+                continue
+            bought = dict(state.bought)
+            for item in buys:
+                order = MarketOrder(
+                    placed_on=day,
+                    client_id=user.client_id,
+                    ticker=item.ticker,
+                    size=Decimal(0),
+                    action=OrderAction.BUY,
+                    budget=each,
+                )
+                try:
+                    self.create_order(order, by_policy=True)
+                except (ConflictError, UnprocessableEntityError, InsufficentCashError):
+                    continue
+                # A compra por valor fecha com o tamanho que executou
+                if order.size > 0:
+                    bought[str(item.id)] = order.size
+            self._profession_book.save_state(
+                user.id, state.model_copy(update={"bought": bought})
+            )
+
+    def _run_broker_bot_sales(self, users: list[UserDTO], day: date) -> None:
+        """O Corretor-bot vende o que comprou de cada recomendação no último pregão do prazo dela."""
+        next_day = next_business_day(day)
+        for user in users:
+            state = self._broker_state_of(user)
+            if not user.is_bot or state is None or not state.bought:
+                continue
+            recommendations = repository.house_report.by_ids(
+                [int(key) for key in state.bought]
+            )
+            bought = dict(state.bought)
+            for key, quantity in state.bought.items():
+                item = recommendations.get(int(key))
+                if item is not None and next_day <= item.deadline:
+                    continue
+                if item is not None:
+                    free = self._engine.broker.get_available_position(
+                        user.client_id, item.ticker
+                    )
+                    size = min(quantity, free)
+                    if size > 0:
+                        try:
+                            self.create_order(
+                                MarketOrder(
+                                    placed_on=day,
+                                    client_id=user.client_id,
+                                    ticker=item.ticker,
+                                    size=size,
+                                    action=OrderAction.SELL,
+                                ),
+                                by_policy=True,
+                            )
+                        except ConflictError:
+                            continue
+                        except UnprocessableEntityError:
+                            pass
+                del bought[key]
+            if bought != state.bought:
+                self._profession_book.save_state(
+                    user.id, state.model_copy(update={"bought": bought})
+                )
 
     def _run_welfare_policy(self, user: UserDTO, day: date) -> None:
         """O Auxílio-bot se matricula no curso técnico no primeiro mês da partida com 10 anos ou mais, pela mesma ação dos jogadores."""

@@ -18,7 +18,6 @@ const DRIVER_CURVES = {
   gdp: { sensitivity: 3, neutral: 0.02, floor: 0.5 },
   dollar: { sensitivity: 1, neutral: 0, floor: 0.5, ceiling: 2 },
   selic: { sensitivity: 4, neutral: 0.12, floor: 0.5, ceiling: 2 },
-  stocks: { sensitivity: 1.5, neutral: 0.12, floor: 0.4, ceiling: 2 },
 } as const satisfies Record<string, DriverCurve>;
 const CLT_GDP_SHARE = 0.5;
 const NEUTRAL_UNEMPLOYMENT = 0.09;
@@ -61,7 +60,7 @@ function driverFactor(curve: DriverCurve, value: number) {
   return curve.ceiling === undefined ? factor : Math.min(factor, curve.ceiling);
 }
 
-type DriverTag = "dollar" | "selic" | "stocks";
+type DriverTag = "dollar" | "selic";
 
 const DRIVER_TABLES: Record<
   DriverTag,
@@ -90,18 +89,6 @@ const DRIVER_TABLES: Record<
       [0.04, "4%"],
     ],
     footnote: "Cada ponto da SELIC longe de 12% move 4% da renda.",
-  },
-  stocks: {
-    subtitle: "Quanto o Ibovespa rendeu nos últimos 12 meses",
-    header: ["Ibovespa em 12 meses", "Sua renda"],
-    samples: [
-      [0.4, "+40%"],
-      [0.12, "+12%"],
-      [0, "0%"],
-      [-0.2, "−20%"],
-      [-0.4, "−40% ou menos"],
-    ],
-    footnote: "Cada ponto longe de 12% move 1,5% da renda, entre 40% e o dobro dela.",
   },
 };
 
@@ -225,7 +212,6 @@ export function tagTable(tag: TagKey, profession: Profession, salary: number): T
       return gdpTable(profession, base);
     case "dollar":
     case "selic":
-    case "stocks":
       return driverTable(tag, base);
     case "unemployment":
       return unemploymentTable();

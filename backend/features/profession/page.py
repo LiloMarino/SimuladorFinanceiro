@@ -20,6 +20,7 @@ from backend.core.dates import add_months
 from backend.core.dto.credit import PayrollLoanDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.profession import (
+    BrokerState,
     CltState,
     EntrepreneurState,
     ExporterState,
@@ -30,6 +31,7 @@ from backend.core.dto.profession import (
 from backend.core.dto.profession_page import (
     AppointeeMechanicDTO,
     BankerMechanicDTO,
+    BrokerMechanicDTO,
     CapitalSaleOptionDTO,
     CltMechanicDTO,
     EntrepreneurMechanicDTO,
@@ -39,6 +41,7 @@ from backend.core.dto.profession_page import (
     FreelancerMechanicDTO,
     HeirMechanicDTO,
     HouseCdbDTO,
+    HouseReportDTO,
     IncomeHeaderDTO,
     IncomeSeriesDTO,
     IncomeSeriesPointDTO,
@@ -73,6 +76,11 @@ from backend.core.freelancer import (
     STALE_DEVIATION,
     TABLE_DEVIATIONS,
     clients_on,
+)
+from backend.core.house_report import (
+    COMMISSION_RATE,
+    hit_rate,
+    next_report_on,
 )
 from backend.core.life_budget import LifeBudget, cents, no_mechanic_state
 from backend.core.pension import (
@@ -130,7 +138,6 @@ _DRIVER_KEYS = {
     IncomeDriver.GDP: IncomeSeriesKey.GDP,
     IncomeDriver.DOLLAR: IncomeSeriesKey.DOLLAR,
     IncomeDriver.SELIC: IncomeSeriesKey.SELIC,
-    IncomeDriver.STOCKS: IncomeSeriesKey.STOCKS,
 }
 
 
@@ -151,7 +158,8 @@ def build_header(
     return IncomeHeaderDTO(
         income=income,
         mechanic_income=max(cents((income - converted) * (1 - 1 / factor)), Decimal(0))
-        + converted,
+        + converted
+        + budget.broker_commission_net_on(day),
         real_raise=None
         if rule.real_raise is RealRaise.NONE
         else budget.real_raise_on(day),
@@ -259,7 +267,6 @@ def build_series(
         value_on = {
             IncomeDriver.DOLLAR: budget.dollar_change_on,
             IncomeDriver.SELIC: budget.selic_on,
-            IncomeDriver.STOCKS: budget.stocks_return_on,
         }[driver]
         series.append(
             IncomeSeriesDTO(
@@ -678,6 +685,41 @@ def welfare_block(
         course_ends_on=None
         if state.course_enrolled_on is None
         else course_ends_on(state.course_enrolled_on),
+    )
+
+
+def broker_block(
+    state: BrokerState,
+    budget: LifeBudget,
+    day: date,
+    current: HouseReportDTO | None,
+    previous: HouseReportDTO | None,
+    scoreboard: tuple[int, int],
+    issued_months: set[date],
+) -> BrokerMechanicDTO:
+    """
+    O bloco do Corretor: o relatório vigente e o anterior com o desfecho, o placar da
+    partida, o dia do próximo relatório e a renda do mês, com a parte fixa e a comissão
+    do volume que a sala negociou no mês que fechou.
+    """
+    hits, resolved = scoreboard
+    income = budget.net_salary_on(day)
+    commission = budget.broker_commission_net_on(day)
+    return BrokerMechanicDTO(
+        status=MechanicStatus.ACTIVE if current else MechanicStatus.AVAILABLE,
+        current=current,
+        previous=previous,
+        next_report_on=next_report_on(day, issued_months),
+        hits=hits,
+        resolved=resolved,
+        hit_rate=hit_rate(hits, resolved),
+        income=income,
+        fixed_income=income - commission,
+        commission=commission,
+        commission_rate=COMMISSION_RATE,
+        volume=state.volume,
+        brokers=state.brokers,
+        capped=budget.broker_commission_on(day).capped,
     )
 
 

@@ -13942,6 +13942,57 @@
         ]
       }
     },
+    "/api/simulation/house-picks": {
+      "get": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Ações do relatório da casa do Corretor",
+        "description": "A ação e o lado (compra ou venda) de cada recomendação do relatório vigente da casa, para o selo na Renda variável. Só o Corretor vê: para as demais profissões, e antes do primeiro relatório, a lista vem vazia. Não traz preço-alvo nem preço futuro. Responde 409 sem partida.",
+        "operationId": "get_house_picks_api_simulation_house_picks_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/HousePickDTO"
+                  },
+                  "type": "array",
+                  "title": "Response Get House Picks Api Simulation House Picks Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/overtime": {
       "post": {
         "tags": [
@@ -18439,6 +18490,112 @@
           "name"
         ],
         "title": "BotTickerDTO"
+      },
+      "BrokerMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "broker",
+            "title": "Kind",
+            "default": "broker"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "current": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseReportDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseReportDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "next_report_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Next Report On"
+          },
+          "hits": {
+            "type": "integer",
+            "title": "Hits"
+          },
+          "resolved": {
+            "type": "integer",
+            "title": "Resolved"
+          },
+          "hit_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hit Rate"
+          },
+          "income": {
+            "type": "string",
+            "title": "Income"
+          },
+          "fixed_income": {
+            "type": "string",
+            "title": "Fixed Income"
+          },
+          "commission": {
+            "type": "string",
+            "title": "Commission"
+          },
+          "commission_rate": {
+            "type": "string",
+            "title": "Commission Rate"
+          },
+          "volume": {
+            "type": "string",
+            "title": "Volume"
+          },
+          "brokers": {
+            "type": "integer",
+            "title": "Brokers"
+          },
+          "capped": {
+            "type": "boolean",
+            "title": "Capped"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "current",
+          "previous",
+          "next_report_on",
+          "hits",
+          "resolved",
+          "hit_rate",
+          "income",
+          "fixed_income",
+          "commission",
+          "commission_rate",
+          "volume",
+          "brokers",
+          "capped"
+        ],
+        "title": "BrokerMechanicDTO",
+        "description": "O relatório da casa, o placar e a comissão do Corretor."
       },
       "BudgetAmountsDTO": {
         "properties": {
@@ -32278,6 +32435,174 @@
         ],
         "title": "HouseDTO"
       },
+      "HousePickDTO": {
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "side": {
+            "$ref": "#/components/schemas/OrderAction"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ticker",
+          "side"
+        ],
+        "title": "HousePickDTO",
+        "description": "A ação de uma recomendação do relatório vigente e o lado dela; é o que o selo da Renda variável mostra."
+      },
+      "HouseRecommendationDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "report_month": {
+            "type": "string",
+            "format": "date",
+            "title": "Report Month"
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Issued On"
+          },
+          "ticker": {
+            "type": "string",
+            "title": "Ticker"
+          },
+          "side": {
+            "$ref": "#/components/schemas/OrderAction"
+          },
+          "price": {
+            "type": "string",
+            "title": "Price"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "deadline": {
+            "type": "string",
+            "format": "date",
+            "title": "Deadline"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HouseResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result_price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Price"
+          },
+          "resolved_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "report_month",
+          "issued_on",
+          "ticker",
+          "side",
+          "price",
+          "target",
+          "deadline",
+          "result",
+          "result_price",
+          "resolved_on"
+        ],
+        "title": "HouseRecommendationDTO",
+        "description": "Uma recomendação do relatório da casa: o lado, o preço do dia, o alvo, o prazo e, depois do desfecho, o resultado."
+      },
+      "HouseReportDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Issued On"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HouseRecommendationDTO"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "issued_on",
+          "items"
+        ],
+        "title": "HouseReportDTO",
+        "description": "O relatório de um mês: o dia em que saiu e as recomendações, na ordem em que a casa as deu."
+      },
+      "HouseReportIssuedEventDTO": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "format": "date",
+            "title": "Month"
+          },
+          "issued_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Issued On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "issued_on"
+        ],
+        "title": "HouseReportIssuedEventDTO",
+        "description": "A casa do Corretor mandou o relatório do mês: o selo das ações e o bloco da profissão precisam reler."
+      },
+      "HouseResult": {
+        "type": "string",
+        "enum": [
+          "hit",
+          "miss"
+        ],
+        "title": "HouseResult",
+        "description": "O desfecho de uma recomendação do relatório da casa; sem desfecho ela segue em aberto."
+      },
       "ImpeachmentDTO": {
         "properties": {
           "date": {
@@ -32483,8 +32808,7 @@
         "enum": [
           "GDP",
           "DOLLAR",
-          "SELIC",
-          "STOCKS"
+          "SELIC"
         ],
         "title": "IncomeDriver",
         "description": "A variável da partida que move a renda da profissão."
@@ -32677,7 +33001,6 @@
           "UNEMPLOYMENT",
           "DOLLAR",
           "SELIC",
-          "STOCKS",
           "SERVANT_RAISE",
           "RETIREE_RAISE",
           "WELFARE_SPENDING"
@@ -41219,6 +41542,9 @@
                 "$ref": "#/components/schemas/OffersBankerMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/BrokerMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/NoMechanicDTO"
               }
             ],
@@ -41228,6 +41554,7 @@
               "mapping": {
                 "appointee": "#/components/schemas/AppointeeMechanicDTO",
                 "banker": "#/components/schemas/BankerMechanicDTO",
+                "broker": "#/components/schemas/BrokerMechanicDTO",
                 "clt": "#/components/schemas/CltMechanicDTO",
                 "entrepreneur": "#/components/schemas/EntrepreneurMechanicDTO",
                 "exporter": "#/components/schemas/ExporterMechanicDTO",
@@ -42481,6 +42808,9 @@
           "overtime_available": {
             "$ref": "#/components/schemas/OvertimeAvailableEventDTO"
           },
+          "house_report_issued": {
+            "$ref": "#/components/schemas/HouseReportIssuedEventDTO"
+          },
           "auto_redeem": {
             "$ref": "#/components/schemas/AutoRedeemEventDTO"
           },
@@ -42663,6 +42993,7 @@
           "goal_progress_update",
           "life_event",
           "overtime_available",
+          "house_report_issued",
           "auto_redeem",
           "corporate_actions",
           "order_executed",

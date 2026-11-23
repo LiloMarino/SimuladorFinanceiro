@@ -1203,6 +1203,57 @@ class News(Base):
     )
 
 
+class HouseRecommendations(Base):
+    """As recomendações do relatório mensal da casa do Corretor, da sala inteira; o relatório fica como saiu e o desfecho é salvo com a partida."""
+
+    __tablename__ = "house_recommendations"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["simulation_id"],
+            ["simulations.id"],
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="house_recommendations_simulation_id_fkey",
+        ),
+        PrimaryKeyConstraint("id", name="house_recommendations_pkey"),
+        Index(
+            "house_recommendations_simulation_month_idx",
+            "simulation_id",
+            "report_month",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        BigInteger,
+        Identity(
+            always=True,
+            start=1,
+            increment=1,
+            minvalue=1,
+            maxvalue=9223372036854775807,
+            cycle=False,
+            cache=1,
+        ),
+        primary_key=True,
+    )
+    simulation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    # O dia 1 do mês do relatório
+    report_month: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    issued_on: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    ticker: Mapped[str] = mapped_column(Text, nullable=False)
+    # Um valor de `OrderAction`
+    side: Mapped[str] = mapped_column(Text, nullable=False)
+    # O preço do dia do relatório e o alvo
+    price: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    target: Mapped[decimal.Decimal] = mapped_column(Numeric(20, 6), nullable=False)
+    deadline: Mapped[datetime.date] = mapped_column(Date, nullable=False)
+    # Um valor de `HouseResult`; nulo enquanto a recomendação está em aberto
+    result: Mapped[str | None] = mapped_column(Text)
+    # O preço que o placar mostra (o que o alvo alcançou ou o fechamento do prazo) e o dia do desfecho
+    result_price: Mapped[decimal.Decimal | None] = mapped_column(Numeric(20, 6))
+    resolved_on: Mapped[datetime.date | None] = mapped_column(Date)
+
+
 class StockPriceHistory(Base):
     __tablename__ = "stock_price_history"
     __table_args__ = (

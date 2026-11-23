@@ -75,5 +75,14 @@ export function LifeNotifications() {
     independence,
   );
 
+  useRealtime(
+    "house_report_issued",
+    () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.housePicks(simulationId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.profession(simulationId) });
+    },
+    independence,
+  );
+
   return null;
 }

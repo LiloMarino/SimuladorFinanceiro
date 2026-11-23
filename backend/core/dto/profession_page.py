@@ -8,6 +8,7 @@ from pydantic import Field
 
 from backend.core.dto.base import BaseDTO
 from backend.core.dto.credit import PayrollLoanDTO
+from backend.core.dto.house_report import HouseRecommendationDTO
 from backend.core.enum import (
     IncomeLoss,
     IncomeSeriesEffect,
@@ -365,6 +366,39 @@ class OffersBankerMechanicDTO(BaseDTO):
     total_offers: int
 
 
+class HouseReportDTO(BaseDTO):
+    """O relatório de um mês: o dia em que saiu e as recomendações, na ordem em que a casa as deu."""
+
+    month: date
+    issued_on: date
+    items: list[HouseRecommendationDTO]
+
+
+class BrokerMechanicDTO(BaseDTO):
+    """O relatório da casa, o placar e a comissão do Corretor."""
+
+    kind: Literal["broker"] = "broker"
+    status: MechanicStatus
+    # O relatório vigente e o anterior; o vigente é nulo antes do primeiro, e o anterior até haver dois
+    current: HouseReportDTO | None
+    previous: HouseReportDTO | None
+    # O dia em que o próximo relatório sai
+    next_report_on: date
+    # Quantas recomendações da partida inteira acertaram, quantas já têm desfecho e a fração que acertou (nula sem desfecho)
+    hits: int
+    resolved: int
+    hit_rate: Decimal | None
+    # A renda líquida do mês, a parte fixa e a comissão dela
+    income: Decimal
+    fixed_income: Decimal
+    commission: Decimal
+    # A fração do volume que vira comissão, o volume da sala no mês que fechou, quantos Corretores o dividem e se o teto cortou a comissão
+    commission_rate: Decimal
+    volume: Decimal
+    brokers: int
+    capped: bool
+
+
 class NoMechanicDTO(BaseDTO):
     """A profissão sem mecânica a ligar, ou com mecânica ainda sem motor."""
 
@@ -383,6 +417,7 @@ MechanicBlockDTO = Annotated[
     | HeirMechanicDTO
     | AppointeeMechanicDTO
     | OffersBankerMechanicDTO
+    | BrokerMechanicDTO
     | NoMechanicDTO,
     Field(discriminator="kind"),
 ]

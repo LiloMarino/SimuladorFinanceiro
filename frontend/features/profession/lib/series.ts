@@ -7,7 +7,6 @@ import {
   RETIREE_RAISE,
   SELIC_RATE,
   SERVANT_RAISE,
-  STOCKS_RETURN,
   UNEMPLOYMENT,
   WELFARE_SPENDING,
 } from "./profession-metrics";
@@ -46,12 +45,6 @@ export const SERIES_INFO: Record<IncomeSeries["key"], SeriesInfo> = {
     subtitle: "Taxa ao ano",
     metric: SELIC_RATE,
     display: (value) => displayPercent(value, 2),
-  },
-  STOCKS: {
-    title: "Retorno do Ibovespa",
-    subtitle: "Em 12 meses",
-    metric: STOCKS_RETURN,
-    display: (value) => displaySignedPercent(value, 1),
   },
   SERVANT_RAISE: {
     title: "Aumento dos servidores",
