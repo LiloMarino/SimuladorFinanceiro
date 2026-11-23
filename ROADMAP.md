@@ -82,7 +82,6 @@
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
-| [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F328**](#f328) | Feature | Previdência do Aposentado | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | M29 · 4.3 | — | Médio | Bom | ⏳ |
@@ -96,7 +95,7 @@
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (36 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (37 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -133,6 +132,7 @@
 | [**F323**](#f323) | Feature | Consignado do Servidor | M29 · 4.3 | — | — | — | ✅ |
 | [**F324**](#f324) | Feature | CDB da casa do Bancário | M29 · 4.3 | — | — | — | ✅ |
 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | M29 · 4.3 | — | — | — | ✅ |
+| [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 | — | — | — | ✅ |
 | [**F337**](#f337) | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | M29 · 4.3 | — | — | — | ✅ |
 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | M29 · 4.3 | — | — | — | ✅ |
 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | M29 · 4.3 | — | — | — | ✅ |
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 14/26 concluídos
+> **Progresso:** 15/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -168,7 +168,7 @@
 | 11 | [**F324**](#f324) | Feature | CDB da casa do Bancário | — | ✅ Concluído |
 | 12 | [**F340**](#f340) | Feature | Página Profissão e os blocos das mecânicas | — | ✅ Concluído |
 | 13 | [**F325**](#f325) | Feature | Trava de câmbio e mix de exportação do Exportador | — | ✅ Concluído |
-| 14 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | [F315](#f315) | ⏳ Pendente |
+| 14 | [**F326**](#f326) | Feature | Tabela de preços do Autônomo | — | ✅ Concluído |
 | 15 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | [F315](#f315) | ⏳ Pendente |
 | 16 | [**F328**](#f328) | Feature | Previdência do Aposentado | [F315](#f315) | ⏳ Pendente |
 | 17 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | [F315](#f315) | ⏳ Pendente |
@@ -275,7 +275,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F326**](#f326) | Feature | Tabela de preços do Autônomo | M29 · 4.3 · 14º | 1 | Médio | Bom | ⏳ |
 | [**F327**](#f327) | Feature | Reinvestimento do Empreendedor | M29 · 4.3 · 15º | 1 | Médio | Bom | ⏳ |
 | [**F328**](#f328) | Feature | Previdência do Aposentado | M29 · 4.3 · 16º | 1 | Médio | Bom | ⏳ |
 | [**F329**](#f329) | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | M29 · 4.3 · 17º | 1 | Médio | Bom | ⏳ |
@@ -345,7 +344,6 @@
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
 | **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
-| **F326** | Feature | Tabela de preços do Autônomo | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
 | **F327** | Feature | Reinvestimento do Empreendedor | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Médio | Alto | Bom |
 | **F328** | Feature | Previdência do Aposentado | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Médio | Alto | Bom |
 | **F329** | Feature | Pé-de-Meia, tarifa social e curso técnico do Auxílio | N39 | D23 | M29 · 4.3 | [F315](#f315) | Médio | Baixo | Alto | Bom |
@@ -558,9 +556,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 <a id="f286"></a>
 **F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
 
-<a id="f326"></a>
-**F326 — Tabela de preços do Autônomo.** Serve N39; segue a D23. O Autônomo define o preço em reais, uma vez por mês, contra uma referência de mercado que sobe com o IPCA. A renda é preço x clientes: cobrar acima da referência rende mais por cliente e perde clientes, e a perda cresce com o desemprego acima do neutro; a chance do mês sem clientes também sobe com o preço. Sem reajuste, o preço fica para trás da referência e a inflação corrói a renda, como hoje: a identidade dele fica, e quem reajusta bem resolve o tombo das partidas longas. O mecanismo substitui o `inflation_indexed=False` da regra. Política razoável: repassa o IPCA de 12 meses uma vez por ano, mais 5% com o desemprego abaixo do neutro e nada acima.
-
 <a id="f327"></a>
 **F327 — Reinvestimento do Empreendedor.** Serve N39; segue a D23. Todo mês o Empreendedor escolhe a fração do lucro (a renda do mês) que volta para a empresa. O capital da empresa rende uma renda extra ligada ao PIB de 12 meses (alta no crescimento, negativa na recessão), conta no patrimônio como uma linha da carteira e só vira caixa vendendo uma parte da empresa com desconto de 20%. Estado na tabela da base; controles no bloco da página Profissão. Política razoável: reinveste 30% com o PIB acima do neutro e nada abaixo, e vende 25% quando o PIB fica negativo por dois trimestres.
 
@@ -687,6 +682,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | **F323** | Feature | Consignado do Servidor | N39 | D23 | M29 · 4.3 |
 | **F324** | Feature | CDB da casa do Bancário | N39 | D23 | M29 · 4.3 |
 | **F325** | Feature | Trava de câmbio e mix de exportação do Exportador | N39 | D23 | M29 · 4.3 |
+| **F326** | Feature | Tabela de preços do Autônomo | N39 | D23 | M29 · 4.3 |
 | **F337** | Feature | Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio | N23 | — | M29 · 4.3 |
 | **F339** | Correção | Partida com gestora incorporada volta a carregar | — | — | M29 · 4.3 |
 | **F340** | Feature | Página Profissão e os blocos das mecânicas | N39 | D23 | M29 · 4.3 |
@@ -744,6 +740,9 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f325"></a>
 **F325 — Trava de câmbio e mix de exportação do Exportador.** Serve N39; segue a D23. **Trava:** na página Profissão o Exportador contrata um câmbio futuro para até 100% da receita de 6 ou 12 meses, ao dólar do dia corrigido pela diferença de juros (dólar x (1 + CDI) / (1 + Fed Funds) no prazo, com as séries que já existem); enquanto vale, a parte travada da renda usa o dólar travado no lugar do fator do dólar. Uma trava por vez. **Mix:** escolhe a fração exportada (0 a 100%, mudança no máximo uma vez por trimestre); a parte exportada segue o dólar e a vendida no Brasil segue o PIB, pelas curvas que já existem em `DRIVER_CURVES`, somadas pelo peso. Política razoável: trava 50% por 12 meses com o dólar acima da média de 12 meses; mix 50/50, puxado para o lado cujo indicador está acima do neutro.
+
+<a id="f326"></a>
+**F326 — Tabela de preços do Autônomo.** Serve N39; segue a D23. O Autônomo define o preço em reais, uma vez por mês, contra uma referência de mercado que sobe com o IPCA. A renda é preço x clientes: cobrar acima da referência rende mais por cliente e perde clientes, e a perda cresce com o desemprego acima do neutro; a chance do mês sem clientes também sobe com o preço. Sem reajuste, o preço fica para trás da referência e a inflação corrói a renda, como hoje: a identidade dele fica, e quem reajusta bem resolve o tombo das partidas longas. O mecanismo substitui o `inflation_indexed=False` da regra. Política razoável: repassa o IPCA de 12 meses uma vez por ano, mais 5% com o desemprego abaixo do neutro e nada acima.
 
 <a id="f337"></a>
 **F337 — Mercado e bots cotistas compram a emissão pelo desempenho e pelo ágio.** Do playtest de 20/11. A sobra de uma emissão de cotas só tem dois compradores além dos jogadores: os bots da estratégia "Cotas de gestoras" (Cotista, Caçador de Ágio, Dona Cota), que compram só no último pregão da sobra e só se o preço couber no valor que dão à cota (patrimônio por cota mais um prêmio de até ±20% pelo desempenho acima do CDI, em `fund_quotas.py`); e mais ninguém, porque o Mercado (formador de mercado) nunca compra do emissor (`bid_ceiling` em `maker.py`). Numa sala com um bot cotista ou nenhum, a emissão não capta, o que não vendeu não nasce (`_close_issuance` em `fund_book.py`) e a cota fica sem liquidez. O ágio, que o jogador espera que ajude a captar, não entra em conta nenhuma.
