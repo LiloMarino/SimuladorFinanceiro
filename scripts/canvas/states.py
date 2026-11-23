@@ -3156,9 +3156,11 @@ def fixed_income_without_house_cdb(page: Page) -> None:
     expect(page.get_by_text("da sua profissão")).to_have_count(0)
 
 
-def page_with_profession(page: Page, profession: str, path: str) -> None:
-    """Lobby com profissões, a profissão `profession` escolhida, partida iniciada e a página `path` aberta."""
-    lobby_with_professions(page)
+def page_with_profession(
+    page: Page, profession: str, path: str, *, rules: dict | None = None
+) -> None:
+    """Lobby com profissões (e as regras `rules` por cima), a profissão `profession` escolhida, partida iniciada e a página `path` aberta."""
+    lobby_with_professions(page, rules=rules)
     api_send(
         page, "PUT", "/api/simulation/players/me/profession", {"profession": profession}
     )
@@ -3241,10 +3243,44 @@ def profession_exporter_lock(page: Page) -> None:
     expect(page.get_by_text("Trava ativa").first).to_be_visible()
 
 
+def profession_freelancer_priced(page: Page, factor: float) -> None:
+    """Página Profissão de um Autônomo com o preço salvo pela API em `factor` vezes a referência do mercado."""
+    page_with_profession(
+        page, "FREELANCER", "/profession", rules={"inflation_adjusted": True}
+    )
+    profession = page.request.get(
+        urljoin(page.url, "/api/simulation/profession")
+    ).json()
+    reference = float(profession["mechanic"]["reference"])
+    api_send(
+        page, "POST", "/api/simulation/price", {"price": f"{reference * factor:.2f}"}
+    )
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    page.get_by_role("heading", name="Profissão").first.wait_for()
+
+
+def profession_freelancer(page: Page) -> None:
+    """Profissão de um Autônomo com o preço de 9% acima da referência salvo no mês: os cartões, o formulário travado até o mês seguinte e a tabela."""
+    profession_freelancer_priced(page, 1.09)
+    expect(page.get_by_text("tabela de preços").first).to_be_visible()
+
+
+def profession_freelancer_stalled(page: Page) -> None:
+    """Profissão de um Autônomo com o preço salvo 10% abaixo da referência: o aviso de que a inflação come a renda."""
+    profession_freelancer_priced(page, 0.9)
+    expect(
+        page.get_by_text("A inflação está comendo a sua renda").first
+    ).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
     "profissao/exportador": profession_exporter,
     "profissao/exportador-trava": profession_exporter_lock,
+    "profissao/autonomo": profession_freelancer,
+    "profissao/autonomo-parado": profession_freelancer_stalled,
     "profissao/servidor": profession_public_servant,
     "profissao/bancario": profession_banker,
     "meta/clt": goal_clt,
