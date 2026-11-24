@@ -203,13 +203,15 @@ class ProfessionRule:
     expense_discount: Decimal = Decimal(0)
 
 
+_CLT_RULE = ProfessionRule(
+    income_multiple=Decimal(1),
+    tax=TaxBase.PERSONAL,
+    loss=IncomeLoss.LAYOFF,
+    real_raise=RealRaise.GDP_SHARE,
+)
+
 PROFESSIONS: dict[Profession, ProfessionRule] = {
-    Profession.CLT: ProfessionRule(
-        income_multiple=Decimal(1),
-        tax=TaxBase.PERSONAL,
-        loss=IncomeLoss.LAYOFF,
-        real_raise=RealRaise.GDP_SHARE,
-    ),
+    Profession.CLT: _CLT_RULE,
     Profession.PUBLIC_SERVANT: ProfessionRule(
         income_multiple=Decimal("0.95"),
         tax=TaxBase.PERSONAL,
@@ -275,6 +277,9 @@ PROFESSIONS: dict[Profession, ProfessionRule] = {
         career=CareerCurve(Decimal("1.3"), years=10, layoff_weight=Decimal(2)),
         starting_capital=StartingCapital.ZERO,
     ),
+    # A regra de base do Administrador é a do CLT, o setor onde ele começa; a regra do
+    # dia vem do setor que ele trabalha (`LifeBudget.rule`)
+    Profession.ADMINISTRATOR: _CLT_RULE,
     # Rende 1,5x com o partido escolhido no governo (presidência ou base) e 0,5x fora dele
     Profession.COMMISSIONED: ProfessionRule(
         income_multiple=Decimal("1.5"),

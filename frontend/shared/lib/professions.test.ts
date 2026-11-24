@@ -97,6 +97,25 @@ describe("visibleProfession das profissões novas", () => {
   });
 });
 
+describe("Administrador", () => {
+  it("leva as etiquetas dos setores: renda, câmbio, juros e os impostos", () => {
+    expect(visibleProfession("ADMINISTRATOR", room()).tags).toEqual([
+      "unemployment",
+      "gdp",
+      "dollar",
+      "selic",
+      "personalTax",
+      "corporateTax",
+    ]);
+    expect(visibleProfession("ADMINISTRATOR", room({ government_enabled: false })).tags).toEqual([
+      "unemployment",
+      "gdp",
+      "dollar",
+      "selic",
+    ]);
+  });
+});
+
 describe("selos do card", () => {
   it("só o Herdeiro é difícil", () => {
     const hard = (Object.keys(PROFESSIONS) as (keyof typeof PROFESSIONS)[]).filter((p) => PROFESSIONS[p].hard);

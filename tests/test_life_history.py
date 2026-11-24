@@ -348,6 +348,11 @@ def _living(
     fake._run_broker_month = partial(Simulation._run_broker_month, living)
     # Estes testes não têm Locador: a virada do mês dos imóveis não tem o que sortear
     fake._run_landlord_month = lambda _users, _day: None
+    # Sem Administrador nestes testes: a virada do mês dos setores não tem o que mexer
+    fake._run_administrator_month = lambda _users, _day: None
+    fake._grow_administrator_experience = lambda _users: None
+    fake._administrator_state_of = partial(Simulation._administrator_state_of, living)
+    fake._run_administrator_policy = lambda _user, _budget, _day: None
     fake._exporter_state_of = partial(Simulation._exporter_state_of, living)
     fake.apply_profession_action = partial(Simulation.apply_profession_action, living)
     fake._life_budget = partial(Simulation._life_budget, living)

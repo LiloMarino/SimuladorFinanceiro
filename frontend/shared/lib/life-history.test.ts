@@ -79,6 +79,14 @@ describe("texto do histórico da vida real", () => {
     expect(lifeRowText(action("property_rented"))).toBe("Um imóvel voltou ao aluguel");
   });
 
+  it("o Administrador tem um texto para a troca de setor e para o concurso", () => {
+    const action = (key: string) => row({ category: "PROFESSION", kind: "PROFESSION_ACTION", life_event_key: key });
+    expect(lifeRowText(action("sector_exporter"))).toBe("Pediu a troca para o setor Exportador");
+    expect(lifeRowText(action("exam_enrolled"))).toBe("Inscreveu-se no concurso para Servidor");
+    expect(lifeRowText(action("exam_passed"))).toBe("Passou no concurso para Servidor");
+    expect(lifeRowText(action("exam_failed"))).toBe("Não passou no concurso para Servidor");
+  });
+
   it("o saque do FGTS na demissão diz que veio com a multa", () => {
     expect(lifeRowText(row({ category: "PROFESSION", kind: "FGTS_WITHDRAWAL" }))).toBe(
       "Saque do FGTS com a multa de 40%",

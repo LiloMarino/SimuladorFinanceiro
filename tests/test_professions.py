@@ -188,6 +188,7 @@ def test_each_profession_loses_income_in_its_own_way():
         Profession.BROKER: None,
         Profession.HEIR: None,
         Profession.NEW_GRADUATE: IncomeLoss.LAYOFF,
+        Profession.ADMINISTRATOR: IncomeLoss.LAYOFF,
         Profession.COMMISSIONED: None,
         Profession.OFFERS_BANKER: IncomeLoss.LAYOFF,
     }

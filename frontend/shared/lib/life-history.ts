@@ -81,6 +81,15 @@ const PROFESSION_ACTION_TEXTS: Record<string, string> = {
   property_sold: "Vendeu um imóvel",
   property_vacated: "Um imóvel ficou vago",
   property_rented: "Um imóvel voltou ao aluguel",
+  sector_clt: "Pediu a troca para o setor CLT",
+  sector_entrepreneur: "Pediu a troca para o setor Empreendedor",
+  sector_exporter: "Pediu a troca para o setor Exportador",
+  sector_banker: "Pediu a troca para o setor Bancário",
+  sector_freelancer: "Pediu a troca para o setor Autônomo",
+  sector_broker: "Pediu a troca para o setor Corretor",
+  exam_enrolled: "Inscreveu-se no concurso para Servidor",
+  exam_passed: "Passou no concurso para Servidor",
+  exam_failed: "Não passou no concurso para Servidor",
 };
 
 // Ícone do imprevisto pela chave que o servidor sorteia

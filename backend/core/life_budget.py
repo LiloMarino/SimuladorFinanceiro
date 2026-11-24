@@ -7,6 +7,7 @@ from decimal import ROUND_HALF_EVEN, Decimal
 
 from backend.core.dates import add_months
 from backend.core.dto.profession import (
+    AdministratorState,
     BrokerState,
     ExchangeLock,
     ExporterState,
@@ -182,9 +183,62 @@ class LifeBudget:
         """O orçamento de quem recebe `multiple` salários do host pela presidência; reajuste e imposto seguem os da profissão."""
         return replace(self, presidency_multiple=multiple)
 
+    def administrator_state(self) -> AdministratorState | None:
+        """O estado do Administrador, com o setor e a experiência; nulo para as demais profissões. Sem estado salvo vale o inicial."""
+        if self.profession is not Profession.ADMINISTRATOR:
+            return None
+        state = self.current_mechanic_state()
+        return state if isinstance(state, AdministratorState) else AdministratorState()
+
+    @property
+    def worked_profession(self) -> Profession:
+        """A profissão cuja regra rende a renda: a própria, ou o setor onde o Administrador trabalha."""
+        state = self.administrator_state()
+        return self.profession if state is None else state.sector
+
+    @property
+    def base_rule(self) -> ProfessionRule:
+        """A regra da profissão trabalhada, sem a experiência."""
+        return PROFESSIONS[self.worked_profession]
+
+    @property
+    def experience_factor(self) -> Decimal:
+        """O quanto da renda do setor o Administrador leva pela experiência; 1 nas demais profissões."""
+        state = self.administrator_state()
+        return Decimal(1) if state is None else state.experience_factor
+
     @property
     def rule(self) -> ProfessionRule:
-        return PROFESSIONS[self.profession]
+        """A regra efetiva da renda: a da profissão trabalhada, com o múltiplo vezes a experiência do Administrador."""
+        base = self.base_rule
+        if self.administrator_state() is None:
+            return base
+        return replace(
+            base, income_multiple=base.income_multiple * self.experience_factor
+        )
+
+    def sector_income_on(self, sector: Profession, day: date) -> Decimal:
+        """
+        O que o setor pagaria hoje ao Administrador, líquido, com a experiência que ele
+        tem nele e sem troca nem estudo em andamento. Quem está fora do setor Corretor
+        entra na divisão da comissão com mais um.
+        """
+        state = self.administrator_state()
+        if state is None:
+            return self.net_salary_on(day)
+        brokers = state.brokers + (1 if state.sector is not Profession.BROKER else 0)
+        hypothetical = state.model_copy(
+            update={
+                "sector": sector,
+                "switching_to": None,
+                "switch_started_on": None,
+                "exam_enrolled_on": None,
+                "brokers": brokers,
+            }
+        )
+        return replace(self, current_mechanic_state=lambda: hypothetical).net_salary_on(
+            day
+        )
 
     @property
     def career_start(self) -> date:
@@ -216,19 +270,23 @@ class LifeBudget:
         if stipend is not None:
             return stipend, self._benefit_on(day)
         mechanic = self.current_mechanic_state().income_factor
-        freelancer = self.freelancer_state()
         if self.profession is Profession.LANDLORD:
             rent = self.rented_income_on(day)
             if rent is None:
                 rent = cents(self.monthly_salary * rule.income_multiple)
             return rent, self._benefit_on(day)
-        if freelancer is None:
-            exposed = self.monthly_salary * self.multiple_on(day) * factor * mechanic
+        if self.worked_profession is Profession.FREELANCER:
+            exposed = (
+                self.price_on(day)
+                * self.clients_on(day)
+                * self.experience_factor
+                * mechanic
+            )
         else:
-            exposed = self.price_on(day) * self.clients_on(day)
+            exposed = self.monthly_salary * self.multiple_on(day) * factor * mechanic
         if rule.driver is not None:
             exposed *= self.driver_factor_on(day)
-        exposed += self.broker_commission_on(day).amount
+        exposed += self.broker_commission_on(day).amount * mechanic
         return cents(exposed), self._benefit_on(day)
 
     def _benefit_on(self, day: date) -> Decimal:
@@ -274,12 +332,12 @@ class LifeBudget:
         )
 
     def broker_commission_on(self, day: date) -> Commission:
-        """A comissão do Corretor no mês, bruta: a do volume que a virada do mês guardou, até o teto sobre a parte fixa; zero nas demais profissões."""
+        """A comissão do Corretor no mês, bruta: a do volume que a virada do mês guardou, até o teto sobre a parte fixa; vale para o Corretor e para o Administrador no setor Corretor, e é zero nas demais profissões."""
         state = self.current_mechanic_state()
         if (
-            self.profession is not Profession.BROKER
+            self.worked_profession is not Profession.BROKER
             or self.presidency_multiple is not None
-            or not isinstance(state, BrokerState)
+            or not isinstance(state, BrokerState | AdministratorState)
         ):
             return Commission(Decimal(0), Decimal(0))
         return commission(state.volume, state.brokers, self.fixed_income_on(day))
@@ -373,13 +431,15 @@ class LifeBudget:
         A referência do mercado do Autônomo no dia: a renda base do mês dividida pelos
         clientes da referência na data de início, corrida pelo IPCA mês a mês.
         """
-        base = self.monthly_salary * self.rule.income_multiple / REFERENCE_CLIENTS
+        base = self.monthly_salary * self.base_rule.income_multiple / REFERENCE_CLIENTS
         if not self.inflation_adjusted:
             return base
         return base * monthly_inflation_factor(self.start_date, day)
 
     def price_on(self, day: date) -> Decimal:
-        """O preço por atendimento do Autônomo; sem preço salvo vale a referência da data de início."""
+        """O preço por atendimento do Autônomo; sem preço salvo vale a referência da data de início. O Administrador no setor Autônomo cobra a referência do dia."""
+        if self.administrator_state() is not None:
+            return self.reference_price_on(day)
         state = self.freelancer_state()
         if state is None or state.price is None:
             return self.reference_price_on(self.start_date)

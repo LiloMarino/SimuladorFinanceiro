@@ -14,6 +14,12 @@ from uuid import UUID
 
 from backend import config
 from backend.core import repository
+from backend.core.administrator import (
+    EXTRA_EXAM_MONTH,
+    SECTORS,
+    exam_open,
+    exam_passed,
+)
 from backend.core.dates import MONTHS_PER_QUARTER, add_months
 from backend.core.dto.budget import BudgetDTO
 from backend.core.dto.campaign import (
@@ -110,6 +116,8 @@ from backend.core.dto.position import PositionDTO
 from backend.core.dto.profession import (
     CONCLUDE_PREFIX,
     ENROLL_PREFIX,
+    EXAM_FAILED,
+    EXAM_PASSED,
     EXCHANGE_LOCK_ENDED,
     OVERTIME_AVAILABLE,
     OVERTIME_ENDED,
@@ -119,10 +127,13 @@ from backend.core.dto.profession import (
     PROPERTY_VACATED,
     SAVINGS_POSTPONED,
     SAVINGS_RELEASED,
+    SECTOR_PREFIX,
+    AdministratorState,
     BrokerState,
     CltState,
     ConvertPension,
     EnrollCourse,
+    EnrollExam,
     EnrollStep,
     EntrepreneurState,
     ExporterState,
@@ -142,6 +153,7 @@ from backend.core.dto.profession import (
     SetExportMix,
     SetPrice,
     SetReinvestShare,
+    SwitchSector,
     WelfareState,
 )
 from backend.core.dto.profession_page import (
@@ -234,7 +246,7 @@ from backend.core.indicators import (
     monthly_average_rate,
     recent_focus_rate,
 )
-from backend.core.life_budget import LifeBudget
+from backend.core.life_budget import LifeBudget, no_mechanic_state
 from backend.core.life_events import life_event_label
 from backend.core.locked_assets import LOCKED_EXITS, PROPERTY_COST_RATE
 from backend.core.metrics import (
@@ -370,8 +382,19 @@ from backend.features.government.promise_panel import (
     build_preview,
     build_promises_panel,
 )
+from backend.features.government.spending import BASE_SPENDING
 from backend.features.newsroom.newsroom import Newsroom
 from backend.features.notifications import news, registry
+from backend.features.profession.administrator import (
+    clear_exam,
+    conclude_switch,
+    exam_due,
+    grow_experience,
+    policy_exam,
+    policy_sector,
+    switch_due,
+    with_broker_volume,
+)
 from backend.features.profession.banker import (
     BOT_HOUSE_CDB_YEARS,
     SELIC_AVERAGE_MONTHS,
@@ -417,6 +440,7 @@ from backend.features.profession.landlord import (
 )
 from backend.features.profession.mechanics import apply_action
 from backend.features.profession.page import (
+    administrator_block,
     appointee_block,
     banker_block,
     broker_block,
@@ -462,6 +486,7 @@ from backend.features.realtime.schemas import (
     ComanagerEventDTO,
     ComanagerEventKind,
     CorporateActionsEventDTO,
+    ExamResultEventDTO,
     HouseReportIssuedEventDTO,
     OvertimeAvailableEventDTO,
     PortfolioUpdateEventDTO,
@@ -3336,6 +3361,7 @@ class Simulation:
         if month_changed:
             self._conclude_courses(users, day)
             self._conclude_steps(users, day)
+            self._run_administrator_month(users, day)
         self._conclude_property_sales(users, day)
         budgets = {user.client_id: self._life_budget(life, user.id) for user in users}
         skipped_by_weight: dict[Decimal, bool] = {}
@@ -3388,6 +3414,7 @@ class Simulation:
                 self._engine.pay_expense(user.client_id, budget.paid_expense_on(day))
                 self._run_fgts_month(user, budget, day, salary_paid=salary > 0)
                 self._run_exchange_lock_month(user, budget, day, salary_paid=salary > 0)
+            self._grow_administrator_experience(users)
 
         for user in users:
             budget = budgets[user.client_id]
@@ -3711,6 +3738,17 @@ class Simulation:
                     annual_index_rate(IndicatorSeries.CDI, day),
                     vacancy_chance(self._unemployment_ratio_on(day), macro.growth),
                 )
+            case Profession.ADMINISTRATOR:
+                state = self._mechanic_state_of(user_id)
+                if not isinstance(state, AdministratorState):
+                    return no_block()
+                return administrator_block(
+                    state,
+                    budget,
+                    day,
+                    self._exam_open(day),
+                    self._government is not None,
+                )
             case Profession.EXPORTER:
                 state = self._mechanic_state_of(user_id)
                 if not isinstance(state, ExporterState):
@@ -3980,6 +4018,7 @@ class Simulation:
             self._run_welfare_policy(user, day)
             self._run_graduate_policy(user, budgets[user.client_id], day, macro)
             self._run_landlord_policy(user, day, reserve)
+            self._run_administrator_policy(user, budgets[user.client_id], day)
 
     def _is_landlord(self, user: UserDTO) -> bool:
         return (
@@ -4350,27 +4389,141 @@ class Simulation:
         state = self._mechanic_state_of(user.id)
         return state if isinstance(state, BrokerState) else None
 
+    def _administrator_state_of(self, user: UserDTO) -> AdministratorState | None:
+        """O estado do Administrador de quem exerce a profissão; nulo para as demais ou sem profissões na partida."""
+        if not self.settings.uses_professions:
+            return None
+        state = self._mechanic_state_of(user.id)
+        return state if isinstance(state, AdministratorState) else None
+
     def _run_broker_month(self, users: list[UserDTO], day: date) -> None:
         """
-        Na virada do mês cada Corretor guarda o volume que a sala negociou no mês civil
-        que fechou e quantos Corretores o dividem: a comissão desse mês entra com o
-        salário de hoje. O volume vem dos eventos já gravados, até o dia anterior.
+        Na virada do mês cada Corretor, e cada Administrador, guarda o volume que a sala
+        negociou no mês civil que fechou e quantos dividem a comissão: os Corretores mais
+        os Administradores no setor Corretor. A comissão desse mês entra com o salário de
+        hoje. O volume vem dos eventos já gravados, até o dia anterior.
         """
-        brokers = [
+        holders = [
             (user, state)
             for user in users
-            if (state := self._broker_state_of(user)) is not None
+            if (
+                state := self._broker_state_of(user)
+                or self._administrator_state_of(user)
+            )
+            is not None
         ]
-        if not brokers:
+        if not holders:
             return
+        sharing = sum(
+            1
+            for _, state in holders
+            if isinstance(state, BrokerState) or state.sector is Profession.BROKER
+        )
         volume = repository.event.get_traded_volume(
             self.settings.id, previous_month_start(day), day.replace(day=1)
         )
-        for user, state in brokers:
-            self._profession_book.save_state(
-                user.id,
-                state.model_copy(update={"volume": volume, "brokers": len(brokers)}),
-            )
+        for user, state in holders:
+            if isinstance(state, AdministratorState):
+                updated = with_broker_volume(state, volume, sharing)
+            else:
+                updated = state.model_copy(
+                    update={"volume": volume, "brokers": sharing}
+                )
+            self._profession_book.save_state(user.id, updated)
+
+    @synchronized
+    def switch_sector(self, user: UserDTO, sector: Profession) -> MechanicState:
+        """O Administrador começa a troca para o setor, pelo mesmo caminho das ações da mecânica."""
+        if self._administrator_state_of(user) is None:
+            raise ConflictError("Só o Administrador troca de setor.")
+        if sector not in SECTORS:
+            raise ConflictError("Esse setor não existe para o Administrador.")
+        return self.apply_profession_action(
+            user, SwitchSector(kind=f"{SECTOR_PREFIX}{sector.value.lower()}")
+        )
+
+    @synchronized
+    def enroll_exam(self, user: UserDTO) -> MechanicState:
+        """O Administrador se inscreve no concurso para Servidor, que só aceita inscrição no mês do edital."""
+        if self._administrator_state_of(user) is None:
+            raise ConflictError("Só o Administrador presta o concurso.")
+        if not self._exam_open(self._current_date):
+            raise ConflictError("Não há edital aberto neste mês.")
+        return self.apply_profession_action(user, EnrollExam())
+
+    def _exam_open(self, day: date) -> bool:
+        """Se há edital aberto no mês: abril e outubro; julho só quando o gasto do governo no dia 1º passa do normal. Sem governo na sala não há edital extra."""
+        government = self._government
+        extra = (
+            government is not None
+            and day.month == EXTRA_EXAM_MONTH
+            and government.spending_on(day.replace(day=1)) > BASE_SPENDING
+        )
+        return exam_open(day, extra)
+
+    def _run_administrator_month(self, users: list[UserDTO], day: date) -> None:
+        """
+        Na virada do mês, antes de montar os orçamentos, a troca de setor que chegou ao
+        fim entra no setor novo e o concurso que fechou os meses de estudo sai: o
+        aprovado vira Servidor e o reprovado volta ao setor com a inscrição livre.
+        """
+        for user in users:
+            state = self._administrator_state_of(user)
+            if state is None:
+                continue
+            if switch_due(state, day):
+                self._profession_book.save_state(user.id, conclude_switch(state))
+                continue
+            if not exam_due(state, day) or state.exam_enrolled_on is None:
+                continue
+            passed = exam_passed(self._random_seed, user.id, state.exam_enrolled_on)
+            if not user.is_bot:
+                notify(
+                    "exam_result",
+                    ExamResultEventDTO(event_date=day, passed=passed).to_json(),
+                    to=user.client_id,
+                )
+            if not passed:
+                self._profession_book.save_state(user.id, clear_exam(state))
+            if not user.is_bot:
+                self._engine.record_profession_action(
+                    user.client_id, EXAM_PASSED if passed else EXAM_FAILED
+                )
+            if passed:
+                self.switch_profession(user, Profession.PUBLIC_SERVANT)
+
+    def _grow_administrator_experience(self, users: list[UserDTO]) -> None:
+        """Depois do pagamento do mês, soma o mês trabalhado ao setor atual do Administrador; o mês da troca não soma."""
+        for user in users:
+            state = self._administrator_state_of(user)
+            if state is not None:
+                self._profession_book.save_state(user.id, grow_experience(state))
+
+    def _run_administrator_policy(
+        self, user: UserDTO, budget: LifeBudget, day: date
+    ) -> None:
+        """O Administrador-bot troca de setor quando outro rende mais de 20% acima do atual, já sênior, e presta o concurso quando o Servidor paga mais; as duas pelas mesmas ações dos jogadores."""
+        state = self._administrator_state_of(user)
+        if state is None:
+            return
+        sector = policy_sector(
+            state, lambda option: budget.sector_income_on(option, day)
+        )
+        if sector is not None:
+            self.switch_sector(user, sector)
+            return
+        servant = (
+            budget.for_profession(Profession.PUBLIC_SERVANT)
+            .with_mechanic_state(no_mechanic_state)
+            .net_salary_on(day)
+        )
+        if policy_exam(
+            state,
+            self._exam_open(day),
+            servant,
+            budget.sector_income_on(state.sector, day),
+        ):
+            self.enroll_exam(user)
 
     def _house_months_issued(self) -> set[date]:
         """Os meses da sala que já têm relatório."""

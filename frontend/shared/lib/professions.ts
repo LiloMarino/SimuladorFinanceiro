@@ -1,5 +1,6 @@
 import {
   Armchair,
+  ArrowLeftRight,
   Banknote,
   Briefcase,
   Building2,
@@ -184,6 +185,31 @@ export const PROFESSIONS: Record<Profession, ProfessionInfo> = {
     ],
     tags: [{ key: "unemployment" }, { key: "gdp" }, { key: "personalTax", requires: GOVERNMENT }],
     minStartDate: IVG_R_START,
+  },
+  ADMINISTRATOR: {
+    name: "Administrador",
+    icon: ArrowLeftRight,
+    description:
+      "Gestor que troca de setor: leva a renda, o imposto e o risco de demissão do setor onde trabalha, com a experiência subindo em 12 meses. Também pode prestar concurso para virar Servidor.",
+    incomeMultiple: 1,
+    gains: [
+      { text: "Troca de setor quando outro paga mais: CLT, Empreendedor, Exportador, Bancário, Autônomo ou Corretor" },
+      { text: "A experiência em cada setor não se perde ao sair" },
+      { text: "Pode passar no concurso e virar Servidor, com estabilidade" },
+    ],
+    losses: [
+      { text: "Começa júnior em todos os setores: 0,85× a renda do setor, chegando a 1,00× em 12 meses" },
+      { text: "A troca leva 1 mês com a renda pela metade" },
+      { text: "Leva só a renda do setor, sem a mecânica dele" },
+    ],
+    tags: [
+      { key: "unemployment" },
+      { key: "gdp" },
+      { key: "dollar" },
+      { key: "selic" },
+      { key: "personalTax", requires: GOVERNMENT },
+      { key: "corporateTax", requires: GOVERNMENT },
+    ],
   },
   EXPORTER: {
     name: "Exportador",

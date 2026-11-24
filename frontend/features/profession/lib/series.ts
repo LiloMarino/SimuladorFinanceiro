@@ -148,6 +148,13 @@ const PLAYER_ACTIONS = new Set([
   "leave_home",
   "property_bought",
   "property_sold",
+  "sector_clt",
+  "sector_entrepreneur",
+  "sector_exporter",
+  "sector_banker",
+  "sector_freelancer",
+  "sector_broker",
+  "exam_enrolled",
 ]);
 
 export function isPlayerAction(row: LifeHistoryRow) {

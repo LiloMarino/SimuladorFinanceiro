@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import date
 
 from backend.core.dto.profession import (
+    AdministratorAction,
     EntrepreneurAction,
     ExporterAction,
     FreelancerAction,
@@ -22,6 +23,7 @@ from backend.core.dto.profession import (
 from backend.core.enum import Profession
 from backend.core.exceptions.http_exceptions import ConflictError
 from backend.features.economy.growth import MacroMonth
+from backend.features.profession.administrator import apply_administrator
 from backend.features.profession.clt import set_overtime
 from backend.features.profession.entrepreneur import apply_entrepreneur
 from backend.features.profession.exporter import apply_exporter
@@ -41,6 +43,7 @@ class Mechanic:
 
 
 MECHANICS: dict[Profession, Mechanic] = {
+    Profession.ADMINISTRATOR: Mechanic(AdministratorAction, apply_administrator),
     Profession.CLT: Mechanic(SetOvertime, set_overtime),
     Profession.ENTREPRENEUR: Mechanic(EntrepreneurAction, apply_entrepreneur),
     Profession.EXPORTER: Mechanic(ExporterAction, apply_exporter),

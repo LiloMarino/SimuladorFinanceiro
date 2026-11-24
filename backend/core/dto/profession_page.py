@@ -295,6 +295,50 @@ class WelfareMechanicDTO(BaseDTO):
     course_ends_on: date | None
 
 
+class AdministratorSectorDTO(BaseDTO):
+    """Uma linha da tabela de setores do Administrador."""
+
+    sector: Profession
+    # Os meses trabalhados no setor, o quanto da renda dele leva por eles (0,85 a 1) e se já é sênior
+    months: int
+    level: Decimal
+    senior: bool
+    # O que o setor paga hoje, líquido, com a experiência dele
+    income: Decimal
+    current: bool
+
+
+class AdministratorMechanicDTO(BaseDTO):
+    """Setores e concurso do Administrador."""
+
+    kind: Literal["administrator"] = "administrator"
+    # Travado durante a troca de setor
+    status: MechanicStatus
+    sector: Profession
+    # Os meses em que o setor vira sênior
+    senior_months: int
+    sectors: list[AdministratorSectorDTO]
+    # A troca em andamento: o setor novo, o dia em que ele entra e a renda do mês da troca; nulos sem troca
+    switching_to: Profession | None
+    switch_entry_on: date | None
+    # A renda do mês da troca (a metade da do setor atual), que a confirmação mostra antes de trocar
+    switch_month_income: Decimal
+    switch_income_factor: Decimal
+    # O concurso: aberto, fechado ou com estudo em andamento
+    exam_status: Literal["open", "closed", "studying"]
+    # O último dia de inscrição do edital aberto e o primeiro dia do mês do próximo edital fixo; nulos fora de cada estado
+    exam_open_until: date | None
+    exam_next_on: date | None
+    # Verdadeiro quando a sala tem governo e, com o gasto alto, sai um edital a mais em julho
+    exam_extra_possible: bool
+    # O mês em que o resultado sai e a renda de cada mês de estudo; nulos sem estudo em andamento
+    exam_result_on: date | None
+    exam_income: Decimal
+    exam_study_months: int
+    exam_income_cut: Decimal
+    exam_pass_chance: Decimal
+
+
 class GraduateStepDTO(BaseDTO):
     """Uma linha da escada acadêmica do Recém-formado."""
 
@@ -536,6 +580,7 @@ MechanicBlockDTO = Annotated[
     | OffersBankerMechanicDTO
     | BrokerMechanicDTO
     | LandlordMechanicDTO
+    | AdministratorMechanicDTO
     | NoMechanicDTO,
     Field(discriminator="kind"),
 ]

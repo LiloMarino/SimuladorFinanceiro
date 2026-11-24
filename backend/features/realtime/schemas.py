@@ -434,6 +434,13 @@ class OvertimeAvailableEventDTO(BaseDTO):
     event_date: date
 
 
+class ExamResultEventDTO(BaseDTO):
+    """O resultado do concurso para Servidor do Administrador saiu: o bloco da profissão e o histórico precisam reler."""
+
+    event_date: date
+    passed: bool
+
+
 class HouseReportIssuedEventDTO(BaseDTO):
     """A casa do Corretor mandou o relatório do mês: o selo das ações e o bloco da profissão precisam reler."""
 
@@ -644,6 +651,7 @@ class RealtimeEventCatalog(BaseDTO):
     goal_progress_update: GoalProgressDTO
     life_event: LifeEventDTO
     overtime_available: OvertimeAvailableEventDTO
+    exam_result: ExamResultEventDTO
     house_report_issued: HouseReportIssuedEventDTO
     auto_redeem: AutoRedeemEventDTO
     corporate_actions: CorporateActionsEventDTO

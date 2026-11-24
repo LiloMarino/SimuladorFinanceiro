@@ -458,6 +458,7 @@ class Profession(Enum):
     BROKER = "BROKER"
     HEIR = "HEIR"
     NEW_GRADUATE = "NEW_GRADUATE"
+    ADMINISTRATOR = "ADMINISTRATOR"
     # Profissões das expansões: só existem na sala com a expansão ligada
     COMMISSIONED = "COMMISSIONED"
     OFFERS_BANKER = "OFFERS_BANKER"
@@ -1295,6 +1296,7 @@ _PROFESSION_GROUPS = {
     Profession.BROKER: VoterGroup.INVESTORS,
     Profession.HEIR: VoterGroup.INVESTORS,
     Profession.NEW_GRADUATE: VoterGroup.FORMAL_WORKERS,
+    Profession.ADMINISTRATOR: VoterGroup.FORMAL_WORKERS,
     Profession.COMMISSIONED: VoterGroup.PUBLIC_SERVANTS,
     Profession.OFFERS_BANKER: VoterGroup.INVESTORS,
 }

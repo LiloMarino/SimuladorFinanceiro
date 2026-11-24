@@ -8,6 +8,20 @@ from datetime import date
 from decimal import Decimal
 from itertools import pairwise
 
+from backend.core.administrator import (
+    PASS_CHANCE,
+    SECTORS,
+    SENIOR_MONTHS,
+    STUDY_INCOME_FACTOR,
+    STUDY_MONTHS,
+    SWITCH_INCOME_FACTOR,
+    exam_deadline,
+    exam_result_month,
+    experience_factor,
+    is_senior,
+    next_exam_month,
+    switch_entry_on,
+)
 from backend.core.clt import (
     FGTS_ANNUAL_RATE,
     MONTHS_PER_YEAR,
@@ -20,6 +34,7 @@ from backend.core.dates import add_months
 from backend.core.dto.credit import PayrollLoanDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeAssetDTO
 from backend.core.dto.profession import (
+    AdministratorState,
     BrokerState,
     CltState,
     EntrepreneurState,
@@ -30,6 +45,8 @@ from backend.core.dto.profession import (
     WelfareState,
 )
 from backend.core.dto.profession_page import (
+    AdministratorMechanicDTO,
+    AdministratorSectorDTO,
     AppointeeMechanicDTO,
     BankerMechanicDTO,
     BrokerMechanicDTO,
@@ -741,6 +758,57 @@ def welfare_block(
         course_ends_on=None
         if state.course_enrolled_on is None
         else course_ends_on(state.course_enrolled_on),
+    )
+
+
+def administrator_block(
+    state: AdministratorState,
+    budget: LifeBudget,
+    day: date,
+    exam_open: bool,
+    extra_possible: bool,
+) -> AdministratorMechanicDTO:
+    """
+    O bloco do Administrador: a tabela de setores com a experiência, o nível e o que cada
+    um paga hoje; a troca em andamento com a renda do mês e o dia da entrada; o concurso
+    com o edital aberto, o próximo ou o estudo em andamento.
+    """
+    current_income = budget.sector_income_on(state.sector, day)
+    exam_status = "open" if exam_open else "closed"
+    if state.studying:
+        exam_status = "studying"
+    return AdministratorMechanicDTO(
+        status=MechanicStatus.LOCKED if state.switching else MechanicStatus.ACTIVE,
+        sector=state.sector,
+        senior_months=SENIOR_MONTHS,
+        sectors=[
+            AdministratorSectorDTO(
+                sector=sector,
+                months=state.months_in(sector),
+                level=experience_factor(state.months_in(sector)),
+                senior=is_senior(state.months_in(sector)),
+                income=budget.sector_income_on(sector, day),
+                current=sector is state.sector,
+            )
+            for sector in SECTORS
+        ],
+        switching_to=state.switching_to,
+        switch_entry_on=None
+        if state.switch_started_on is None
+        else switch_entry_on(state.switch_started_on),
+        switch_month_income=cents(current_income * SWITCH_INCOME_FACTOR),
+        switch_income_factor=SWITCH_INCOME_FACTOR,
+        exam_status=exam_status,
+        exam_open_until=exam_deadline(day) if exam_status == "open" else None,
+        exam_next_on=next_exam_month(day) if exam_status == "closed" else None,
+        exam_extra_possible=extra_possible,
+        exam_result_on=None
+        if state.exam_enrolled_on is None
+        else exam_result_month(state.exam_enrolled_on),
+        exam_income=cents(current_income * STUDY_INCOME_FACTOR),
+        exam_study_months=STUDY_MONTHS,
+        exam_income_cut=1 - STUDY_INCOME_FACTOR,
+        exam_pass_chance=PASS_CHANCE,
     )
 
 

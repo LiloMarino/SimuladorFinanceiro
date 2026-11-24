@@ -272,6 +272,11 @@ class EnrollStepRequest(BaseModel):
     step: AcademicStep
 
 
+class SwitchSectorRequest(BaseModel):
+    # O setor para onde o Administrador troca; os seis setores da profissão
+    sector: Profession
+
+
 class PensionAmountRequest(BaseModel):
     # O valor do saldo da previdência que a ação usa, em reais
     amount: Decimal
@@ -1422,6 +1427,46 @@ def enroll_step(payload: EnrollStepRequest, client_id: ClientID):
         raise NotFoundError("Usuário não encontrado.")
     simulation = SimulationManager.get_active_simulation()
     simulation.enroll_step(user, payload.step)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/switch-sector",
+    response_model=ProfessionStateDTO,
+    summary="Trocar o setor do Administrador",
+    description="O Administrador começa a troca para o setor pedido (CLT, Empreendedor, Exportador, Bancário, Autônomo ou Corretor). A troca leva 1 mês: o setor novo entra na mesma data do mês seguinte e o salário pago no meio é a metade da renda do setor atual. A experiência de cada setor fica guardada e o mês da troca não soma em nenhum. Responde 409 para o setor atual, para troca já em andamento, para quem está estudando para o concurso, para setor que não existe e para outra profissão.",
+)
+def switch_sector(payload: SwitchSectorRequest, client_id: ClientID):
+    """
+    Começa a troca de setor de quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.switch_sector(user, payload.sector)
+    return simulation.get_profession_state(client_id)
+
+
+@simulation_router.post(
+    "/enroll-exam",
+    response_model=ProfessionStateDTO,
+    summary="Inscrever o Administrador no concurso para Servidor",
+    description="Inscreve o Administrador no concurso para Servidor, só no mês de um edital (abril, outubro e, com o gasto do governo acima do normal no dia 1º, julho). Os 6 meses de estudo que se seguem pagam a renda 20% menor e a experiência continua subindo. Na primeira virada depois dos 6 meses sai o resultado, com 18% de aprovação: o aprovado vira Servidor e o reprovado volta ao setor e pode se inscrever no próximo edital. Responde 409 sem edital aberto, com troca de setor em andamento, para quem já está estudando e para outra profissão.",
+)
+def enroll_exam(client_id: ClientID):
+    """
+    Inscreve no concurso quem pede.
+    """
+    if not SimulationManager.has_active_simulation():
+        raise ConflictError("Não há partida em andamento.")
+    user = UserManager.get_user(client_id)
+    if user is None:
+        raise NotFoundError("Usuário não encontrado.")
+    simulation = SimulationManager.get_active_simulation()
+    simulation.enroll_exam(user)
     return simulation.get_profession_state(client_id)
 
 

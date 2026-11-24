@@ -76,6 +76,31 @@ export function LifeNotifications() {
   );
 
   useRealtime(
+    "exam_result",
+    (event) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.lifeHistoryAll(simulationId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.profession(simulationId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.lifeStatusAll() });
+
+      if (!isToastOn("LIFE_EVENT")) return;
+
+      const action = { label: "Ver a profissão", onClick: () => void navigate("/profession") };
+      if (event.passed) {
+        toast.success("Passou no concurso", {
+          description: "Você virou Servidor, com estabilidade",
+          action,
+        });
+        return;
+      }
+      toast.warning("Não passou no concurso", {
+        description: "Você volta à renda do setor; dá para se inscrever no próximo edital",
+        action,
+      });
+    },
+    independence,
+  );
+
+  useRealtime(
     "house_report_issued",
     () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.housePicks(simulationId) });

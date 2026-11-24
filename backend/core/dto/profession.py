@@ -3,6 +3,12 @@ from decimal import Decimal
 
 from pydantic import Field, SerializeAsAny
 
+from backend.core.administrator import (
+    SECTORS,
+    STUDY_INCOME_FACTOR,
+    SWITCH_INCOME_FACTOR,
+    experience_factor,
+)
 from backend.core.clt import (
     OVERTIME_HEALTH_MULTIPLE,
     OVERTIME_INCOME_RATE,
@@ -231,6 +237,44 @@ class LandlordState(MechanicState):
     """O estado do Locador: se os imóveis iniciais já nasceram. Os imóveis moram na tabela deles; sem a marca, quem vendeu tudo ganharia os iniciais de novo."""
 
     seeded: bool = False
+
+
+class AdministratorState(MechanicState):
+    """O estado do Administrador: o setor onde trabalha, os meses de experiência em cada setor, a troca de setor e o estudo do concurso em andamento, e o volume da sala para a comissão quando o setor é o Corretor."""
+
+    sector: Profession = Profession.CLT
+    # Os meses trabalhados em cada setor; o setor que ficou para trás guarda os meses para a volta
+    experience: dict[Profession, int] = Field(default_factory=dict)
+    # O setor para onde ele vai e o dia em que pediu a troca; nulos sem troca em andamento
+    switching_to: Profession | None = None
+    switch_started_on: date | None = None
+    # O dia da inscrição no concurso; nulo sem estudo em andamento
+    exam_enrolled_on: date | None = None
+    # O volume e os Corretores do mês que fechou, como no estado do Corretor
+    volume: Decimal = Decimal(0)
+    brokers: int = 0
+
+    @property
+    def switching(self) -> bool:
+        return self.switching_to is not None
+
+    @property
+    def studying(self) -> bool:
+        return self.exam_enrolled_on is not None
+
+    def months_in(self, sector: Profession) -> int:
+        return self.experience.get(sector, 0)
+
+    @property
+    def experience_factor(self) -> Decimal:
+        """O quanto da renda do setor atual ele leva pelos meses que tem nele."""
+        return experience_factor(self.months_in(self.sector))
+
+    @property
+    def income_factor(self) -> Decimal:
+        if self.switching:
+            return SWITCH_INCOME_FACTOR
+        return STUDY_INCOME_FACTOR if self.studying else Decimal(1)
 
 
 class MechanicAction(BaseDTO):
@@ -469,6 +513,35 @@ class LeaveHome(GraduateAction):
     kind: str = Field(default=LEAVE_HOME, pattern=rf"^{LEAVE_HOME}$")
 
 
+# O nome de cada lançamento do Administrador no histórico da vida: a troca guarda o setor novo na chave
+SECTOR_PREFIX = "sector_"
+EXAM_ENROLLED = "exam_enrolled"
+EXAM_PASSED = "exam_passed"
+EXAM_FAILED = "exam_failed"
+
+
+class AdministratorAction(MechanicAction):
+    """Uma ação do Administrador; é o tipo que a mecânica aceita."""
+
+
+class SwitchSector(AdministratorAction):
+    """Começa a troca para o setor, que leva 1 mês com a renda pela metade."""
+
+    kind: str = Field(
+        pattern=rf"^{SECTOR_PREFIX}({'|'.join(sector.value.lower() for sector in SECTORS)})$"
+    )
+
+    @property
+    def sector(self) -> Profession:
+        return Profession(self.kind.removeprefix(SECTOR_PREFIX).upper())
+
+
+class EnrollExam(AdministratorAction):
+    """Inscreve no concurso para Servidor, que começa os meses de estudo hoje."""
+
+    kind: str = Field(default=EXAM_ENROLLED, pattern=rf"^{EXAM_ENROLLED}$")
+
+
 class ProfessionPeriodDTO(BaseDTO):
     """A profissão que o jogador exerce a partir de `start`, até o início do período seguinte."""
 
@@ -485,6 +558,7 @@ class ProfessionStateDTO(BaseDTO):
 
 # O tipo do estado de cada profissão com mecânica; as demais usam o tipo base
 STATE_TYPES: dict[Profession, type[MechanicState]] = {
+    Profession.ADMINISTRATOR: AdministratorState,
     Profession.BROKER: BrokerState,
     Profession.CLT: CltState,
     Profession.ENTREPRENEUR: EntrepreneurState,

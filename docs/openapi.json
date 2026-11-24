@@ -14620,6 +14620,110 @@
         ]
       }
     },
+    "/api/simulation/switch-sector": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Trocar o setor do Administrador",
+        "description": "O Administrador começa a troca para o setor pedido (CLT, Empreendedor, Exportador, Bancário, Autônomo ou Corretor). A troca leva 1 mês: o setor novo entra na mesma data do mês seguinte e o salário pago no meio é a metade da renda do setor atual. A experiência de cada setor fica guardada e o mês da troca não soma em nenhum. Responde 409 para o setor atual, para troca já em andamento, para quem está estudando para o concurso, para setor que não existe e para outra profissão.",
+        "operationId": "switch_sector_api_simulation_switch_sector_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchSectorRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/simulation/enroll-exam": {
+      "post": {
+        "tags": [
+          "Simulation"
+        ],
+        "summary": "Inscrever o Administrador no concurso para Servidor",
+        "description": "Inscreve o Administrador no concurso para Servidor, só no mês de um edital (abril, outubro e, com o gasto do governo acima do normal no dia 1º, julho). Os 6 meses de estudo que se seguem pagam a renda 20% menor e a experiência continua subindo. Na primeira virada depois dos 6 meses sai o resultado, com 18% de aprovação: o aprovado vira Servidor e o reprovado volta ao setor e pode se inscrever no próximo edital. Responde 409 sem edital aberto, com troca de setor em andamento, para quem já está estudando e para outra profissão.",
+        "operationId": "enroll_exam_api_simulation_enroll_exam_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfessionStateDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
     "/api/simulation/leave-home": {
       "post": {
         "tags": [
@@ -16555,6 +16659,191 @@
         ],
         "title": "ActiveEffectDTO",
         "description": "O efeito de uma medida de gasto aprovada na economia da partida, hoje."
+      },
+      "AdministratorMechanicDTO": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "const": "administrator",
+            "title": "Kind",
+            "default": "administrator"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MechanicStatus"
+          },
+          "sector": {
+            "$ref": "#/components/schemas/Profession"
+          },
+          "senior_months": {
+            "type": "integer",
+            "title": "Senior Months"
+          },
+          "sectors": {
+            "items": {
+              "$ref": "#/components/schemas/AdministratorSectorDTO"
+            },
+            "type": "array",
+            "title": "Sectors"
+          },
+          "switching_to": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Profession"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "switch_entry_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Switch Entry On"
+          },
+          "switch_month_income": {
+            "type": "string",
+            "title": "Switch Month Income"
+          },
+          "switch_income_factor": {
+            "type": "string",
+            "title": "Switch Income Factor"
+          },
+          "exam_status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed",
+              "studying"
+            ],
+            "title": "Exam Status"
+          },
+          "exam_open_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Open Until"
+          },
+          "exam_next_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Next On"
+          },
+          "exam_extra_possible": {
+            "type": "boolean",
+            "title": "Exam Extra Possible"
+          },
+          "exam_result_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exam Result On"
+          },
+          "exam_income": {
+            "type": "string",
+            "title": "Exam Income"
+          },
+          "exam_study_months": {
+            "type": "integer",
+            "title": "Exam Study Months"
+          },
+          "exam_income_cut": {
+            "type": "string",
+            "title": "Exam Income Cut"
+          },
+          "exam_pass_chance": {
+            "type": "string",
+            "title": "Exam Pass Chance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind",
+          "status",
+          "sector",
+          "senior_months",
+          "sectors",
+          "switching_to",
+          "switch_entry_on",
+          "switch_month_income",
+          "switch_income_factor",
+          "exam_status",
+          "exam_open_until",
+          "exam_next_on",
+          "exam_extra_possible",
+          "exam_result_on",
+          "exam_income",
+          "exam_study_months",
+          "exam_income_cut",
+          "exam_pass_chance"
+        ],
+        "title": "AdministratorMechanicDTO",
+        "description": "Setores e concurso do Administrador."
+      },
+      "AdministratorSectorDTO": {
+        "properties": {
+          "sector": {
+            "$ref": "#/components/schemas/Profession"
+          },
+          "months": {
+            "type": "integer",
+            "title": "Months"
+          },
+          "level": {
+            "type": "string",
+            "title": "Level"
+          },
+          "senior": {
+            "type": "boolean",
+            "title": "Senior"
+          },
+          "income": {
+            "type": "string",
+            "title": "Income"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sector",
+          "months",
+          "level",
+          "senior",
+          "income",
+          "current"
+        ],
+        "title": "AdministratorSectorDTO",
+        "description": "Uma linha da tabela de setores do Administrador."
       },
       "AllocationItemDTO": {
         "properties": {
@@ -24106,6 +24395,27 @@
           "message"
         ],
         "title": "ErrorResponse"
+      },
+      "ExamResultEventDTO": {
+        "properties": {
+          "event_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Event Date"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "event_date",
+          "passed"
+        ],
+        "title": "ExamResultEventDTO",
+        "description": "O resultado do concurso para Servidor do Administrador saiu: o bloco da profissão e o histórico precisam reler."
       },
       "ExchangeLockDTO": {
         "properties": {
@@ -42228,6 +42538,7 @@
           "BROKER",
           "HEIR",
           "NEW_GRADUATE",
+          "ADMINISTRATOR",
           "COMMISSIONED",
           "OFFERS_BANKER"
         ],
@@ -42294,6 +42605,9 @@
                 "$ref": "#/components/schemas/LandlordMechanicDTO"
               },
               {
+                "$ref": "#/components/schemas/AdministratorMechanicDTO"
+              },
+              {
                 "$ref": "#/components/schemas/NoMechanicDTO"
               }
             ],
@@ -42301,6 +42615,7 @@
             "discriminator": {
               "propertyName": "kind",
               "mapping": {
+                "administrator": "#/components/schemas/AdministratorMechanicDTO",
                 "appointee": "#/components/schemas/AppointeeMechanicDTO",
                 "banker": "#/components/schemas/BankerMechanicDTO",
                 "broker": "#/components/schemas/BrokerMechanicDTO",
@@ -43613,6 +43928,9 @@
           "overtime_available": {
             "$ref": "#/components/schemas/OvertimeAvailableEventDTO"
           },
+          "exam_result": {
+            "$ref": "#/components/schemas/ExamResultEventDTO"
+          },
           "house_report_issued": {
             "$ref": "#/components/schemas/HouseReportIssuedEventDTO"
           },
@@ -43798,6 +44116,7 @@
           "goal_progress_update",
           "life_event",
           "overtime_available",
+          "exam_result",
           "house_report_issued",
           "auto_redeem",
           "corporate_actions",
@@ -50150,6 +50469,18 @@
           "sell",
           "strong_sell"
         ]
+      },
+      "SwitchSectorRequest": {
+        "properties": {
+          "sector": {
+            "$ref": "#/components/schemas/Profession"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sector"
+        ],
+        "title": "SwitchSectorRequest"
       },
       "TaxBase": {
         "type": "string",

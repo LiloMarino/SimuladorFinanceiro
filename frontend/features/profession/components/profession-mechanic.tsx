@@ -1,4 +1,5 @@
 import type { ProfessionMechanic as Mechanic } from "@/types";
+import { AdministratorBlock } from "./administrator-block";
 import { BankerBlock } from "./banker-block";
 import { BrokerBlock } from "./broker-block";
 import { CltBlock } from "./clt-block";
@@ -37,6 +38,8 @@ export function ProfessionMechanic({ mechanic }: { mechanic: Mechanic }) {
       return <BrokerBlock mechanic={mechanic} />;
     case "landlord":
       return <LandlordBlock mechanic={mechanic} />;
+    case "administrator":
+      return <AdministratorBlock mechanic={mechanic} />;
     case "heir":
       return <HeirBlock mechanic={mechanic} />;
     case "appointee":

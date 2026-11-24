@@ -71,6 +71,7 @@ export type SimulationEvents = {
   life_event: LifeEvent;
   overtime_available: RealtimeEventCatalog["overtime_available"];
   house_report_issued: RealtimeEventCatalog["house_report_issued"];
+  exam_result: RealtimeEventCatalog["exam_result"];
   auto_redeem: RealtimeEventCatalog["auto_redeem"];
   corporate_actions: RealtimeEventCatalog["corporate_actions"];
   future_recording_progress: FutureRecordingProgressEvent;

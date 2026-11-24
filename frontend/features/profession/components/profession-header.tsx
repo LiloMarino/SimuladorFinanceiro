@@ -24,6 +24,7 @@ const UNINDEXED_NOTES: Partial<Record<ProfessionPage["profession"], string>> = {
 
 // O que compõe a renda do mês de quem não vive de salário
 const INCOME_NOTES: Partial<Record<ProfessionPage["profession"], string>> = {
+  ADMINISTRATOR: "a renda do setor onde você trabalha, com a experiência nele",
   LANDLORD: "a soma dos aluguéis dos imóveis alugados",
 };
 

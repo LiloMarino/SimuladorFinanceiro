@@ -385,6 +385,7 @@ export type MechanicStatus = components["schemas"]["MechanicStatus"];
 export type EnrollStepRequest = components["schemas"]["EnrollStepRequest"];
 export type BuyPropertyRequest = components["schemas"]["BuyPropertyRequest"];
 export type SellPropertyRequest = components["schemas"]["SellPropertyRequest"];
+export type SwitchSectorRequest = components["schemas"]["SwitchSectorRequest"];
 export type LifeHistoryPage = components["schemas"]["LifeHistoryPageDTO"];
 export type LifeHistoryRow = LifeHistoryPage["items"][number];
 export type LifeHistoryCategory = components["schemas"]["LifeHistoryCategory"];

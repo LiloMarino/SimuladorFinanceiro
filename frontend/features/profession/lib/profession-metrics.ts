@@ -435,3 +435,14 @@ export const VACANCY_CHANCE: MetricInfo = {
     "Quanto menor, melhor. Perto de 2% é economia aquecida; perto de 20% é crise, com desemprego alto e PIB em queda.",
   format: (value) => displayPercent(value, 0),
 };
+
+export const SECTOR_EXPERIENCE: MetricInfo = {
+  label: "Experiência por setor",
+  description: "Quanto da renda do setor você leva",
+  definition: "Quanto da renda do setor você leva: 0,85× no primeiro mês, subindo até 1,00× em 12 meses no setor.",
+  example:
+    "Ex.: renda do setor de R$ 6.000,00: júnior leva R$ 5.100,00; com 6 meses, cerca de R$ 5.550,00; sênior, R$ 6.000,00.",
+  reading:
+    "Trocar toda hora deixa júnior em tudo. A chance do concurso (ex.: 18%) é a de passar em uma inscrição: em 5 tentativas, cerca de 63% de passar ao menos uma vez.",
+  format: (value) => `${displayNumber(value, 2)}×`,
+};

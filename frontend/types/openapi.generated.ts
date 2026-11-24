@@ -4756,6 +4756,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/simulation/switch-sector": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Trocar o setor do Administrador
+         * @description O Administrador começa a troca para o setor pedido (CLT, Empreendedor, Exportador, Bancário, Autônomo ou Corretor). A troca leva 1 mês: o setor novo entra na mesma data do mês seguinte e o salário pago no meio é a metade da renda do setor atual. A experiência de cada setor fica guardada e o mês da troca não soma em nenhum. Responde 409 para o setor atual, para troca já em andamento, para quem está estudando para o concurso, para setor que não existe e para outra profissão.
+         */
+        post: operations["switch_sector_api_simulation_switch_sector_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/simulation/enroll-exam": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Inscrever o Administrador no concurso para Servidor
+         * @description Inscreve o Administrador no concurso para Servidor, só no mês de um edital (abril, outubro e, com o gasto do governo acima do normal no dia 1º, julho). Os 6 meses de estudo que se seguem pagam a renda 20% menor e a experiência continua subindo. Na primeira virada depois dos 6 meses sai o resultado, com 18% de aprovação: o aprovado vira Servidor e o reprovado volta ao setor e pode se inscrever no próximo edital. Responde 409 sem edital aberto, com troca de setor em andamento, para quem já está estudando e para outra profissão.
+         */
+        post: operations["enroll_exam_api_simulation_enroll_exam_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/simulation/leave-home": {
         parameters: {
             query?: never;
@@ -5468,6 +5508,68 @@ export interface components {
             curve: string[];
             /** Elapsed Months */
             elapsed_months: number;
+        };
+        /**
+         * AdministratorMechanicDTO
+         * @description Setores e concurso do Administrador.
+         */
+        AdministratorMechanicDTO: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "administrator";
+            status: components["schemas"]["MechanicStatus"];
+            sector: components["schemas"]["Profession"];
+            /** Senior Months */
+            senior_months: number;
+            /** Sectors */
+            sectors: components["schemas"]["AdministratorSectorDTO"][];
+            switching_to: components["schemas"]["Profession"] | null;
+            /** Switch Entry On */
+            switch_entry_on: string | null;
+            /** Switch Month Income */
+            switch_month_income: string;
+            /** Switch Income Factor */
+            switch_income_factor: string;
+            /**
+             * Exam Status
+             * @enum {string}
+             */
+            exam_status: "open" | "closed" | "studying";
+            /** Exam Open Until */
+            exam_open_until: string | null;
+            /** Exam Next On */
+            exam_next_on: string | null;
+            /** Exam Extra Possible */
+            exam_extra_possible: boolean;
+            /** Exam Result On */
+            exam_result_on: string | null;
+            /** Exam Income */
+            exam_income: string;
+            /** Exam Study Months */
+            exam_study_months: number;
+            /** Exam Income Cut */
+            exam_income_cut: string;
+            /** Exam Pass Chance */
+            exam_pass_chance: string;
+        };
+        /**
+         * AdministratorSectorDTO
+         * @description Uma linha da tabela de setores do Administrador.
+         */
+        AdministratorSectorDTO: {
+            sector: components["schemas"]["Profession"];
+            /** Months */
+            months: number;
+            /** Level */
+            level: string;
+            /** Senior */
+            senior: boolean;
+            /** Income */
+            income: string;
+            /** Current */
+            current: boolean;
         };
         /** AllocationItemDTO */
         AllocationItemDTO: {
@@ -8078,6 +8180,19 @@ export interface components {
             message: string;
             /** Code */
             code?: string | null;
+        };
+        /**
+         * ExamResultEventDTO
+         * @description O resultado do concurso para Servidor do Administrador saiu: o bloco da profissão e o histórico precisam reler.
+         */
+        ExamResultEventDTO: {
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
+            /** Passed */
+            passed: boolean;
         };
         /**
          * ExchangeLockDTO
@@ -14212,7 +14327,7 @@ export interface components {
          * @description A profissão do jogador no viver de renda; cada uma pertence a um grupo do eleitorado.
          * @enum {string}
          */
-        Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD" | "EXPORTER" | "BANKER" | "FREELANCER" | "BROKER" | "HEIR" | "NEW_GRADUATE" | "COMMISSIONED" | "OFFERS_BANKER";
+        Profession: "CLT" | "PUBLIC_SERVANT" | "ENTREPRENEUR" | "RETIREE" | "WELFARE" | "LANDLORD" | "EXPORTER" | "BANKER" | "FREELANCER" | "BROKER" | "HEIR" | "NEW_GRADUATE" | "ADMINISTRATOR" | "COMMISSIONED" | "OFFERS_BANKER";
         /** ProfessionPageDTO */
         ProfessionPageDTO: {
             profession: components["schemas"]["Profession"];
@@ -14220,7 +14335,7 @@ export interface components {
             /** Series */
             series: components["schemas"]["IncomeSeriesDTO"][];
             /** Mechanic */
-            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["GraduateMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["BrokerMechanicDTO"] | components["schemas"]["LandlordMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
+            mechanic: components["schemas"]["CltMechanicDTO"] | components["schemas"]["EntrepreneurMechanicDTO"] | components["schemas"]["RetireeMechanicDTO"] | components["schemas"]["WelfareMechanicDTO"] | components["schemas"]["GraduateMechanicDTO"] | components["schemas"]["ExporterMechanicDTO"] | components["schemas"]["FreelancerMechanicDTO"] | components["schemas"]["PublicServantMechanicDTO"] | components["schemas"]["BankerMechanicDTO"] | components["schemas"]["HeirMechanicDTO"] | components["schemas"]["AppointeeMechanicDTO"] | components["schemas"]["OffersBankerMechanicDTO"] | components["schemas"]["BrokerMechanicDTO"] | components["schemas"]["LandlordMechanicDTO"] | components["schemas"]["AdministratorMechanicDTO"] | components["schemas"]["NoMechanicDTO"];
         };
         /**
          * ProfessionStateDTO
@@ -14675,6 +14790,7 @@ export interface components {
             goal_progress_update: components["schemas"]["GoalProgressDTO"];
             life_event: components["schemas"]["LifeEventDTO"];
             overtime_available: components["schemas"]["OvertimeAvailableEventDTO"];
+            exam_result: components["schemas"]["ExamResultEventDTO"];
             house_report_issued: components["schemas"]["HouseReportIssuedEventDTO"];
             auto_redeem: components["schemas"]["AutoRedeemEventDTO"];
             corporate_actions: components["schemas"]["CorporateActionsEventDTO"];
@@ -16995,6 +17111,10 @@ export interface components {
         };
         /** @enum {string} */
         SummaryVerdict: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
+        /** SwitchSectorRequest */
+        SwitchSectorRequest: {
+            sector: components["schemas"]["Profession"];
+        };
         /**
          * TaxBase
          * @description O imposto cujo desvio contra a lei aumenta ou corta a renda líquida.
@@ -28512,6 +28632,86 @@ export interface operations {
                 "application/json": components["schemas"]["EnrollStepRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    switch_sector_api_simulation_switch_sector_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SwitchSectorRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfessionStateDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    enroll_exam_api_simulation_enroll_exam_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {
