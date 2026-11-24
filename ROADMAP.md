@@ -80,7 +80,7 @@
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M24 · 4.4 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F286**](#f286) | Feature | Console de trapaça no modo debug | M29 · 4.3 | — | Alto | Bom | ⏳ |
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
@@ -177,7 +177,7 @@
 | 20 | [**F332**](#f332) | Feature | Imóveis do Locador | — | ✅ Concluído |
 | 21 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | — | ✅ Concluído |
 | 22 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ✅ Concluído |
-| 23 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
+| 23 | [**F286**](#f286) | Feature | Console de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
 | 24 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
 | 25 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | — | ⏳ Pendente |
 | 26 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | — | ✅ Concluído |
@@ -275,7 +275,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 23º | 0 | Médio | Bom | ⏳ |
+| [**F286**](#f286) | Feature | Console de trapaça no modo debug | M29 · 4.3 · 23º | 0 | Alto | Bom | ⏳ |
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 · 24º | 0 | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
@@ -335,7 +335,7 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.7 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
-| **F286** | Feature | Comandos de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Médio | Baixo | Alto | Bom |
+| **F286** | Feature | Console de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Alto | Médio | Alto | Bom |
 | **F334** | Feature | Calibração das profissões pelos três alarmes | N39 | D23 | M29 · 4.3 | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | Médio | Médio | Alto | Bom |
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
 | **F336** | Feature | Ordem stop e validade na boleta | N43 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
@@ -536,7 +536,11 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 **Aceite:** o acordo de base com ministério grava a pasta; o ministro propõe as medidas da pasta e o presidente não, enquanto ela estiver cedida; a terceira pasta cedida e a segunda do mesmo partido são recusadas; o computador aceita o acordo sem pasta; com aprovação 60 e dois ministérios, o presidente soma 42 por mês e cada ministro 9, e o total dos pontos do mês é o mesmo com e sem ministério; a demissão devolve a pasta ao presidente, mantém o acordo e soma 4 pontos de rejeição nos grupos do aliado; a obra do ministro com 50% no setor tira 3 pontos de aprovação por mês enquanto a fatia continuar; `docs/docs/como-usar/governo.md` atualizada.
 
 <a id="f286"></a>
-**F286 — Comandos de trapaça no modo debug.** Com o modo debug ligado, o host ganha comandos que levam a partida a um estado sem jogar até ele, como os consoles de jogo de estratégia: virar presidente (ou outro cargo do governo), pôr ou tirar dinheiro do caixa de um jogador, pular para uma data, forçar um imprevisto ou um evento de vida, dar um título ou uma ação na carteira. Servem para conferir telas, montar o antes de um redesenho no canvas e testar regras no app de teste. Com o modo debug desligado, os comandos não existem no front nem respondem no backend. A forma (console de texto, painel com botões ou os dois) se decide quando o card for aberto.
+**F286 — Console de trapaça no modo debug.** Com o modo debug ligado, o host ganha um console de comandos, como os dos jogos de estratégia, que leva a partida a um estado sem jogar até ele. Serve para conferir telas, montar o antes de um redesenho no canvas, reproduzir um bug e testar regras no app de teste. O catálogo de comandos mora no backend: cada comando tem nome, argumentos com tipo, ajuda e a ação, e o backend entrega a lista com as escolhas de cada argumento (apelidos, tickers, títulos em oferta, eventos, siglas de partido). O front é um console genérico aberto pela tecla ´ ou ~, com autocompletar de comando e de argumento, `help`, `help <comando>` e histórico na seta para cima; a mesma linha de texto vai a uma rota só, que também se chama pelo terminal. Com o modo debug desligado, o console não existe no front e a rota não responde.
+
+Comandos: `add_cash` e `set_cash` (o caixa nunca fica negativo; a diferença entra no extrato como depósito ou saque); `give_stock` (ação ou cota de fundo de graça, com o custo no preço do dia); `give_title` (título de renda fixa em oferta, de graça); `give_event` (um imprevisto ou evento de vida do catálogo, com o valor calculado como no sorteio e o FGTS na demissão); `give_presidency` (o jogador assume hoje pelo partido dele e governa até a próxima posse, com os efeitos de uma troca de mandato; fora de partido, recusa); `start_impeachment` (abre o pedido como no 6º mês abaixo do piso); `set_selic` (uma decisão do Copom valendo até a próxima reunião, só com o governo no controle da SELIC); `join_party` (filia com a filiação valendo para a próxima eleição); `pass_exam` (a inscrição atual do Administrador no concurso sai aprovada); `unban_fund` (zera a quarentena de fundar fundo depois de uma destituição). Pular para uma data ficou de fora: rodar os dias é o que a velocidade já faz, e o teleporte cria um estado que o jogo nunca produz.
+
+**Aceite:** com o modo debug desligado a rota responde 404 e o console não aparece; para quem não é host, 403; cada comando grava o efeito pelo caminho do jogo (linha no extrato, evento do governo) e recusa com o motivo nos limites acima; a posse e a SELIC sobrevivem ao replay do governo; o console autocompleta e guarda o histórico; `docs/docs/desenvolvimento/setup.md` lista os comandos e o uso pelo terminal.
 
 <a id="f334"></a>
 **F334 — Calibração das profissões pelos três alarmes.** Serve N39; segue a D23. Com o `calibrate.py` importando as políticas razoáveis, roda as salas com e sem correção pelo IPCA em 5, 10, 20 e 26 anos contra o poupador da sala e confere os três alarmes da D23: mecânica que não vale a pena, profissão primeira em todos os horizontes, profissão última em todos. Ajusta os números das regras até nenhum alarme soar, Comissionado e Banqueiro de ofertas incluídos; a taxa da herança do Herdeiro só muda se soar alarme para ele. A docs das profissões e os cards de `professions.ts` passam a descrever a mecânica e o formato da curva de cada uma (começo forte, constante, fim de jogo), com a dica explicando cada número. A tabela final fica registrada no card ao concluir.
