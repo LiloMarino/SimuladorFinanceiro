@@ -3803,6 +3803,50 @@ def portfolio_landlord(page: Page) -> None:
     expect(page.get_by_text("Imóveis").first).to_be_visible()
 
 
+def administrator_experienced_mechanic(body: dict | list) -> None:
+    """Administrador no CLT há 14 meses, com 9 meses de Exportador e 3 de Empreendedor, e o edital de abril aberto (dado forjado: a partida acaba de começar e nenhum setor tem meses andados)."""
+    assert isinstance(body, dict)
+    block = body["mechanic"]
+    months = {"CLT": 14, "EXPORTER": 9, "ENTREPRENEUR": 3, "FREELANCER": 0}
+    for row in block["sectors"]:
+        done = months.get(row["sector"], 0)
+        factor = 0.85 + 0.15 * min(done, 12) / 12
+        base = float(row["income"]) / float(row["level"])
+        row.update(
+            months=done,
+            level=f"{factor:.2f}",
+            senior=done >= 12,
+            income=f"{base * factor:.2f}",
+        )
+    block.update(
+        exam_status="open",
+        exam_open_until="2012-04-30",
+        exam_next_on=None,
+    )
+
+
+def profession_administrator(page: Page) -> None:
+    """Profissão de um Administrador no CLT sênior, com experiência em outros setores e edital aberto (dado forjado): a tabela por setor, a troca de setor e a inscrição no concurso."""
+    page_with_profession(page, "ADMINISTRATOR", "/profession")
+    patch_get(page, PROFESSION_GLOB, administrator_experienced_mechanic)
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Sua mecânica: setores e concurso").first).to_be_visible()
+    expect(page.get_by_text("Edital aberto").first).to_be_visible()
+
+
+def profession_administrator_switching(page: Page) -> None:
+    """Profissão de um Administrador trocando para o setor Exportador, pedido pela API e sem edital: o aviso da troca com a renda pela metade e o concurso fechado."""
+    page_with_profession(page, "ADMINISTRATOR", "/profession")
+    api_send(page, "POST", "/api/simulation/switch-sector", {"sector": "EXPORTER"})
+    page.reload()
+    page.wait_for_load_state("networkidle")
+    dismiss_topic(page)
+    expect(page.get_by_text("Troca em andamento.").first).to_be_visible()
+    expect(page.get_by_text("Sem edital").first).to_be_visible()
+
+
 STATES: dict[str, Callable[[Page], None]] = {
     "profissao/clt": profession_clt,
     "profissao/exportador": profession_exporter,
@@ -3822,6 +3866,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "profissao/corretor-inicio": profession_broker_start,
     "profissao/locador": profession_landlord,
     "profissao/locador-sem-imoveis": profession_landlord_without_properties,
+    "profissao/administrador": profession_administrator,
+    "profissao/administrador-trocando": profession_administrator_switching,
     "renda-variavel/corretor": stocks_list_broker,
     "meta/clt": goal_clt,
     "credito/servidor-consignado": credit_public_servant_payroll,
