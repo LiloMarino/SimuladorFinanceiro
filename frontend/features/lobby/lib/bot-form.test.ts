@@ -8,6 +8,7 @@ const strategy = (key: string, bot_names: string[]) =>
 
 const hold = strategy("buy_and_hold", ["Tio Patinhas", "Paciência"]);
 const rsi = strategy("rsi", ["Gatilho"]);
+const leveraged = { ...strategy("momentum", ["Impulso"]), supports_leverage: true } as StrategyInfo;
 
 describe("batchRequests", () => {
   it("dá nomes diferentes aos bots do lote, fora dos que a sala já tem", () => {
@@ -16,6 +17,7 @@ describe("batchRequests", () => {
       params: {},
       quantity: 3,
       profession: null,
+      leverage: false,
     });
 
     const names = requests.map((r) => r.nickname);
@@ -32,6 +34,7 @@ describe("batchRequests", () => {
       params: { period: 7 },
       quantity: 2,
       profession: null,
+      leverage: false,
     });
 
     expect(requests.map((r) => [r.strategy_key, r.params])).toEqual([
@@ -46,7 +49,7 @@ describe("batchRequests", () => {
     const requests = batchRequests(
       [hold, rsi],
       [],
-      { strategyKey: RANDOM_STRATEGY, params: { period: 7 }, quantity: 2, profession: null },
+      { strategyKey: RANDOM_STRATEGY, params: { period: 7 }, quantity: 2, profession: null, leverage: false },
       () => draws.shift() ?? 0,
     );
 
@@ -60,6 +63,7 @@ describe("batchRequests", () => {
       params: {},
       quantity: 1,
       profession: null,
+      leverage: false,
     });
 
     expect(request).not.toHaveProperty("color");
@@ -72,6 +76,7 @@ describe("batchRequests", () => {
       params: {},
       quantity: 3,
       profession: "BANKER",
+      leverage: false,
     });
 
     expect(requests.map((r) => r.profession)).toEqual(["BANKER", "BANKER", "BANKER"]);
@@ -83,8 +88,48 @@ describe("batchRequests", () => {
       params: {},
       quantity: 2,
       profession: null,
+      leverage: false,
     });
 
     expect(requests.map((r) => r.profession)).toEqual([null, null]);
+  });
+
+  it("liga Alavancar só nos bots cuja estratégia suporta crédito", () => {
+    const requests = batchRequests([hold, leveraged], [], {
+      strategyKey: "momentum",
+      params: { window: 12 },
+      quantity: 2,
+      profession: null,
+      leverage: true,
+    });
+
+    expect(requests.map((r) => r.params)).toEqual([
+      { window: 12, leverage: true },
+      { window: 12, leverage: true },
+    ]);
+    const [plain] = batchRequests([hold], [], {
+      strategyKey: "buy_and_hold",
+      params: {},
+      quantity: 1,
+      profession: null,
+      leverage: true,
+    });
+    expect(plain?.params).toEqual({});
+  });
+
+  it("liga Alavancar também nos bots de estratégia sorteada, só onde há suporte", () => {
+    // Cada bot gasta dois sorteios: a estratégia (0 → 1ª, 0,99 → última) e depois o nome
+    const draws = [0, 0, 0.99, 0];
+    const requests = batchRequests(
+      [hold, leveraged],
+      [],
+      { strategyKey: RANDOM_STRATEGY, params: {}, quantity: 2, profession: null, leverage: true },
+      () => draws.shift() ?? 0,
+    );
+
+    expect(requests.map((r) => [r.strategy_key, r.params])).toEqual([
+      ["buy_and_hold", {}],
+      ["momentum", { leverage: true }],
+    ]);
   });
 });

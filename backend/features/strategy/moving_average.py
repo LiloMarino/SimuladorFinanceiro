@@ -46,6 +46,7 @@ class MovingAverageCross(BaseStrategy):
         "ativo quando cruza para baixo."
     )
     group = StrategyGroup.TACTIC
+    supports_leverage = True
     view_kind = StrategyView.SIGNAL
     term_hint = (
         "Média móvel é o preço médio dos últimos N pregões. Ex.: a média de 50 dias a "

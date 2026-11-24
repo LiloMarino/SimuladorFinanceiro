@@ -34,10 +34,50 @@ class ParamSpec:
     # Nulo no padrão de `tickers`, que é calculado para a partida ao ligar. Em
     # `ticker` é o ativo preferido, que cede à ação mais negociada quando a
     # partida não o tem.
-    default: int | str | None = None
+    default: bool | int | str | None = None
     min: int | None = None
     max: int | None = None
     unit: str | None = None
+    # A chave (boolean) que precisa estar ligada para este parâmetro valer
+    enabled_by: str | None = None
+
+
+# Os dois parâmetros que toda estratégia com `supports_leverage` recebe da base
+LEVERAGE_KEY = "leverage"
+TARGET_DEBT_KEY = "target_debt"
+LEVERAGE_PARAMS = (
+    ParamSpec(
+        key=LEVERAGE_KEY,
+        label="Alavancar",
+        kind=StrategyParamKind.BOOLEAN,
+        default=False,
+        hint=(
+            "Liga o crédito: com o Ibovespa acima da média dos últimos 200 pregões, o "
+            "automático toma empréstimo até a dívida-alvo e investe esse dinheiro; "
+            "quando o Ibovespa cai abaixo da média, vende ações, quita a dívida e volta "
+            "a investir só o patrimônio. Alavancar amplia ganhos e perdas, e o juro do "
+            "empréstimo entra na conta: com patrimônio de R$ 100.000 e dívida de "
+            "R$ 20.000, uma queda de 10% na carteira (R$ 120.000) tira R$ 12.000, e o "
+            "patrimônio cai 12%, para R$ 88.000."
+        ),
+    ),
+    ParamSpec(
+        key=TARGET_DEBT_KEY,
+        label="Dívida-alvo",
+        kind=StrategyParamKind.PERCENT,
+        default=20,
+        min=5,
+        max=50,
+        unit="%",
+        enabled_by=LEVERAGE_KEY,
+        hint=(
+            "A dívida que o automático mantém, em % do patrimônio líquido (o que você "
+            "tem menos o que deve). Com patrimônio de R$ 100.000 e 20%, a dívida chega "
+            "a R$ 20.000. O limite da sua nota de crédito também vale: o automático "
+            "nunca passa dele."
+        ),
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -78,6 +118,14 @@ class BaseStrategy:
     requires_expansion: ClassVar[Expansion | None] = None
     # Se a estratégia também opera a carteira de uma gestora; a gestora não compra cota de outras gestoras
     fund_account: ClassVar[bool] = True
+    # Se a estratégia aceita alavancar com crédito: a base acrescenta "Alavancar" e "Dívida-alvo" aos parâmetros
+    supports_leverage: ClassVar[bool] = False
+
+    def __init_subclass__(cls, **kwargs: object) -> None:
+        super().__init_subclass__(**kwargs)
+        own = {spec.key for spec in cls.params}
+        if cls.supports_leverage and LEVERAGE_KEY not in own:
+            cls.params = (*cls.params, *LEVERAGE_PARAMS)
 
     @classmethod
     def available(cls, *, funds_enabled: bool, government_enabled: bool) -> bool:
@@ -102,6 +150,8 @@ class BaseStrategy:
                 message = _tickers_error(spec, value, known_tickers)
             elif spec.kind is StrategyParamKind.TICKER:
                 message = _ticker_error(spec, value, known_tickers)
+            elif spec.kind is StrategyParamKind.BOOLEAN:
+                message = _boolean_error(spec, value)
             else:
                 message = _number_error(spec, value)
             if message:
@@ -136,6 +186,11 @@ def param_int(params: dict[str, StrategyParamValue], key: str) -> int:
     return value
 
 
+def param_bool(params: dict[str, StrategyParamValue], key: str) -> bool:
+    """A chave liga/desliga; a ausente (parâmetros gravados antes dela existir) é desligada."""
+    return params.get(key) is True
+
+
 def param_ticker(params: dict[str, StrategyParamValue], key: str) -> str:
     value = params[key]
     if not isinstance(value, str):
@@ -148,6 +203,12 @@ def param_tickers(params: dict[str, StrategyParamValue], key: str) -> list[str]:
     if not isinstance(value, list):
         raise TypeError(f"O parâmetro {key} precisa ser lista")
     return value
+
+
+def _boolean_error(spec: ParamSpec, value: StrategyParamValue | None) -> str | None:
+    if not isinstance(value, bool):
+        return f"{spec.label} precisa ser ligado ou desligado."
+    return None
 
 
 def _number_error(spec: ParamSpec, value: StrategyParamValue | None) -> str | None:

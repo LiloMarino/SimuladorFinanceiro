@@ -14,7 +14,13 @@ from backend.features.strategy.context import FixedHolding, Holding
 from backend.features.strategy.rebalance import TargetRebalance
 from tests.strategy_helpers import closes, context, offer
 
-PARAMS = {"asset": "AAA", "stock_target": 60, "max_deviation": 5}
+PARAMS = {
+    "asset": "AAA",
+    "stock_target": 60,
+    "max_deviation": 5,
+    "leverage": False,
+    "target_debt": 20,
+}
 LIQUID = offer(daily_liquidity=True, name="CDB Liquidez Diária")
 
 

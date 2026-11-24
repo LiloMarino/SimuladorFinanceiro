@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
 
 import pandas as pd
 
+from backend.core.dto.credit import CreditOfferDTO, LoanDTO, OverdueDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
 from backend.core.dto.strategy import StrategyParamValue
-from backend.core.enum import FixedIncomeType, RateIndexType
+from backend.core.enum import CreditGrade, FixedIncomeType, RateIndexType
 from backend.features.strategy.base_strategy import BaseStrategy
 from backend.features.strategy.context import (
     FixedHolding,
@@ -70,19 +71,87 @@ def offer(
     )
 
 
+def credit_offer(
+    max_amount: str = "100000", rate: str | None = "0.15", available: bool = True
+) -> CreditOfferDTO:
+    return CreditOfferDTO(
+        available=available,
+        selic=Decimal("0.14"),
+        spread=Decimal("0.01"),
+        annual_rate=None if rate is None else Decimal(rate),
+        best_fixed_income_rate=None,
+        max_amount=Decimal(max_amount),
+        debt_limit=Decimal("0.5"),
+        debt_limit_amount=Decimal(max_amount),
+    )
+
+
+def loan(
+    number: int = 1,
+    balance: str = "10000",
+    *,
+    rate: str = "0.15",
+    age_days: int = 60,
+    overdue: str | None = None,
+) -> LoanDTO:
+    """Empréstimo em aberto; `overdue` é o total de uma parcela em atraso, com multa e mora."""
+    late = (
+        []
+        if overdue is None
+        else [
+            OverdueDTO(
+                installment_number=1,
+                due_date=TODAY - timedelta(days=10),
+                days_late=10,
+                installment=Decimal(overdue),
+                fee=Decimal(0),
+                interest=Decimal(0),
+                total=Decimal(overdue),
+            )
+        ]
+    )
+    return LoanDTO(
+        id=uuid.uuid4(),
+        number=number,
+        principal=Decimal(balance),
+        term_months=60,
+        annual_rate=Decimal(rate),
+        grade=CreditGrade.AAA,
+        contract_date=TODAY - timedelta(days=age_days),
+        installment=Decimal("300"),
+        paid_installments=0,
+        total_installments=60,
+        balance=Decimal(balance),
+        overdue_charges=Decimal(0),
+        next_due=TODAY + timedelta(days=20),
+        overdue=late,
+    )
+
+
 def context(
     *,
     cash: str = "10000",
+    installments_due: str = "0",
+    gross_cash: str | None = None,
     history: dict[str, pd.DataFrame] | None = None,
     holdings: dict[str, Holding] | None = None,
     fixed_holdings: list[FixedHolding] | None = None,
     offers: list[FixedIncomeOfferDTO] | None = None,
     fractional: frozenset[str] = frozenset(),
+    debt: str = "0",
+    grade: CreditGrade | None = None,
+    loans: list[LoanDTO] | None = None,
+    credit_offer: CreditOfferDTO | None = None,
+    networth: str | None = None,
 ) -> StrategyContext:
     frames = history or {}
     return StrategyContext(
         date=TODAY,
         cash=Decimal(cash),
+        gross_cash=Decimal(cash) + Decimal(installments_due)
+        if gross_cash is None
+        else Decimal(gross_cash),
+        installments_due=Decimal(installments_due),
         holdings=holdings or {},
         fixed_holdings=fixed_holdings or [],
         fixed_offers=offers or [],
@@ -102,6 +171,11 @@ def context(
         open_orders=[],
         seed=1,
         history_source=lambda ticker, days: frames[ticker].iloc[-days:],
+        debt=Decimal(debt),
+        grade=grade,
+        loans=loans or [],
+        offer_source=None if credit_offer is None else (lambda: credit_offer),
+        networth_source=None if networth is None else (lambda: Decimal(networth)),
     )
 
 

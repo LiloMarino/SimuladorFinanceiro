@@ -49416,7 +49416,11 @@
           "sell",
           "cancel",
           "invest",
-          "redeem"
+          "redeem",
+          "take_loan",
+          "prepay_loan",
+          "payoff_loan",
+          "pay_overdue"
         ],
         "title": "StrategyAction"
       },
@@ -49547,6 +49551,10 @@
             ],
             "title": "Term Hint"
           },
+          "supports_leverage": {
+            "type": "boolean",
+            "title": "Supports Leverage"
+          },
           "params": {
             "items": {
               "$ref": "#/components/schemas/StrategyParamDTO"
@@ -49566,6 +49574,7 @@
           "group",
           "view",
           "term_hint",
+          "supports_leverage",
           "params"
         ],
         "title": "StrategyInfoDTO"
@@ -49608,6 +49617,50 @@
             ],
             "title": "Quantity"
           },
+          "price": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "annual_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Rate"
+          },
+          "term_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Months"
+          },
+          "loan_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loan Number"
+          },
           "order_date": {
             "type": "string",
             "format": "date",
@@ -49632,6 +49685,10 @@
           "ticker",
           "asset_name",
           "quantity",
+          "price",
+          "annual_rate",
+          "term_months",
+          "loan_number",
           "order_date",
           "order_type"
         ],
@@ -49851,6 +49908,39 @@
               }
             ],
             "title": "Detail"
+          },
+          "annual_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Rate"
+          },
+          "term_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Months"
+          },
+          "loan_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loan Number"
           }
         },
         "additionalProperties": false,
@@ -49869,7 +49959,10 @@
           "order_type",
           "reason",
           "status",
-          "detail"
+          "detail",
+          "annual_rate",
+          "term_months",
+          "loan_number"
         ],
         "title": "StrategyLogRowDTO"
       },
@@ -49947,6 +50040,39 @@
               }
             ],
             "title": "Asset Uuid"
+          },
+          "annual_rate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Rate"
+          },
+          "term_months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Term Months"
+          },
+          "loan_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loan Number"
           }
         },
         "additionalProperties": false,
@@ -49959,7 +50085,10 @@
           "price",
           "status",
           "reason",
-          "asset_uuid"
+          "asset_uuid",
+          "annual_rate",
+          "term_months",
+          "loan_number"
         ],
         "title": "StrategyOrderLineDTO"
       },
@@ -50119,6 +50248,17 @@
           "hint": {
             "type": "string",
             "title": "Hint"
+          },
+          "enabled_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled By"
           }
         },
         "additionalProperties": false,
@@ -50131,7 +50271,8 @@
           "min",
           "max",
           "unit",
-          "hint"
+          "hint",
+          "enabled_by"
         ],
         "title": "StrategyParamDTO"
       },
@@ -50141,12 +50282,16 @@
           "int",
           "percent",
           "ticker",
-          "tickers"
+          "tickers",
+          "boolean"
         ],
         "title": "StrategyParamKind"
       },
       "StrategyParamValue": {
         "anyOf": [
+          {
+            "type": "boolean"
+          },
           {
             "type": "integer"
           },

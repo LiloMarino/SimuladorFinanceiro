@@ -3,6 +3,9 @@ import type { BotTicker, StrategyInfo, StrategyParam, StrategyParamValue } from 
 
 export type ParamValues = Record<string, StrategyParamValue>;
 
+/** A chave "Alavancar" que as estratégias com suporte a crédito trazem nos parâmetros. */
+export const LEVERAGE_KEY = "leverage";
+
 /** A ação como opção de seletor: a busca olha o código e o nome da empresa. */
 export const tickerOption = (option: BotTicker): SelectOption => ({
   value: option.ticker,
@@ -22,8 +25,8 @@ export function sameTickerSet(a: readonly string[], b: readonly string[]) {
   const right = new Set(b);
   return a.length === right.size && a.every((ticker) => right.has(ticker));
 }
-/** O que o jogador digitou: texto nos campos numéricos e no ativo, lista nas ações. */
-export type ParamDraft = Record<string, string | string[]>;
+/** O que o jogador digitou: texto nos campos numéricos e no ativo, lista nas ações, ligado/desligado nas chaves. */
+export type ParamDraft = Record<string, string | string[] | boolean>;
 
 export function defaultValues(strategy: StrategyInfo): ParamValues {
   return Object.fromEntries(strategy.params.map((param) => [param.key, param.default]));
@@ -74,6 +77,10 @@ export function fromDraft(params: StrategyParam[], draft: ParamDraft): ParamValu
       values[param.key] = entry;
       continue;
     }
+    if (param.kind === "boolean") {
+      values[param.key] = entry === true;
+      continue;
+    }
     if (typeof entry !== "string" || !/^\d+$/.test(entry.trim())) return null;
     values[param.key] = Number(entry);
   }
@@ -96,7 +103,7 @@ export function sameValues(a: ParamValues, b: ParamValues) {
 
 /** Texto de apoio sob o campo: o padrão e a faixa que vale ("Padrão 50 · de 5 a 100"). */
 export function rangeHint(param: StrategyParam) {
-  if (param.kind === "tickers") return null;
+  if (param.kind === "tickers" || param.kind === "boolean") return null;
   if (param.kind === "ticker") return `Padrão ${String(param.default)}`;
   const unit = param.unit === "%" ? "%" : "";
   return `Padrão ${String(param.default)}${unit} · de ${String(param.min)}${unit} a ${String(param.max)}${unit}`;
@@ -142,7 +149,11 @@ export function paramPills(strategy: StrategyInfo, values: ParamValues): ParamPi
       ? `${value.length} ${value.length === 1 ? "ação" : "ações"}`
       : typeof value === "number"
         ? `${value}${param.unit === "%" ? "%" : param.unit ? ` ${param.unit}` : ""}`
-        : value;
+        : typeof value === "boolean"
+          ? value
+            ? "ligado"
+            : "desligado"
+          : value;
     return { key: param.key, label: param.label, value: text, changed: valueChanged(value, param.default) };
   });
 }

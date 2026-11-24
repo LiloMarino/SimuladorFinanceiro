@@ -30,6 +30,7 @@ from backend.features.strategy.fair_value_trading import (
     price_text,
     quantity,
 )
+from backend.features.strategy.leverage import financed_debt, risk_budget
 from backend.features.strategy.liquidity import ZERO
 
 
@@ -68,6 +69,7 @@ class FundQuotas(BaseStrategy):
         "O caixa que não está reservado para cotas rende na renda fixa de liquidez diária."
     )
     group = StrategyGroup.TACTIC
+    supports_leverage = True
     requires_expansion = Expansion.FUNDS
     fund_account = False
     term_hint = (
@@ -134,7 +136,9 @@ class FundQuotas(BaseStrategy):
         total = equity(ctx, available)
         cap = fund_pct * total
         slice_value = cap * DAILY_SLICE
-        quota_room = quota_pct * total - _quota_value(ctx)
+        quota_room = risk_budget(
+            quota_pct, total, financed_debt(ctx, params)
+        ) - _quota_value(ctx)
 
         # Cada cota: vende a que o livro paga acima do valor e candidata a compra as demais
         candidates: list[Candidate] = []

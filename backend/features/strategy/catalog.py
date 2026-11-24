@@ -17,7 +17,9 @@ from backend.core.dto.strategy import (
 )
 from backend.core.enum import StrategyParamKind
 from backend.features.strategy.base_strategy import (
+    LEVERAGE_KEY,
     MAX_TICKERS,
+    TARGET_DEBT_KEY,
     BaseStrategy,
     ParamSpec,
 )
@@ -26,6 +28,7 @@ from backend.features.strategy.registry import STRATEGIES
 # Ações padrão: as de maior volume financeiro médio nos últimos pregões, ao ligar
 DEFAULT_TICKER_COUNT = 10
 DEFAULT_TICKER_SESSIONS = 60
+LEVERAGE_KEYS = {LEVERAGE_KEY, TARGET_DEBT_KEY}
 
 
 def known_tickers() -> set[str]:
@@ -57,9 +60,12 @@ def infos(
             group=cls.group,
             view=cls.view_kind,
             term_hint=cls.term_hint,
+            # A gestora não alavanca: o crédito automático é da conta pessoal
+            supports_leverage=cls.supports_leverage and not for_fund,
             params=[
                 param_dto(spec, tickers, today, simulation_id, known)
                 for spec in cls.params
+                if not for_fund or spec.key not in LEVERAGE_KEYS
             ],
         )
         for cls in STRATEGIES.values()
@@ -125,6 +131,8 @@ def param_dto(
         default = default_asset(spec, today, simulation_id, known)
         if default != spec.default:
             hint += f" Esta partida não tem o {spec.default}: o padrão é {default}."
+    elif spec.kind is StrategyParamKind.BOOLEAN:
+        default = bool(spec.default)
     else:
         default = spec.default or 0
     return StrategyParamDTO(
@@ -136,4 +144,5 @@ def param_dto(
         max=max_value,
         unit=spec.unit,
         hint=hint,
+        enabled_by=spec.enabled_by,
     )

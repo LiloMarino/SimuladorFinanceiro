@@ -63,6 +63,14 @@ Na tela travada, **Usar a conta pessoal** volta para a sua conta e há um botão
 
 Em **Seus empréstimos**, **Amortizar** paga uma parte e **Quitar** paga tudo. Como o juro só corre sobre o que falta, pagar antes abate os juros que ainda não correram. Ao amortizar, você escolhe se a economia reduz o **prazo** (mesma parcela, menos meses) ou a **parcela** (mesmos meses, parcela menor).
 
+## Crédito automático das estratégias
+
+Estratégias e bots que suportam alavancagem têm o parâmetro **Alavancar**. Ligado, a conta toma empréstimo sozinha enquanto o Ibovespa está acima da média dos últimos 200 pregões, até a **Dívida-alvo** (por padrão 20% do patrimônio, de 5% a 50%), respeitando o teto da sua nota. Quando o Ibovespa cai abaixo da média, vende ações e quita a dívida; o caixa parado amortiza o empréstimo mais caro e o atraso é pago assim que há caixa.
+
+Cada contratação, amortização, quitação e pagamento de atraso vira uma linha no registro da estratégia, com o motivo. As parcelas cobradas todo mês não entram. Para a estratégia, o caixa já vem sem as parcelas dos próximos 30 dias, em toda conta que tem empréstimo, alavancada ou não.
+
+No lobby, a aba **Em lote** tem o botão **Alavancar os bots que suportam**: os bots sorteados nascem com a alavancagem ligada e a dívida-alvo padrão.
+
 ## Parcela atrasada
 
 Se não houver caixa na data, a parcela fica **em atraso**: cobra-se uma multa única de 2% e uma mora de 1% ao mês (simples, por dia corrido) sobre a parcela. A linha do empréstimo fica destacada com o botão **Pagar** e a nota cai na hora. Um aviso chega 7 dias antes de uma parcela sem caixa.

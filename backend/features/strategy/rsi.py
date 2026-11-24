@@ -47,6 +47,7 @@ class RelativeStrength(BaseStrategy):
         "daquele ativo no dia em que ele sobe acima do nível de venda."
     )
     group = StrategyGroup.TACTIC
+    supports_leverage = True
     view_kind = StrategyView.SIGNAL
     term_hint = (
         "IFR (Índice de Força Relativa) mede de 0 a 100 quanto das variações recentes "

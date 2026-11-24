@@ -44,6 +44,7 @@ class TwelveMonthMomentum(BaseStrategy):
         "caíram no ano ficam de fora."
     )
     group = StrategyGroup.TACTIC
+    supports_leverage = True
     view_kind = StrategyView.RANKING
     term_hint = (
         "Momentum é a tendência de quem subiu continuar subindo. O retorno de 12 meses "

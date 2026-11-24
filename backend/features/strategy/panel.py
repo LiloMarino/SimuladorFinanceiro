@@ -5,6 +5,11 @@ from datetime import date
 from backend.core import repository
 from backend.core.dto.strategy import StrategyLastOrderDTO, StrategyPanelDTO
 from backend.core.enum import StrategyOrderStatus
+from backend.core.repository.strategy import (
+    contract_rate,
+    contract_term,
+    loan_number,
+)
 from backend.features.statistics.returns import cumulative_returns, ibov_cumulative
 from backend.features.statistics.risk import daily_returns
 
@@ -46,6 +51,10 @@ def build_panel(
             ticker=last.ticker,
             asset_name=last.asset_name,
             quantity=last.quantity,
+            price=last.price,
+            annual_rate=contract_rate(last.params),
+            term_months=contract_term(last.params),
+            loan_number=loan_number(last.params),
             order_date=last.event_date,
             order_type=last.order_type,
         )

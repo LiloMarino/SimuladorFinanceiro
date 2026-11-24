@@ -17,6 +17,8 @@ PARAMS = {
     "sell_above": 70,
     "cash_pct": 20,
     "tickers": ["AAA"],
+    "leverage": False,
+    "target_debt": 20,
 }
 
 

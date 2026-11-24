@@ -4,16 +4,21 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
+from functools import cached_property
 from uuid import UUID
 
 import pandas as pd
 
+from backend.core.dto.credit import CreditOfferDTO, LoanDTO
 from backend.core.dto.fixed_income_asset import FixedIncomeOfferDTO
-from backend.core.enum import OrderAction
+from backend.core.enum import CreditGrade, OrderAction, PrepaymentMode
 from backend.core.fund_reference import FundReference
 from backend.features.strategy import intents
 from backend.features.strategy.intents import Intent
 from backend.features.variable_income.quantity import affordable_quantity
+
+# O caixa da estratégia já desconta as parcelas de empréstimo que vencem nestes dias
+INSTALLMENT_RESERVE_DAYS = 30
 
 
 @dataclass(frozen=True)
@@ -89,8 +94,13 @@ class StrategyContext:
     """
 
     date: date
-    # Caixa disponível; o saldo negativo (cheque especial) conta como zero
+    # Caixa disponível: o saldo negativo (cheque especial) conta como zero e as
+    # parcelas de empréstimo que vencem nos próximos 30 dias já estão descontadas
     cash: Decimal
+    # O saldo da conta sem desconto: `cash` é este valor menos `installments_due`, com piso zero
+    gross_cash: Decimal
+    # As parcelas dos empréstimos que vencem nos próximos 30 dias
+    installments_due: Decimal
     holdings: dict[str, Holding]
     fixed_holdings: list[FixedHolding]
     # Ofertas de renda fixa do dia, com a taxa real (sem a máscara da assistência)
@@ -101,7 +111,26 @@ class StrategyContext:
     # O id do jogador: a semente das escolhas sorteadas, para o mesmo dia repetir o resultado
     seed: int
     history_source: Callable[[str, int], pd.DataFrame]
+    # Saldo devedor total (empréstimos com multa e mora, mais a taxa a pagar da gestora)
+    debt: Decimal = Decimal(0)
+    # A nota de crédito de hoje
+    grade: CreditGrade | None = None
+    # Os empréstimos em aberto
+    loans: list[LoanDTO] = field(default_factory=list)
+    # A oferta e o patrimônio saem do cálculo só quando a estratégia os lê (`offer`, `networth`)
+    offer_source: Callable[[], CreditOfferDTO] | None = None
+    networth_source: Callable[[], Decimal] | None = None
     intents: list[Intent] = field(default_factory=list)
+
+    @cached_property
+    def offer(self) -> CreditOfferDTO | None:
+        """A oferta de crédito do dia (juro e limite que ainda cabe); nula sem crédito a consultar."""
+        return None if self.offer_source is None else self.offer_source()
+
+    @cached_property
+    def networth(self) -> Decimal:
+        """O patrimônio líquido: o que o jogador tem menos o que deve."""
+        return Decimal(0) if self.networth_source is None else self.networth_source()
 
     def history(self, ticker: str, days: int) -> pd.DataFrame:
         """Os últimos `days` pregões do ativo até hoje (OHLCV), do mais antigo ao mais novo."""
@@ -142,3 +171,21 @@ class StrategyContext:
 
     def redeem(self, asset_uuid: UUID, value: Decimal, reason: str) -> None:
         self.intents.append(intents.redeem(asset_uuid, value, reason))
+
+    def take_loan(self, amount: Decimal, term_months: int, reason: str) -> None:
+        self.intents.append(intents.take_loan(amount, term_months, reason))
+
+    def prepay_loan(
+        self,
+        loan_id: UUID,
+        amount: Decimal,
+        reason: str,
+        mode: PrepaymentMode = PrepaymentMode.SHORTEN_TERM,
+    ) -> None:
+        self.intents.append(intents.prepay_loan(loan_id, amount, mode, reason))
+
+    def payoff_loan(self, loan_id: UUID, reason: str) -> None:
+        self.intents.append(intents.payoff_loan(loan_id, reason))
+
+    def pay_overdue(self, loan_id: UUID, reason: str) -> None:
+        self.intents.append(intents.pay_overdue(loan_id, reason))

@@ -48,6 +48,7 @@ Cada parâmetro é um `ParamSpec` com `key`, `label`, `kind`, `hint` (a dica da 
 | --- | --- | --- |
 | `INT` | Número inteiro dentro de `min` e `max` | Média curta: 50 dias |
 | `PERCENT` | Inteiro dentro de `min` e `max`, mostrado com `%` | Parte do caixa por compra: 20% |
+| `BOOLEAN` | Ligado ou desligado, mostrado como interruptor | Alavancar |
 | `TICKER` | Uma ação da partida | Ativo que recebe o caixa |
 | `TICKERS` | Lista de ações (até 30) | Ações que a estratégia opera |
 
@@ -76,7 +77,11 @@ Para ler os parâmetros dentro de `next`, use `param_int`, `param_ticker` e `par
 | Campo | O que traz |
 | --- | --- |
 | `date` | O dia da partida. |
-| `cash` | Caixa disponível. Saldo negativo (cheque especial) conta como zero. |
+| `cash` | Caixa disponível. Saldo negativo (cheque especial) conta como zero. Com empréstimos, já vem sem as parcelas que vencem nos próximos 30 dias. |
+| `gross_cash`, `installments_due` | O saldo da conta sem desconto e as parcelas que vencem nos próximos 30 dias: `cash` é `gross_cash` menos `installments_due`, com piso zero. |
+| `debt`, `grade`, `loans` | A dívida total, a nota de crédito e os empréstimos em aberto (os mesmos `LoanDTO` da tela de Crédito). |
+| `offer` | A oferta de crédito do dia (`CreditOfferDTO`): taxa, teto e se há oferta. Calculada só quando a estratégia a lê. |
+| `networth` | O patrimônio líquido: ativos menos a dívida. Calculado só quando a estratégia o lê. |
 | `holdings` | Posições em ações por ticker: `size`, `reserved` (parte presa em ordens abertas) e `avg_price`. |
 | `fixed_holdings` | Títulos de renda fixa do jogador, com o valor atual e, quando há liquidez diária, o líquido que o resgate de hoje mandaria ao caixa. |
 | `fixed_offers` | Ofertas de renda fixa do dia, com a taxa real. |
@@ -94,8 +99,30 @@ As ações enfileiram intenções, e o segundo argumento é sempre o `reason`, a
 | `ctx.cancel(order_id, reason)` | Cancela uma ordem aberta. |
 | `ctx.invest(asset_uuid, value, reason)` | Aplica `value` em uma oferta de renda fixa. |
 | `ctx.redeem(asset_uuid, value, reason)` | Resgata de um título com liquidez diária; `value` é o líquido que a estratégia quer no caixa. |
+| `ctx.take_loan(amount, term_months, reason)` | Toma um empréstimo comum, pela oferta do dia. |
+| `ctx.prepay_loan(loan_id, amount, reason, mode=SHORTEN_TERM)` | Amortiza parte do empréstimo; o modo padrão é o da tela. |
+| `ctx.payoff_loan(loan_id, reason)` | Quita o empréstimo, com multa e mora se houver atraso. |
+| `ctx.pay_overdue(loan_id, reason)` | Paga as parcelas em atraso do empréstimo. |
 
 As intenções só são executadas depois que `next` termina, então `ctx.cash` e `ctx.holdings` não mudam durante a chamada. Uma estratégia que compra mais de um ativo no mesmo dia desconta ela mesma do caixa que calculou. O mercado ou o caixa pode recusar uma intenção (falta de saldo ou de liquidez, por exemplo): ela vira uma linha "Recusada" no registro, com o motivo, e as demais seguem.
+
+As operações de crédito passam pelas mesmas regras da tela de Crédito (nota, teto, prazo) e cada uma vira uma linha do registro com o `reason`. O valor fica em `price` e `quantity` fica nula; o juro (`annual_rate`) e o prazo (`term_months`) vão na contratação, e o número do empréstimo (`loan_number`) na amortização, na quitação e no pagamento do atraso. Os três ficam em `params` da linha e chegam à tela como campos próprios. As parcelas que o motor cobra sozinho não entram no registro.
+
+---
+
+## Alavancagem
+
+Uma estratégia declara `supports_leverage = True` quando a regra dela continua valendo com dinheiro emprestado: comprar e segurar, rebalanceamento, cruzamento de médias, RSI, rompimento de volume, momentum de 12 meses, estatais e cotas de fundos. Ela recebe da base dois parâmetros: **Alavancar** (`leverage`, tipo `BOOLEAN`, desligado por padrão) e **Dívida-alvo** (`target_debt`, em % do patrimônio, de 5 a 50, padrão 20, habilitado só com Alavancar ligado). O catálogo expõe `supports_leverage`, e a gestora não alavanca.
+
+Com Alavancar ligado, o motor roda a política comum de [leverage.py](https://github.com/LiloMarino/SimuladorFinanceiro/blob/main/backend/features/strategy/leverage.py) antes de montar o contexto que a estratégia lê. A estratégia já vê o caixa e a dívida atualizados e não precisa conhecer a política:
+
+- **Toma** quando o Ibovespa está acima da média dos últimos 200 pregões, até a dívida-alvo, limitada pelo teto da nota e pela oferta, em 60 parcelas. Uma banda de 20% da meta e um valor mínimo evitam tomar e devolver por diferenças pequenas.
+- **Sai** quando o Ibovespa cai abaixo da média: vende ações na mesma fração de cada uma até cobrir a dívida e quita os empréstimos.
+- **Amortiza** com o caixa parado, do empréstimo de maior taxa ao de menor, e quita quando o caixa cobre o saldo.
+- **Paga o atraso** quando há caixa.
+- **Cobre as parcelas** quando o saldo da conta não alcança as parcelas dos próximos 30 dias mais o atraso em aberto: vende ações na mesma fração de cada uma, só pela diferença. O atraso se paga na rodada seguinte, com o caixa que a venda deixa.
+
+Uma estratégia que divide a carteira entre risco e renda fixa trata a dívida como dinheiro da parte de risco: `risk_budget` calcula a parte de risco como a meta sobre o patrimônio próprio mais toda a dívida. Com patrimônio de 100, dívida de 20 e meta de 60% em ações, são 80 em ações e 40 em renda fixa.
 
 ---
 
@@ -293,6 +320,8 @@ def test_puts_the_idle_cash_in_whole_shares_of_the_asset():
     # R$ 1.050 a R$ 30: 35 cotas, arredondando para baixo
     assert intent.quantity == 35
 ```
+
+Os testes de [test_strategy_leverage.py](https://github.com/LiloMarino/SimuladorFinanceiro/blob/main/tests/test_strategy_leverage.py) cobrem a política sobre contextos montados com `context(debt=..., loans=..., credit_offer=..., networth=...)`, e os de [test_strategy_credit.py](https://github.com/LiloMarino/SimuladorFinanceiro/blob/main/tests/test_strategy_credit.py) mostram as operações de crédito, a recusa e a reserva de parcelas dentro de uma partida.
 
 Os testes de [test_strategy_engine.py](https://github.com/LiloMarino/SimuladorFinanceiro/blob/main/tests/test_strategy_engine.py) mostram a estratégia dentro de uma partida: modo, erro, recusa e retomada. Antes de commitar, rode `pnpm run check` na raiz.
 

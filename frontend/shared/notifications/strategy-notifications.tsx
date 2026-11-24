@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { eventAccountKey } from "@/shared/lib/active-account";
-import { dayOrdersSummary, orderToastTitle } from "@/shared/lib/strategy-orders";
+import { dayOrdersSummary, isCreditAction, orderToastTitle } from "@/shared/lib/strategy-orders";
 import { mergeStrategyLog, type StrategyLogData } from "@/shared/lib/strategy-log-merge";
 import { applyRealtime, applyRealtimeDelta } from "@/shared/lib/realtime/apply-realtime";
 import { useNotificationPreferences } from "@/shared/hooks/useNotificationPreferences";
@@ -61,7 +61,10 @@ export function StrategyNotifications() {
             ? toast.success
             : toast.info;
       show(orderToastTitle(order), {
-        description: [order.price === null ? null : displayMoney(order.price), order.reason]
+        description: [
+          order.price === null || isCreditAction(order.action) ? null : displayMoney(order.price),
+          order.reason,
+        ]
           .filter(Boolean)
           .join(" · "),
         action: seeStrategies,

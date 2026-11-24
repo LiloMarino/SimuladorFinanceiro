@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StrategyOrderLine, StrategyPanel, StrategyParam } from "@/types";
-import { dayOrdersSummary, orderToastTitle } from "@/shared/lib/strategy-orders";
+import { creditTitle, dayOrdersSummary, orderToastTitle } from "@/shared/lib/strategy-orders";
 import { cashShare } from "@/shared/lib/strategy-orders";
 import { ordersBreakdown } from "./strategy-display";
 import { fromDraft, rangeHint, sameValues } from "@/shared/lib/strategy-params";
@@ -27,6 +27,9 @@ function line(action: StrategyOrderLine["action"]): StrategyOrderLine {
     status: "executed",
     reason: null,
     asset_uuid: null,
+    annual_rate: null,
+    term_months: null,
+    loan_number: null,
   };
 }
 
@@ -71,8 +74,28 @@ describe("orderToastTitle", () => {
 
 describe("fromDraft", () => {
   const params: StrategyParam[] = [
-    { key: "short_window", label: "Média curta", kind: "int", default: 50, min: 5, max: 100, unit: "dias", hint: "" },
-    { key: "tickers", label: "Ações", kind: "tickers", default: ["PETR4"], min: null, max: null, unit: null, hint: "" },
+    {
+      key: "short_window",
+      label: "Média curta",
+      kind: "int",
+      default: 50,
+      min: 5,
+      max: 100,
+      unit: "dias",
+      hint: "",
+      enabled_by: null,
+    },
+    {
+      key: "tickers",
+      label: "Ações",
+      kind: "tickers",
+      default: ["PETR4"],
+      min: null,
+      max: null,
+      unit: null,
+      hint: "",
+      enabled_by: null,
+    },
   ];
 
   it("converte o texto dos campos numéricos em inteiro", () => {
@@ -89,7 +112,17 @@ describe("fromDraft", () => {
 
   it("o ativo é o ticker escolhido, e sem ticker ainda não tem valor", () => {
     const withAsset: StrategyParam[] = [
-      { key: "asset", label: "Ativo", kind: "ticker", default: "BOVA11", min: null, max: null, unit: null, hint: "" },
+      {
+        key: "asset",
+        label: "Ativo",
+        kind: "ticker",
+        default: "BOVA11",
+        min: null,
+        max: null,
+        unit: null,
+        hint: "",
+        enabled_by: null,
+      },
       ...params,
     ];
     expect(fromDraft(withAsset, { asset: "VALE3", short_window: "30", tickers: [] })).toEqual({
@@ -119,6 +152,7 @@ describe("rangeHint", () => {
       max: null,
       unit: null,
       hint: "",
+      enabled_by: null,
     });
     expect(hint).toBe("Padrão BOVA11");
   });
@@ -133,7 +167,57 @@ describe("rangeHint", () => {
       max: 100,
       unit: "%",
       hint: "",
+      enabled_by: null,
     });
     expect(hint).toBe("Padrão 20% · de 5% a 100%");
+  });
+});
+
+describe("linhas de crédito", () => {
+  // Contratação leva o prazo; as demais, o número do empréstimo
+  const credit = (action: StrategyOrderLine["action"], number: number, annual_rate: string | null = null) => ({
+    ...line(action),
+    ticker: null,
+    quantity: null,
+    price: "20000.00",
+    annual_rate,
+    term_months: action === "take_loan" ? number : null,
+    loan_number: action === "take_loan" ? null : number,
+  });
+
+  it("escreve cada ação pelo valor, prazo e número do empréstimo", () => {
+    expect(creditTitle(credit("take_loan", 48, "0.153"))).toMatch(
+      /^Empréstimo · R\$\s20\.000,00 em 48x · 15,3% a\.a\.$/,
+    );
+    expect(creditTitle(credit("prepay_loan", 3))).toMatch(/^Amortização de R\$\s20\.000,00 no empréstimo nº 3$/);
+    expect(creditTitle(credit("payoff_loan", 3))).toBe("Quitação do empréstimo nº 3");
+    expect(creditTitle(credit("pay_overdue", 3))).toBe("Atraso pago do empréstimo nº 3");
+  });
+
+  it("entra no resumo do dia e no aviso", () => {
+    expect(dayOrdersSummary([credit("take_loan", 48), credit("payoff_loan", 1)])).toBe("1 empréstimo e 1 quitação");
+    expect(orderToastTitle({ ...credit("payoff_loan", 3), status: "refused" })).toBe(
+      "Recusada: Quitação do empréstimo nº 3",
+    );
+  });
+});
+
+describe("parâmetro booleano", () => {
+  const leverage: StrategyParam = {
+    key: "leverage",
+    label: "Alavancar",
+    kind: "boolean",
+    default: false,
+    min: null,
+    max: null,
+    unit: null,
+    hint: "",
+    enabled_by: null,
+  };
+
+  it("o rascunho ligado ou desligado vira o valor, sem texto numérico", () => {
+    expect(fromDraft([leverage], { leverage: true })).toEqual({ leverage: true });
+    expect(fromDraft([leverage], { leverage: false })).toEqual({ leverage: false });
+    expect(rangeHint(leverage)).toBeNull();
   });
 });

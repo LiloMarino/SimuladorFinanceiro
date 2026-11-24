@@ -24,6 +24,7 @@ from backend.features.strategy.fair_value_trading import (
     price_text,
     quantity,
 )
+from backend.features.strategy.leverage import financed_debt, risk_budget
 from backend.features.strategy.liquidity import ZERO
 
 
@@ -49,6 +50,7 @@ class StateCompanies(BaseStrategy):
         "fixa de liquidez diária."
     )
     group = StrategyGroup.TACTIC
+    supports_leverage = True
     requires_expansion = Expansion.GOVERNMENT
     term_hint = (
         "O valor justo por ação é quanto a empresa vale dividido pelo número de ações. "
@@ -104,7 +106,9 @@ class StateCompanies(BaseStrategy):
         total = equity(ctx, available)
         cap = company_pct * total
         slice_value = cap * DAILY_SLICE
-        state_room = state_pct * total - _state_value(ctx)
+        state_room = risk_budget(
+            state_pct, total, financed_debt(ctx, params)
+        ) - _state_value(ctx)
 
         # Cada estatal: vende a que o livro paga acima do valor e candidata a compra as demais
         candidates: list[Candidate] = []

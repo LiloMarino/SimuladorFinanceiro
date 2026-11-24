@@ -953,7 +953,7 @@ class StrategyLog(Base):
     kind: Mapped[str] = mapped_column(Text, nullable=False)
     strategy_key: Mapped[str | None] = mapped_column(Text)
     params: Mapped[dict | None] = mapped_column(JSONB)
-    # buy, sell, cancel ou invest
+    # buy, sell, cancel, invest, redeem, take_loan, prepay_loan, payoff_loan ou pay_overdue
     action: Mapped[str | None] = mapped_column(Text)
     ticker: Mapped[str | None] = mapped_column(Text)
     asset_uuid: Mapped[uuid.UUID | None] = mapped_column(Uuid)

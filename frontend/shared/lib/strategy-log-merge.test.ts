@@ -18,6 +18,9 @@ function row(id: number, overrides: Partial<StrategyLogRow> = {}): StrategyLogRo
     reason: null,
     status: "open",
     detail: null,
+    annual_rate: null,
+    term_months: null,
+    loan_number: null,
     ...overrides,
   };
 }

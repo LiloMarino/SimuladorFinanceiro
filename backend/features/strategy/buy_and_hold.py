@@ -39,6 +39,7 @@ class BuyAndHold(BaseStrategy):
         "É a régua da renda variável: acompanha o mercado sem tentar ganhar dele."
     )
     group = StrategyGroup.REFERENCE
+    supports_leverage = True
     view_kind = StrategyView.SIGNAL
     term_hint = (
         "ETF é um fundo que reproduz um índice e é negociado como uma ação. O BOVA11 "

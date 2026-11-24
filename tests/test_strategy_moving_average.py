@@ -16,6 +16,8 @@ PARAMS = {
     "long_window": 50,
     "cash_pct": 20,
     "tickers": ["AAA"],
+    "leverage": False,
+    "target_debt": 20,
 }
 
 

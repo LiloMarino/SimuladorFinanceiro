@@ -35,6 +35,7 @@ from backend.core.enum import (
     OrderAction,
     OrderStatus,
     PendingType,
+    PrepaymentMode,
     StrategyAction,
     StrategyLogKind,
     StrategyOrderStatus,
@@ -46,9 +47,18 @@ from backend.core.exceptions.http_exceptions import (
 )
 from backend.core.fund_reference import FundReference, price_ceiling
 from backend.core.indicators import annual_index_rate
-from backend.core.repository.strategy import LogFilter
+from backend.core.repository.strategy import (
+    ANNUAL_RATE,
+    LOAN_NUMBER,
+    TERM_MONTHS,
+    LogFilter,
+    contract_rate,
+    contract_term,
+    loan_number,
+)
 from backend.core.runtime.event_manager import EventManager
 from backend.core.utils import required
+from backend.features.credit.overview import loan_dto, offer_dto
 from backend.features.fixed_income.accrual import offer
 from backend.features.fixed_income.liquidity import redeemable_today
 from backend.features.market_maker.account import bot_room
@@ -60,9 +70,15 @@ from backend.features.realtime.schemas import (
     StrategyUpdateEventDTO,
 )
 from backend.features.simulation.feed_support import guarded
-from backend.features.strategy import catalog
-from backend.features.strategy.base_strategy import CHART_DAYS, BaseStrategy
+from backend.features.strategy import catalog, leverage
+from backend.features.strategy.base_strategy import (
+    CHART_DAYS,
+    LEVERAGE_KEY,
+    BaseStrategy,
+    param_bool,
+)
 from backend.features.strategy.context import (
+    INSTALLMENT_RESERVE_DAYS,
     FixedHolding,
     Holding,
     Indicators,
@@ -94,6 +110,27 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 LOG_PAGE_LIMIT = 100
+CREDIT_ACTIONS = frozenset(
+    {
+        StrategyAction.TAKE_LOAN,
+        StrategyAction.PREPAY_LOAN,
+        StrategyAction.PAYOFF_LOAN,
+        StrategyAction.PAY_OVERDUE,
+    }
+)
+
+
+@dataclass(frozen=True)
+class CreditActions:
+    """
+    As operações de crédito da tela, que o runner chama em nome do jogador da conta.
+    Cada uma recebe o jogador e a conta, e depois os argumentos da operação.
+    """
+
+    contract: Callable[[UserDTO, UUID, Decimal, int], None]
+    prepay: Callable[[UserDTO, UUID, UUID, Decimal, PrepaymentMode], None]
+    payoff: Callable[[UserDTO, UUID, UUID], None]
+    pay_overdue: Callable[[UserDTO, UUID, UUID], None]
 
 
 @dataclass(frozen=True)
@@ -168,6 +205,10 @@ class StrategyRunner:
         self.on_failure: Callable[[str, date, str], None] | None = None
         # Chamado com o client_id da conta pessoal cuja estratégia mudou: o erro dela é uma pendência
         self.on_pending_changed: Callable[[UUID], None] | None = None
+        # As operações de crédito que as estratégias pedem; cada uma passa pelas mesmas regras da tela de Crédito
+        self.credit_actions: CreditActions | None = None
+        # Os jogadores da partida, por id: de quem a conta age
+        self._players: dict[int, UserDTO] = {}
         # As contas que mudaram desde a última entrega, por client_id
         self._changed: dict[UUID, _Change] = {}
         engine.matching_engine.on_order_closed = self._on_order_closed
@@ -487,16 +528,38 @@ class StrategyRunner:
         if not running:
             return
 
+        self._players = {user.id: user for user in users}
         market = self._market(today)
+        # A alta do Ibovespa é a mesma para todas as contas do dia
+        levels = (
+            repository.economic.get_history(IndicatorSeries.IBOV).values_until(
+                today, leverage.MA_DAYS
+            )
+            if any(_leverages(a) for a in running)
+            else []
+        )
+        uptrend = leverage.is_uptrend(levels)
         for active in running:
-            self._run_one(active, market, today)
+            self._run_one(active, market, today, uptrend)
 
-    def _run_one(self, active: ActiveStrategy, market: _Market, today: date) -> None:
+    def _run_one(
+        self, active: ActiveStrategy, market: _Market, today: date, uptrend: bool
+    ) -> None:
         account = active.account
-        ctx = self._context(account, self._account_market(market, account), today)
+        account_market = self._account_market(market, account)
+        lines: list[StrategyOrderLineDTO] = []
         try:
+            # A política de crédito opera primeiro: a estratégia lê o caixa e a dívida já atualizados
+            if _leverages(active):
+                credit_ctx = self._context(account, account_market, today)
+                leverage.plan(credit_ctx, active.params, uptrend)
+                lines += [
+                    self._execute(account, active, intent, today)
+                    for intent in credit_ctx.intents
+                ]
+            ctx = self._context(account, account_market, today)
             active.cls().next(ctx, active.params)
-            lines = [
+            lines += [
                 self._execute(account, active, intent, today) for intent in ctx.intents
             ]
         # A estratégia é código de terceiro: qualquer erro dela volta a conta ao manual
@@ -558,6 +621,8 @@ class StrategyRunner:
             reason=intent.reason,
             status=StrategyOrderStatus.REFUSED,
         )
+        if intent.action in CREDIT_ACTIONS:
+            row = row.model_copy(update=self._credit_fields(account, intent))
         try:
             row = self._submit(account, intent, row)
         except HTTPException as exc:
@@ -574,7 +639,79 @@ class StrategyRunner:
             status=required(row.status),
             reason=row.reason,
             asset_uuid=row.asset_uuid,
+            annual_rate=contract_rate(row.params),
+            term_months=contract_term(row.params),
+            loan_number=loan_number(row.params),
         )
+
+    def _credit_fields(self, account: StrategyAccount, intent: Intent) -> dict:
+        """
+        Como a linha de crédito se escreve, mesmo recusada: o valor em `price`; em `params`,
+        o prazo da contratação ou o número do empréstimo. `quantity` fica nula.
+        """
+        if intent.action is StrategyAction.TAKE_LOAN:
+            return {
+                "price": intent.value,
+                "params": {TERM_MONTHS: required(intent.term_months)},
+            }
+        loan = self._engine.credit_book.client(account.client_id).loans.get(
+            required(intent.asset_uuid)
+        )
+        return {
+            "asset_uuid": intent.asset_uuid,
+            "price": intent.value,
+            "params": None if loan is None else {LOAN_NUMBER: loan.number},
+        }
+
+    def _submit_credit(
+        self, account: StrategyAccount, intent: Intent, row: StrategyEventDTO
+    ) -> StrategyEventDTO:
+        """Chama a operação da tela de Crédito em nome do jogador da conta; a recusa é uma `HTTPException`."""
+        actions = required(self.credit_actions)
+        user = self._players.get(account.user_id)
+        if user is None:
+            raise ConflictError("O jogador da conta não está na partida")
+        book = self._engine.credit_book
+        client_id = account.client_id
+        today = self._engine.current_date
+        done: dict = {"order_type": "market", "status": StrategyOrderStatus.EXECUTED}
+
+        if intent.action is StrategyAction.TAKE_LOAN:
+            amount = required(intent.value)
+            actions.contract(user, client_id, amount, required(intent.term_months))
+            loan = book.loans(client_id)[-1]
+            return row.model_copy(
+                update={
+                    **done,
+                    "asset_uuid": loan.loan_id,
+                    "price": amount,
+                    "params": {
+                        **(row.params or {}),
+                        ANNUAL_RATE: str(loan.annual_rate),
+                    },
+                }
+            )
+
+        loan_id = required(intent.asset_uuid)
+        loan = book.loan(client_id, loan_id)
+        match intent.action:
+            case StrategyAction.PREPAY_LOAN:
+                actions.prepay(
+                    user,
+                    client_id,
+                    loan_id,
+                    required(intent.value),
+                    required(intent.mode),
+                )
+            case StrategyAction.PAYOFF_LOAN:
+                done["price"] = loan.payoff_on(today)
+                actions.payoff(user, client_id, loan_id)
+            case _:
+                done["price"] = sum(
+                    (o.charges(today).total for o in loan.overdue), Decimal(0)
+                )
+                actions.pay_overdue(user, client_id, loan_id)
+        return row.model_copy(update=done)
 
     def _submit(
         self, account: StrategyAccount, intent: Intent, row: StrategyEventDTO
@@ -658,6 +795,13 @@ class StrategyRunner:
                         "status": StrategyOrderStatus.EXECUTED,
                     }
                 )
+            case (
+                StrategyAction.TAKE_LOAN
+                | StrategyAction.PREPAY_LOAN
+                | StrategyAction.PAYOFF_LOAN
+                | StrategyAction.PAY_OVERDUE
+            ):
+                return self._submit_credit(account, intent, row)
             case StrategyAction.REDEEM:
                 if not intent.asset_uuid or not intent.value:
                     raise ValueError("Aplicação e resgate precisam de título e valor")
@@ -835,9 +979,16 @@ class StrategyRunner:
     ) -> StrategyContext:
         engine = self._engine
         client_id = account.client_id
+        book = engine.credit_book
+        debt = book.debt(client_id, today)
+        # As parcelas dos próximos dias saem do caixa antes de qualquer estratégia contar com ele
+        reserve = book.installments_due(client_id, today, INSTALLMENT_RESERVE_DAYS)
+        gross_cash = engine.get_cash(client_id)
         return StrategyContext(
             date=today,
-            cash=max(engine.get_cash(client_id), Decimal(0)),
+            cash=max(gross_cash - reserve, Decimal(0)),
+            gross_cash=gross_cash,
+            installments_due=reserve,
             holdings={
                 ticker: Holding(ticker, p.size, p.reserved, p.avg_price)
                 for ticker, p in engine.broker.get_positions(client_id).items()
@@ -875,6 +1026,11 @@ class StrategyRunner:
             history_source=lambda ticker, days: self._history.window(
                 ticker, today, days
             ),
+            debt=debt,
+            grade=book.score(client_id, today).grade,
+            loans=[loan_dto(loan, today) for loan in book.loans(client_id)],
+            offer_source=lambda: offer_dto(book.offer(client_id, today)),
+            networth_source=lambda: engine.networth(client_id, debt),
         )
 
     # =========================
@@ -1017,6 +1173,15 @@ def _named(row: StrategyLogRowDTO) -> StrategyLogRowDTO:
             if row.strategy_key in STRATEGIES
             else None
         }
+    )
+
+
+def _leverages(active: ActiveStrategy) -> bool:
+    """A política de crédito opera a conta pessoal cuja estratégia aceita alavancar e está com "Alavancar" ligado."""
+    return (
+        active.account.fund_id is None
+        and active.cls.supports_leverage
+        and param_bool(active.params, LEVERAGE_KEY)
     )
 
 

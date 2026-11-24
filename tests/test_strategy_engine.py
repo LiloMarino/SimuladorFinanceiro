@@ -432,7 +432,7 @@ def test_each_strategy_info_carries_its_view_and_its_term_hint(match):
 def test_the_default_asset_falls_back_to_the_most_traded_stock_without_bova11(match):
     sim, _, _ = match
     info = next(i for i in sim.get_strategies() if i.key == "buy_and_hold")
-    [asset] = info.params
+    asset = info.params[0]
 
     # A partida de teste não tem o BOVA11: o padrão é uma ação que ela tem, e a dica avisa
     assert asset.kind is StrategyParamKind.TICKER
@@ -450,7 +450,7 @@ def test_turning_on_a_strategy_without_an_asset_uses_the_default_asset(match):
 
     active = sim.get_my_strategy(ana).active
     assert active is not None
-    assert active.params == {"asset": info.params[0].default}
+    assert active.params == {param.key: param.default for param in info.params}
 
 
 def test_the_allocation_view_reads_the_players_portfolio_without_running_anything(

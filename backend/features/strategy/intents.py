@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from uuid import UUID
 
-from backend.core.enum import StrategyAction
+from backend.core.enum import PrepaymentMode, StrategyAction
 
 
 @dataclass(frozen=True)
@@ -17,8 +17,11 @@ class Intent:
     # Sem limite, a ordem é a mercado
     limit: float | None = None
     order_id: str | None = None
+    # Na renda fixa é o título; nas operações de crédito, o empréstimo
     asset_uuid: UUID | None = None
     value: Decimal | None = None
+    term_months: int | None = None
+    mode: PrepaymentMode | None = None
 
 
 def buy(
@@ -44,3 +47,29 @@ def redeem(asset_uuid: UUID, value: Decimal, reason: str) -> Intent:
 
 def invest(asset_uuid: UUID, value: Decimal, reason: str) -> Intent:
     return Intent(StrategyAction.INVEST, reason, asset_uuid=asset_uuid, value=value)
+
+
+def take_loan(amount: Decimal, term_months: int, reason: str) -> Intent:
+    return Intent(
+        StrategyAction.TAKE_LOAN, reason, value=amount, term_months=term_months
+    )
+
+
+def prepay_loan(
+    loan_id: UUID, amount: Decimal, mode: PrepaymentMode, reason: str
+) -> Intent:
+    return Intent(
+        StrategyAction.PREPAY_LOAN,
+        reason,
+        asset_uuid=loan_id,
+        value=amount,
+        mode=mode,
+    )
+
+
+def payoff_loan(loan_id: UUID, reason: str) -> Intent:
+    return Intent(StrategyAction.PAYOFF_LOAN, reason, asset_uuid=loan_id)
+
+
+def pay_overdue(loan_id: UUID, reason: str) -> Intent:
+    return Intent(StrategyAction.PAY_OVERDUE, reason, asset_uuid=loan_id)

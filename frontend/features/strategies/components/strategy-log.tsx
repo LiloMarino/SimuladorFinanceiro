@@ -9,7 +9,14 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/shared/components/ui/toggle-group";
 import { useLoadMoreOnVisible } from "@/shared/hooks/useLoadMoreOnVisible";
-import { ACTION_TONE, actionLabel, rowPrice, rowQuantity } from "@/shared/lib/strategy-orders";
+import {
+  ACTION_TONE,
+  actionLabel,
+  creditTitle,
+  isCreditAction,
+  rowPrice,
+  rowQuantity,
+} from "@/shared/lib/strategy-orders";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { StrategyLogFilter, StrategyLogKind, StrategyLogRow } from "@/types";
 import { useStrategyLog } from "../hooks/queries/useStrategyLog";
@@ -152,22 +159,30 @@ function OrderRow({ row }: { row: StrategyLogRow }) {
   return (
     <TableRow>
       <DayCell row={row} />
-      <TableCell>
-        <b className={`font-semibold ${row.action ? ACTION_TONE[row.action] : ""}`}>
-          {row.action ? actionLabel(row.action) : "—"}
-        </b>
-      </TableCell>
-      <TableCell>
-        {row.ticker ? (
-          <Badge variant="secondary" size="tag" numeric>
-            {row.ticker}
-          </Badge>
-        ) : (
-          (row.asset_name ?? "—")
-        )}
-      </TableCell>
-      <TableCell numeric>{rowQuantity(row)}</TableCell>
-      <TableCell numeric>{rowPrice(row)}</TableCell>
+      {row.action && isCreditAction(row.action) ? (
+        <TableCell colSpan={4}>
+          <b className={`font-semibold ${ACTION_TONE[row.action]}`}>{creditTitle({ ...row, action: row.action })}</b>
+        </TableCell>
+      ) : (
+        <>
+          <TableCell>
+            <b className={`font-semibold ${row.action ? ACTION_TONE[row.action] : ""}`}>
+              {row.action ? actionLabel(row.action) : "—"}
+            </b>
+          </TableCell>
+          <TableCell>
+            {row.ticker ? (
+              <Badge variant="secondary" size="tag" numeric>
+                {row.ticker}
+              </Badge>
+            ) : (
+              (row.asset_name ?? "—")
+            )}
+          </TableCell>
+          <TableCell numeric>{rowQuantity(row)}</TableCell>
+          <TableCell numeric>{rowPrice(row)}</TableCell>
+        </>
+      )}
       <TableCell className="whitespace-normal">
         <span className="text-secondary-foreground">{row.reason}</span>
         {row.detail && <span className="block text-xs text-destructive">{row.detail}</span>}

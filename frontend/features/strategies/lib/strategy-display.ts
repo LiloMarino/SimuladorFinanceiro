@@ -1,4 +1,4 @@
-import { actionLabel, plural } from "@/shared/lib/strategy-orders";
+import { actionLabel, creditTitle, isCreditAction, plural } from "@/shared/lib/strategy-orders";
 import { displayDayMonth, displayQuantity } from "@/shared/lib/utils/display";
 import type { StrategyOrderStatus, StrategyPanel } from "@/types";
 
@@ -28,6 +28,7 @@ export function ordersBreakdown(panel: StrategyPanel) {
 
 /** "Vendeu 200 VALE3", ou o título aplicado na renda fixa. */
 export function lastOrderTitle(last: NonNullable<StrategyPanel["last_order"]>) {
+  if (isCreditAction(last.action)) return creditTitle(last);
   const what = last.ticker ?? last.asset_name ?? "";
   const quantity = last.quantity === null ? "" : `${displayQuantity(last.quantity)} `;
   return `${actionLabel(last.action)} ${quantity}${what}`.trim();

@@ -16809,7 +16809,7 @@ export interface components {
          * StrategyAction
          * @enum {string}
          */
-        StrategyAction: "buy" | "sell" | "cancel" | "invest" | "redeem";
+        StrategyAction: "buy" | "sell" | "cancel" | "invest" | "redeem" | "take_loan" | "prepay_loan" | "payoff_loan" | "pay_overdue";
         /** StrategyActiveDTO */
         StrategyActiveDTO: {
             /** Key */
@@ -16861,6 +16861,8 @@ export interface components {
             view: components["schemas"]["StrategyView"];
             /** Term Hint */
             term_hint: string | null;
+            /** Supports Leverage */
+            supports_leverage: boolean;
             /** Params */
             params: components["schemas"]["StrategyParamDTO"][];
         };
@@ -16873,6 +16875,14 @@ export interface components {
             asset_name: string | null;
             /** Quantity */
             quantity: string | null;
+            /** Price */
+            price: string | null;
+            /** Annual Rate */
+            annual_rate: string | null;
+            /** Term Months */
+            term_months: number | null;
+            /** Loan Number */
+            loan_number: number | null;
             /**
              * Order Date
              * Format: date
@@ -16940,6 +16950,12 @@ export interface components {
             status: components["schemas"]["StrategyOrderStatus"] | null;
             /** Detail */
             detail: string | null;
+            /** Annual Rate */
+            annual_rate: string | null;
+            /** Term Months */
+            term_months: number | null;
+            /** Loan Number */
+            loan_number: number | null;
         };
         /** StrategyOrderLineDTO */
         StrategyOrderLineDTO: {
@@ -16957,6 +16973,12 @@ export interface components {
             reason: string | null;
             /** Asset Uuid */
             asset_uuid: string | null;
+            /** Annual Rate */
+            annual_rate: string | null;
+            /** Term Months */
+            term_months: number | null;
+            /** Loan Number */
+            loan_number: number | null;
         };
         /**
          * StrategyOrderStatus
@@ -17010,13 +17032,15 @@ export interface components {
             unit: string | null;
             /** Hint */
             hint: string;
+            /** Enabled By */
+            enabled_by: string | null;
         };
         /**
          * StrategyParamKind
          * @enum {string}
          */
-        StrategyParamKind: "int" | "percent" | "ticker" | "tickers";
-        StrategyParamValue: number | string | string[];
+        StrategyParamKind: "int" | "percent" | "ticker" | "tickers" | "boolean";
+        StrategyParamValue: boolean | number | string | string[];
         /**
          * StrategyUpdateEventDTO
          * @description O automático de uma conta mudou: ligou, trocou, desligou, deu erro ou o painel andou com as ordens.

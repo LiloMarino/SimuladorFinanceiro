@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 from typing import Literal
 
 from sqlalchemy import ColumnElement, and_, delete, func, or_, select, update
@@ -18,6 +19,11 @@ type LogFilter = Literal["all", "orders", "modes"]
 
 ORDER = StrategyLogKind.ORDER.value
 ERROR_SEEN = StrategyLogKind.ERROR_SEEN.value
+# A chave de `params` onde a linha de contratação de empréstimo guarda o juro anual do contrato
+ANNUAL_RATE = "annual_rate"
+# As chaves de `params` do prazo contratado e do número do empréstimo nas linhas de crédito
+TERM_MONTHS = "term_months"
+LOAN_NUMBER = "loan_number"
 
 
 def event_dto(row: StrategyLog) -> StrategyEventDTO:
@@ -44,6 +50,24 @@ def event_dto(row: StrategyLog) -> StrategyEventDTO:
     )
 
 
+def contract_rate(params: dict | None) -> Decimal | None:
+    """O juro do contrato, que a linha de contratação guarda em `params`."""
+    rate = params.get(ANNUAL_RATE) if params else None
+    return None if rate is None else Decimal(str(rate))
+
+
+def contract_term(params: dict | None) -> int | None:
+    """O prazo em meses que a linha de contratação guarda em `params`."""
+    term = params.get(TERM_MONTHS) if params else None
+    return None if term is None else int(term)
+
+
+def loan_number(params: dict | None) -> int | None:
+    """O número do empréstimo que a linha de crédito guarda em `params`."""
+    number = params.get(LOAN_NUMBER) if params else None
+    return None if number is None else int(number)
+
+
 def row_dto(row: StrategyLog) -> StrategyLogRowDTO:
     return StrategyLogRowDTO(
         id=row.id,
@@ -61,6 +85,9 @@ def row_dto(row: StrategyLog) -> StrategyLogRowDTO:
         status=StrategyOrderStatus(row.status) if row.status else None,
         # O rastro do erro fica na faixa de erro; na tabela só a causa da recusa
         detail=row.detail if row.kind == ORDER else None,
+        annual_rate=contract_rate(row.params),
+        term_months=contract_term(row.params),
+        loan_number=loan_number(row.params),
     )
 
 

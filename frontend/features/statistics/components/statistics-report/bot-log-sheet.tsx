@@ -17,7 +17,15 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { useLoadMoreOnVisible } from "@/shared/hooks/useLoadMoreOnVisible";
-import { ACTION_TONE, actionLabel, plural, rowPrice, rowQuantity } from "@/shared/lib/strategy-orders";
+import {
+  ACTION_TONE,
+  actionLabel,
+  creditTitle,
+  isCreditAction,
+  plural,
+  rowPrice,
+  rowQuantity,
+} from "@/shared/lib/strategy-orders";
 import { displayDayMonth } from "@/shared/lib/utils/display";
 import type { PlayerRef } from "@/types";
 import { useBotLog } from "../../hooks/queries/useBotLog";
@@ -100,22 +108,32 @@ export function BotLogSheet({ bot, onClose }: BotLogSheetProps) {
                     <TableCell>
                       <span className="font-mono text-muted-foreground">{displayDayMonth(row.event_date)}</span>
                     </TableCell>
-                    <TableCell>
-                      <b className={`font-semibold ${row.action ? ACTION_TONE[row.action] : ""}`}>
-                        {row.action ? actionLabel(row.action) : "—"}
-                      </b>
-                    </TableCell>
-                    <TableCell wrap>
-                      {row.ticker ? (
-                        <Badge variant="secondary" size="tag" numeric>
-                          {row.ticker}
-                        </Badge>
-                      ) : (
-                        (row.asset_name ?? "—")
-                      )}
-                    </TableCell>
-                    <TableCell numeric>{rowQuantity(row)}</TableCell>
-                    <TableCell numeric>{rowPrice(row)}</TableCell>
+                    {row.action && isCreditAction(row.action) ? (
+                      <TableCell wrap colSpan={4}>
+                        <b className={`font-semibold ${ACTION_TONE[row.action]}`}>
+                          {creditTitle({ ...row, action: row.action })}
+                        </b>
+                      </TableCell>
+                    ) : (
+                      <>
+                        <TableCell>
+                          <b className={`font-semibold ${row.action ? ACTION_TONE[row.action] : ""}`}>
+                            {row.action ? actionLabel(row.action) : "—"}
+                          </b>
+                        </TableCell>
+                        <TableCell wrap>
+                          {row.ticker ? (
+                            <Badge variant="secondary" size="tag" numeric>
+                              {row.ticker}
+                            </Badge>
+                          ) : (
+                            (row.asset_name ?? "—")
+                          )}
+                        </TableCell>
+                        <TableCell numeric>{rowQuantity(row)}</TableCell>
+                        <TableCell numeric>{rowPrice(row)}</TableCell>
+                      </>
+                    )}
                     <TableCell wrap>{row.reason}</TableCell>
                   </TableRow>
                 ))}

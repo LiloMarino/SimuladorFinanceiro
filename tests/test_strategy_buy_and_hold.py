@@ -10,7 +10,11 @@ from backend.core.enum import StrategyAction
 from backend.features.strategy.buy_and_hold import BuyAndHold
 from tests.strategy_helpers import closes, context
 
-PARAMS: dict[str, StrategyParamValue] = {"asset": "AAA"}
+PARAMS: dict[str, StrategyParamValue] = {
+    "asset": "AAA",
+    "leverage": False,
+    "target_debt": 20,
+}
 
 
 def test_puts_the_idle_cash_in_whole_shares_of_the_asset():

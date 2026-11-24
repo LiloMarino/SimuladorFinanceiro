@@ -629,13 +629,23 @@ class CreditBook:
             )
         return items
 
-    def _due_soon(self, client: ClientCredit, day: date) -> list[tuple[Loan, Decimal]]:
-        limit = day + timedelta(days=WARNING_DAYS)
+    def _due_within(
+        self, client: ClientCredit, day: date, days: int
+    ) -> list[tuple[Loan, Decimal]]:
+        limit = day + timedelta(days=days)
         return [
             (loan, loan.state.due_amount())
             for loan in client.loans.values()
             if not loan.state.is_closed and loan.state.next_due <= limit
         ]
+
+    def _due_soon(self, client: ClientCredit, day: date) -> list[tuple[Loan, Decimal]]:
+        return self._due_within(client, day, WARNING_DAYS)
+
+    def installments_due(self, client_id: UUID, day: date, days: int) -> Decimal:
+        """O que as parcelas dos empréstimos comuns que vencem em até `days` dias somam."""
+        due = self._due_within(self.client(client_id), day, days)
+        return sum((amount for _, amount in due), ZERO)
 
     def _shortfall(self, client_id: UUID, client: ClientCredit, day: date) -> Decimal:
         # A falta é de parcela que vence em breve: sem parcela, o caixa negativo não falta a nada
@@ -688,7 +698,8 @@ class CreditBook:
     def process_due(self, client_ids: list[UUID], day: date, speed: int) -> None:
         """
         Debita a parcela que vence no dia (o primeiro pregão em ou depois da data).
-        Sem caixa, a parcela vira atraso: nada é vendido e o cheque especial não a cobre.
+        Com o caixa abaixo da parcela, resgata renda fixa antes de debitar; se ainda
+        faltar, a parcela vira atraso: ações não são vendidas e o cheque especial não a cobre.
         """
         for client_id in client_ids:
             with self._lock:

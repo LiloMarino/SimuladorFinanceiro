@@ -24,6 +24,7 @@ from backend.features.strategy.base_strategy import (
 )
 from backend.features.strategy.buy_and_hold import DEFAULT_ASSET
 from backend.features.strategy.context import StrategyContext
+from backend.features.strategy.leverage import financed_debt, risk_budget
 from backend.features.strategy.liquidity import liquid_offer, redeem_liquid
 
 ZERO = Decimal(0)
@@ -69,6 +70,7 @@ class TargetRebalance(BaseStrategy):
         "dentro do limite, o caixa parado vai para o lado mais abaixo da meta."
     )
     group = StrategyGroup.REFERENCE
+    supports_leverage = True
     view_kind = StrategyView.ALLOCATION
     term_hint = (
         "Rebalancear é voltar à divisão que você escolheu. p.p. é a diferença entre "
@@ -118,9 +120,9 @@ class TargetRebalance(BaseStrategy):
 
     def next(self, ctx: StrategyContext, params: dict[str, StrategyParamValue]) -> None:
         asset = param_ticker(params, "asset")
-        target = Decimal(param_int(params, "stock_target")) / 100
         limit = Decimal(param_int(params, "max_deviation")) / 100
         held = _holdings(ctx, asset)
+        target = _target(ctx, params, held)
 
         # Fora do limite a carteira volta à meta com venda e resgate; dentro dele só o
         # caixa se move, e nenhum lado desce do valor de hoje
@@ -185,8 +187,8 @@ class TargetRebalance(BaseStrategy):
         self, ctx: StrategyContext, params: dict[str, StrategyParamValue]
     ) -> RankingViewDTO | AllocationViewDTO | None:
         asset = param_ticker(params, "asset")
-        target = Decimal(param_int(params, "stock_target"))
         held = _holdings(ctx, asset)
+        target = _target(ctx, params, held) * 100
 
         def item(label: str, value: Decimal, goal: Decimal) -> AllocationItemDTO:
             current = value / held.total * 100 if held.total > 0 else ZERO
@@ -209,6 +211,21 @@ class TargetRebalance(BaseStrategy):
             has_liquid_offer=liquid_offer(ctx) is not None,
             today=[intent.reason for intent in ctx.intents],
         )
+
+
+def _target(
+    ctx: StrategyContext, params: dict[str, StrategyParamValue], held: _Holdings
+) -> Decimal:
+    """
+    A fração das ações na carteira inteira. Com dívida, ela toda financia as ações e a renda
+    fixa fica na meta sobre o patrimônio próprio: patrimônio de 100, dívida de 20 e meta de
+    60% são 80 em ações e 40 em renda fixa, ou seja, 66,7% da carteira de 120.
+    """
+    share = Decimal(param_int(params, "stock_target")) / 100
+    total = held.total + ctx.cash
+    if total <= 0:
+        return share
+    return risk_budget(share, total, financed_debt(ctx, params)) / total
 
 
 def _holdings(ctx: StrategyContext, asset: str) -> _Holdings:

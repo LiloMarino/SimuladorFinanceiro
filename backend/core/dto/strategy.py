@@ -17,8 +17,8 @@ from backend.core.enum import (
     StrategyView,
 )
 
-# Valor de um parâmetro: número (dias, percentual), um ticker ou uma lista de tickers
-type StrategyParamValue = int | str | list[str]
+# Valor de um parâmetro: chave liga/desliga, número (dias, percentual), um ticker ou uma lista de tickers
+type StrategyParamValue = bool | int | str | list[str]
 
 
 class StrategyParamDTO(BaseDTO):
@@ -31,6 +31,8 @@ class StrategyParamDTO(BaseDTO):
     unit: str | None = None
     # Como o parâmetro muda o que a estratégia faz
     hint: str
+    # A chave (boolean) que precisa estar ligada para este parâmetro valer; nulo vale sempre
+    enabled_by: str | None = None
 
 
 class BotTickerDTO(BaseDTO):
@@ -53,6 +55,8 @@ class StrategyInfoDTO(BaseDTO):
     view: StrategyView
     # Explicação do termo técnico que a regra usa; nulo quando não há
     term_hint: str | None
+    # Aceita alavancar com crédito: traz os parâmetros "Alavancar" e "Dívida-alvo"
+    supports_leverage: bool
     params: list[StrategyParamDTO]
 
 
@@ -78,6 +82,10 @@ class StrategyLastOrderDTO(BaseDTO):
     ticker: str | None
     asset_name: str | None
     quantity: Decimal | None
+    price: Decimal | None
+    annual_rate: Decimal | None
+    term_months: int | None
+    loan_number: int | None
     order_date: date
     order_type: str | None
 
@@ -228,6 +236,10 @@ class StrategyLogRowDTO(BaseDTO):
     status: StrategyOrderStatus | None
     # Por que o mercado ou o caixa recusou a ordem
     detail: str | None
+    # Nas linhas de empréstimo, o valor fica em `price` e `quantity` é nula; aqui, o juro e o prazo do contrato (contratação) e o número do empréstimo (amortização e quitação)
+    annual_rate: Decimal | None = None
+    term_months: int | None = None
+    loan_number: int | None = None
 
 
 class StrategyLogPageDTO(BaseDTO):
@@ -244,3 +256,6 @@ class StrategyOrderLineDTO(BaseDTO):
     status: StrategyOrderStatus
     reason: str | None
     asset_uuid: UUID | None = None
+    annual_rate: Decimal | None = None
+    term_months: int | None = None
+    loan_number: int | None = None

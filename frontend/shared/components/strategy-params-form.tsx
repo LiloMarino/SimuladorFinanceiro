@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { InfoHint } from "@/shared/components/info-hint";
 import { OptionSelect } from "@/shared/components/option-select";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/shared/components/ui/input-group";
+import { Switch } from "@/shared/components/ui/switch";
 import { cashShare } from "@/shared/lib/strategy-orders";
 import { displayMoney } from "@/shared/lib/utils/display";
 import type { BotTicker, StrategyInfo, StrategyParam } from "@/types";
@@ -79,10 +80,20 @@ export function StrategyParamsForm({
                 onChange={(ticker) => onChange({ ...draft, [param.key]: ticker })}
               />
             );
+          if (param.kind === "boolean")
+            return (
+              <BooleanField
+                key={param.key}
+                param={param}
+                checked={draft[param.key] === true}
+                onChange={(checked) => onChange({ ...draft, [param.key]: checked })}
+              />
+            );
           return (
             <NumberField
               key={param.key}
               param={param}
+              disabled={param.enabled_by != null && draft[param.enabled_by] !== true}
               text={String(draft[param.key] ?? "")}
               saved={saved[param.key]}
               compareToDefault={compareToDefault}
@@ -106,6 +117,8 @@ export function StrategyParamsForm({
 
 type NumberFieldProps = {
   param: StrategyParam;
+  /** O campo vale só com a chave de `enabled_by` ligada */
+  disabled: boolean;
   text: string;
   saved: ParamValues[string] | undefined;
   compareToDefault: boolean;
@@ -113,7 +126,7 @@ type NumberFieldProps = {
   onChange: (text: string) => void;
 };
 
-function NumberField({ param, text, saved, compareToDefault, error, onChange }: NumberFieldProps) {
+function NumberField({ param, disabled, text, saved, compareToDefault, error, onChange }: NumberFieldProps) {
   const unit = param.unit === "%" ? "%" : "";
   const savedNumber = typeof saved === "number" ? saved : null;
   const changed = compareToDefault && text.trim() !== String(param.default);
@@ -135,6 +148,7 @@ function NumberField({ param, text, saved, compareToDefault, error, onChange }: 
           numeric
           inputMode="numeric"
           value={text}
+          disabled={disabled}
           aria-invalid={!!error}
           onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
         />
@@ -150,6 +164,28 @@ function NumberField({ param, text, saved, compareToDefault, error, onChange }: 
           </>
         )}
       </FieldDescription>
+    </Field>
+  );
+}
+
+type BooleanFieldProps = {
+  param: StrategyParam;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+};
+
+function BooleanField({ param, checked, onChange }: BooleanFieldProps) {
+  const id = `strategy-param-${param.key}`;
+
+  return (
+    <Field orientation="horizontal" className="items-center sm:col-span-2">
+      <Switch id={id} checked={checked} onCheckedChange={onChange} />
+      <FieldContent>
+        <div className="flex items-center gap-1.5">
+          <FieldLabel htmlFor={id}>{param.label}</FieldLabel>
+          <InfoHint label={`Como ${param.label} muda a estratégia`}>{param.hint}</InfoHint>
+        </div>
+      </FieldContent>
     </Field>
   );
 }

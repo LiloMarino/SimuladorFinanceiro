@@ -717,6 +717,10 @@ class StrategyAction(Enum):
     CANCEL = "cancel"
     INVEST = "invest"
     REDEEM = "redeem"
+    TAKE_LOAN = "take_loan"
+    PREPAY_LOAN = "prepay_loan"
+    PAYOFF_LOAN = "payoff_loan"
+    PAY_OVERDUE = "pay_overdue"
 
 
 class StrategyOrderStatus(Enum):
@@ -737,6 +741,7 @@ class StrategyParamKind(Enum):
     PERCENT = "percent"
     TICKER = "ticker"
     TICKERS = "tickers"
+    BOOLEAN = "boolean"
 
 
 class StrategyView(Enum):

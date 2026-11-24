@@ -47,6 +47,7 @@ class VolumeBreakout(BaseStrategy):
         "dos últimos pregões de saída."
     )
     group = StrategyGroup.TACTIC
+    supports_leverage = True
     view_kind = StrategyView.SIGNAL
     term_hint = (
         "Rompimento é o preço passar a maior cotação de um período. Volume é quantas "

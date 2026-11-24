@@ -1,24 +1,32 @@
 import { drawBotName } from "@/shared/lib/bot-names";
-import { defaultValues, type ParamValues } from "@/shared/lib/strategy-params";
+import { defaultValues, LEVERAGE_KEY, type ParamValues } from "@/shared/lib/strategy-params";
 import { RANDOM_STRATEGY } from "@/shared/lib/bot-form";
 import type { Profession, RoomBotRequest, RoomPlayer, StrategyInfo } from "@/types";
 
 /** O servidor recusa com 409 o nome que já está na sala. */
 export const NAME_TAKEN_STATUS = 409;
 
-type BatchChoice = { strategyKey: string; params: ParamValues; quantity: number; profession: Profession | null };
+type BatchChoice = {
+  strategyKey: string;
+  params: ParamValues;
+  quantity: number;
+  profession: Profession | null;
+  /** Liga "Alavancar" em todo bot do lote cuja estratégia suporta crédito */
+  leverage: boolean;
+};
 
 /**
  * Os pedidos de um lote de bots: cada um com o nome sorteado da lista da própria estratégia,
  * fora dos nomes da sala e dos já sorteados no lote. Uma profissão escolhida vale para o lote todo; sem ela
  * (nula), o servidor sorteia uma para cada bot. `RANDOM_STRATEGY` sorteia a estratégia
  * de cada bot, com os parâmetros padrão; uma estratégia escolhida leva os parâmetros do formulário.
+ * Com `leverage`, todo bot cuja estratégia suporta crédito nasce com "Alavancar" ligado e as demais seguem como estão.
  * Cor e equipe ficam por conta do servidor.
  */
 export function batchRequests(
   strategies: StrategyInfo[],
   takenNames: string[],
-  { strategyKey, params, quantity, profession }: BatchChoice,
+  { strategyKey, params, quantity, profession, leverage }: BatchChoice,
   random: () => number = Math.random,
 ): RoomBotRequest[] {
   const taken = [...takenNames];
@@ -32,10 +40,11 @@ export function batchRequests(
 
     const nickname = drawBotName(strategy, taken, random);
     taken.push(nickname);
+    const chosen = strategyKey === RANDOM_STRATEGY ? defaultValues(strategy) : params;
     requests.push({
       nickname,
       strategy_key: strategy.key,
-      params: strategyKey === RANDOM_STRATEGY ? defaultValues(strategy) : params,
+      params: leverage && strategy.supports_leverage ? { ...chosen, [LEVERAGE_KEY]: true } : chosen,
       profession,
     });
   }

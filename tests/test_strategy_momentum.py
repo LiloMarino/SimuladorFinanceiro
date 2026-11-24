@@ -14,7 +14,12 @@ from backend.features.strategy.context import Holding
 from backend.features.strategy.momentum import TwelveMonthMomentum
 from tests.strategy_helpers import closes, context
 
-PARAMS = {"top": 2, "tickers": ["AAA", "BBB", "CCC", "DDD"]}
+PARAMS = {
+    "top": 2,
+    "tickers": ["AAA", "BBB", "CCC", "DDD"],
+    "leverage": False,
+    "target_debt": 20,
+}
 DAYS = 253
 
 

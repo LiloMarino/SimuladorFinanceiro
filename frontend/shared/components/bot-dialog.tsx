@@ -13,7 +13,8 @@ import { StrategyParamsForm } from "@/shared/components/strategy-params-form";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/shared/components/ui/dialog";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from "@/shared/components/ui/field";
+import { Switch } from "@/shared/components/ui/switch";
 import { Input } from "@/shared/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { Skeleton } from "@/shared/components/ui/skeleton";
@@ -40,7 +41,7 @@ const RANDOM_PROFESSION = "random";
  * Os campos do diálogo: os do bot, a profissão (nula = sorteada, só em sala de profissões) e,
  * ao adicionar na sala, a quantidade de bots a criar.
  */
-type BotDialogValues = BotFormValues & { quantity: number; profession: Profession | null };
+type BotDialogValues = BotFormValues & { quantity: number; profession: Profession | null; leverage: boolean };
 
 /** As duas formas de adicionar: vários bots de uma vez ou um só, com nome e cor escolhidos. */
 type BotMode = "batch" | "single";
@@ -48,6 +49,7 @@ type BotMode = "batch" | "single";
 /**
  * O que o diálogo entrega ao confirmar: os campos do formulário e os parâmetros já como números.
  * `batch` diz qual aba confirmou; no lote `quantity` é a quantidade e fora dele vale 1.
+ * `leverage` só vale no lote: liga "Alavancar" nos bots cuja estratégia suporta crédito.
  * `strategyKey` é `RANDOM_STRATEGY` quando cada bot do lote leva uma estratégia sorteada (sem parâmetros).
  */
 export type BotSubmit = BotDialogValues & { params: ParamValues; batch: boolean };
@@ -238,6 +240,7 @@ function BotForm({
       profession: z.custom<Profession>().nullable(),
       drafts: z.record(z.string(), z.any()),
       quantity: z.number({ error: `Informe de 1 a ${maxQuantity}.` }),
+      leverage: z.boolean(),
     })
     .superRefine(({ nickname: typed, quantity: count }, ctx) => {
       if (batch) {
@@ -264,9 +267,14 @@ function BotForm({
   const form = useForm<BotDialogValues>({
     resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: { ...initial(strategies), quantity: 1, profession: professionField?.initial ?? null },
+    defaultValues: {
+      ...initial(strategies),
+      quantity: 1,
+      profession: professionField?.initial ?? null,
+      leverage: false,
+    },
   });
-  const { strategyKey, nickname, color, drafts, quantity, profession } = useWatch({
+  const { strategyKey, nickname, color, drafts, quantity, profession, leverage } = useWatch({
     control: form.control,
   }) as BotDialogValues;
 
@@ -329,6 +337,7 @@ function BotForm({
         ...formValues,
         nickname: formValues.nickname.trim(),
         quantity: batch ? formValues.quantity : 1,
+        leverage: batch && formValues.leverage,
         strategyKey: random ? RANDOM_STRATEGY : strategy.key,
         params,
         batch,
@@ -440,6 +449,24 @@ function BotForm({
                   </Field>
                 )}
               />
+            )}
+
+            {/* Alavancagem do lote */}
+            {batch && (
+              <Field orientation="horizontal" className="items-center">
+                <Switch
+                  id="bot-batch-leverage"
+                  checked={leverage}
+                  onCheckedChange={(checked) => form.setValue("leverage", checked)}
+                />
+                <FieldContent>
+                  <FieldLabel htmlFor="bot-batch-leverage">Alavancar os bots que suportam</FieldLabel>
+                  <FieldDescription>
+                    Os bots de estratégia com crédito nascem com “Alavancar” ligado e a dívida-alvo padrão; os demais
+                    seguem sem crédito.
+                  </FieldDescription>
+                </FieldContent>
+              </Field>
             )}
 
             {/* Profissão */}

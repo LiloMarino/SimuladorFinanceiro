@@ -85,6 +85,45 @@ def test_the_catalog_suggests_names_for_every_strategy(room):
     assert all(info.bot_names for info in infos)
 
 
+def test_the_catalog_marks_leverage_only_on_the_strategies_that_support_it(room):
+    infos = catalog.infos(
+        START,
+        None,
+        catalog.known_tickers(),
+        funds_enabled=True,
+        government_enabled=True,
+    )
+
+    for info in infos:
+        keys = {param.key for param in info.params}
+        has_params = {"leverage", "target_debt"} <= keys
+        assert info.supports_leverage == has_params
+        assert info.supports_leverage == (info.key != "cdi_100")
+        if info.supports_leverage:
+            leverage, target = (
+                p for p in info.params if p.key in {"leverage", "target_debt"}
+            )
+            assert (leverage.default, target.default) == (False, 20)
+            assert target.enabled_by == "leverage"
+    assert {i.key for i in infos if not i.supports_leverage} == {"cdi_100"}
+
+
+def test_the_fund_catalog_has_no_leverage(room):
+    infos = catalog.infos(
+        START,
+        None,
+        catalog.known_tickers(),
+        funds_enabled=True,
+        government_enabled=True,
+        for_fund=True,
+    )
+
+    assert infos
+    for info in infos:
+        assert not info.supports_leverage
+        assert {"leverage", "target_debt"}.isdisjoint(p.key for p in info.params)
+
+
 def test_the_fund_strategy_is_in_the_catalog_only_with_the_funds_expansion(room):
     with_funds = catalog.infos(
         START,
@@ -651,7 +690,11 @@ def test_the_bot_log_opens_only_when_the_match_ends(room):
     [during] = build_bots_report([simulation_id])
     assert not during.log_open
     assert during.strategy_name == "Comprar e segurar"
-    assert [p.label for p in during.params] == ["Ativo"]
+    assert [p.label for p in during.params] == [
+        "Ativo",
+        "Alavancar",
+        "Dívida-alvo",
+    ]
     with pytest.raises(ForbiddenError):
         bot_orders(simulation_id, "Tio Patinhas", 0, 50)
 

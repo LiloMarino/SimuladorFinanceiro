@@ -533,7 +533,11 @@ from backend.features.sovereign_fund import rules as fund_rules
 from backend.features.sovereign_fund.book import FundQuotas
 from backend.features.statistics.cache import ReportCache
 from backend.features.statistics.goal import goal_on, goal_reached
-from backend.features.strategy.runner import StrategyAccount, StrategyRunner
+from backend.features.strategy.runner import (
+    CreditActions,
+    StrategyAccount,
+    StrategyRunner,
+)
 from backend.features.summaries.service import SummaryDelivery
 from backend.features.tax_policy import TaxPolicy
 from backend.features.variable_income.broker import to_money
@@ -714,6 +718,13 @@ class Simulation:
         if backtest is not None:
             self._strategies.on_failure = self._backtest_failed
         self._strategies.on_pending_changed = self._pending_changed
+        # As estratégias operam o crédito pelas mesmas operações da tela de Crédito
+        self._strategies.credit_actions = CreditActions(
+            self.contract_loan,
+            self.prepay_loan,
+            self.payoff_loan,
+            self.pay_overdue,
+        )
         # O crédito de cada conta chega pelo tempo real ao fechar a operação que o mudou
         self._engine.credit_book.on_changed = self._credit_changed
 

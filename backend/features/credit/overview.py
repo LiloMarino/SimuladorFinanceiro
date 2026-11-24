@@ -41,6 +41,7 @@ from backend.features.credit.credit_book import (
     ClientCredit,
     CreditBook,
     Loan,
+    Offer,
     PayrollLoan,
 )
 from backend.features.credit.loan import LoanState
@@ -84,7 +85,7 @@ def _month_end(day: date) -> date:
     return add_months(day.replace(day=1), 1) - timedelta(days=1)
 
 
-def _loan_dto(loan: Loan, day: date) -> LoanDTO:
+def loan_dto(loan: Loan, day: date) -> LoanDTO:
     state = loan.state
     return LoanDTO(
         id=loan.loan_id,
@@ -264,7 +265,7 @@ def _portfolio_return(book: CreditBook, client_id: UUID, day: date) -> Decimal |
     return growth - 1
 
 
-def _rating(book: CreditBook, client_id: UUID, day: date) -> RatingDTO:
+def rating_dto(book: CreditBook, client_id: UUID, day: date) -> RatingDTO:
     client = book.client(client_id)
     score = book.score(client_id, day)
     closed = client.rating
@@ -300,6 +301,19 @@ def _rating(book: CreditBook, client_id: UUID, day: date) -> RatingDTO:
             )
             for t in LADDER
         ],
+    )
+
+
+def offer_dto(offer: Offer) -> CreditOfferDTO:
+    return CreditOfferDTO(
+        available=offer.annual_rate is not None,
+        selic=offer.selic,
+        spread=offer.tier.spread,
+        annual_rate=offer.annual_rate,
+        best_fixed_income_rate=offer.best_fixed_income_rate,
+        max_amount=offer.max_amount,
+        debt_limit=offer.tier.debt_limit,
+        debt_limit_amount=offer.debt_limit_amount,
     )
 
 
@@ -348,18 +362,9 @@ def build_overview(book: CreditBook, client_id: UUID, day: date) -> CreditOvervi
         next_installments_first=min((d for d, _ in in_month), default=None),
         next_installments_last=max((d for d, _ in in_month), default=None),
         cash_covers_next=cash >= month_total,
-        rating=_rating(book, client_id, day),
-        offer=CreditOfferDTO(
-            available=offer.annual_rate is not None,
-            selic=offer.selic,
-            spread=offer.tier.spread,
-            annual_rate=offer.annual_rate,
-            best_fixed_income_rate=offer.best_fixed_income_rate,
-            max_amount=offer.max_amount,
-            debt_limit=offer.tier.debt_limit,
-            debt_limit_amount=offer.debt_limit_amount,
-        ),
-        loans=[_loan_dto(loan, day) for loan in loans],
+        rating=rating_dto(book, client_id, day),
+        offer=offer_dto(offer),
+        loans=[loan_dto(loan, day) for loan in loans],
         payroll_loans=[build_payroll_loan(loan, day) for loan in payroll],
         upcoming=_upcoming(loans, payroll, day),
         history=_history(client, day),
