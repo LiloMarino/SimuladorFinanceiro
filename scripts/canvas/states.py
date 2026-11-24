@@ -2698,6 +2698,37 @@ def lobby_expansion_free(page: Page) -> None:
     expect(page.get_by_role("radio", name=re.compile("Clássica"))).to_be_checked()
 
 
+def lobby_bot_dialog(page: Page) -> Locator:
+    """Lobby sem partida ativa com o diálogo "Adicionar bot" aberto; devolve o diálogo, de onde toda interação parte."""
+    lobby_with_professions(page)
+    page.get_by_role("button", name="Adicionar bot").click()
+    dialog = page.get_by_role("dialog")
+    dialog.get_by_role("tab", name="Em lote").wait_for()
+    return dialog
+
+
+def lobby_bot_batch_leverage(page: Page) -> None:
+    """O diálogo de bots do lobby na aba Em lote, com o interruptor "Alavancar os bots que suportam" ligado."""
+    dialog = lobby_bot_dialog(page)
+    dialog.get_by_role("tab", name="Em lote").click()
+    leverage = dialog.get_by_role("switch", name="Alavancar os bots que suportam")
+    leverage.click()
+    expect(leverage).to_be_checked()
+    page.wait_for_load_state("networkidle")
+
+
+def lobby_bot_single_leverage(page: Page) -> None:
+    """O diálogo de bots do lobby na aba Individual, com Comprar e segurar e "Alavancar" ligado: a "Dívida-alvo" fica habilitada."""
+    dialog = lobby_bot_dialog(page)
+    dialog.get_by_role("tab", name="Individual").click()
+    dialog.get_by_role("radio", name=re.compile(r"^Comprar e segurar")).click()
+    leverage = dialog.get_by_role("switch", name="Alavancar")
+    leverage.click()
+    expect(leverage).to_be_checked()
+    expect(dialog.get_by_role("textbox", name="Dívida-alvo")).to_be_enabled()
+    page.wait_for_load_state("networkidle")
+
+
 # Os co-gestores: dado forjado sobre a gestora real do host, que nasce sem nenhum
 COMANAGER_ACTIVE = {
     "nickname": "Duda",
@@ -3991,6 +4022,8 @@ STATES: dict[str, Callable[[Page], None]] = {
     "lobby/equipes-aquisicao-hostil": lobby_takeover_teams,
     "lobby/equipes-aquisicao-conflito": lobby_takeover_teams_conflict,
     "lobby/expansao-livre": lobby_expansion_free,
+    "lobby/bot-em-lote-alavancado": lobby_bot_batch_leverage,
+    "lobby/bot-individual-alavancado": lobby_bot_single_leverage,
     "renda-variavel/cota-gestora": stock_fund_quota,
     "gestoras/sem-gestora-lista": funds_room_list,
     "renda-variavel/estatal": stock_state_owned,
