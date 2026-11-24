@@ -80,14 +80,13 @@
 | [**F279**](#f279) | Feature | Estratégias automáticas novas e revisão das atuais | M24 · 4.4 | — | — | — | 🔍 |
 | [**F284**](#f284) | Feature | Ministério para o partido da base | — | — | Alto | Médio | ⏳ |
 | [**F285**](#f285) | Feature | Modo daltonismo: limitar as cores às que um daltônico distingue | — | — | — | — | 🔍 |
-| [**F286**](#f286) | Feature | Console de trapaça no modo debug | M29 · 4.3 | — | Alto | Bom | ⏳ |
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
-<summary><strong>Concluído / decidido / descartado (45 itens — clique pra expandir)</strong></summary>
+<summary><strong>Concluído / decidido / descartado (46 itens — clique pra expandir)</strong></summary>
 
 | ID | Tipo | Resumo | Marco | Condiciona (F#) | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -114,6 +113,7 @@
 | **D22** | — | O k do impacto de preço fica sem teto, avisa acima de 0,10, e o impacto vale só do pregão seguinte | — | — | — | — | ✅ |
 | **D23** | — | A profissão é uma classe: cada uma tem uma ação própria ligada à macroeconomia | — | [F315](#f315), [F321](#f321), [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333), [F334](#f334), [F340](#f340) | — | — | ✅ |
 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 | — | — | — | ✅ |
+| [**F286**](#f286) | Feature | Console de trapaça no modo debug | M29 · 4.3 | — | — | — | ✅ |
 | [**F315**](#f315) | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | M29 · 4.3 | — | — | — | ✅ |
 | [**F316**](#f316) | Correção | Correções do playtest: gestoras e cotas | M29 · 4.3 | — | — | — | ✅ |
 | [**F317**](#f317) | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | M29 · 4.3 | — | — | — | ✅ |
@@ -151,7 +151,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 23/26 concluídos
+> **Progresso:** 24/26 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -177,7 +177,7 @@
 | 20 | [**F332**](#f332) | Feature | Imóveis do Locador | — | ✅ Concluído |
 | 21 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | — | ✅ Concluído |
 | 22 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ✅ Concluído |
-| 23 | [**F286**](#f286) | Feature | Console de trapaça no modo debug | [F54](#f54) | ⏳ Pendente |
+| 23 | [**F286**](#f286) | Feature | Console de trapaça no modo debug | — | ✅ Concluído |
 | 24 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
 | 25 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | — | ⏳ Pendente |
 | 26 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | — | ✅ Concluído |
@@ -275,7 +275,6 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F286**](#f286) | Feature | Console de trapaça no modo debug | M29 · 4.3 · 23º | 0 | Alto | Bom | ⏳ |
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 · 24º | 0 | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 25º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
@@ -335,7 +334,6 @@
 | **F225** | Docs | Conceitos de economia real na docs e nomeados na tela | N41, N25 | D21 | M28 · 4.7 | [F140](#f140) | Alto | Baixo | Alto | Bom |
 | **F227** | Feature | Intensidade das ligações e laboratório da economia | N41, N34 | D20, D21 | M28 · 4.7 | — | Alto | Médio | Médio | Médio |
 | **F284** | Feature | Ministério para o partido da base | N34 | — | — | — | Alto | Médio | Médio | Médio |
-| **F286** | Feature | Console de trapaça no modo debug | N42 | — | M29 · 4.3 | [F54](#f54) | Alto | Médio | Alto | Bom |
 | **F334** | Feature | Calibração das profissões pelos três alarmes | N39 | D23 | M29 · 4.3 | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | Médio | Médio | Alto | Bom |
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
 | **F336** | Feature | Ordem stop e validade na boleta | N43 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
@@ -535,13 +533,6 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 **Aceite:** o acordo de base com ministério grava a pasta; o ministro propõe as medidas da pasta e o presidente não, enquanto ela estiver cedida; a terceira pasta cedida e a segunda do mesmo partido são recusadas; o computador aceita o acordo sem pasta; com aprovação 60 e dois ministérios, o presidente soma 42 por mês e cada ministro 9, e o total dos pontos do mês é o mesmo com e sem ministério; a demissão devolve a pasta ao presidente, mantém o acordo e soma 4 pontos de rejeição nos grupos do aliado; a obra do ministro com 50% no setor tira 3 pontos de aprovação por mês enquanto a fatia continuar; `docs/docs/como-usar/governo.md` atualizada.
 
-<a id="f286"></a>
-**F286 — Console de trapaça no modo debug.** Com o modo debug ligado, o host ganha um console de comandos, como os dos jogos de estratégia, que leva a partida a um estado sem jogar até ele. Serve para conferir telas, montar o antes de um redesenho no canvas, reproduzir um bug e testar regras no app de teste. O catálogo de comandos mora no backend: cada comando tem nome, argumentos com tipo, ajuda e a ação, e o backend entrega a lista com as escolhas de cada argumento (apelidos, tickers, títulos em oferta, eventos, siglas de partido). O front é um console genérico aberto pela tecla ´ ou ~, com autocompletar de comando e de argumento, `help`, `help <comando>` e histórico na seta para cima; a mesma linha de texto vai a uma rota só, que também se chama pelo terminal. Com o modo debug desligado, o console não existe no front e a rota não responde.
-
-Comandos: `add_cash` e `set_cash` (o caixa nunca fica negativo; a diferença entra no extrato como depósito ou saque); `give_stock` (ação ou cota de fundo de graça, com o custo no preço do dia); `give_title` (título de renda fixa em oferta, de graça); `give_event` (um imprevisto ou evento de vida do catálogo, com o valor calculado como no sorteio e o FGTS na demissão); `give_presidency` (o jogador assume hoje pelo partido dele e governa até a próxima posse, com os efeitos de uma troca de mandato; fora de partido, recusa); `start_impeachment` (abre o pedido como no 6º mês abaixo do piso); `set_selic` (uma decisão do Copom valendo até a próxima reunião, só com o governo no controle da SELIC); `join_party` (filia com a filiação valendo para a próxima eleição); `pass_exam` (a inscrição atual do Administrador no concurso sai aprovada); `unban_fund` (zera a quarentena de fundar fundo depois de uma destituição). Pular para uma data ficou de fora: rodar os dias é o que a velocidade já faz, e o teleporte cria um estado que o jogo nunca produz.
-
-**Aceite:** com o modo debug desligado a rota responde 404 e o console não aparece; para quem não é host, 403; cada comando grava o efeito pelo caminho do jogo (linha no extrato, evento do governo) e recusa com o motivo nos limites acima; a posse e a SELIC sobrevivem ao replay do governo; o console autocompleta e guarda o histórico; `docs/docs/desenvolvimento/setup.md` lista os comandos e o uso pelo terminal.
-
 <a id="f334"></a>
 **F334 — Calibração das profissões pelos três alarmes.** Serve N39; segue a D23. Com o `calibrate.py` importando as políticas razoáveis, roda as salas com e sem correção pelo IPCA em 5, 10, 20 e 26 anos contra o poupador da sala e confere os três alarmes da D23: mecânica que não vale a pena, profissão primeira em todos os horizontes, profissão última em todos. Ajusta os números das regras até nenhum alarme soar, Comissionado e Banqueiro de ofertas incluídos; a taxa da herança do Herdeiro só muda se soar alarme para ele. A docs das profissões e os cards de `professions.ts` passam a descrever a mecânica e o formato da curva de cada uma (começo forte, constante, fim de jogo), com a dica explicando cada número. A tabela final fica registrada no card ao concluir.
 
@@ -637,6 +628,7 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 | ID | Tipo | Resumo | Serve | D# | Marco |
 | --- | --- | --- | --- | --- | --- |
 | **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M29 · 4.3 |
+| **F286** | Feature | Console de trapaça no modo debug | N42 | — | M29 · 4.3 |
 | **F315** | Feature | Base das mecânicas de profissão: estado por jogador, política razoável e troca no meio da partida | N39 | D23 | M29 · 4.3 |
 | **F316** | Correção | Correções do playtest: gestoras e cotas | N23, N15 | — | M29 · 4.3 |
 | **F317** | Correção | Correções do playtest: lobby, aporte no Fundo Soberano, dicas ⓘ e fim da aquisição hostil | N23, N34, N15 | — | M29 · 4.3 |
@@ -662,6 +654,13 @@ Recomendação: começar pelo 2, porque cobre as cores dos outros sem tocar no s
 
 <a id="f111"></a>
 **F111 — Crédito para estratégias e bots.** Serve N4 e N33; segue a D8. O contexto da estratégia ganha a dívida, a nota de risco, a oferta do dia e os empréstimos abertos, e as ações ganham pegar empréstimo, amortizar, quitar e pagar atraso, que chamam o mesmo serviço da tela de Crédito em nome do jogador (a recusa da tela vira linha "Recusada"). O caixa que a estratégia enxerga desconta as parcelas dos próximos 30 dias e o dinheiro separado para quitar. Toda estratégia que compra ativo de risco ganha o switch **Alavancar** e a **dívida-alvo** (padrão 20% do patrimônio líquido), nos parâmetros do modo automático, do bot e do backtest; o 100% CDI fica sem, porque o juro do empréstimo é sempre maior que a renda fixa. No diálogo de bots, o lote ganha "Alavancar os bots que suportam", que liga em todo bot gerado cuja estratégia suporta, inclusive no sorteio; a partida não tem switch próprio. Uma política comum decide pela estratégia: toma só com o Ibovespa acima da média de 200 pregões, até a dívida-alvo e dentro do teto da nota, com faixa de tolerância para não tomar e devolver na mesma semana; na virada para baixa vende ações na proporção da carteira e quita; caixa parado além da reserva amortiza o empréstimo de taxa mais alta. Nas estratégias mistas a dívida vai inteira para a parte de risco, e a renda fixa continua a da meta. O log registra cada contratação, amortização, quitação e pagamento de atraso com o motivo; as parcelas automáticas ficam no histórico do Crédito. Gatilho: F8 e F94 concluídas.
+
+<a id="f286"></a>
+**F286 — Console de trapaça no modo debug.** Com o modo debug ligado, o host ganha um console de comandos, como os dos jogos de estratégia, que leva a partida a um estado sem jogar até ele. Serve para conferir telas, montar o antes de um redesenho no canvas, reproduzir um bug e testar regras no app de teste. O catálogo de comandos mora no backend: cada comando tem nome, argumentos com tipo, ajuda e a ação, e o backend entrega a lista com as escolhas de cada argumento (apelidos, tickers, títulos em oferta, eventos, siglas de partido). O front é um console genérico aberto pela tecla ´ ou ~, com autocompletar de comando e de argumento, `help`, `help <comando>` e histórico na seta para cima; a mesma linha de texto vai a uma rota só, que também se chama pelo terminal. Com o modo debug desligado, o console não existe no front e a rota não responde.
+
+Comandos: `add_cash` e `set_cash` (o caixa nunca fica negativo; a diferença entra no extrato como depósito ou saque); `give_stock` (ação ou cota de fundo de graça, com o custo no preço do dia); `give_title` (título de renda fixa em oferta, de graça); `give_event` (um imprevisto ou evento de vida do catálogo, com o valor calculado como no sorteio e o FGTS na demissão); `give_presidency` (o jogador assume hoje pelo partido dele e governa até a próxima posse, com os efeitos de uma troca de mandato; fora de partido, recusa); `start_impeachment` (abre o pedido como no 6º mês abaixo do piso); `set_selic` (uma decisão do Copom valendo até a próxima reunião, só com o governo no controle da SELIC); `join_party` (filia com a filiação valendo para a próxima eleição); `pass_exam` (a inscrição atual do Administrador no concurso sai aprovada); `unban_fund` (zera a quarentena de fundar fundo depois de uma destituição). Pular para uma data ficou de fora: rodar os dias é o que a velocidade já faz, e o teleporte cria um estado que o jogo nunca produz.
+
+**Aceite:** com o modo debug desligado a rota responde 404 e o console não aparece; para quem não é host, 403; cada comando grava o efeito pelo caminho do jogo (linha no extrato, evento do governo) e recusa com o motivo nos limites acima; a posse e a SELIC sobrevivem ao replay do governo; o console autocompleta e guarda o histórico; `docs/docs/desenvolvimento/setup.md` lista os comandos e o uso pelo terminal.
 
 <a id="f315"></a>
 **F315 — Base das mecânicas de profissão.** Serve N39; segue a D23. A fundação onde cada profissão pendura a mecânica dela, só no motor: a página Profissão e os blocos das mecânicas moram no card "Página Profissão e os blocos das mecânicas", desenhados antes no canvas.
