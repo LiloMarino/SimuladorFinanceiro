@@ -206,6 +206,39 @@ Ligado, o modo debug:
 
 O servidor informa o modo em `GET /api/settings` (campo `debug`, somente leitura).
 
+### Console do modo debug
+
+Com o modo debug ligado, o host ganha um console de comandos para montar situações de teste sem esperar o jogo chegar nelas. Abra e feche com `´` (ou `` ` `` ou `~`, a tecla à esquerda do `1` e a do acento agudo, conforme o teclado). `Tab` completa o comando e os argumentos (jogadores da sala, ativos, títulos em oferta, imprevistos, siglas de partido), as setas para cima e para baixo voltam nos comandos já enviados, e `Esc` fecha.
+
+Os comandos valem para a partida em andamento (sem partida, o console recusa), levam o jogador pelo apelido e rodam sob o lock da partida:
+
+| Comando | O que faz |
+| --- | --- |
+| `help [comando]` | Lista os comandos, ou explica um. |
+| `add_cash <jogador> <valor>` | Soma ao caixa (negativo retira); o caixa não fica negativo. |
+| `set_cash <jogador> <valor>` | Leva o caixa ao valor, gravando a diferença como depósito ou saque. |
+| `give_stock <jogador> <ticker> <quantidade>` | Põe ativos na carteira ao preço do dia, sem debitar o caixa. |
+| `give_title <jogador> <título> <valor>` | Aplica em um título de renda fixa em oferta, sem debitar o caixa. |
+| `give_event <jogador> <evento>` | Aplica um imprevisto como se tivesse sido sorteado. A demissão grava o dia e vale como a sorteada: paga o FGTS, corta o salário do mês seguinte e aparece no resumo e no histórico da vida. |
+| `give_presidency <jogador>` | O jogador assume hoje a presidência pelo partido dele, até a próxima posse do calendário. |
+| `start_impeachment` | Abre o pedido de impeachment do presidente em exercício. |
+| `set_selic <taxa>` | Decide a SELIC de amanhã até a próxima reunião do Copom (só com a SELIC do governo). |
+| `join_party <jogador> <sigla>` | Filia o jogador a um partido, já valendo para a próxima eleição. |
+| `pass_exam <jogador>` | Garante a aprovação do Administrador inscrito no concurso. |
+| `unban_fund <jogador>` | Encerra a quarentena de 6 meses para fundar uma gestora. |
+
+Dá para chamar sem a interface, com o cookie `client_id` do host (porta 8000, ou a de `[server] port`):
+
+```bash
+# catálogo com as escolhas atuais de cada argumento
+curl -b "client_id=<id do host>" http://localhost:8000/api/debug/commands
+
+# uma linha de comando; a recusa volta como erro em português
+curl -b "client_id=<id do host>" -H "Content-Type: application/json"   -d '{"line": "add_cash murilo 10000"}' http://localhost:8000/api/debug/command
+```
+
+As duas rotas respondem 404 com o modo debug desligado e 403 para quem não é o host.
+
 
 ---
 

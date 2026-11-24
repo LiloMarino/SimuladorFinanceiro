@@ -514,6 +514,14 @@ class SimulationPlayers(Base):
     profession: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Sigla do partido que o Comissionado escolheu; nulo nas demais profissões
     party: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Dia em que a quarentena de fundar gestora foi encerrada à mão: afastamentos até ele deixam de bloquear
+    founding_ban_lifted_on: Mapped[datetime.date | None] = mapped_column(
+        Date, nullable=True
+    )
+    # Dias em que o console do modo debug forçou uma demissão do jogador; contam como as sorteadas
+    forced_layoff_days: Mapped[list[datetime.date]] = mapped_column(
+        ARRAY(Date), nullable=False, server_default=text("'{}'::date[]")
+    )
 
     user: Mapped["Users"] = relationship("Users", back_populates="simulation_players")
     simulation: Mapped["Simulations"] = relationship(

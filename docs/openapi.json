@@ -16335,6 +16335,110 @@
           }
         ]
       }
+    },
+    "/api/debug/commands": {
+      "get": {
+        "tags": [
+          "Debug"
+        ],
+        "summary": "Comandos do console",
+        "description": "O catálogo dos comandos do console do modo debug, com as escolhas atuais de cada argumento (jogadores, ativos, títulos em oferta, imprevistos, partidos). Só com o modo debug ligado e só para o host.",
+        "operationId": "get_debug_commands_api_debug_commands_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DebugCommandsDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
+    },
+    "/api/debug/command": {
+      "post": {
+        "tags": [
+          "Debug"
+        ],
+        "summary": "Rodar um comando do console",
+        "description": "Interpreta a linha (`add_cash murilo 10000`) e executa o comando na partida em andamento, sob o lock dela. Devolve a mensagem do comando; a recusa volta como erro em português. Só com o modo debug ligado e só para o host.",
+        "operationId": "run_debug_command_api_debug_command_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DebugCommandRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DebugCommandResultDTO"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "APIKeyCookie": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -23182,6 +23286,146 @@
         ],
         "title": "DebtSummaryDTO",
         "description": "A dívida do governo no último fechamento de mês."
+      },
+      "DebugArgumentDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "help": {
+            "type": "string",
+            "title": "Help"
+          },
+          "required": {
+            "type": "boolean",
+            "title": "Required"
+          },
+          "choices": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DebugChoiceDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Choices"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "help",
+          "required",
+          "choices"
+        ],
+        "title": "DebugArgumentDTO"
+      },
+      "DebugChoiceDTO": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "label"
+        ],
+        "title": "DebugChoiceDTO",
+        "description": "Um valor que o argumento aceita agora, com a descrição que o console mostra ao lado."
+      },
+      "DebugCommandDTO": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "help": {
+            "type": "string",
+            "title": "Help"
+          },
+          "arguments": {
+            "items": {
+              "$ref": "#/components/schemas/DebugArgumentDTO"
+            },
+            "type": "array",
+            "title": "Arguments"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "help",
+          "arguments"
+        ],
+        "title": "DebugCommandDTO"
+      },
+      "DebugCommandRequest": {
+        "properties": {
+          "line": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Line"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "line"
+        ],
+        "title": "DebugCommandRequest"
+      },
+      "DebugCommandResultDTO": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "DebugCommandResultDTO"
+      },
+      "DebugCommandsDTO": {
+        "properties": {
+          "commands": {
+            "items": {
+              "$ref": "#/components/schemas/DebugCommandDTO"
+            },
+            "type": "array",
+            "title": "Commands"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "commands"
+        ],
+        "title": "DebugCommandsDTO"
       },
       "DeclarationDTO": {
         "properties": {

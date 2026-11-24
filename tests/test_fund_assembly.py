@@ -2,7 +2,7 @@
 # ruff: noqa: F401, F811
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
@@ -536,6 +536,22 @@ def test_the_removed_manager_cannot_found_another_fund_for_six_months(
     assert setup.book.founding_blocked_until(ANA.id) is None
     setup.engine.current_date = date(2020, 7, 10)
     assert setup.book.founding_blocked_until(MANAGER_USER) is None
+
+
+def test_a_lifted_ban_frees_the_removed_manager_until_the_next_removal(
+    memory: MemoryFunds,
+):
+    setup = _assemblable(memory)
+    setup.book.convene_assembly(TICKER, ANA, None)
+    setup.book.cast_assembly_vote(TICKER, SWAP, BETO, True)
+    _close_all_sessions(setup)
+    removed_on = setup.engine.current_date
+
+    memory.ban_lifted[MANAGER_USER] = removed_on
+
+    assert setup.book.founding_blocked_until(MANAGER_USER) is None
+    memory.ban_lifted[MANAGER_USER] = removed_on - timedelta(days=1)
+    assert setup.book.founding_blocked_until(MANAGER_USER) == date(2020, 7, 10)
 
 
 def test_the_next_assembly_waits_three_months_from_the_end_of_the_last(

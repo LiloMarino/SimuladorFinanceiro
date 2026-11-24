@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 
 import pytest
@@ -26,6 +26,7 @@ from backend.core.professions import no_levers
 from backend.core.utils import next_business_day
 from backend.features.simulation.life_events import (
     layoff_factor_of,
+    layoff_in,
     overdraft_interest,
     salary_skipped,
     unexpected_on,
@@ -93,6 +94,73 @@ def test_a_layoff_skips_the_salary_of_the_next_month():
 
 def test_a_month_without_layoff_pays_the_salary():
     assert not salary_skipped(3, date(2020, 2, 1), 0, START, DEFAULT_LIFE_EVENTS)
+
+
+def test_a_forced_layoff_counts_like_a_drawn_one_in_its_month():
+    forced = date(2020, 2, 12)
+
+    assert (
+        layoff_in(3, forced, 0, START, DEFAULT_LIFE_EVENTS, forced=[forced]) == forced
+    )
+    assert salary_skipped(
+        3, date(2020, 3, 1), 0, START, DEFAULT_LIFE_EVENTS, forced=[forced]
+    )
+    assert not salary_skipped(
+        3, date(2020, 4, 1), 0, START, DEFAULT_LIFE_EVENTS, forced=[forced]
+    )
+
+
+def test_a_forced_layoff_after_the_cutoff_day_is_not_seen_yet():
+    forced = date(2020, 2, 12)
+
+    assert (
+        layoff_in(
+            3,
+            forced,
+            0,
+            START,
+            DEFAULT_LIFE_EVENTS,
+            until=date(2020, 2, 11),
+            forced=[forced],
+        )
+        is None
+    )
+
+
+def test_the_earlier_of_the_drawn_and_the_forced_layoff_wins():
+    drawn = next(
+        day
+        for day in YEARS
+        if day.day > 5
+        and (event := unexpected_on(3, day, 6, DEFAULT_LIFE_EVENTS))
+        and event.key == "LAYOFF"
+    )
+    month = drawn.replace(day=1)
+    forced_before = drawn - timedelta(days=3)
+    forced_after = drawn + timedelta(days=3)
+
+    def in_month(forced: list[date]) -> date | None:
+        return layoff_in(3, month, 6, START, DEFAULT_LIFE_EVENTS, forced=forced)
+
+    assert in_month([forced_after]) == drawn
+    assert in_month([forced_before]) == forced_before
+    assert in_month([forced_after, forced_before]) == forced_before
+
+
+def test_without_forced_days_the_month_keeps_the_drawn_layoff():
+    for month in (date(2020, 2, 1), date(2020, 7, 1), date(2021, 1, 1)):
+        expected = next(
+            (
+                day
+                for day in YEARS
+                if (day.year, day.month) == (month.year, month.month)
+                and (event := unexpected_on(3, day, 6, DEFAULT_LIFE_EVENTS))
+                and event.effect is LifeEventEffect.SKIP_NEXT_SALARY
+            ),
+            None,
+        )
+
+        assert layoff_in(3, month, 6, START, DEFAULT_LIFE_EVENTS) == expected
 
 
 FINE = LifeEventTypeDTO(

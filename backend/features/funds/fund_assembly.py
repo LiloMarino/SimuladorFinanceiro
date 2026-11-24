@@ -326,6 +326,11 @@ class FundAssemblies:
         removed_on = repository.fund.last_removal(self._simulation_id, user_id)
         if removed_on is None:
             return None
+        lifted_on = repository.simulation_player.founding_ban_lifted_on(
+            self._simulation_id, user_id
+        )
+        if lifted_on is not None and removed_on <= lifted_on:
+            return None
         until = add_months(removed_on, FOUNDING_BAN_MONTHS)
         return until if today < until else None
 

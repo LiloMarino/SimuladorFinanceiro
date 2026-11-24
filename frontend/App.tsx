@@ -72,6 +72,7 @@ import { GuardLayout } from "./layouts/guard-layout";
 import { SimulationModeLayout } from "./layouts/simulation-mode-layout";
 import { queryClient } from "@/shared/lib/queryClient";
 import { DebugTools } from "@/shared/components/debug-tools";
+import { DebugConsole } from "@/features/debug-console/components/debug-console";
 import { TreasuryIcon } from "@/shared/components/icons/treasury-icon";
 
 const navItems: NavItem[] = [
@@ -185,6 +186,7 @@ export default function App() {
               <GovernmentNotifications />
               <SummaryNotifications />
               <DebugTools />
+              <DebugConsole />
               <PageLabelProvider routeLabels={routeLabels}>
                 <SimulationProvider>
                   <TutorialProvider>

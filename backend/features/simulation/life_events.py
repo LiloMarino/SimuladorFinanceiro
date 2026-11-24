@@ -84,21 +84,37 @@ def layoff_in(
     until: date | None = None,
     layoff_factor_on: Callable[[date], float] = neutral_layoff_factor,
     frequencies: LifeFrequenciesDTO = NORMAL_FREQUENCIES,
+    forced: Sequence[date] = (),
 ) -> date | None:
-    """O pregão do mês de `month` (a partir do início da partida e até `until`) em que saiu uma demissão."""
+    """
+    O dia do mês de `month` (a partir do início da partida e até `until`) em que houve
+    uma demissão: a sorteada num pregão ou uma forçada em `forced`, a que vier primeiro.
+    Todo leitor da demissão do mês passa por aqui.
+    """
     first = month.replace(day=1)
+    forced_day = min(
+        (
+            day
+            for day in forced
+            if (day.year, day.month) == (first.year, first.month)
+            and (until is None or day <= until)
+        ),
+        default=None,
+    )
     day = max(first, start_date)
     day = day if is_business_day(day) else next_business_day(day)
     while (day.year, day.month) == (first.year, first.month) and (
         until is None or day <= until
     ):
+        if forced_day is not None and day >= forced_day:
+            break
         event = unexpected_on(
             seed, day, per_year, events, layoff_factor_on(day), frequencies
         )
         if event is not None and event.effect is LifeEventEffect.SKIP_NEXT_SALARY:
             return day
         day = next_business_day(day)
-    return None
+    return forced_day
 
 
 def salary_skipped(
@@ -109,8 +125,9 @@ def salary_skipped(
     events: Sequence[LifeEventTypeDTO],
     layoff_factor_on: Callable[[date], float] = neutral_layoff_factor,
     frequencies: LifeFrequenciesDTO = NORMAL_FREQUENCIES,
+    forced: Sequence[date] = (),
 ) -> bool:
-    """O salário de `month` não entra quando saiu uma demissão em algum pregão do mês anterior."""
+    """O salário de `month` não entra quando houve uma demissão, sorteada ou forçada, no mês anterior."""
     previous = month.replace(day=1) - timedelta(days=1)
     return (
         layoff_in(
@@ -121,6 +138,7 @@ def salary_skipped(
             events=events,
             layoff_factor_on=layoff_factor_on,
             frequencies=frequencies,
+            forced=forced,
         )
         is not None
     )

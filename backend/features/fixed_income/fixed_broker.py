@@ -152,6 +152,15 @@ class FixedBroker:
             return self._assets[client_id]
 
     def buy(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal):
+        self._invest(client_id, asset, value, paid=True)
+
+    def grant(self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal):
+        """O título de graça: a mesma posição e o mesmo registro da compra, sem o débito do caixa."""
+        self._invest(client_id, asset, value, paid=False)
+
+    def _invest(
+        self, client_id: UUID, asset: FixedIncomeAssetDTO, value: Decimal, *, paid: bool
+    ):
         if value <= 0:
             raise UnprocessableEntityError(
                 "Valor do investimento deve ser maior que zero"
@@ -181,12 +190,12 @@ class FixedBroker:
                         f"e você já aplicou {format_money(applied)}: "
                         f"cabem mais {format_money(room)}."
                     )
-            if self._simulation_engine.get_cash(client_id) < value:
-                raise InsufficentCashError(
-                    f"Saldo insuficiente para investir em {asset.name}"
-                )
-
-            self._simulation_engine.add_cash(client_id, -value)
+            if paid:
+                if self._simulation_engine.get_cash(client_id) < value:
+                    raise InsufficentCashError(
+                        f"Saldo insuficiente para investir em {asset.name}"
+                    )
+                self._simulation_engine.add_cash(client_id, -value)
 
             quotes = self._simulation_engine.fixed_quotes()
             policy = self._simulation_engine.tax_policy_on(today)

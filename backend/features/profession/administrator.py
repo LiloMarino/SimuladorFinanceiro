@@ -80,7 +80,7 @@ def exam_due(state: AdministratorState, day: date) -> bool:
 
 def clear_exam(state: AdministratorState) -> AdministratorState:
     """O estado depois do resultado reprovado: a renda volta ao normal e uma nova inscrição fica livre."""
-    return state.model_copy(update={"exam_enrolled_on": None})
+    return state.model_copy(update={"exam_enrolled_on": None, "exam_approved": False})
 
 
 def grow_experience(state: AdministratorState) -> AdministratorState:

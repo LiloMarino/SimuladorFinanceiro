@@ -127,6 +127,7 @@ class MemoryFunds:
     distributions_saved: dict[int, list[FundDistributionDTO]] = field(
         default_factory=dict
     )
+    ban_lifted: dict[int, date] = field(default_factory=dict)
     next_id: int = 1
 
     @property
@@ -417,6 +418,11 @@ def memory(monkeypatch: pytest.MonkeyPatch) -> MemoryFunds:
     monkeypatch.setattr(repository, "fund", memory)
     monkeypatch.setattr(repository, "fund_comanager", MemoryComanagers())
     monkeypatch.setattr(repository, "fund_directed_issuance", MemoryDirectedIssuances())
+    monkeypatch.setattr(
+        repository.simulation_player,
+        "founding_ban_lifted_on",
+        lambda _simulation_id, user_id: memory.ban_lifted.get(user_id),
+    )
     return memory
 
 

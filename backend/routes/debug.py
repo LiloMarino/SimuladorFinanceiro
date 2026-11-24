@@ -6,11 +6,17 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from backend import config
+from backend.core.dto.debug_console import (
+    DebugCommandRequest,
+    DebugCommandResultDTO,
+    DebugCommandsDTO,
+)
 from backend.core.exceptions.http_exceptions import ConflictError, NotFoundError
 from backend.core.metrics import metrics
 from backend.core.profiling import profiler
 from backend.core.runtime.user_manager import UserManager
-from backend.routes.dependencies import HostVerified
+from backend.features.debug_console import service as console
+from backend.routes.dependencies import ActiveSimulation, HostVerified
 
 
 def require_debug() -> None:
@@ -258,3 +264,36 @@ def stop_engine_profile(_debug: DebugOnly, _host: HostVerified) -> EngineProfile
         raise ConflictError("O perfil do motor não está sendo gravado.")
     path = profiler.stop_engine()
     return EngineProfileSaved(file=path.as_posix() if path else None)
+
+
+@debug_router.get(
+    "/commands",
+    summary="Comandos do console",
+    description=(
+        "O catálogo dos comandos do console do modo debug, com as escolhas atuais de "
+        "cada argumento (jogadores, ativos, títulos em oferta, imprevistos, partidos). "
+        "Só com o modo debug ligado e só para o host."
+    ),
+)
+def get_debug_commands(
+    _debug: DebugOnly, _host: HostVerified, simulation: ActiveSimulation
+) -> DebugCommandsDTO:
+    return console.catalog(simulation)
+
+
+@debug_router.post(
+    "/command",
+    summary="Rodar um comando do console",
+    description=(
+        "Interpreta a linha (`add_cash murilo 10000`) e executa o comando na partida "
+        "em andamento, sob o lock dela. Devolve a mensagem do comando; a recusa volta "
+        "como erro em português. Só com o modo debug ligado e só para o host."
+    ),
+)
+def run_debug_command(
+    payload: DebugCommandRequest,
+    _debug: DebugOnly,
+    _host: HostVerified,
+    simulation: ActiveSimulation,
+) -> DebugCommandResultDTO:
+    return console.run(simulation, payload.line)

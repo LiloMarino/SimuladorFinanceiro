@@ -318,16 +318,19 @@ def _living(
             periods_of=lambda _user: [],
         ),
         _property_book=SimpleNamespace(of=lambda _user: []),
+        _forced_layoffs={},
     )
     living = cast(Simulation, fake)
     fake._layoff_factor = partial(Simulation._layoff_factor, living)
     fake._layoff_factor_for = partial(Simulation._layoff_factor_for, living)
+    fake._forced_layoffs_of = partial(Simulation._forced_layoffs_of, living)
     fake._profession_of = partial(Simulation._profession_of, living)
     fake._with_party = partial(Simulation._with_party, living)
     fake._profession_periods = partial(Simulation._profession_periods, living)
     fake._mechanic_state_of = partial(Simulation._mechanic_state_of, living)
     fake._with_mechanic = partial(Simulation._with_mechanic, living)
     fake._run_bot_policies = partial(Simulation._run_bot_policies, living)
+    fake._apply_life_event = partial(Simulation._apply_life_event, living)
     fake._clt_state_of = partial(Simulation._clt_state_of, living)
     fake._end_overtime_in_recession = partial(
         Simulation._end_overtime_in_recession, living

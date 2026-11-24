@@ -12,7 +12,7 @@ from decimal import Decimal
 from uuid import UUID, uuid4
 
 from backend.core import repository
-from backend.core.copom import next_meeting, to_step
+from backend.core.copom import meeting_days, next_meeting, to_step
 from backend.core.dto.candle import CandleDTO
 from backend.core.dto.events.government import GovernmentEventDTO
 from backend.core.dto.government import (
@@ -122,6 +122,7 @@ from backend.features.government.state import (
     GovernmentState,
     Measure,
     Party,
+    Term,
     apply,
     replay,
 )
@@ -906,7 +907,7 @@ class GovernmentBook:
         self._settle_term_end(today)
         pending = self.state.pending_term
         if pending is not None and today >= pending.start:
-            self._start_term(today, people)
+            self._start_term(today, people, pending)
 
         cycle = self.cycle()
         self._weigh_promises(cycle, today)
@@ -1209,7 +1210,9 @@ class GovernmentBook:
         party_id: int,
         contribution: Decimal,
         congress: Decimal = Decimal(0),
+        joined_on: date | None = None,
     ) -> None:
+        """Filia o jogador; `joined_on` é o dia que a filiação conta para o prazo da eleição (hoje, quando omitido)."""
         self._ensure_person(user)
         self._ensure_membership_open()
         self._ensure_without_party(user)
@@ -1219,7 +1222,7 @@ class GovernmentBook:
             raise ConflictError("O partido do computador não aceita filiados.")
         self._emit(
             GovernmentEventType.PARTY_JOINED,
-            today,
+            joined_on or today,
             party_id=party.id,
             user_id=user.id,
             contribution=str(contribution),
@@ -1320,6 +1323,99 @@ class GovernmentBook:
         if reason is not None:
             raise ConflictError(reason)
         self._request_impeachment(today, party)
+
+    # Console do modo debug: cada ação segue o caminho do jogo e grava o evento dele
+
+    def join_for_next_election(self, user: UserDTO, today: date, abbr: str) -> None:
+        """Filia o jogador ao partido da sigla com a filiação já valendo para a eleição em curso: conta como feita no último dia do prazo."""
+        party = next((p for p in self.state.parties.values() if p.abbr == abbr), None)
+        if party is None:
+            raise NotFoundError(f"Não existe partido com a sigla {abbr}.")
+        deadline = self.cycle().affiliation_deadline
+        self.join_party(
+            user, today, party.id, Decimal(0), joined_on=min(today, deadline)
+        )
+
+    def assume_presidency(self, user: UserDTO, today: date) -> None:
+        """
+        O jogador assume hoje pelo partido dele, com os efeitos de uma troca de mandato, e
+        governa até a próxima posse do calendário.
+        """
+        party = self.state.party_of(user.id)
+        if party is None:
+            raise ConflictError(
+                f"{user.nickname} não está em um partido: filie-se com join_party antes."
+            )
+        president = self.president()
+        if president is not None and president.id == user.id:
+            raise ConflictError(f"{user.nickname} já é o presidente.")
+        pending = self.state.pending_term
+        if pending is not None:
+            raise ConflictError(
+                f"O sucessor eleito toma posse em {pending.start:%d/%m/%Y}: a "
+                "presidência só muda depois dela."
+            )
+        self._people[user.id] = user
+        incoming = Term(
+            party_id=party.id,
+            president_id=user.id,
+            vice_id=None,
+            start=today,
+            consecutive=1,
+        )
+        self._start_term(today, self._people, incoming)
+
+    def open_impeachment(self, today: date) -> None:
+        """Abre o pedido de impeachment como no 6º fechamento abaixo do piso; a casa vota no dia de votação do mês seguinte."""
+        term = self.state.term
+        if term is None or term.president_id is None:
+            raise ConflictError(
+                "Não há presidente jogador em exercício para sofrer o impeachment."
+            )
+        if self.state.request is not None:
+            raise ConflictError("Já há um pedido de impeachment aberto.")
+        self._request_impeachment(today)
+
+    def force_selic(self, today: date, selic: Decimal) -> None:
+        """
+        Grava uma decisão do Copom valendo a partir de amanhã, com a credibilidade de
+        hoje. O calendário das reuniões segue o mesmo: a decisão conta como tomada na
+        reunião anterior à próxima, e a regra normal decide de novo nela.
+        """
+        if self._settings.selic_control is not SelicControl.GOVERNMENT:
+            raise ConflictError(
+                "Nesta partida a SELIC é do Banco Central autônomo: o Copom do "
+                "governo não decide."
+            )
+        if selic != to_step(selic):
+            raise UnprocessableEntityError("A SELIC anda em passos de 0,25 ponto.")
+        floor = self.selic_floor(today)
+        if selic < floor:
+            raise UnprocessableEntityError(
+                f"A SELIC não desce de {rules.percent(floor)} hoje."
+            )
+        tomorrow = today + timedelta(days=1)
+        upcoming = next_meeting(tomorrow)
+        held = max(
+            day
+            for year in (upcoming.year - 1, upcoming.year)
+            for day in meeting_days(year)
+            if day < upcoming
+        )
+        marked = self.state.selic_plan
+        self._emit(
+            GovernmentEventType.SELIC_DECIDED,
+            today,
+            selic=str(selic),
+            previous=str(self.selic_now(today)),
+            credibility=str(self.state.selic_board.credibility_on(tomorrow)),
+            meeting=held.isoformat(),
+        )
+        # A SELIC que o presidente marcou para a próxima reunião continua marcada
+        if marked is not None:
+            self._emit(GovernmentEventType.SELIC_SET, today, selic=str(marked))
+        self._linked.layer.refresh_from(tomorrow)
+        self._notice(GovernmentNoticeKind.UPDATED)
 
     def impeachment_block(self, party: Party, today: date) -> str | None:
         """Por que o partido não pode pedir o impeachment hoje; nulo quando pode."""
@@ -1485,6 +1581,10 @@ class GovernmentBook:
         return frozenset(
             {*house.COMPUTER_KEYS, *(p.abbr for p in self.state.player_parties())}
         )
+
+    def joinable_abbrs(self) -> list[str]:
+        """As siglas dos partidos fundados por jogadores, os únicos que aceitam filiado."""
+        return sorted(p.abbr for p in self.state.player_parties())
 
     def is_aligned(self, abbr: str, day: date) -> bool:
         """O partido da sigla governa ou tem acordo de apoio em vigor no dia; a posse do dia só vale a partir do seguinte."""
@@ -5061,8 +5161,10 @@ class GovernmentBook:
         leader = max(finalists, key=lambda f: (first_round.get(f, Decimal(0)), -f))
         return self._party_abbr(leader) if leader != winner else None
 
-    def _start_term(self, today: date, people: dict[int, UserDTO]) -> None:
-        pending = required(self.state.pending_term)
+    def _start_term(
+        self, today: date, people: dict[int, UserDTO], incoming: Term
+    ) -> None:
+        """A posse de `incoming`: o legado do mandato que sai, a troca do governo em vigor, o aviso e a manchete."""
         # O presidente do mandato que acaba, lido antes de a posse trocar o mandato em curso
         out = self.president()
         # O legado é pago com a aprovação e o presidente do mandato que acaba: a posse
@@ -5071,18 +5173,18 @@ class GovernmentBook:
         self._emit(
             GovernmentEventType.TERM_STARTED,
             today,
-            party_id=pending.party_id,
-            president_id=pending.president_id,
-            vice_id=pending.vice_id,
-            consecutive=pending.consecutive,
+            party_id=incoming.party_id,
+            president_id=incoming.president_id,
+            vice_id=incoming.vice_id,
+            consecutive=incoming.consecutive,
         )
-        president = people.get(pending.president_id) if pending.president_id else None
+        president = people.get(incoming.president_id) if incoming.president_id else None
         # Sem reeleição o ex-presidente retoma o que a posse dele congelou, antes da posse do sucessor
         if out is not None and (president is None or president.id != out.id):
             self._on_leave_office(out, today)
         if president is not None:
             self._on_office(president, today)
-        party = self.state.parties.get(pending.party_id) if pending.party_id else None
+        party = self.state.parties.get(incoming.party_id) if incoming.party_id else None
         # O aviso da posse leva o nome do presidente: o computador usa o nome da chapa, o jogador o apelido
         name = president.nickname if president else None
         if party is not None and party.is_computer:

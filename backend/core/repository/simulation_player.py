@@ -1,4 +1,6 @@
-from sqlalchemy import select
+from datetime import date
+
+from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -106,6 +108,65 @@ class SimulationPlayerRepository:
             )
         ).all()
         return {user_id: party for user_id, party in rows if party is not None}
+
+    @transactional
+    def founding_ban_lifted_on(
+        self, session: Session, simulation_id: int, user_id: int
+    ) -> date | None:
+        """O dia em que a quarentena de fundar gestora foi encerrada à mão; nulo quando nunca foi."""
+        return session.execute(
+            select(SimulationPlayers.founding_ban_lifted_on).where(
+                SimulationPlayers.simulation_id == simulation_id,
+                SimulationPlayers.user_id == user_id,
+            )
+        ).scalar_one_or_none()
+
+    @transactional
+    def lift_founding_ban(
+        self, session: Session, simulation_id: int, user_id: int, day: date
+    ) -> None:
+        """Encerra a quarentena de `user_id` em `day`: os afastamentos até esse dia deixam de bloquear."""
+        session.execute(
+            update(SimulationPlayers)
+            .where(
+                SimulationPlayers.simulation_id == simulation_id,
+                SimulationPlayers.user_id == user_id,
+            )
+            .values(founding_ban_lifted_on=day)
+        )
+
+    @transactional
+    def forced_layoffs(
+        self, session: Session, simulation_id: int
+    ) -> dict[int, tuple[date, ...]]:
+        """Os dias de demissão forçada de cada jogador da partida (user_id -> dias em ordem); quem não tem fica de fora."""
+        rows = session.execute(
+            select(SimulationPlayers.user_id, SimulationPlayers.forced_layoff_days)
+            .where(
+                SimulationPlayers.simulation_id == simulation_id,
+                func.cardinality(SimulationPlayers.forced_layoff_days) > 0,
+            )
+            .order_by(SimulationPlayers.user_id)
+        ).all()
+        return {user_id: tuple(sorted(days)) for user_id, days in rows}
+
+    @transactional
+    def add_forced_layoff(
+        self, session: Session, simulation_id: int, user_id: int, day: date
+    ) -> None:
+        """Registra a demissão forçada de `user_id` em `day`."""
+        session.execute(
+            update(SimulationPlayers)
+            .where(
+                SimulationPlayers.simulation_id == simulation_id,
+                SimulationPlayers.user_id == user_id,
+            )
+            .values(
+                forced_layoff_days=func.array_append(
+                    SimulationPlayers.forced_layoff_days, day
+                )
+            )
+        )
 
     @transactional
     def participants(self, session: Session, simulation_id: int) -> list[UserDTO]:

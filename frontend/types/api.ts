@@ -194,6 +194,12 @@ export type AppFolderTarget = keyof AppFolders;
 // Modo debug: definido no boot do servidor, só leitura
 export type DebugMode = components["schemas"]["SettingsResponse"]["debug"];
 
+// Console do modo debug
+export type DebugCommands = components["schemas"]["DebugCommandsDTO"];
+export type DebugCommand = DebugCommands["commands"][number];
+export type DebugChoice = NonNullable<DebugCommand["arguments"][number]["choices"]>[number];
+export type DebugCommandResult = components["schemas"]["DebugCommandResultDTO"];
+
 // Painel de desempenho
 export type MetricsData = components["schemas"]["MetricsResponse"];
 export type MetricItem = components["schemas"]["MetricItem"];

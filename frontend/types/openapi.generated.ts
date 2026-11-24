@@ -5388,6 +5388,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/debug/commands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Comandos do console
+         * @description O catálogo dos comandos do console do modo debug, com as escolhas atuais de cada argumento (jogadores, ativos, títulos em oferta, imprevistos, partidos). Só com o modo debug ligado e só para o host.
+         */
+        get: operations["get_debug_commands_api_debug_commands_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/debug/command": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Rodar um comando do console
+         * @description Interpreta a linha (`add_cash murilo 10000`) e executa o comando na partida em andamento, sob o lock dela. Devolve a mensagem do comando; a recusa volta como erro em português. Só com o modo debug ligado e só para o host.
+         */
+        post: operations["run_debug_command_api_debug_command_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -7758,6 +7798,51 @@ export interface components {
             stabilizing_primary: string;
             /** History Stabilizing Primary */
             history_stabilizing_primary: string;
+        };
+        /** DebugArgumentDTO */
+        DebugArgumentDTO: {
+            /** Name */
+            name: string;
+            /** Help */
+            help: string;
+            /** Required */
+            required: boolean;
+            /** Choices */
+            choices: components["schemas"]["DebugChoiceDTO"][] | null;
+        };
+        /**
+         * DebugChoiceDTO
+         * @description Um valor que o argumento aceita agora, com a descrição que o console mostra ao lado.
+         */
+        DebugChoiceDTO: {
+            /** Value */
+            value: string;
+            /** Label */
+            label: string | null;
+        };
+        /** DebugCommandDTO */
+        DebugCommandDTO: {
+            /** Name */
+            name: string;
+            /** Help */
+            help: string;
+            /** Arguments */
+            arguments: components["schemas"]["DebugArgumentDTO"][];
+        };
+        /** DebugCommandRequest */
+        DebugCommandRequest: {
+            /** Line */
+            line: string;
+        };
+        /** DebugCommandResultDTO */
+        DebugCommandResultDTO: {
+            /** Message */
+            message: string;
+        };
+        /** DebugCommandsDTO */
+        DebugCommandsDTO: {
+            /** Commands */
+            commands: components["schemas"]["DebugCommandDTO"][];
         };
         /** DeclarationDTO */
         DeclarationDTO: {
@@ -29984,6 +30069,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EngineProfileSaved"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_debug_commands_api_debug_commands_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DebugCommandsDTO"];
+                };
+            };
+            /** @description Unprocessable Content */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    run_debug_command_api_debug_command_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DebugCommandRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DebugCommandResultDTO"];
                 };
             };
             /** @description Unprocessable Content */

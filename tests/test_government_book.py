@@ -2377,14 +2377,15 @@ def legacy(book: GovernmentBook, office: list[int]) -> list[tuple[str, int, Deci
 
 def turn_over(book: GovernmentBook, *, president_id: int, consecutive: int) -> None:
     """Chega a posse seguinte: o mandato que acaba em 31 de dezembro dá lugar ao eleito."""
-    book.state.pending_term = Term(
+    incoming = Term(
         party_id=required(book.state.term).party_id,
         president_id=president_id,
         vice_id=None,
         start=date(2026, 1, 1),
         consecutive=consecutive,
     )
-    book._start_term(date(2026, 1, 5), {user.id: user for user in USERS})
+    book.state.pending_term = incoming
+    book._start_term(date(2026, 1, 5), {user.id: user for user in USERS}, incoming)
 
 
 def test_the_legacy_reaches_the_match_when_the_term_ends(

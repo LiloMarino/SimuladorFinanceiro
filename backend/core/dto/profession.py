@@ -250,6 +250,8 @@ class AdministratorState(MechanicState):
     switch_started_on: date | None = None
     # O dia da inscrição no concurso; nulo sem estudo em andamento
     exam_enrolled_on: date | None = None
+    # A inscrição em andamento já tem a aprovação garantida; sai com o resultado
+    exam_approved: bool = False
     # O volume e os Corretores do mês que fechou, como no estado do Corretor
     volume: Decimal = Decimal(0)
     brokers: int = 0

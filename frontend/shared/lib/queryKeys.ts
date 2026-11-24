@@ -91,6 +91,7 @@ export const queryKeys = {
   notificationCatalog: () => ["settings", "notification-types"] as const,
   debugMode: () => ["settings", "debug"] as const,
   appFolders: () => ["settings", "folders"] as const,
+  debugCommands: () => ["debug", "commands"] as const,
   debugMetrics: () => ["debug", "metrics"] as const,
   debugEngineProfile: () => ["debug", "engine-profile"] as const,
   debugRouteProfiles: () => ["debug", "route-profiles"] as const,

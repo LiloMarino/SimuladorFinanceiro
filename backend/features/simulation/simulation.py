@@ -670,6 +670,8 @@ class Simulation:
         # da partida na primeira vez e refeitos quando entra jogador
         self._parties: dict[int, str] = {}
         self._offer_bankers: list[UUID] | None = None
+        # Os dias de demissão forçada pelo console do modo debug (user_id -> dias), lidos da partida na primeira consulta
+        self._forced_layoffs: dict[int, tuple[date, ...]] | None = None
         # As recomendações da casa sem desfecho e os meses com relatório, lidos do banco na primeira consulta
         self._house_open: list[HouseRecommendationDTO] | None = None
         self._house_months: set[date] | None = None
@@ -2479,6 +2481,162 @@ class Simulation:
             return budget.as_president(presidency.SALARY_MULTIPLE)
         return budget
 
+    # Console do modo debug: cada ação passa pelo caminho do jogo, sob o lock da partida
+
+    @synchronized
+    def debug_add_cash(self, user: UserDTO, amount: Decimal) -> Decimal:
+        """Soma `amount` (negativo retira) ao caixa do jogador, com depósito ou saque no extrato; devolve o caixa novo."""
+        if amount == 0:
+            raise UnprocessableEntityError("O valor não pode ser zero.")
+        cash = self._engine.get_cash(user.client_id)
+        if cash + amount < 0:
+            raise ConflictError(
+                f"O caixa de {user.nickname} ficaria negativo: hoje ele tem "
+                f"{format_money(cash)}."
+            )
+        self._engine.add_cash(user.client_id, amount)
+        EventManager.flush()
+        return cash + amount
+
+    @synchronized
+    def debug_set_cash(self, user: UserDTO, amount: Decimal) -> Decimal:
+        """Leva o caixa do jogador a `amount` gravando a diferença como depósito ou saque; devolve a diferença."""
+        if amount < 0:
+            raise UnprocessableEntityError("O caixa não pode ficar negativo.")
+        difference = amount - self._engine.get_cash(user.client_id)
+        if difference != 0:
+            self._engine.add_cash(user.client_id, difference)
+            EventManager.flush()
+        return difference
+
+    @synchronized
+    def debug_give_stock(
+        self, user: UserDTO, ticker: str, quantity: Decimal
+    ) -> Decimal:
+        """Põe `quantity` do ativo na carteira do jogador pelo preço de fechamento do dia, sem debitar o caixa; devolve esse preço."""
+        if ticker not in self._engine.stocks:
+            raise NotFoundError(f"O ativo {ticker} não existe nesta partida.")
+        if quantity <= 0:
+            raise UnprocessableEntityError("A quantidade deve ser maior que zero.")
+        self._engine.check_quantity(ticker, quantity)
+        last = self._engine.matching_engine.market_data.get_last(ticker)
+        if last is None:
+            raise ConflictError(f"O ativo {ticker} ainda não tem preço hoje.")
+        price = to_money(last.close)
+        self._engine.broker.receive_position(user.client_id, ticker, quantity, price)
+        EventManager.flush()
+        return price
+
+    @synchronized
+    def debug_titles(self, client_id: UUID | None) -> dict[str, FixedIncomeAssetDTO]:
+        """Os títulos de renda fixa em oferta, pelo código curto (8 primeiros caracteres do id); com `client_id`, também o CDB da casa dele."""
+        market = self._engine.fixed_income_market
+        offered = market.get_available_assets()
+        if client_id is not None:
+            offered = [*offered, *market.get_house_assets(client_id)]
+        return {str(asset.asset_uuid)[:8]: asset for asset in offered}
+
+    def debug_tickers(self) -> list[str]:
+        """Os códigos dos ativos da partida, em ordem alfabética."""
+        return sorted(self._engine.stocks)
+
+    def debug_life_events(self) -> list[LifeEventTypeDTO]:
+        """Os tipos de imprevisto da partida; vazio quando ela não tem imprevistos."""
+        return list(self.settings.life_events) if self._life is not None else []
+
+    @synchronized
+    def debug_give_title(
+        self, user: UserDTO, code: str, value: Decimal
+    ) -> FixedIncomeAssetDTO:
+        """Aplica `value` no título de código `code` sem debitar o caixa; recusa título fora da oferta."""
+        asset = self.debug_titles(user.client_id).get(code)
+        if asset is None:
+            raise NotFoundError(f"O título {code} não está em oferta.")
+        self._engine.fixed_broker.grant(user.client_id, asset, value)
+        EventManager.flush()
+        return asset
+
+    @synchronized
+    def debug_give_event(self, user: UserDTO, key: str) -> Decimal:
+        """Aplica ao jogador o imprevisto `key` como se tivesse sido sorteado; devolve o valor aplicado."""
+        if self._life is None:
+            raise ConflictError("Esta partida não tem imprevistos.")
+        event = next((e for e in self.settings.life_events if e.key == key), None)
+        if event is None:
+            raise NotFoundError(f"O imprevisto {key} não existe nesta partida.")
+        budget = self._life_budget(self._life, user.id)
+        if (
+            event.effect is LifeEventEffect.SKIP_NEXT_SALARY
+            and budget.income_loss() is None
+        ):
+            raise ConflictError(
+                f"{user.nickname} não sente a demissão: a profissão, o cargo ou a "
+                "bolsa dele não perde renda com ela."
+            )
+        if event.effect is LifeEventEffect.SKIP_NEXT_SALARY:
+            self._record_forced_layoff(user.id)
+        amount = self._apply_life_event(event, user, budget)
+        EventManager.flush()
+        return amount
+
+    def _record_forced_layoff(self, user_id: int) -> None:
+        """Grava o dia de hoje como demissão do jogador: o salário do mês seguinte e o resumo da vida a contam como uma sorteada."""
+        day = self._current_date
+        known = self._forced_layoffs_of(user_id)
+        repository.simulation_player.add_forced_layoff(self.settings.id, user_id, day)
+        self._forced_layoffs = {**(self._forced_layoffs or {}), user_id: (*known, day)}
+
+    @synchronized
+    def debug_pass_exam(self, user: UserDTO) -> None:
+        """Garante a aprovação da inscrição aberta do Administrador no concurso; o resultado sai na data de sempre."""
+        state = self._administrator_state_of(user)
+        if state is None:
+            raise ConflictError(f"{user.nickname} não é Administrador.")
+        if not state.studying:
+            raise ConflictError(
+                f"{user.nickname} não tem inscrição aberta no concurso."
+            )
+        self._profession_book.save_state(
+            user.id, state.model_copy(update={"exam_approved": True})
+        )
+
+    @synchronized
+    def debug_unban_fund(self, user: UserDTO) -> None:
+        """Encerra a quarentena de 6 meses de quem foi afastado da gestão de uma gestora."""
+        if self._funds is None:
+            raise ConflictError("Esta partida não usa gestoras.")
+        if self._funds.founding_blocked_until(user.id) is None:
+            raise ConflictError(f"{user.nickname} não está em quarentena para fundar.")
+        repository.simulation_player.lift_founding_ban(
+            self.settings.id, user.id, self._current_date
+        )
+
+    @synchronized
+    def debug_join_party(self, user: UserDTO, abbr: str) -> None:
+        """Filia o jogador ao partido da sigla, já valendo para a eleição em curso."""
+        if user.is_bot:
+            raise ConflictError("Bot não se filia.")
+        self._ensure_government().join_for_next_election(user, self._current_date, abbr)
+
+    @synchronized
+    def debug_assume_presidency(self, user: UserDTO) -> None:
+        """O jogador assume a presidência hoje pelo partido dele, até a próxima posse do calendário."""
+        self._ensure_government().assume_presidency(user, self._current_date)
+
+    @synchronized
+    def debug_start_impeachment(self) -> None:
+        """Abre o pedido de impeachment do presidente em exercício."""
+        self._ensure_government().open_impeachment(self._current_date)
+
+    @synchronized
+    def debug_set_selic(self, selic: Decimal) -> None:
+        """A decisão do Copom: `selic` vale de amanhã até a próxima reunião."""
+        self._ensure_government().force_selic(self._current_date, selic)
+
+    def debug_party_abbrs(self) -> list[str]:
+        """As siglas dos partidos de jogadores que aceitam filiação; vazio sem o Governo & Política."""
+        return [] if self._government is None else self._government.joinable_abbrs()
+
     def _ensure_government(self) -> GovernmentBook:
         if self._government is None:
             raise ConflictError("Esta partida não usa a expansão Governo & Política.")
@@ -3375,13 +3533,15 @@ class Simulation:
             self._run_administrator_month(users, day)
         self._conclude_property_sales(users, day)
         budgets = {user.client_id: self._life_budget(life, user.id) for user in users}
-        skipped_by_weight: dict[Decimal, bool] = {}
+        skipped_by_key: dict[tuple[Decimal, tuple[date, ...]], bool] = {}
         event_by_weight: dict[Decimal, LifeEventTypeDTO | None] = {}
 
-        def skipped_for(budget: LifeBudget) -> bool:
-            weight = budget.layoff_weight_on(day)
-            if weight not in skipped_by_weight:
-                skipped_by_weight[weight] = salary_skipped(
+        def skipped_for(user: UserDTO, budget: LifeBudget) -> bool:
+            # Jogadores com o mesmo peso e os mesmos dias forçados dividem o resultado
+            forced = self._forced_layoffs_of(user.id)
+            key = (budget.layoff_weight_on(day), forced)
+            if key not in skipped_by_key:
+                skipped_by_key[key] = salary_skipped(
                     self._random_seed,
                     day,
                     per_year,
@@ -3389,8 +3549,9 @@ class Simulation:
                     self.settings.life_events,
                     layoff_factor_on=self._layoff_factor_for(budget),
                     frequencies=self.settings.life_frequencies,
+                    forced=forced,
                 )
-            return skipped_by_weight[weight]
+            return skipped_by_key[key]
 
         def event_for(budget: LifeBudget) -> LifeEventTypeDTO | None:
             weight = budget.layoff_weight_on(day)
@@ -3413,7 +3574,9 @@ class Simulation:
             self._run_landlord_month(users, day)
             for user in users:
                 budget = budgets[user.client_id]
-                loses_income = budget.income_loss() is not None and skipped_for(budget)
+                loses_income = budget.income_loss() is not None and skipped_for(
+                    user, budget
+                )
                 salary = budget.net_salary_on(day, income_lost=loses_income)
                 self._run_welfare_month(user, budget, day)
                 if salary > 0 or not loses_income:
@@ -3432,27 +3595,40 @@ class Simulation:
             event = event_for(budget)
             if event is None:
                 continue
-            is_layoff = event.effect is LifeEventEffect.SKIP_NEXT_SALARY
-            is_income = event.effect is LifeEventEffect.CASH_IN
             # A profissão que não sente a demissão sorteada não a registra
-            if is_layoff and budget.income_loss() is None:
+            if (
+                event.effect is LifeEventEffect.SKIP_NEXT_SALARY
+                and budget.income_loss() is None
+            ):
                 continue
-            health = budget.health_multiple if event.key == HEALTH_EVENT_KEY else 1
-            amount = event.expense_multiple * budget.expense_on(day) * health
-            if is_income:
-                self._engine.receive_unexpected(user.client_id, amount, event.key)
-            else:
-                self._engine.charge_unexpected(user.client_id, amount, event.key)
-            if is_layoff:
-                self._pay_out_fgts(user)
-            if self.settings.uses_professions and not user.is_bot:
-                self._notify_life_event(event, amount, budget, user)
+            self._apply_life_event(event, user, budget)
         if not self.settings.uses_professions:
             budget = budgets[users[0].client_id] if users else life
             event = event_for(budget)
             if event is not None:
                 amount = event.expense_multiple * budget.expense_on(day)
                 self._notify_life_event(event, amount, budget)
+
+    def _apply_life_event(
+        self, event: LifeEventTypeDTO, user: UserDTO, budget: LifeBudget
+    ) -> Decimal:
+        """
+        Um imprevisto na conta do jogador: o valor é o múltiplo da despesa do mês (vezes
+        a saúde, no de saúde), entra ou sai do caixa pelo tipo, a demissão paga o FGTS e o
+        aviso vai a quem vive de renda por profissão. O sorteio do pregão e o console do
+        modo debug passam por aqui; devolve o valor aplicado.
+        """
+        health = budget.health_multiple if event.key == HEALTH_EVENT_KEY else 1
+        amount = event.expense_multiple * budget.expense_on(self._current_date) * health
+        if event.effect is LifeEventEffect.CASH_IN:
+            self._engine.receive_unexpected(user.client_id, amount, event.key)
+        else:
+            self._engine.charge_unexpected(user.client_id, amount, event.key)
+        if event.effect is LifeEventEffect.SKIP_NEXT_SALARY:
+            self._pay_out_fgts(user)
+        if self.settings.uses_professions and not user.is_bot:
+            self._notify_life_event(event, amount, budget, user)
+        return amount
 
     def _notify_life_event(
         self,
@@ -3489,6 +3665,14 @@ class Simulation:
         return lambda day: (
             self._layoff_factor(day) * float(budget.layoff_weight_on(day))
         )
+
+    def _forced_layoffs_of(self, user_id: int) -> tuple[date, ...]:
+        """Os dias em que o console do modo debug forçou uma demissão do jogador, em ordem; contam junto com as sorteadas em `layoff_in`."""
+        if self._forced_layoffs is None:
+            self._forced_layoffs = repository.simulation_player.forced_layoffs(
+                self.settings.id
+            )
+        return self._forced_layoffs.get(user_id, ())
 
     def _dollar_change_on(self, day: date) -> Decimal:
         """A variação do dólar da partida em 12 meses; o dia consultado é o último a ficar no cache do motor."""
@@ -4487,7 +4671,9 @@ class Simulation:
                 continue
             if not exam_due(state, day) or state.exam_enrolled_on is None:
                 continue
-            passed = exam_passed(self._random_seed, user.id, state.exam_enrolled_on)
+            passed = state.exam_approved or exam_passed(
+                self._random_seed, user.id, state.exam_enrolled_on
+            )
             if not user.is_bot:
                 notify(
                     "exam_result",
@@ -4967,7 +5153,9 @@ class Simulation:
         day = self._current_date
         seed, per_year = self._random_seed, self.settings.unexpected_per_year
         start = self.settings.start_date
-        budget = self._life_budget(self._life, UserManager.get_user_id(client_id))
+        user_id = UserManager.get_user_id(client_id)
+        budget = self._life_budget(self._life, user_id)
+        forced = self._forced_layoffs_of(user_id)
         loss = budget.income_loss()
         expense = budget.expense_on(day)
         cash = self.get_cash(client_id)
@@ -4991,6 +5179,7 @@ class Simulation:
                 self.settings.life_events,
                 layoff_factor_on=self._layoff_factor_for(budget),
                 frequencies=self.settings.life_frequencies,
+                forced=forced,
             )
             if loss is not None
             else None,
@@ -5003,6 +5192,7 @@ class Simulation:
                 until=day,
                 layoff_factor_on=self._layoff_factor_for(budget),
                 frequencies=self.settings.life_frequencies,
+                forced=forced,
             )
             if loss is not None
             else None,
