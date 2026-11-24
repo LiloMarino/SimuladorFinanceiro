@@ -60,7 +60,7 @@
 | [**F90**](#f90) | Feature | Cenários | M25 · 4.5 | — | Alto | Bom | ⏳ |
 | [**F93**](#f93) | Feature | Rumores antecipados | M25 · 4.5 | — | Médio | Médio | ⏳ |
 | [**F110**](#f110) | Feature | Combinar estratégias | M25 · 4.5 | — | Médio | Bom | ⏳ |
-| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 | — | Baixo | Bom | ⏳ |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
 | [**F123**](#f123) | Melhoria | Redesenhar o aviso de conquista desbloqueada | M28 · 4.7 | — | — | — | 🔍 |
 | [**F131**](#f131) | Feature | Catálogo de padrões de vela | M28 · 4.7 | — | — | — | 🔍 |
 | [**F132**](#f132) | Feature | Tópicos de "como se joga" do Como jogar | M28 · 4.7 | — | Médio | Bom | ⏳ |
@@ -275,7 +275,7 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 22º | 0 | Baixo | Bom | ⏳ |
+| [**F111**](#f111) | Feature | Crédito para estratégias e bots | M29 · 4.3 · 22º | 0 | Médio | Bom | ⏳ |
 | [**F286**](#f286) | Feature | Comandos de trapaça no modo debug | M29 · 4.3 · 23º | 0 | Médio | Bom | ⏳ |
 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 · 24º | 0 | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 25º | 0 | Médio | Bom | ⏳ |
@@ -325,7 +325,7 @@
 | **F90** | Feature | Cenários | N22 | D18 | M25 · 4.5 | — | Alto | Médio | Alto | Bom |
 | **F93** | Feature | Rumores antecipados | N31 | D18 | M25 · 4.5 | — | Médio | Médio | Médio | Médio |
 | **F110** | Feature | Combinar estratégias | N4 | D8 | M25 · 4.5 | — | Médio | Médio | Médio | Bom |
-| **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
+| **F111** | Feature | Crédito para estratégias e bots | N4, N33 | D8 | M29 · 4.3 | — | Médio | Médio | Médio | Bom |
 | **F132** | Feature | Tópicos de "como se joga" do Como jogar | N25 | D21 | M28 · 4.7 | — | Médio | Baixo | Alto | Bom |
 | **F133** | Feature | Tópicos de conceitos do Como jogar | N25 | D21 | M28 · 4.7 | — | Baixo | Baixo | Médio | Bom |
 | **F139** | Docs | Demonstração regravada com o jogo de hoje | N25 | — | M28 · 4.7 | — | Médio | Baixo | Alto | Bom |
@@ -448,7 +448,7 @@
 **F110 — Combinar estratégias.** Serve N4; segue a D8. O jogador liga mais de uma estratégia ao mesmo tempo, cada uma com uma fatia do patrimônio (ex.: 30% em 100% no CDI e 70% no cruzamento de médias). O motor guarda, por jogador, a lista de estratégias com a fatia de cada uma e a origem de cada posição; cada estratégia recebe um contexto restrito à fatia dela (caixa e posições que ela comprou) e só opera dentro dele. A página de Estratégias passa de um interruptor para uma lista de fatias que somam 100%, e o log de ordens ganha o filtro por estratégia. Gatilho: F8 concluída e o uso pedir mais de uma estratégia.
 
 <a id="f111"></a>
-**F111 — Crédito para estratégias e bots.** Serve N4 e N33; segue a D8. O contexto da estratégia ganha a dívida, a nota de risco e a oferta do dia, e as ações ganham pegar empréstimo, amortizar e quitar, que chamam o mesmo serviço da tela de Crédito em nome do jogador. Uma estratégia de exemplo alavancada (ex.: rebalanceamento por meta com 20% emprestado) mostra o uso e entra na lista dos bots. O log da estratégia registra cada contratação e pagamento com o motivo. Gatilho: F8 e F94 concluídas.
+**F111 — Crédito para estratégias e bots.** Serve N4 e N33; segue a D8. O contexto da estratégia ganha a dívida, a nota de risco, a oferta do dia e os empréstimos abertos, e as ações ganham pegar empréstimo, amortizar, quitar e pagar atraso, que chamam o mesmo serviço da tela de Crédito em nome do jogador (a recusa da tela vira linha "Recusada"). O caixa que a estratégia enxerga desconta as parcelas dos próximos 30 dias e o dinheiro separado para quitar. Toda estratégia que compra ativo de risco ganha o switch **Alavancar** e a **dívida-alvo** (padrão 20% do patrimônio líquido), nos parâmetros do modo automático, do bot e do backtest; o 100% CDI fica sem, porque o juro do empréstimo é sempre maior que a renda fixa. No diálogo de bots, o lote ganha "Alavancar os bots que suportam", que liga em todo bot gerado cuja estratégia suporta, inclusive no sorteio; a partida não tem switch próprio. Uma política comum decide pela estratégia: toma só com o Ibovespa acima da média de 200 pregões, até a dívida-alvo e dentro do teto da nota, com faixa de tolerância para não tomar e devolver na mesma semana; na virada para baixa vende ações na proporção da carteira e quita; caixa parado além da reserva amortiza o empréstimo de taxa mais alta. Nas estratégias mistas a dívida vai inteira para a parte de risco, e a renda fixa continua a da meta. O log registra cada contratação, amortização, quitação e pagamento de atraso com o motivo; as parcelas automáticas ficam no histórico do Crédito. Gatilho: F8 e F94 concluídas.
 
 <a id="f132"></a>
 **F132 — Tópicos de "como se joga" do Como jogar.** Serve N25. Completa o grupo de passo a passo da janela (F126) com os tópicos que faltam: entrar na sala, avançar o tempo, aplicar em renda fixa, ler as estatísticas e pegar crédito. Cada um é animado como "Comprar uma ação": componentes reais do app no palco, com contextos e dados de exemplo, e cursor e destaque que medem o DOM; entra no registro `features/tutorial/lib/topics.ts` com a cena em `features/tutorial/topics/`. Cada tópico pede um roteiro no canvas antes do código (quais passos, quanto dura, o que o cursor toca), e quem precisar de um dado novo no palco o acrescenta em `stage-data.ts`. Cada tela declara o tópico dela para o aviso pelo contexto.
