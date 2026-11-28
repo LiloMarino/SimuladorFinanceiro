@@ -108,7 +108,16 @@ def from_yfinance(
     if df is None or df.empty:
         logger.warning(f"Nenhum dado retornado para {ticker}.")
         raise NotFoundError(f"Nenhum dado retornado para {ticker}.")
-    return to_raw_prices(df)
+    return to_raw_prices(complete_sessions(df))
+
+
+def complete_sessions(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Só os pregões com os quatro preços. O pregão em andamento chega sem fechamento, e o
+    futuro gerado parte do último fechamento gravado: ele entra completo na próxima
+    importação.
+    """
+    return df.dropna(subset=PRICE_COLUMNS)
 
 
 def from_csv(file: UploadFile, fillzero: bool = True) -> pd.DataFrame:
@@ -528,8 +537,7 @@ def from_yfinance_batch(tickers: list[str]) -> dict[str, pd.DataFrame]:
     result = {}
     for ticker, symbol in symbols.items():
         try:
-            # O pregão sem preço some, mesmo com a coluna de evento zerada
-            ticker_df = pd.DataFrame(df[symbol]).dropna(subset=PRICE_COLUMNS, how="all")
+            ticker_df = complete_sessions(pd.DataFrame(df[symbol]))
             if not ticker_df.empty:
                 result[ticker] = to_raw_prices(ticker_df)
             else:

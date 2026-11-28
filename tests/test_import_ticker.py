@@ -78,6 +78,27 @@ def test_batch_asks_for_symbols_and_answers_by_stored_code(
     assert list(result) == ["PETR4", "BTC-USD"]
 
 
+def test_session_without_close_stays_out(monkeypatch: pytest.MonkeyPatch) -> None:
+    """O pregão em andamento chega sem fechamento: os dois caminhos o deixam de fora."""
+    days = pd.to_datetime(["2026-11-26", "2026-11-27"])
+    prices = {"Open": [1.0, 1.0], "High": [1.0, 1.0], "Low": [1.0, 1.0]}
+    single = pd.DataFrame(
+        {**prices, "Close": [1.0, float("nan")], "Volume": [10, 10]}, index=days
+    )
+    columns = pd.MultiIndex.from_product(
+        [["AAPL", "MSFT"], ["Open", "High", "Low", "Close", "Volume"]]
+    )
+    batch = pd.DataFrame(
+        [[*row, *row] for row in single.to_numpy()], columns=columns, index=days
+    )
+    frames = iter([single, batch])
+    monkeypatch.setattr(importer_service.yf, "download", lambda *_a, **_k: next(frames))
+
+    alone = importer_service.from_yfinance("AAPL")
+    together = importer_service.from_yfinance_batch(["AAPL", "MSFT"])["AAPL"]
+    assert list(alone.index) == list(together.index) == [days[0]]
+
+
 def test_profile_is_requested_by_symbol(monkeypatch: pytest.MonkeyPatch) -> None:
     asked: list[str] = []
 
