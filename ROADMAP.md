@@ -30,7 +30,7 @@
 | **N12** | — | Continuar jogando depois do último dia com dado real | — | — | — | — | — |
 | **N13** | — | Saber que dados a base tem e mantê-los atualizados, fora da partida | — | — | — | — | — |
 | **N14** | — | Atualizar para uma versão nova sem perder as partidas salvas | — | [F56](#f56) | — | — | — |
-| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F316](#f316), [F317](#f317) | — | — | — |
+| **N15** | — | Usar uma interface agradável e coerente, à altura de um jogo | — | [F37](#f37), [F72](#f72), [F123](#f123), [F316](#f316), [F317](#f317), [F341](#f341), [F342](#f342), [F343](#f343) | — | — | — |
 | **N19** | — | Analisar um ativo com as ferramentas de um trader | — | [F34](#f34), [F131](#f131), [F193](#f193) | — | — | — |
 | **N20** | — | Reconhecer cada jogador, de relance, pela mesma cor e sigla em todo lugar | — | [F285](#f285) | — | — | — |
 | **N21** | — | Jogar "na unha", sem a interface apontar a melhor escolha | — | — | — | — | — |
@@ -84,6 +84,10 @@
 | [**F335**](#f335) | Feature | Venda a descoberto e aluguel de ações | M24 · 4.4 | — | Alto | Médio | ⏳ |
 | [**F336**](#f336) | Feature | Ordem stop e validade na boleta | M24 · 4.4 | — | Médio | Bom | ⏳ |
 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F341**](#f341) | Correção | Correções do playtest: lobby, carteira, cotas, console e perfil do motor | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F342**](#f342) | Melhoria | Compra da preferência num diálogo de Ofertas públicas e card da emissão enxuto | M29 · 4.3 | — | Médio | Bom | ⏳ |
+| [**F343**](#f343) | Melhoria | Linha de classificação do ativo reorganizada | M29 · 4.3 | — | Baixo | Bom | ⏳ |
+| [**F344**](#f344) | Melhoria | Console do modo debug com autocompletar de terminal | M29 · 4.3 | — | Médio | Bom | ⏳ |
 
 <details>
 <summary><strong>Concluído / decidido / descartado (46 itens — clique pra expandir)</strong></summary>
@@ -151,7 +155,7 @@
 >
 > **Serve:** N39, N23, N4, N40, N15, N34
 >
-> **Progresso:** 24/26 concluídos
+> **Progresso:** 24/30 concluídos
 
 | # | ID | Tipo | Resumo | Depende de | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -178,9 +182,13 @@
 | 21 | [**F333**](#f333) | Feature | Administrador, a profissão que troca de setor | — | ✅ Concluído |
 | 22 | [**F111**](#f111) | Feature | Crédito para estratégias e bots | — | ✅ Concluído |
 | 23 | [**F286**](#f286) | Feature | Console de trapaça no modo debug | — | ✅ Concluído |
-| 24 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
-| 25 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | — | ⏳ Pendente |
-| 26 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | — | ✅ Concluído |
+| 24 | [**F341**](#f341) | Correção | Correções do playtest: lobby, carteira, cotas, console e perfil do motor | — | ⏳ Pendente |
+| 25 | [**F342**](#f342) | Melhoria | Compra da preferência num diálogo de Ofertas públicas e card da emissão enxuto | — | ⏳ Pendente |
+| 26 | [**F343**](#f343) | Melhoria | Linha de classificação do ativo reorganizada | — | ⏳ Pendente |
+| 27 | [**F344**](#f344) | Melhoria | Console do modo debug com autocompletar de terminal | — | ⏳ Pendente |
+| 28 | [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | [F322](#f322), [F323](#f323), [F324](#f324), [F325](#f325), [F326](#f326), [F327](#f327), [F328](#f328), [F329](#f329), [F330](#f330), [F331](#f331), [F332](#f332), [F333](#f333) | ⏳ Pendente |
+| 29 | [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | — | ⏳ Pendente |
+| 30 | [**F339**](#f339) | Correção | Partida com gestora incorporada volta a carregar | — | ✅ Concluído |
 
 ### 4.4 — Mesa do trader (M24)
 
@@ -275,8 +283,12 @@
 
 | ID | Tipo | Resumo | Marco | Destrava | Esforço | Custo-benefício | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 · 24º | 0 | Médio | Bom | ⏳ |
-| [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 25º | 0 | Médio | Bom | ⏳ |
+| [**F341**](#f341) | Correção | Correções do playtest: lobby, carteira, cotas, console e perfil do motor | M29 · 4.3 · 24º | 0 | Médio | Bom | ⏳ |
+| [**F342**](#f342) | Melhoria | Compra da preferência num diálogo de Ofertas públicas e card da emissão enxuto | M29 · 4.3 · 25º | 0 | Médio | Bom | ⏳ |
+| [**F343**](#f343) | Melhoria | Linha de classificação do ativo reorganizada | M29 · 4.3 · 26º | 0 | Baixo | Bom | ⏳ |
+| [**F344**](#f344) | Melhoria | Console do modo debug com autocompletar de terminal | M29 · 4.3 · 27º | 0 | Médio | Bom | ⏳ |
+| [**F334**](#f334) | Feature | Calibração das profissões pelos três alarmes | M29 · 4.3 · 28º | 0 | Médio | Bom | ⏳ |
+| [**F338**](#f338) | Performance | Dia da partida mais rápido com gestoras e bots | M29 · 4.3 · 29º | 0 | Médio | Bom | ⏳ |
 | [**F221**](#f221) | Performance | Lista de ações que aguenta muitas ações | M24 · 4.4 · 1º | 0 | Médio | Bom | ⏳ |
 | [**F34**](#f34) | Feature | Gráfico de ações em tela cheia, com ferramentas de trader | M24 · 4.4 · 2º | 0 | — | — | 🔍 |
 | [**F197**](#f197) | Melhoria | Rebalanceamento por meta com várias classes | M24 · 4.4 · 3º | 0 | Médio | Bom | ⏳ |
@@ -338,6 +350,10 @@
 | **F335** | Feature | Venda a descoberto e aluguel de ações | N43 | — | M24 · 4.4 | — | Alto | Alto | Alto | Médio |
 | **F336** | Feature | Ordem stop e validade na boleta | N43 | — | M24 · 4.4 | — | Médio | Baixo | Médio | Bom |
 | **F338** | Performance | Dia da partida mais rápido com gestoras e bots | N40 | — | M29 · 4.3 | — | Médio | Médio | Bom | Bom |
+| **F341** | Correção | Correções do playtest: lobby, carteira, cotas, console e perfil do motor | N15 | — | M29 · 4.3 | — | Médio | Baixo | Alto | Bom |
+| **F342** | Melhoria | Compra da preferência num diálogo de Ofertas públicas e card da emissão enxuto | N15 | — | M29 · 4.3 | — | Médio | Médio | Alto | Bom |
+| **F343** | Melhoria | Linha de classificação do ativo reorganizada | N15 | — | M29 · 4.3 | — | Baixo | Baixo | Médio | Bom |
+| **F344** | Melhoria | Console do modo debug com autocompletar de terminal | — | — | M29 · 4.3 | — | Médio | Baixo | Médio | Bom |
 
 <a id="f6"></a>
 **F6 — Link de convite pela internet no lobby.** Origem: #77. Implementa o provider escolhido na F5 como subclasse de `TunnelProvider` (`start`/`stop`/`get_public_url`, a mesma interface do `lan_provider`), selecionável em `[server] provider` do TOML. O link copiável que o lobby já mostra para LAN passa a mostrar a URL pública quando o túnel está ativo. Abrir para a internet exige fechar antes a tomada do host: hoje ser host é ter o nickname do `config.toml`, e com o host desconectado qualquer jogador assume esse nickname por `/api/user/claim` e passa a poder parar a partida e apagar partidas salvas. O app gera um segredo a cada abertura e abre o navegador do host com ele; o servidor reconhece como host só a sessão que apresentou o segredo, e `/api/user/claim` recusa o nickname do host. O endereço de origem não distingue o host, porque num túnel o tráfego de fora costuma chegar ao servidor pela própria máquina. Gatilho: F5 concluída.
@@ -544,6 +560,42 @@ Impostos, medidas por setor e SELIC seguem só com o presidente.
 
 <a id="f338"></a>
 **F338 — Dia da partida mais rápido com gestoras e bots.** Do playtest de 20/11 e da medição pela CLI. Na partida com gestoras e bots (salva 10 do banco de teste, 200 dias a 100x), um dia leva 0,34 s na metade dos casos, 0,95 s em 95% deles (as viradas de mês) e chega a 1,5 s. A 100x o jogo entrega cerca de 1 dia por segundo, e toda leitura e ação do jogador espera o dia em andamento, porque o loop segura a trava da partida o dia inteiro. Ceder a vez entre um dia e outro foi medido e descartado: só baixa os picos. Medir com o modo debug (`backend/core/metrics.py`, `GET /api/debug/metrics`) onde o dia gasta o tempo, por etapa (gestoras, bots, estratégias, idas ao banco), comparar com uma partida sem gestoras e otimizar o que pesa mais. O alvo sai da medição; a régua é a 100x passar de 1 dia por segundo nessa partida. O script da medição de espera e de duração do dia está em `.claude/trabalho/medicao-dia/`.
+
+Primeira leitura, pelos perfis do motor de 28/11 (`profiles/motor-20261128-010608-2455.prof`, 133 dias, e `motor-20261128-023332-4921.prof`, 57 dias com a página da gestora aberta), em ordem de peso:
+
+1. **Séries da partida refeitas até o fim dos dados.** `EconomyLayer.adjust` (`backend/features/economy/layer.py:391`) leva 28 s dos 63,6 s do primeiro perfil (44%). Cada `refresh_from` (reunião do Copom, fechamento mensal das ligações em `linked_economy.py:209`, medida do governo em `government_book.py:1417` e `:3985`) descarta o cache, e a leitura seguinte recalcula todo dia de `history.dates` desde o primeiro efeito, inclusive os anos que a partida ainda não alcançou: 48 refeituras em 133 dias, cerca de 4.600 dias cada. Quem dispara são `StateCompanyMarket.deviation` e `Newsroom._market` lendo o IBOV, cujo `level` passa por `stocks_parts`/`quarter_mean`. Caminho: calcular só até o dia corrente (ou sob demanda, dia a dia), para que o custo de um refresh acompanhe os dias desde a mudança. Antes, conferir quem lê a série além de hoje.
+2. **Página da gestora recarrega todos os negócios da cota.** Com a página aberta, `FundsFeed.flush` → `FundDetailsBuilder.build` (`backend/features/funds/fund_details.py:138`) custa 0,63 s por publicação, e 24 s dos 62 s do segundo perfil (39%). `quota_trades` (`backend/core/repository/fund.py:752`) traz as compras e vendas da cota de todas as carteiras, cerca de 9 mil linhas por chamada, para o builder ficar só com as do gestor (`fund_details.py:205`). E o builder roda uma vez por assinante. Caminho: filtrar pela carteira do gestor na consulta e montar a parte comum uma vez por publicação.
+3. **Idas ao banco.** psycopg e SQLAlchemy somam cerca de 17 s no primeiro perfil, com cerca de 145 consultas por dia. Vale contar por etapa depois de 1 e 2.
+4. **Carteira do jogador dentro da trava.** `Simulation.get_portfolio` leva 37 ms por chamada (266 chamadas, 9,8 s). Não é o dia, mas segura a trava que o dia espera.
+
+Os perfis gravam a espera entre os dias (70 s de `lock.acquire` no segundo); a soma acima já a desconta.
+
+<a id="f341"></a>
+**F341 — Correções do playtest: lobby, carteira, cotas, console e perfil do motor.** Do playtest de 28/11. Onze consertos:
+
+- **Tipo de partida com a expansão desligada:** com Gestoras ou Governo desligado, os cartões da Aquisição hostil e da Política têm a mesma cara dos outros e o clique não faz nada. O `disabled` (`game-type-fields.tsx:82`) só apaga a bolinha do radio (`radio-group.tsx`), e o cartão não muda. O cartão inteiro passa a ter cara de desabilitado (mais escuro, sem hover, cursor de bloqueio), como a correção do lobby da 4.3 já pedia, e a dica diz qual expansão ligar.
+- **Resumo sticky com o jornal em faixa:** o resumo de Fundar gestora usa `xl:top-4` (`fund-found-form.tsx:197`) e o painel da renda variável usa `lg:top-[89px]` (`variable-income-details.tsx:171`). Nenhum dos dois conta a faixa do jornal, que tem 40 px dentro da topbar, e o resumo some por baixo dela. Os dois passam a usar `--topbar-height`, que a topbar publica já com a faixa, como `journal-archive.tsx` faz.
+- **Vazio no card Sua preferência:** em Ofertas públicas sobra um vão embaixo da linha da emissão (`fund-offers.tsx:58-71`, `preference-offer-row.tsx`).
+- **Indicadores hoje na Carteira:** o bloco é um quadro cinza (`bg-subtle`) com borda à esquerda e margem (`portfolio-summary.tsx:145`), entre Alocação e Proventos, que são colunas soltas, e parece recortado. Vira uma coluna igual às vizinhas, com o mesmo separador e sem o quadro.
+- **Máx da emissão dirigida:** o Máx usa só o teto de cotas emitíveis (`preview.room`, `directed-issuance-dialog.tsx:130-135`) e cai em "O seu caixa pessoal não cobre". Para o gestor, o Máx passa a ser o menor entre o teto e o que o caixa paga; para o co-gestor, continua o teto. A dica embaixo do campo dá os dois limites ("o teto é 1.200 cotas; o seu caixa paga 274").
+- **"Preço" no gráfico da cota:** o tooltip diz só "Preço" (`fund-price-chart.tsx:92-98`), ao lado de outros dois preços. Ganha o nome de `MARKET_PRICE` em `fund-metrics.ts` (o preço do último negócio no livro).
+- **Aviso da carteira de gestora:** na coluna estreita da boleta, `personal-account-notice.tsx` quebra título e texto em onze linhas. Vira uma frase ("Cota de gestora se compra na sua carteira pessoal") com o botão embaixo, na largura toda.
+- **Preset do lobby entre partidas:** o preset aplicado vive só em memória (`settings_manager.py:36`), e a configuração da sala persiste (`LastSimulationSettings`, `models.py:200-210`). Na partida seguinte, a configuração é a do preset, mas nenhum preset aparece escolhido, e mexer nela parece editar o preset. O id do preset aplicado passa a ser salvo junto da configuração e volta com ela, e a marca de alterado que já existe (`applied.changed`, `preset-bar.tsx`) segue valendo.
+- **Tecla do console com o foco no campo:** a tecla dispara dois handlers. O do campo fecha o console (`debug-console.tsx:93-96`), o da janela inverte de volta (`:53-67`), e o console continua aberto. A tecla passa a ter um handler só.
+- **Perfil do motor:** a gravação etiqueta a thread do motor inteira (`mark_engine_thread` em `simulation_loop.py:121`), com relógio de parede (`profiling.py`). Entra a espera entre um dia e outro, que vira a maior caixa no snakeviz. As funções que já estavam na pilha quando a gravação começou (o laço do motor) ficam de fora, e os filhos delas aparecem como raízes soltas. A etiqueta passa a valer só dentro do dia, do começo ao fim do pregão, e o arquivo abre com o dia como raiz.
+- **Alavancar no lote de bots:** "Alavancar os bots que suportam" (`bot-dialog.tsx:455-470`) aparece no Em lote com qualquer estratégia e repete o "Alavancar" dos parâmetros dela. Passa a aparecer só com "Sortear para cada bot".
+
+<a id="f342"></a>
+**F342 — Compra da preferência num diálogo de Ofertas públicas, e o card da emissão enxuto.** Do playtest de 28/11. Hoje a compra da preferência fica no card "Emissão de cotas em andamento" da aba Cotas da gestora (`fund-issuance-card.tsx`), junto com o bloco "Quem compra e quando", que descreve a regra dos bots e do Mercado. O "Comprar até N cotas" de Ofertas públicas (`preference-offer-row.tsx:55-64`) e o atalho de Suas ações levam para lá. A queixa: o card é poluído e mostra regra de motor na tela. Decidido em 28/11: a preferência se compra num diálogo próprio, fora do livro, como pela corretora na B3, e não pela boleta.
+
+(1) **Diálogo de compra da preferência**, aberto pelo botão da linha em Ofertas públicas, pelo atalho de Suas ações e pelo card da gestora. Traz quantas cotas (atalhos 25%, 50% e Máx; o Máx é o menor entre o direito e o que o caixa paga), o preço fixo, o total, quantas cotas mantêm a participação de hoje e o prazo. A sobra continua no livro, pela boleta da cota ("Comprar na oferta" em `open-offer-card.tsx`).
+(2) **Card da emissão na gestora vira resumo:** vendidas de total, prazos da preferência e da sobra, captação estimada e, quando a estimativa é zero, o motivo numa frase. O formulário e o bloco "Quem compra e quando" saem. A regra de quem compra fica na dica ⓘ da captação estimada.
+
+<a id="f343"></a>
+**F343 — Linha de classificação do ativo reorganizada.** Do playtest de 28/11. Na importação de ativos, a linha aberta (`classify-row.tsx`, `state-owned-popover.tsx`) traz a sugestão do yFinance num quadro no topo e, embaixo, Setor e Segmento. No rodapé ficam "Tirar classificação", um link vermelho ao lado do botão "Estatal", e o Cancelar e o Salvar à direita. O link parece texto e não botão, o Estatal parece fazer parte de tirar a classificação, e a linha aberta só fecha pelo Cancelar. Muda: (1) clicar no ativo de novo fecha a linha sem salvar (`onClassify` em `assets-table.tsx`); (2) Estatal sai do rodapé e vira o campo "Controle" no grid, ao lado de Segmento, com o mesmo popover da participação; (3) "Tirar classificação" vira botão do DS, com variante destrutiva discreta (adicionada ao `Button` se faltar), sozinho à esquerda do rodapé; Cancelar e Salvar ficam à direita; (4) a sugestão do yFinance vira uma linha compacta acima dos campos, com "Usar sugestão" e "Atualizar perfil". Sem canvas: confere no próximo playtest.
+
+<a id="f344"></a>
+**F344 — Console do modo debug com autocompletar de terminal.** Do playtest de 28/11. Hoje as sugestões são uma fileira de chips embaixo do log (`debug-console.tsx:138-149`, até 12), que tira espaço do log (`ScrollArea h-56`). A tela do modo debug não diz que o console existe. Referências: o console da Valve abre uma lista embaixo do campo com o que começa pelo digitado; o do Minecraft mostra a lista acima do campo e a assinatura do comando em cinza, com o argumento da vez destacado; o zsh-autosuggestions completa em cinza dentro do campo, e a seta para a direita aceita; o PowerShell (PSReadLine) faz a previsão em cinza e lista as opções do argumento. Plano: (1) os chips saem; (2) texto fantasma: a primeira sugestão completa em cinza o que está sendo digitado, e Tab ou seta para a direita aceita; (3) uma lista flutuante acima do campo, só enquanto houver o que sugerir, com até 8 linhas: nome, assinatura em cinza e ajuda curta; as setas escolhem, Tab aceita, o primeiro Esc fecha a lista e o segundo fecha o console; (4) a assinatura do comando atual fica em cinza, com o argumento da vez destacado; (5) o log ocupa a altura toda do console menos o campo, e a lista flutua por cima dele; (6) a tela do modo debug ganha a linha "Console de comandos: tecla ' (à esquerda do 1), só para o host".
 
 ---
 
