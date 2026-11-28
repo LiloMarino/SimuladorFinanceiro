@@ -103,8 +103,8 @@ export function PriceImpactFields({
             {PRICE_IMPACT_WARNING_EXAMPLE_VOLUME} vezes o volume médio diário de uma ação sobe o preço{" "}
             <b className="font-mono">{displayPercent(priceImpactJump(Number(normalizeNumberString(k))), 0)}</b> com o k
             atual: com k {displayDecimal(PRICE_IMPACT_WARNING_K)} sobe{" "}
-            {displayPercent(priceImpactJump(PRICE_IMPACT_WARNING_K), 0)}
-            e com k 1 sobe {displayPercent(priceImpactJump(1), 0)}. No histórico real, o k fica entre{" "}
+            {displayPercent(priceImpactJump(PRICE_IMPACT_WARNING_K), 0)} e com k 1 sobe{" "}
+            {displayPercent(priceImpactJump(1), 0)}. No histórico real, o k fica entre{" "}
             {displayDecimal(PRICE_IMPACT_REALISTIC_RANGE.min)} e {displayDecimal(PRICE_IMPACT_REALISTIC_RANGE.max)}.
           </AlertDescription>
         </Alert>
